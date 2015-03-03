@@ -762,30 +762,28 @@ DECODE_CMDLIST:
 	dw	_CHIPcmd14_fine_up		;11
 	dw	_CHIPcmd15_fine_down		;12
 	dw	_CHIPcmd19_note_delay		;13
-	dw	_CHIPcmdXX_note_cut		;14
+				
+	dw	_CHIPcmd0_arpeggio		;14
+	dw	_CHIPcmd1_port_up			;15
+	dw	_CHIPcmd2_port_down		;16
+	dw	_CHIPcmd3_port_tone		;17
+	dw	_CHIPcmd4_vibrato			;18
+	dw	_CHIPcmd5_vibrato_port_tone	;19
+	dw	_CHIPcmd6_vibrato_vol		;1a
+	dw	_CHIPcmd7_vol_slide		;1b
+	dw	_CHIPcmd8_macro_offset		;1c
+	dw	_CHIPcmd9_env_shape		;1d
 
-	
-	dw	_CHIPcmd0_arpeggio		;15
-	dw	_CHIPcmd1_port_up			;16
-	dw	_CHIPcmd2_port_down		;17
-	dw	_CHIPcmd3_port_tone		;18
-	dw	_CHIPcmd4_vibrato			;19
-	dw	_CHIPcmd5_vibrato_port_tone	;1a
-	dw	_CHIPcmd6_vibrato_vol		;1b
-	dw	_CHIPcmd7_vol_slide		;1c
-	dw	_CHIPcmd8_macro_offset		;1d
-	dw	_CHIPcmd9_env_shape		;1e
-
-	dw	_CHIPcmd0_RE_arpeggio		;1f
-	dw	_CHIPcmd1_RE_port_up		;20
-	dw	_CHIPcmd2_RE_port_down		;21
-	dw	_CHIPcmd3_RE_port_tone		;22
-	dw	_CHIPcmd4_RE_vibrato		;23
-	dw	_CHIPcmd5_RE_vibrato_port_tone;24
-	dw	_CHIPcmd6_RE_vibrato_vol	;25
-	dw	_CHIPcmd7_RE_vol_slide		;26
-	dw	_CHIPcmd8_RE_macro_offset	;27
-	dw	_CHIPcmd9_RE_env_shape		;28
+	dw	_CHIPcmd0_RE_arpeggio		;1e
+	dw	_CHIPcmd1_RE_port_up		;1f
+	dw	_CHIPcmd2_RE_port_down		;20
+	dw	_CHIPcmd3_RE_port_tone		;21
+	dw	_CHIPcmd4_RE_vibrato		;22
+	dw	_CHIPcmd5_RE_vibrato_port_tone;23
+	dw	_CHIPcmd6_RE_vibrato_vol	;24
+	dw	_CHIPcmd7_RE_vol_slide		;25
+	dw	_CHIPcmd8_RE_macro_offset	;26
+	dw	_CHIPcmd9_RE_env_shape		;27
 
 
 
@@ -1272,11 +1270,7 @@ _CHIPcmd18_transpose:
 ;	ld	a,(bc)
 	jp	_rdc
 
-_CHIPcmdXX_notecut:
-	set	B_TRGCMD,d
-	inc	a
-	ld	(ix+TRACK_Timer),a		; set	the timer to param y
-	jp 	_rdc
+
 
 
 _CHIPcmd19_note_delay:
@@ -1738,23 +1732,22 @@ _pcAY_cmdlist:
 	dw	_pcAY_cmd14_fine_up		;11
 	dw	_pcAY_cmd15_fine_down		;12
 	dw	_pcAY_cmd19_note_delay		;13
-	dw	_pcAY_cmdXX_note_cut		;14
 	
-	dw	_pcAY_cmd0_arpeggio		;15
-	dw	_pcAY_cmd1_port_up		;16
-	dw	_pcAY_cmd2_port_down		;17
-	dw	_pcAY_cmd3_port_tone		;18
-	dw	_pcAY_cmd4_vibrato		;19
-	dw	_pcAY_cmd5_vibrato_port_tone	;1a
-	dw	_pcAY_cmd6_vibrato_vol		;1b
-	dw	_pcAY_cmd7_vol_slide		;1c
-	dw	_pcAY_cmd8_macro_offset		;1d
+	dw	_pcAY_cmd0_arpeggio		;14
+	dw	_pcAY_cmd1_port_up		;15
+	dw	_pcAY_cmd2_port_down		;16
+	dw	_pcAY_cmd3_port_tone		;17
+	dw	_pcAY_cmd4_vibrato		;18
+	dw	_pcAY_cmd5_vibrato_port_tone	;19
+	dw	_pcAY_cmd6_vibrato_vol		;1a
+	dw	_pcAY_cmd7_vol_slide		;1b
+	dw	_pcAY_cmd8_macro_offset		;1c
 	dw	0	;env shape
 
-	dw	_pcAY_cmd0_arpeggio		;1e
-	dw	_pcAY_cmd1_port_up		;1f
-	dw	_pcAY_cmd2_port_down		;20
-	dw	_pcAY_cmd3_port_tone		;21
+	dw	_pcAY_cmd0_arpeggio		;1d
+	dw	_pcAY_cmd1_port_up		;1e
+	dw	_pcAY_cmd2_port_down		;1f
+	dw	_pcAY_cmd3_port_tone		;20
 	dw	_pcAY_cmd4_vibrato
 	dw	_pcAY_cmd5_vibrato_port_tone
 	dw	_pcAY_cmd6_vibrato_vol
@@ -2157,15 +2150,6 @@ _pcAY_cmd15_fine_down:
 	jp	_pcAY_commandEND	
 
 
-_pcAY_cmdXX_note_cut:
-	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
-	
-	; stop note
-	res	B_TRGCMD,d	; set	note bit to	0
-	res	B_TRGNOT,d
-	jp	_pcAY_commandEND		
-	
 _pcAY_cmd19_note_delay:
 	; note delay
 	dec	(ix+TRACK_Timer)
