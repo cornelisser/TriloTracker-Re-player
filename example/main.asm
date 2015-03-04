@@ -5,6 +5,7 @@
 ; 
 ; This example plays compiled PSG+SCC songs
 ; ------------------------------
+
 ;	include	".\code\variables.asm"
 
 	page 0
@@ -80,9 +81,10 @@ isr:
 	
 	
 	
-	include	".\ttreplay.asm"
-	include	".\ttreplayDAT.asm"
+	include	"..\code\ttreplay.asm"
+	include	"..\code\ttreplayDAT.asm"
 demo_song:
 	include	".\demosong.asm"
 	
-	include	".\ttreplayRAM.asm"
+	map	0xc000
+	include	"..\code\ttreplayRAM.asm"

@@ -29,6 +29,7 @@ replay_init:
 ;	inc	hl				; here previously was the restart position.
 ;	inc	hl
 	ld	a,(hl)	
+	inc	hl
 	ld	(replay_speed),a
 
 ;	;--- Set track pointers to start
@@ -163,6 +164,7 @@ _replay_check_patternend:
 	dec	hl
 	jp	nz,99f
 	;--- next is restart order
+	inc	hl
 	inc	hl
 	ld	a,(hl)
 	inc	hl
@@ -709,6 +711,7 @@ _replay_decode_vol:
 
 _replay_decode_delay:
 	sub	191
+	jp	z,_rd_delay		; EOT found
 	ld	(ix+TRACK_Delay),a
 	ld	(ix+TRACK_prevDelay),a
 
@@ -1208,7 +1211,7 @@ _cmd16_sine:
 
 
 _CHIPcmd17_track_detune:
-;	res	B_TRGCMD,(ix+TRACK_Flags)		; command in-active
+	res	B_TRGCMD,(ix+TRACK_Flags)		; command in-active
 	
 	; This command sets the	detune of the track.
 	ld	e,a
@@ -1272,7 +1275,7 @@ _CHIPcmd18_transpose:
 ;	ld	a,(bc)
 	jp	_rdc
 
-_CHIPcmdXX_notecut:
+_CHIPcmdXX_note_cut:
 	set	B_TRGCMD,d
 	inc	a
 	ld	(ix+TRACK_Timer),a		; set	the timer to param y
