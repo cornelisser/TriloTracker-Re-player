@@ -43,7 +43,17 @@ Function prepare()
 		EndIf
 		
 	Next
-	last_pattern = copy_to
+	;recalculate last pattern
+	last_pattern = 0
+	For s = 0 To sequencelen
+		v = PeekByte(sequence,s)
+		If v > last_pattern
+			last_pattern = v
+		EndIf
+	Next
+
+
+
 	AddTextAreaText (logging,Chr(10))
 
 
@@ -123,7 +133,7 @@ Function prepare()
 				For x=0 To 63
 					For y = 0 To 3
 						v=PeekByte(temp_track,(x*4)+y)
-						If y= 1
+						If y= 1 And v < 255
 							PokeByte(used_instruments,(v),1)
 						EndIf	
 						PokeByte(track_data,(last_track*(64*4))+(x*4)+y,v)
@@ -280,18 +290,19 @@ End Function
 Function compile_sequence(fileout)
 	WriteLine (fileout, "; [ Song order pointer list ]")
 	
-	For s = 0 To sequencelen-1
+	For s = 0 To sequencelen
 		If (s = sequenceloop)
 			WriteLine(fileout,".restart:")
 		EndIf
 		out$ = Chr(9)+Chr(9)+"dw "
+		p = PeekByte(sequence,s)
 		For x=0 To 7
-			out$ = out$ + ".track_"+PeekShort(track_list,(s*16)+(x*2))
+			out$ = out$ + ".track_"+PeekShort(track_list,(p*16)+(x*2))
 			If x < 7 
 				out$ = out$ + ","
 			EndIf
 		Next
-		p = PeekByte(sequence,s)
+		
 		out$ = out$ + Chr(9)+Chr(9)+"; Sequence step "+ s + " /pattern "+p
 		WriteLine (fileout, out$)
 	Next

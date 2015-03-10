@@ -1255,7 +1255,7 @@ _CHIPcmd18_transpose:
 	neg	
 	add	a,l
 	ld	l,a
-	jp	nc,0f
+	jp	nc,99f
 	dec	h
 99:
 	ld	(replay_Tonetable),hl
@@ -1267,7 +1267,7 @@ _CHIPcmd18_transpose:
 0:	
 	add	a,l
 	ld	l,a
-	jp	nc,0f
+	jp	nc,99f
 	inc	h
 99:
 	ld	(replay_Tonetable),hl
