@@ -8,20 +8,20 @@
 
 ; [ Song start data ]
 	db $09				; Initial song speed.
-	dw .waveform_start 			; Start of the waveform data.
-	dw .instrument_start 			; Start of the instrument data.
+	dw @@waveform_start 			; Start of the waveform data.
+	dw @@instrument_start 			; Start of the instrument data.
 
 ; [ Song order pointer list ]
-.restart:
-		dw .track_0,.track_1,.track_2,.track_3,.track_4,.track_5,.track_6,.track_7		; Sequence step 0 /pattern 0
-		dw .track_8,.track_9,.track_10,.track_11,.track_12,.track_13,.track_14,.track_15		; Sequence step 1 /pattern 1
-		dw .track_16,.track_17,.track_18,.track_19,.track_20,.track_21,.track_22,.track_23		; Sequence step 2 /pattern 2
-		dw .track_16,.track_24,.track_25,.track_26,.track_27,.track_28,.track_29,.track_30		; Sequence step 3 /pattern 3
-		dw .track_8,.track_31,.track_32,.track_33,.track_34,.track_35,.track_36,.track_37		; Sequence step 4 /pattern 4
-		dw .track_38,.track_39,.track_40,.track_41,.track_42,.track_43,.track_44,.track_45		; Sequence step 5 /pattern 5
-		dw 0x0000, .restart			; End of sequence delimiter + restart address.
+@@restart:
+		dw @@track_0,@@track_1,@@track_2,@@track_3,@@track_4,@@track_5,@@track_6,@@track_7		; Sequence step 0 /pattern 0
+		dw @@track_8,@@track_9,@@track_10,@@track_11,@@track_12,@@track_13,@@track_14,@@track_15		; Sequence step 1 /pattern 1
+		dw @@track_16,@@track_17,@@track_18,@@track_19,@@track_20,@@track_21,@@track_22,@@track_23		; Sequence step 2 /pattern 2
+		dw @@track_16,@@track_24,@@track_25,@@track_26,@@track_27,@@track_28,@@track_29,@@track_30		; Sequence step 3 /pattern 3
+		dw @@track_8,@@track_31,@@track_32,@@track_33,@@track_34,@@track_35,@@track_36,@@track_37		; Sequence step 4 /pattern 4
+		dw @@track_38,@@track_39,@@track_40,@@track_41,@@track_42,@@track_43,@@track_44,@@track_45		; Sequence step 5 /pattern 5
+		dw 0x0000, @@restart			; End of sequence delimiter + restart address.
 
-.waveform_start:
+@@waveform_start:
 	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00	; Waveform 0
 	db $80,$B0,$C0,$10,$1A,$2A,$2C,$1A,$00,$E0,$D0,$E0,$22,$53,$70,$75,$70,$31,$EA,$80,$88,$8A,$8C,$8E,$00,$7F,$75,$73,$62,$00,$C0,$90	; Waveform 1
 	db $30,$50,$50,$30,$00,$00,$10,$40,$60,$70,$60,$30,$F0,$E0,$E0,$00,$20,$20,$10,$C0,$A0,$90,$A0,$C0,$00,$00,$D0,$B0,$B0,$D0,$00,$00	; Waveform 2
@@ -40,17 +40,17 @@
 	db $80,$C8,$20,$7F,$30,$C8,$80,$90,$A8,$C0,$E0,$00,$20,$38,$50,$60,$70,$78,$7C,$7F,$7C,$78,$70,$60,$50,$38,$20,$00,$E0,$C0,$A8,$90	; Waveform 15
 	db $00,$F8,$F0,$E8,$E0,$D8,$D0,$C8,$C0,$B8,$B0,$A8,$A0,$98,$90,$20,$00,$E0,$C0,$A0,$80,$A0,$C0,$E0,$00,$20,$40,$60,$7F,$60,$40,$20	; Waveform 16
 
-.instrument_start:
-	dw .ins_1,.ins_2,.ins_3,.ins_4,.ins_5,.ins_6,.ins_7,.ins_8,.ins_9,.ins_10,.ins_11,.ins_12,.ins_13,.ins_14,.ins_15,.ins_16,.ins_17,.ins_18,.ins_19,.ins_20,.ins_21,.ins_22,.ins_23,.ins_24,.ins_25,.ins_26,.ins_27,.ins_28,.ins_29,.ins_30,.ins_31
-.ins_1:
+@@instrument_start:
+	dw @@ins_1,@@ins_2,@@ins_3,@@ins_4,@@ins_5,@@ins_6,@@ins_7,@@ins_8,@@ins_9,@@ins_10,@@ins_11,@@ins_12,@@ins_13,@@ins_14,@@ins_15,@@ins_16,@@ins_17,@@ins_18,@@ins_19,@@ins_20,@@ins_21,@@ins_22,@@ins_23,@@ins_24,@@ins_25,@@ins_26,@@ins_27,@@ins_28,@@ins_29,@@ins_30,@@ins_31
+@@ins_1:
 		db 0					; Waveform
-		db .rst_i1-(.ins_1 +2)		; Restart
+		db @@rst_i1-(@@ins_1 +2)		; Restart
 		db $11,$0F
-.rst_i1:
+@@rst_i1:
 		db $89,$00
-.ins_2:
+@@ins_2:
 		db 0					; Waveform
-		db .rst_i2-(.ins_2 +2)		; Restart
+		db @@rst_i2-(@@ins_2 +2)		; Restart
 		db $11,$0F
 		db $85,$0F,$FF,$FF
 		db $A5,$0E,$07,$FF,$FF
@@ -65,35 +65,35 @@
 		db $81,$08
 		db $81,$06
 		db $81,$05
-.rst_i2:
+@@rst_i2:
 		db $89,$02
-.ins_3:
+@@ins_3:
 		db 0					; Waveform
-		db .rst_i3-(.ins_3 +2)		; Restart
+		db @@rst_i3-(@@ins_3 +2)		; Restart
 		db $91,$0E
 		db $91,$06
-.rst_i3:
+@@rst_i3:
 		db $99,$00
-.ins_4:
+@@ins_4:
 		db 0					; Waveform
-		db .rst_i4-(.ins_4 +2)		; Restart
+		db @@rst_i4-(@@ins_4 +2)		; Restart
 		db $91,$0E
 		db $91,$0E
 		db $91,$0C
-.rst_i4:
+@@rst_i4:
 		db $98
-.ins_5:
-.ins_6:
+@@ins_5:
+@@ins_6:
 		db 0					; Waveform
-		db .rst_i6-(.ins_6 +2)		; Restart
+		db @@rst_i6-(@@ins_6 +2)		; Restart
 		db $15,$0F,$2F,$00
 		db $15,$0E,$2F,$00
-.rst_i6:
+@@rst_i6:
 		db $14,$2F,$00
 		db $1C,$2F,$00
-.ins_7:
+@@ins_7:
 		db 0					; Waveform
-		db .rst_i7-(.ins_7 +2)		; Restart
+		db @@rst_i7-(@@ins_7 +2)		; Restart
 		db $11,$0E
 		db $11,$0C
 		db $11,$0C
@@ -102,15 +102,15 @@
 		db $11,$0C
 		db $11,$0C
 		db $11,$0A
-.rst_i7:
+@@rst_i7:
 		db $11,$09
 		db $11,$0A
 		db $11,$0A
 		db $11,$0A
 		db $19,$0A
-.ins_8:
+@@ins_8:
 		db 0					; Waveform
-		db .rst_i8-(.ins_8 +2)		; Restart
+		db @@rst_i8-(@@ins_8 +2)		; Restart
 		db $11,$0A
 		db $11,$0B
 		db $11,$0C
@@ -119,11 +119,11 @@
 		db $11,$0F
 		db $11,$0F
 		db $11,$0F
-.rst_i8:
+@@rst_i8:
 		db $19,$0F
-.ins_9:
+@@ins_9:
 		db 0					; Waveform
-		db .rst_i9-(.ins_9 +2)		; Restart
+		db @@rst_i9-(@@ins_9 +2)		; Restart
 		db $11,$0A
 		db $11,$0B
 		db $11,$0C
@@ -144,7 +144,7 @@
 		db $11,$0D
 		db $11,$0D
 		db $11,$0D
-.rst_i9:
+@@rst_i9:
 		db $15,$0D,$01,$00
 		db $11,$0D
 		db $15,$0D,$01,$00
@@ -157,9 +157,9 @@
 		db $11,$0D
 		db $15,$0D,$FF,$FF
 		db $19,$0D
-.ins_10:
+@@ins_10:
 		db 1					; Waveform
-		db .rst_i10-(.ins_10 +2)		; Restart
+		db @@rst_i10-(@@ins_10 +2)		; Restart
 		db $11,$0F
 		db $11,$0A
 		db $11,$0A
@@ -179,11 +179,11 @@
 		db $11,$05
 		db $11,$04
 		db $11,$03
-.rst_i10:
+@@rst_i10:
 		db $19,$02
-.ins_11:
+@@ins_11:
 		db 2					; Waveform
-		db .rst_i11-(.ins_11 +2)		; Restart
+		db @@rst_i11-(@@ins_11 +2)		; Restart
 		db $11,$0F
 		db $11,$0E
 		db $11,$0D
@@ -203,11 +203,11 @@
 		db $11,$05
 		db $11,$04
 		db $11,$03
-.rst_i11:
+@@rst_i11:
 		db $19,$02
-.ins_12:
+@@ins_12:
 		db 10					; Waveform
-		db .rst_i12-(.ins_12 +2)		; Restart
+		db @@rst_i12-(@@ins_12 +2)		; Restart
 		db $11,$0A
 		db $11,$0B
 		db $11,$0C
@@ -216,11 +216,11 @@
 		db $11,$0F
 		db $11,$0F
 		db $11,$0F
-.rst_i12:
+@@rst_i12:
 		db $19,$0F
-.ins_13:
+@@ins_13:
 		db 4					; Waveform
-		db .rst_i13-(.ins_13 +2)		; Restart
+		db @@rst_i13-(@@ins_13 +2)		; Restart
 		db $11,$0F
 		db $11,$09
 		db $11,$09
@@ -233,11 +233,11 @@
 		db $11,$06
 		db $11,$05
 		db $11,$04
-.rst_i13:
+@@rst_i13:
 		db $19,$03
-.ins_14:
+@@ins_14:
 		db 5					; Waveform
-		db .rst_i14-(.ins_14 +2)		; Restart
+		db @@rst_i14-(@@ins_14 +2)		; Restart
 		db $11,$03
 		db $11,$05
 		db $11,$08
@@ -246,11 +246,11 @@
 		db $11,$0B
 		db $11,$0B
 		db $11,$0B
-.rst_i14:
+@@rst_i14:
 		db $19,$0B
-.ins_15:
+@@ins_15:
 		db 6					; Waveform
-		db .rst_i15-(.ins_15 +2)		; Restart
+		db @@rst_i15-(@@ins_15 +2)		; Restart
 		db $11,$0F
 		db $11,$08
 		db $11,$09
@@ -270,11 +270,11 @@
 		db $11,$05
 		db $11,$04
 		db $11,$03
-.rst_i15:
+@@rst_i15:
 		db $19,$02
-.ins_16:
+@@ins_16:
 		db 12					; Waveform
-		db .rst_i16-(.ins_16 +2)		; Restart
+		db @@rst_i16-(@@ins_16 +2)		; Restart
 		db $11,$0A
 		db $11,$0B
 		db $11,$0D
@@ -283,12 +283,12 @@
 		db $11,$0E
 		db $11,$0E
 		db $11,$0E
-.rst_i16:
+@@rst_i16:
 		db $19,$0E
-.ins_17:
-.ins_18:
+@@ins_17:
+@@ins_18:
 		db 5					; Waveform
-		db .rst_i18-(.ins_18 +2)		; Restart
+		db @@rst_i18-(@@ins_18 +2)		; Restart
 		db $11,$0F
 		db $11,$0C
 		db $11,$0C
@@ -298,12 +298,12 @@
 		db $11,$06
 		db $11,$04
 		db $11,$02
-.rst_i18:
+@@rst_i18:
 		db $19,$02
-.ins_19:
-.ins_20:
+@@ins_19:
+@@ins_20:
 		db 10					; Waveform
-		db .rst_i20-(.ins_20 +2)		; Restart
+		db @@rst_i20-(@@ins_20 +2)		; Restart
 		db $11,$0F
 		db $11,$0D
 		db $11,$0D
@@ -312,21 +312,21 @@
 		db $11,$0D
 		db $11,$0D
 		db $11,$0D
-.rst_i20:
+@@rst_i20:
 		db $19,$0D
-.ins_21:
+@@ins_21:
 		db 11					; Waveform
-		db .rst_i21-(.ins_21 +2)		; Restart
+		db @@rst_i21-(@@ins_21 +2)		; Restart
 		db $15,$0F,$2A,$00
 		db $15,$0C,$2A,$00
-.rst_i21:
+@@rst_i21:
 		db $14,$2A,$00
 		db $1C,$2A,$00
-.ins_22:
-.ins_23:
-.ins_24:
+@@ins_22:
+@@ins_23:
+@@ins_24:
 		db 7					; Waveform
-		db .rst_i24-(.ins_24 +2)		; Restart
+		db @@rst_i24-(@@ins_24 +2)		; Restart
 		db $11,$06
 		db $11,$07
 		db $11,$08
@@ -349,7 +349,7 @@
 		db $11,$0F
 		db $11,$0F
 		db $11,$0F
-.rst_i24:
+@@rst_i24:
 		db $15,$0F,$01,$00
 		db $15,$0F,$01,$00
 		db $15,$0F,$01,$00
@@ -360,10 +360,10 @@
 		db $15,$0F,$FF,$FF
 		db $15,$0F,$FF,$FF
 		db $1D,$0F,$FF,$FF
-.ins_25:
-.ins_26:
+@@ins_25:
+@@ins_26:
 		db 16					; Waveform
-		db .rst_i26-(.ins_26 +2)		; Restart
+		db @@rst_i26-(@@ins_26 +2)		; Restart
 		db $11,$0F
 		db $11,$0E
 		db $11,$0D
@@ -383,11 +383,11 @@
 		db $11,$05
 		db $11,$04
 		db $11,$03
-.rst_i26:
+@@rst_i26:
 		db $19,$02
-.ins_27:
+@@ins_27:
 		db 4					; Waveform
-		db .rst_i27-(.ins_27 +2)		; Restart
+		db @@rst_i27-(@@ins_27 +2)		; Restart
 		db $11,$0F
 		db $11,$0A
 		db $11,$0A
@@ -396,25 +396,25 @@
 		db $11,$0A
 		db $11,$0A
 		db $11,$09
-.rst_i27:
+@@rst_i27:
 		db $39,$09,$0B
-.ins_28:
-.ins_29:
-.ins_30:
-.ins_31:
+@@ins_28:
+@@ins_29:
+@@ins_30:
+@@ins_31:
 		db 14					; Waveform
-		db .rst_i31-(.ins_31 +2)		; Restart
+		db @@rst_i31-(@@ins_31 +2)		; Restart
 		db $11,$0F
 		db $11,$0D
 		db $11,$0C
 		db $11,$0C
 		db $11,$0A
 		db $11,$08
-.rst_i31:
+@@rst_i31:
 		db $19,$08
 
 ; [ Song track data ]
-.track_0:
+@@track_0:
 	db $12		;[Note] 19
 	db $6F		;[Volume] 15
 	db $70		;[Instrument] 1
@@ -536,7 +536,7 @@
 	db $15		;[Note] 22
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_1:
+@@track_1:
 	db $18		;[Note] 25
 	db $6F		;[Volume] 15
 	db $76		;[Instrument] 7
@@ -610,7 +610,7 @@
 	db $13		;[Note] 20
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_2:
+@@track_2:
 	db $1F		;[Note] 32
 	db $6B		;[Volume] 11
 	db $78		;[Instrument] 9
@@ -671,7 +671,7 @@
 	db $07		;[Note] 8
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_3:
+@@track_3:
 	db $18		;[Note] 25
 	db $6F		;[Volume] 15
 	db $79		;[Instrument] 10
@@ -738,7 +738,7 @@
 	db $13		;[Note] 20
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_4:
+@@track_4:
 	db $28		;[Note] 41
 	db $68		;[Volume] 8
 	db $89		;[Instrument] 26
@@ -819,7 +819,7 @@
 	db $67		;[Volume] 7
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_5:
+@@track_5:
 	db $24		;[Note] 37
 	db $6F		;[Volume] 15
 	db $87		;[Instrument] 24
@@ -883,7 +883,7 @@
 	db $AF, $02; slide-down rep
 	db $C1		;[Wait] 2
 	db $BF		;[End-Of-Track]
-.track_6:
+@@track_6:
 	db $60		;[Note] 97
 	db $95, $00	; track detune
 	db $C0		;[Wait] 1
@@ -976,7 +976,7 @@
 	db $62		;[Volume] 2
 	db $C3		;[Wait] 4
 	db $BF		;[End-Of-Track]
-.track_7:
+@@track_7:
 	db $60		;[Note] 97
 	db $95, $08	; track detune
 	db $C5		;[Wait] 6
@@ -1032,7 +1032,7 @@
 	db $62		;[Volume] 2
 	db $C4		;[Wait] 5
 	db $BF		;[End-Of-Track]
-.track_8:
+@@track_8:
 	db $12		;[Note] 19
 	db $6F		;[Volume] 15
 	db $70		;[Instrument] 1
@@ -1155,7 +1155,7 @@
 	db $1F		;[Note] 32
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_9:
+@@track_9:
 	db $18		;[Note] 25
 	db $6F		;[Volume] 15
 	db $76		;[Instrument] 7
@@ -1226,7 +1226,7 @@
 	db $13		;[Note] 20
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_10:
+@@track_10:
 	db $1F		;[Note] 32
 	db $6C		;[Volume] 12
 	db $78		;[Instrument] 9
@@ -1284,7 +1284,7 @@
 	db $07		;[Note] 8
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_11:
+@@track_11:
 	db $18		;[Note] 25
 	db $79		;[Instrument] 10
 	db $C1		;[Wait] 2
@@ -1347,7 +1347,7 @@
 	db $13		;[Note] 20
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_12:
+@@track_12:
 	db $24		;[Note] 37
 	db $6A		;[Volume] 10
 	db $81		;[Instrument] 18
@@ -1432,7 +1432,7 @@
 	db $2F		;[Note] 48
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_13:
+@@track_13:
 	db $24		;[Note] 37
 	db $69		;[Volume] 9
 	db $87		;[Instrument] 24
@@ -1486,7 +1486,7 @@
 	db $AF, $02; slide-down rep
 	db $C1		;[Wait] 2
 	db $BF		;[End-Of-Track]
-.track_14:
+@@track_14:
 	db $2B		;[Note] 44
 	db $6F		;[Volume] 15
 	db $84		;[Instrument] 21
@@ -1584,7 +1584,7 @@
 	db $65		;[Volume] 5
 	db $C0		;[Wait] 1
 	db $BF		;[End-Of-Track]
-.track_15:
+@@track_15:
 	db $60		;[Note] 97
 	db $95, $08	; track detune
 	db $C5		;[Wait] 6
@@ -1641,7 +1641,7 @@
 	db $65		;[Volume] 5
 	db $C0		;[Wait] 1
 	db $BF		;[End-Of-Track]
-.track_16:
+@@track_16:
 	db $12		;[Note] 19
 	db $6F		;[Volume] 15
 	db $70		;[Instrument] 1
@@ -1773,7 +1773,7 @@
 	db $1F		;[Note] 32
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_17:
+@@track_17:
 	db $15		;[Note] 22
 	db $76		;[Instrument] 7
 	db $C1		;[Wait] 2
@@ -1855,7 +1855,7 @@
 	db $10		;[Note] 17
 				;[Skip delay] 2
 	db $BF		;[End-Of-Track]
-.track_18:
+@@track_18:
 	db $2D		;[Note] 46
 	db $77		;[Instrument] 8
 	db $C1		;[Wait] 2
@@ -1913,7 +1913,7 @@
 	db $60		;[Note] 97
 	db $C4		;[Wait] 5
 	db $BF		;[End-Of-Track]
-.track_19:
+@@track_19:
 	db $15		;[Note] 22
 	db $79		;[Instrument] 10
 	db $C1		;[Wait] 2
@@ -1995,7 +1995,7 @@
 	db $10		;[Note] 17
 				;[Skip delay] 2
 	db $BF		;[End-Of-Track]
-.track_20:
+@@track_20:
 	db $28		;[Note] 41
 	db $6A		;[Volume] 10
 	db $89		;[Instrument] 26
@@ -2092,7 +2092,7 @@
 	db $68		;[Volume] 8
 				;[Skip delay] 2
 	db $BF		;[End-Of-Track]
-.track_21:
+@@track_21:
 	db $24		;[Note] 37
 	db $69		;[Volume] 9
 	db $87		;[Instrument] 24
@@ -2164,7 +2164,7 @@
 	db $67		;[Volume] 7
 	db $C0		;[Wait] 1
 	db $BF		;[End-Of-Track]
-.track_22:
+@@track_22:
 	db $3B		;[Note] 60
 	db $6E		;[Volume] 14
 	db $7F		;[Instrument] 16
@@ -2262,7 +2262,7 @@
 	db $1C		;[Note] 29
 				;[Skip delay] 2
 	db $BF		;[End-Of-Track]
-.track_23:
+@@track_23:
 	db $37		;[Note] 56
 	db $6D		;[Volume] 13
 	db $7F		;[Instrument] 16
@@ -2343,7 +2343,7 @@
 	db $23		;[Note] 36
 				;[Skip delay] 2
 	db $BF		;[End-Of-Track]
-.track_24:
+@@track_24:
 	db $15		;[Note] 22
 	db $76		;[Instrument] 7
 	db $C1		;[Wait] 2
@@ -2422,7 +2422,7 @@
 	db $13		;[Note] 20
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_25:
+@@track_25:
 	db $2D		;[Note] 46
 	db $77		;[Instrument] 8
 	db $C1		;[Wait] 2
@@ -2491,7 +2491,7 @@
 	db $07		;[Note] 8
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_26:
+@@track_26:
 	db $15		;[Note] 22
 	db $79		;[Instrument] 10
 	db $C1		;[Wait] 2
@@ -2570,7 +2570,7 @@
 	db $13		;[Note] 20
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_27:
+@@track_27:
 	db $28		;[Note] 41
 	db $6A		;[Volume] 10
 	db $89		;[Instrument] 26
@@ -2668,7 +2668,7 @@
 	db $40		;[Note] 65
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_28:
+@@track_28:
 	db $24		;[Note] 37
 	db $69		;[Volume] 9
 	db $87		;[Instrument] 24
@@ -2754,7 +2754,7 @@
 	db $34		;[Note] 53
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_29:
+@@track_29:
 	db $3B		;[Note] 60
 	db $6E		;[Volume] 14
 	db $7F		;[Instrument] 16
@@ -2859,7 +2859,7 @@
 	db $B1, $01	;[CMD vibrato] rep
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_30:
+@@track_30:
 	db $37		;[Note] 56
 	db $6D		;[Volume] 13
 	db $7F		;[Instrument] 16
@@ -2924,7 +2924,7 @@
 	db $2F		;[Note] 48
 				;[Skip delay] 4
 	db $BF		;[End-Of-Track]
-.track_31:
+@@track_31:
 	db $15		;[Note] 22
 	db $6F		;[Volume] 15
 	db $76		;[Instrument] 7
@@ -2986,7 +2986,7 @@
 	db $13		;[Note] 20
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_32:
+@@track_32:
 	db $24		;[Note] 37
 	db $6C		;[Volume] 12
 	db $78		;[Instrument] 9
@@ -3070,7 +3070,7 @@
 	db $2F		;[Note] 48
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_33:
+@@track_33:
 	db $09		;[Note] 10
 	db $6F		;[Volume] 15
 	db $79		;[Instrument] 10
@@ -3132,7 +3132,7 @@
 	db $07		;[Note] 8
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_34:
+@@track_34:
 	db $23		;[Note] 36
 	db $6F		;[Volume] 15
 	db $7A		;[Instrument] 11
@@ -3229,7 +3229,7 @@
 	db $47		;[Note] 72
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_35:
+@@track_35:
 	db $21		;[Note] 34
 	db $6D		;[Volume] 13
 	db $7B		;[Instrument] 12
@@ -3302,7 +3302,7 @@
 	db $60		;[Note] 97
 	db $C3		;[Wait] 4
 	db $BF		;[End-Of-Track]
-.track_36:
+@@track_36:
 	db $60		;[Note] 97
 	db $C3		;[Wait] 4
 	db $37		;[Note] 56
@@ -3394,7 +3394,7 @@
 	db $37		;[Note] 56
 				;[Skip delay] 2
 	db $BF		;[End-Of-Track]
-.track_37:
+@@track_37:
 	db $60		;[Note] 97
 	db $C3		;[Wait] 4
 	db $2F		;[Note] 48
@@ -3455,7 +3455,7 @@
 	db $32		;[Note] 51
 				;[Skip delay] 2
 	db $BF		;[End-Of-Track]
-.track_38:
+@@track_38:
 	db $12		;[Note] 19
 	db $6F		;[Volume] 15
 	db $70		;[Instrument] 1
@@ -3574,7 +3574,7 @@
 	db $5F		;[Note] 96
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_39:
+@@track_39:
 	db $15		;[Note] 22
 	db $6F		;[Volume] 15
 	db $76		;[Instrument] 7
@@ -3645,7 +3645,7 @@
 	db $17		;[Note] 24
 				;[Skip delay] 1
 	db $BF		;[End-Of-Track]
-.track_40:
+@@track_40:
 	db $24		;[Note] 37
 	db $6C		;[Volume] 12
 	db $78		;[Instrument] 9
@@ -3694,7 +3694,7 @@
 	db $60		;[Note] 97
 	db $C1		;[Wait] 2
 	db $BF		;[End-Of-Track]
-.track_41:
+@@track_41:
 	db $09		;[Note] 10
 	db $6F		;[Volume] 15
 	db $79		;[Instrument] 10
@@ -3760,7 +3760,7 @@
 	db $60		;[Note] 97
 	db $C1		;[Wait] 2
 	db $BF		;[End-Of-Track]
-.track_42:
+@@track_42:
 	db $23		;[Note] 36
 	db $6F		;[Volume] 15
 	db $7A		;[Instrument] 11
@@ -3825,7 +3825,7 @@
 	db $60		;[Note] 97
 	db $C1		;[Wait] 2
 	db $BF		;[End-Of-Track]
-.track_43:
+@@track_43:
 	db $09		;[Note] 10
 	db $6A		;[Volume] 10
 	db $7B		;[Instrument] 12
@@ -3912,7 +3912,7 @@
 	db $60		;[Note] 97
 	db $CB		;[Wait] 12
 	db $BF		;[End-Of-Track]
-.track_44:
+@@track_44:
 	db $60		;[Note] 97
 	db $C3		;[Wait] 4
 	db $37		;[Note] 56
@@ -3997,7 +3997,7 @@
 	db $60		;[Note] 97
 	db $CB		;[Wait] 12
 	db $BF		;[End-Of-Track]
-.track_45:
+@@track_45:
 	db $60		;[Note] 97
 	db $C3		;[Wait] 4
 	db $2F		;[Note] 48
@@ -4068,6 +4068,6 @@
 	db $60		;[Note] 97
 	db $CB		;[Wait] 12
 	db $BF		;[End-Of-Track]
-.track_46:
+@@track_46:
 	db $BF		;[End-Of-Track]
 ; [ Song sub-track data ]
