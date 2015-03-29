@@ -75,10 +75,10 @@ infinite:
 	and	a
 	jp	z,infinite
 
-	ld	de,-2
-	call	replay_transpose	
-;	ld	a,16
-;	call	replay_fade_out
+;	ld	de,-2
+;	call	replay_transpose	
+	ld	a,16
+	call	replay_fade_out
 ;	call	replay_pause
 	; wait_key_release
 99:	

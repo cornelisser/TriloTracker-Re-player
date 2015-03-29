@@ -112,6 +112,11 @@ Function prepare()
 					For b = 0 To 3
 						v = PeekByte(temp_track,(x*4)+b)
 						w = PeekByte(track_data,(t*(64*4))+(x*4)+b)
+						
+						If (p =0 And c = 2)
+							AddTextAreaText (logging,v+"-"+w+",")
+						EndIf
+						
 			
 						If (v <> w)
 							dup	= 0
@@ -121,7 +126,10 @@ Function prepare()
 					If (dup = 0)
 						Exit
 					EndIf
-				Next							
+				Next
+						If (p =0 And c = 2)
+							AddTextAreaText (logging,"dup:"+dup+Chr(10))
+						EndIf							
 				If (dup = 1)
 					PokeShort(track_list,p*16+c*2,t)
 					found_dupes = found_dupes+1
@@ -290,7 +298,7 @@ End Function
 Function compile_sequence(fileout)
 	WriteLine (fileout, "; [ Song order pointer list ]")
 	
-	For s = 0 To sequencelen
+	For s = 0 To sequencelen-1
 		If (s = sequenceloop)
 			WriteLine(fileout,".restart:")
 		EndIf
@@ -401,7 +409,7 @@ Function compile_track(fileout,t)
 			If (cmd > 0 Or par > 0)
 				Select cmd
 					Case 0		; arpegio
-						WriteLine (fileout, Chr(9)+"db "+Right(Hex(COMMAND_START+CMD_0),2)+", "+Right(Hex(par),2)+"; arpegio")
+						WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_0),2)+", $"+Right(Hex(par),2)+"; arpegio")
 				
 					Case 1		; slide up
 						If (par = 0)
