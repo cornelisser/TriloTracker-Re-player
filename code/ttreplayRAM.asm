@@ -77,6 +77,10 @@ replay_speed_timer 	#1 			; counter for speed
 replay_mode 		#1			; Replayer status
 ; mode 0  = no sound output
 ; mode 1  = replay song 
+replay_fade			#1			; Fade active (value = fade speed)
+replay_fade_timer		#1			; Timer for fade
+replay_fade_vol		#1			; fade volume to lower the channel volume.
+
 
 replay_previous_note	#1			; previous note played
 replay_mainvol		#1			; the volume correction.
