@@ -218,24 +218,55 @@ _replay_check_patternend:
 
 ;--- Pause music
 replay_pause:
+	ld	a,(replay_mode)
+	and	a
+	jp	z,_replay_restart
 	;-- stop decding and processing music data
 	xor	a
 	ld	(replay_mode),a
 
 	;-- set mixers to silence.
 	ld 	a,0x3F
-	ld	(AY_regMIXER),a 		
+	ld	(AY_regMIXER),a 
+	xor	a
 	ld	(SCC_regMIXER),a
 
 	ret
 
 ;--- Restarts music
-replay_restart:
+_replay_restart:
 	;-- enable music decoding and processing
 	ld	a,1
 	ld	(replay_mode),a
 	ret
 
+;--- Fades the music
+; in: [A] fade speed
+replay_fade_out:
+	ld	(replay_fade),a
+	ld	(replay_fade_timer),a
+	xor	a
+	ld	(replay_fade_vol),a
+	ret
+
+	
+;--- Sets the transpose of the song
+; in: [DE] the numbers of semitones to move up or down
+;
+; Only provide even numbers!!!
+replay_transpose:
+	ld	hl,TRACK_ToneTable;(replay_Tonetable)
+	;--- only even numbers.
+	ld	a,11111110b
+	and	e
+	ld	e,a
+	add	hl,de	
+	ld	(replay_Tonetable),hl	
+	ret
+	
+	
+	
+	
 	
 ;--- Replay	music
 replay_play:
@@ -562,11 +593,46 @@ replay_decodedata_NO:
 	ld	a,d
 	ld	(TRACK_Chan8+17+TRACK_Flags),a	
 
+	;-- Fade out processing
+	ld	a,(replay_fade)
+	and	a
+	ret	z	; if replay fade = 0 then no fade active
+	
+	; decrease fade timer
+	ld	a,(replay_fade_timer)
+	dec	a
+	jp	nz,1f
+
+	ld	a,(replay_fade_vol)
+	inc	a
+	cp	16
+	jp	c,99f
+	xor	a
+	ld	(replay_fade),a
+	jp	replay_pause
+99:	
+	ld	(replay_fade_vol),a
+	ld	a,(replay_fade)
+1:
+	ld	(replay_fade_timer),a
+
+	ld	a,(replay_fade_vol)
+	ld	c,a
+	ld	b,3
+	ld	hl,AY_regVOLA
+	call	0f
+	ld	b,5
+	ld	hl,SCC_regVOLA
+0:	
+	ld	a,(hl)
+	sub	c
+	jp	nc,99f
+	xor	a
+99:	ld	(hl),a
+	inc	hl
+	djnz	0b
 	ret
-
-
-
-
+	
 replay_decode_chan:
 	;--- initialize data
 ;	ld	a,(ix+TRACK_Note)

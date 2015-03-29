@@ -69,6 +69,24 @@ initmain:
 	
 infinite:
 	halt
+	;---- Test for space
+	xor	a
+	call	$00D8
+	and	a
+	jp	z,infinite
+
+	ld	de,-2
+	call	replay_transpose	
+;	ld	a,16
+;	call	replay_fade_out
+;	call	replay_pause
+	; wait_key_release
+99:	
+	xor	a
+	call	$00D8
+	and	a
+	jp	nz,99b
+	
 	jp	infinite
 
 	
