@@ -90,8 +90,18 @@ replay_init:
 	ld	(TRACK_Chan5+17+TRACK_Delay),a		
 	ld	(TRACK_Chan6+17+TRACK_Delay),a		
 	ld	(TRACK_Chan7+17+TRACK_Delay),a		
-	ld	(TRACK_Chan8+17+TRACK_Delay),a		
-		
+	ld	(TRACK_Chan8+17+TRACK_Delay),a	
+	
+	ld	a,255
+	ld	(TRACK_Chan1+17+TRACK_Instrument),a	
+	ld	(TRACK_Chan2+17+TRACK_Instrument),a		
+	ld	(TRACK_Chan3+17+TRACK_Instrument),a	
+	ld	(TRACK_Chan4+17+TRACK_Instrument),a	
+	ld	(TRACK_Chan5+17+TRACK_Instrument),a		
+	ld	(TRACK_Chan6+17+TRACK_Instrument),a		
+	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
+	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
+	
 	;--- Init the SCC	(waveforms too)
 ;	ld	a,(SCC_slot)
 ;	ld	h,0x80
@@ -119,7 +129,6 @@ replay_init:
 	; end	is here
 	ld	a,1
 	ld	(replay_mode),a	
-	
 	
 	ret
 

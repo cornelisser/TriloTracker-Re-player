@@ -5,6 +5,10 @@ Function loadfile()
 		filein=ReadFile(file$)
 		If filein
 
+			;---- clear the track data.
+			For x=0 To (((4*64)*8)*128)-1
+				PokeByte (track_data,x,255)
+			Next
 
 			;----- Reading the header
 			songversion = ReadByte(filein)
@@ -12,6 +16,10 @@ Function loadfile()
 			songversion = songversion And $0f
 			ReadBytes (songname,filein,0,32)
 			ReadBytes (songby,filein,0,32)
+			
+			
+			
+			
 			speed	= ReadByte(filein)
 			sequenceloop = ReadByte(filein)
 			sequencelen = ReadByte(filein)

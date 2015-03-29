@@ -351,7 +351,13 @@ End
 
 Function banktotxt(txt,bank,l)
 		For w = 0 To l-1
-			AddTextAreaText (txt,Chr(PeekByte(bank,w)))
+			v = PeekByte(bank,w)
+			; extra check that removed special character that could mess up assembler compilers.
+			If v <32
+				v = 32
+				PokeByte (bank,w,v)
+			EndIf
+			AddTextAreaText (txt,Chr(v))
 		Next
 
 End Function
