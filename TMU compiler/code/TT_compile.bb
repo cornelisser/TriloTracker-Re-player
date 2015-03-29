@@ -25,12 +25,20 @@ Global	songversion		= 0
 Global 	songtype		= 0
 
 
+
+Global	l_pre$			= "@@";"."	
+
+
+
 ;Global instrument_pointers	=	CreateBank (31*2)
 ;Global pattern_pointers		= 	CreateBank (128*2)
 ;Global compressed_patterns	=	CreateBank (128*1024)
 ;Global order_pointers		=	CreateBank (128*2)
 ;Global instrument_data_len  = 0
 ;Global data_offset			= 0
+
+
+
 
 
 

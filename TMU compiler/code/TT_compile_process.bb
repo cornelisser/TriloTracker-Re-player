@@ -220,20 +220,31 @@ Function compile()
 		If fileout
 
 
+			;--- set the correct output format
+			
+
+			Select (SelectedGadgetItem (outputSelect))
+				Case 0
+					l_pre$			= "."
+				Case 1
+					l_pre$			= "@@"	
+			End Select
+
+
 			compile_header(fileout)
 			compile_sequence(fileout)
 
 
-			WriteLine (fileout, ".waveform_start:")
+			WriteLine (fileout, l_pre$+"waveform_start:")
 			For w=0 To last_waveform;31
 				compile_waveform(fileout,w)
 			Next
 			WriteLine (fileout, "")
 
-			WriteLine (fileout, ".instrument_start:")
+			WriteLine (fileout, l_pre$+"instrument_start:")
 			out$ = Chr(9)+"dw "
 			For i=1 To last_instrument;31
-				out$ = out$ +".ins_"+i
+				out$ = out$ +l_pre$+"ins_"+i
 				If i<last_instrument
 					out$ = out$ +","
 				EndIf
@@ -290,8 +301,8 @@ Function compile_header(fileout)
 	WriteLine (fileout, "; [ Song start data ]")
 ;	WriteLine (fileout, Chr(9)+"dw .restart "+Chr(9)+Chr(9)+Chr(9)+"; Restart position (offset from End).")
 	WriteLine (fileout, Chr(9)+"db $"+Right(Hex(speed),2)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Initial song speed.")
-	WriteLine (fileout, Chr(9)+"dw .waveform_start "+Chr(9)+Chr(9)+Chr(9)+"; Start of the waveform data.")
-	WriteLine (fileout, Chr(9)+"dw .instrument_start "+Chr(9)+Chr(9)+Chr(9)+"; Start of the instrument data.")
+	WriteLine (fileout, Chr(9)+"dw "+l_pre$+"waveform_start "+Chr(9)+Chr(9)+Chr(9)+"; Start of the waveform data.")
+	WriteLine (fileout, Chr(9)+"dw "+l_pre$+"instrument_start "+Chr(9)+Chr(9)+Chr(9)+"; Start of the instrument data.")
 	WriteLine (fileout, "")
 End Function
 
@@ -300,12 +311,12 @@ Function compile_sequence(fileout)
 	
 	For s = 0 To sequencelen-1
 		If (s = sequenceloop)
-			WriteLine(fileout,".restart:")
+			WriteLine(fileout,l_pre$+"restart:")
 		EndIf
 		out$ = Chr(9)+Chr(9)+"dw "
 		p = PeekByte(sequence,s)
 		For x=0 To 7
-			out$ = out$ + ".track_"+PeekShort(track_list,(p*16)+(x*2))
+			out$ = out$ + l_pre$+"track_"+PeekShort(track_list,(p*16)+(x*2))
 			If x < 7 
 				out$ = out$ + ","
 			EndIf
@@ -315,7 +326,7 @@ Function compile_sequence(fileout)
 		WriteLine (fileout, out$)
 	Next
 	
-	WriteLine (fileout, Chr(9)+Chr(9)+"dw 0x0000, .restart"+Chr(9)+Chr(9)+Chr(9)+"; End of sequence delimiter + restart address.") 
+	WriteLine (fileout, Chr(9)+Chr(9)+"dw 0x0000, "+l_pre$+"restart"+Chr(9)+Chr(9)+Chr(9)+"; End of sequence delimiter + restart address.") 
 	WriteLine (fileout, "")
 
 
@@ -369,7 +380,7 @@ Const CMD_EE  = MULTIPLE_BASE+9;       ///HE envelope shape
 Const CMD_EOT = 191;       /// CMD  end of track
 
 Function compile_track(fileout,t)
-	WriteLine (fileout, ".track_"+t+":")
+	WriteLine (fileout, l_pre$+"track_"+t+":")
 	prev_wait = 255
 	
 	For l=0 To 63
@@ -613,7 +624,7 @@ Function compile_instrument(fileout,ins)
 	length = PeekByte(samples,(ins*(32*4+3)))
 	
 	ins = ins +1
-	WriteLine (fileout, ".ins_"+(ins)+":")
+	WriteLine (fileout, l_pre$+"ins_"+(ins)+":")
 	
 	If (PeekByte(used_instruments,ins) = 0)
 		Return	
@@ -621,12 +632,12 @@ Function compile_instrument(fileout,ins)
 	
 	
 	WriteLine (fileout, Chr(9)+Chr(9)+"db "+wave+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform")
-	WriteLine (fileout, Chr(9)+Chr(9)+"db .rst_i"+ins+"-(.ins_"+ins+" +2)"+Chr(9)+Chr(9)+"; Restart")
+	WriteLine (fileout, Chr(9)+Chr(9)+"db "+l_pre$+"rst_i"+ins+"-("+l_pre$+"ins_"+ins+" +2)"+Chr(9)+Chr(9)+"; Restart")
 	
 	
 	For r = 0 To length-1
 		If (r = restart)
-			WriteLine (fileout, ".rst_i"+ins+":")
+			WriteLine (fileout, l_pre$+"rst_i"+ins+":")
 		EndIf
 		If r= length-1
 			compile_instrument_row(fileout,ins,r,8)

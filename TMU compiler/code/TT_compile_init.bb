@@ -19,3 +19,12 @@ SetTextAreaFont logging,ttfont
 ;---- Buttons
 Global loadButton  = CreateButton("Load TMU",690,2,96,24,mainPanel,0)
 Global saveButton  = CreateButton("Save TT",690,30,96,24,mainPanel,0)  
+;---- Select boxes.
+Global outputSelect = CreateComboBox (690,58,96,24,mainPanel)
+AddGadgetItem outputSelect,"sjasm"
+AddGadgetItem outputSelect,"asMSX"
+SelectGadgetItem outputSelect,0
+
+
+;--- Labels
+CreateLabel "Output type:",620,62,60,16,mainPanel
