@@ -1,5 +1,5 @@
 ;=================================
-; TriloTracker re-player v0.2
+; TriloTracker re-player v0.3
 ;
 ; 
 ; Also expects the code to run as a cartridge with SCC mapper
@@ -12,7 +12,6 @@
 ; - optimize replayer code
 ; - decide on to re-enable the macro offset effect command
 ; - add fade option.
-; - add pause function.
 ; - instructions for external usage of the RAM variables (setting PSG/SCC base volumes etc)
 
 	
@@ -25,20 +24,9 @@
 ;===========================================================
 replay_init:
 	;--- Get the start speed.
-;	ld	hl,(replay_songbase)
-;	inc	hl				; here previously was the restart position.
-;	inc	hl
 	ld	a,(hl)	
 	inc	hl
 	ld	(replay_speed),a
-
-;	;--- Set track pointers to start
-;	inc	hl
-;	ld	de,TRACK_pointer1
-;	ld	bc,16
-;	ldir
-;	ld	(replay_orderpointer),hl		; store pointer for next set
-;								; of strack pointers
 
 	;--- Set waveform start
 	ld	e,(hl)
@@ -55,15 +43,12 @@ replay_init:
 	ld	(replay_insbase),de
 
 	;--- Set track pointers to start
-;	inc	hl
 	ld	de,TRACK_pointer1
 	ld	bc,16
 	ldir
 	ld	(replay_orderpointer),hl		; store pointer for next set
 								; of track pointers
 	
-	
-								
 	;--- Initialize replayer variables.
 	xor	a
 	ld	(replay_speed_subtimer),a
@@ -220,14 +205,36 @@ _replay_check_patternend:
 ;
 	jp	replay_decodedata_NO
 
+
+
+;--- Pause music
+replay_pause:
+	;-- stop decding and processing music data
+	xor	a
+	ld	(replay_mode),a
+
+	;-- set mixers to silence.
+	ld 	a,0x3F
+	ld	(AY_regMIXER),a 		
+	ld	(SCC_regMIXER),a
+
+	ret
+
+;--- Restarts music
+replay_restart:
+	;-- enable music decoding and processing
+	ld	a,1
+	ld	(replay_mode),a
+	ret
+
 	
 ;--- Replay	music
 replay_play:
 	ld	a,(replay_mode)
 	and	a
-	ret	z
-
-
+	ret	z		; replay mode = 0	; halted
+				
+				; replay mode = 1	; active
 	;--- The speed timer
 	ld	hl,replay_speed_timer
 	dec	(hl)
@@ -744,6 +751,7 @@ _replay_decode_cmd:
 	jp	(hl)
 
 DECODE_CMDLIST:
+	; These effects are only processed 1 once in decoding
 	dw	_CHIPcmdA_env_mul			;0
 	dw	_CHIPcmdB_wave_res		;1
 	dw	_CHIPcmdF_wave_set		;2
@@ -758,6 +766,7 @@ DECODE_CMDLIST:
 	dw	_CHIPcmd1C_call			;b	
 	dw	_CHIPcmd1D_ret			;c
 	
+	; These effects are also processed in the processing
 	dw	_CHIPcmdC_wave_duty		;d
 	dw	_CHIPcmdD_wave_cut		;e
 	dw	_CHIPcmdE_wave_compr		;f
@@ -767,7 +776,7 @@ DECODE_CMDLIST:
 	dw	_CHIPcmd19_note_delay		;13
 	dw	_CHIPcmdXX_note_cut		;14
 
-	
+	; These effects can be retriggered
 	dw	_CHIPcmd0_arpeggio		;15
 	dw	_CHIPcmd1_port_up			;16
 	dw	_CHIPcmd2_port_down		;17
@@ -1211,7 +1220,7 @@ _cmd16_sine:
 
 
 _CHIPcmd17_track_detune:
-	res	B_TRGCMD,(ix+TRACK_Flags)		; command in-active
+;	res	B_TRGCMD,(ix+TRACK_Flags)		; command in-active
 	
 	; This command sets the	detune of the track.
 	ld	e,a
