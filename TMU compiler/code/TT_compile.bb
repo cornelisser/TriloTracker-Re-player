@@ -340,25 +340,8 @@ End
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Function banktotxt(txt,bank,l)
-		For w = 0 To l-1
+Function banktotxt(txt,bank,s,l)
+		For w = s To l-1
 			v = PeekByte(bank,w)
 			; extra check that removed special character that could mess up assembler compilers.
 			If v <32

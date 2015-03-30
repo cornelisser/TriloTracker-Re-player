@@ -113,11 +113,6 @@ Function prepare()
 						v = PeekByte(temp_track,(x*4)+b)
 						w = PeekByte(track_data,(t*(64*4))+(x*4)+b)
 						
-						If (p =0 And c = 2)
-							AddTextAreaText (logging,v+"-"+w+",")
-						EndIf
-						
-			
 						If (v <> w)
 							dup	= 0
 							Exit
@@ -624,7 +619,14 @@ Function compile_instrument(fileout,ins)
 	length = PeekByte(samples,(ins*(32*4+3)))
 	
 	ins = ins +1
-	WriteLine (fileout, l_pre$+"ins_"+(ins)+":")
+	
+	out$ = Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; "
+	For x=0 To 15
+		out$ = out$ + Chr(PeekByte(instrumentnames,x+((ins-1)*16)))
+	Next
+	
+	
+	WriteLine (fileout, l_pre$+"ins_"+(ins)+":"+out$)
 	
 	If (PeekByte(used_instruments,ins) = 0)
 		Return	
@@ -639,6 +641,8 @@ Function compile_instrument(fileout,ins)
 		If (r = restart)
 			WriteLine (fileout, l_pre$+"rst_i"+ins+":")
 		EndIf
+		
+		
 		If r= length-1
 			compile_instrument_row(fileout,ins,r,8)
 		Else
