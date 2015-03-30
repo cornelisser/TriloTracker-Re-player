@@ -1,4 +1,6 @@
-_VOLUME_TABLE 
+
+	ds 8*16, 0
+_VOLUME_TABLE
 	incbin ".\voltable_combined.bin"	
 
 ;Konami values found in	Nemesis 2 replayer.

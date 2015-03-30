@@ -64,8 +64,8 @@ B_PSGSCC			equ 7			; chip type (PSG or SCC)
 _SP_Storage			#1			; to store the SP
 
 replay_trigger		#1			; trigger byte.
-replay_mainPSGvol		#1			; volume mixer for PSG SCC balance
-replay_mainSCCvol		#1			; volume mixer for PSG SCC balance
+replay_mainPSGvol		#2			; volume mixer for PSG SCC balance
+replay_mainSCCvol		#2			; volume mixer for PSG SCC balance
 ;replay_songbase:		#2			; pointer to song data
 replay_wavebase:		#2			; pointer to waveform data
 replay_insbase:		#2			; pointer to instrument data
@@ -83,7 +83,7 @@ replay_fade_vol		#1			; fade volume to lower the channel volume.
 
 
 replay_previous_note	#1			; previous note played
-replay_mainvol		#1			; the volume correction.
+replay_mainvol		#2			; the volume correction.
 
 replay_vib_table		#2			; pointer to the vibrato table
 replay_Tonetable		#2			; ToneTable (affected by transpose);

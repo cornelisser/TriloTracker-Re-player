@@ -1,4 +1,4 @@
-	defpage	0,0x4000, 0x4000		; page 0 contains main code + far call routines
+	defpage	0,0x4000, 0x8000		; page 0 contains main code + far call routines
 
 ; -----------------------------
 ; TT-replayer example
@@ -60,12 +60,18 @@ initmain:
 	ld	(0xFD9A),a
 	ld	(0xFD9B),hl	
 	
+	;--- initialise replayer
+	call	replay_init
 	
 	;--- initialise demo song
 	ld	hl,demo_song
-	call	replay_init
+	call	replay_loadsong
 	
 	ei
+	
+	xor	a
+	ld	(pattern),a
+
 	
 infinite:
 	halt
@@ -75,9 +81,11 @@ infinite:
 	and	a
 	jp	z,infinite
 
+;	ld	a,0
+;	call	replay_set_SCC_balance
 ;	ld	de,-2
 ;	call	replay_transpose	
-	ld	a,16
+	ld	a,32
 	call	replay_fade_out
 ;	call	replay_pause
 	; wait_key_release
@@ -106,3 +114,4 @@ demo_song:
 	
 	map	0xc000
 	include	"..\code\ttreplayRAM.asm"
+pattern	#1
