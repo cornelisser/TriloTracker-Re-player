@@ -148,6 +148,10 @@ _replay_check_patternend:
 	jp	nz,replay_decodedata_NO
 
 	;-- next_pattern
+	ld	a,(pattern)
+	inc	a
+	ld	(pattern),a
+	
 	;--- Set track pointers to start
 	ld	hl,(replay_orderpointer)
 	xor	a
@@ -945,6 +949,7 @@ _CHIPcmd3_port_tone:
 	;	... ..300 (continue to slide up, until F-4
 	;						  is reached
 
+
 	ld	(ix+TRACK_cmd_3),a
 	ld	(ix+TRACK_Timer),2
 0:
@@ -1026,6 +1031,7 @@ _CHIPcmd4_vibrato:
 	; waveform to a triangle wave, a square wave, or a
 	; random table by	using	the E4x command).
 	;--- Init values
+	
 	ld	e,a
 	and	$07
 
@@ -1042,11 +1048,12 @@ _CHIPcmd4_vibrato:
 	ld	(ix+TRACK_Step),a
 
 	set	B_TRGCMD,d
+	jp	_rdc	
 ;	set	B_TRGCMD,(ix+TRACK_Flags)
 
-;	inc	bc
+;	jp	_rdc	inc	bc
 ;	ld	a,(bc)
-	jp	_rdc
+
 
 	
 	
