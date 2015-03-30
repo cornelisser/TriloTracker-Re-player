@@ -33,15 +33,21 @@ replay_init:
 	inc	hl
 	ld 	d,(hl)
 	inc	hl
+	ld	a,e				; check for external waveforms
+	or	d
+	jp	z,99f				; is address is $0000 then do not update
 	ld	(replay_wavebase),de
-	
+99:	
 	;--- Set the instrument start
 	ld	e,(hl)
 	inc	hl
 	ld 	d,(hl)
 	inc	hl
+	ld	a,e				; check for external instruments
+	or	d
+	jp	z,99f				; is address is $0000 then do not update
 	ld	(replay_insbase),de
-
+99:
 	;--- Set track pointers to start
 	ld	de,TRACK_pointer1
 	ld	bc,16

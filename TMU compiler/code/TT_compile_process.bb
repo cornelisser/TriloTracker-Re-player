@@ -227,27 +227,30 @@ Function compile()
 			compile_sequence(fileout)
 
 
-			WriteLine (fileout, l_pre$+"waveform_start:")
-			For w=0 To last_waveform;31
-				compile_waveform(fileout,w)
-			Next
-			WriteLine (fileout, "")
-
-			WriteLine (fileout, l_pre$+"instrument_start:")
-			out$ = Chr(9)+"dw "
-			For i=1 To last_instrument;31
-				out$ = out$ +l_pre$+"ins_"+i
-				If i<last_instrument
-					out$ = out$ +","
-				EndIf
-			Next
-			WriteLine (fileout, out$)
+			If (ButtonState(includeWave))
+				WriteLine (fileout, l_pre$+"waveform_start:")
+				For w=0 To last_waveform;31
+					compile_waveform(fileout,w)
+				Next
+				WriteLine (fileout, "")
+			EndIf
 			
-			For i=1 To last_instrument;31
-				compile_instrument(fileout,i)
-			Next			
-			WriteLine (fileout, "")
-
+			If (ButtonState(includeIns))
+				WriteLine (fileout, l_pre$+"instrument_start:")
+				out$ = Chr(9)+"dw "
+				For i=1 To last_instrument;31
+					out$ = out$ +l_pre$+"ins_"+i
+					If i<last_instrument
+						out$ = out$ +","
+					EndIf
+				Next
+				WriteLine (fileout, out$)
+			
+				For i=1 To last_instrument;31
+					compile_instrument(fileout,i)
+				Next			
+				WriteLine (fileout, "")
+			EndIf
 
 			
 			WriteLine (fileout, "; [ Song track data ]")
@@ -293,8 +296,19 @@ Function compile_header(fileout)
 	WriteLine (fileout, "; [ Song start data ]")
 ;	WriteLine (fileout, Chr(9)+"dw .restart "+Chr(9)+Chr(9)+Chr(9)+"; Restart position (offset from End).")
 	WriteLine (fileout, Chr(9)+"db $"+Right(Hex(speed),2)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Initial song speed.")
-	WriteLine (fileout, Chr(9)+"dw "+l_pre$+"waveform_start "+Chr(9)+Chr(9)+Chr(9)+"; Start of the waveform data.")
-	WriteLine (fileout, Chr(9)+"dw "+l_pre$+"instrument_start "+Chr(9)+Chr(9)+Chr(9)+"; Start of the instrument data.")
+
+	If ButtonState(includeWave)
+		WriteLine (fileout, Chr(9)+"dw "+l_pre$+"waveform_start "+Chr(9)+Chr(9)+"; Start of the waveform data.")
+	Else
+		WriteLine (fileout, Chr(9)+"dw $0000"+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform data is external.")
+	EndIf	
+	If ButtonState(includeIns)		
+		WriteLine (fileout, Chr(9)+"dw "+l_pre$+"instrument_start "+Chr(9)+Chr(9)+"; Start of the instrument data.")
+	Else
+		WriteLine (fileout, Chr(9)+"dw $0000"+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Instruments are external.")
+	EndIf
+
+
 	WriteLine (fileout, "")
 End Function
 
