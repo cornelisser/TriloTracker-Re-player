@@ -83,6 +83,40 @@ Function prepare()
 	AddTextAreaText (logging,Chr(10))
 
 
+	;--- remove redundant instruments in patterns
+	AddTextAreaText (logging,"-Removing redundant instruments and volumes in patterns..."+Chr(10))
+	v_found = 0
+	i_found = 0
+	For p = 0 To last_pattern
+		For c = 0 To 7
+			vol = 255
+			ins = 255
+			For l = 0 To (PeekByte(pattern_lengths,p))
+				b = PeekByte (patterns, (p*64*32)+(l*32)+(c*4)+2) 
+				v = b And $f0
+				i = PeekByte (patterns, (p*64*32)+(l*32)+(c*4)+1)
+				
+				If (v = vol And v > 0)
+					PokeByte (patterns,(p*64*32)+(l*32)+(c*4)+2,(b And $0f))
+					v_found = v_found + 1
+				Else If (v > 0 )
+					vol = v
+				EndIf
+				If (i = ins And i > 0)
+					PokeByte (patterns,(p*64*32)+(l*32)+(c*4)+1,0)
+					i_found = i_found + 1
+				Else If (i > 0)
+					ins = i
+				EndIf
+			Next
+		Next
+	Next
+	AddTextAreaText (logging," "+v_found+" duplicate volumes found."+Chr(10))
+	AddTextAreaText (logging," "+ins_track+" duplicate instruments found."+Chr(10))
+
+
+
+
 	;--- Convert patterns to tracks.
 	AddTextAreaText (logging,"-Converting patterns to individual tracks..."+Chr(10))
 
@@ -149,34 +183,34 @@ Function prepare()
 	AddTextAreaText (logging," "+last_track+" unique tracks found."+Chr(10))
 	
 	
-	;--- remove redundant instruments in patterns
-	AddTextAreaText (logging,"-Removing redundant instruments and volumes in tracks..."+Chr(10))
-	v_found = 0
-	i_found = 0
-	For t = 0 To last_track
-		vol = 255
-		ins = 255
-		For l = 0 To (64)-1
-			b = PeekByte (track_data, (t*(64*4))+(l*4)+2) 
-			v = b And $f0
-			i = PeekByte (track_data, (t*(64*4))+(l*4)+1)
-			
-			If (v = vol And v > 0)
-				PokeByte (track_data,(t*(64*4))+(l*4)+2,(b And $0f))
-				v_found = v_found + 1
-			Else If (v > 0 )
-				vol = v
-			EndIf
-			If (i = ins And i > 0)
-				PokeByte (track_data,(t*(64*4))+(l*4)+1,0)
-				i_found = i_found + 1
-			Else If (i > 0)
-				ins = i
-			EndIf
-		Next
-	Next
-	AddTextAreaText (logging," "+v_found+" duplicate volumes found."+Chr(10))
-	AddTextAreaText (logging," "+ins_track+" duplicate instruments found."+Chr(10))
+;	;--- remove redundant instruments in patterns
+;	AddTextAreaText (logging,"-Removing redundant instruments and volumes in tracks..."+Chr(10))
+;	v_found = 0
+;	i_found = 0
+;	For t = 0 To last_track
+;		vol = 255
+;		ins = 255
+;		For l = 0 To (64)-1
+;			b = PeekByte (track_data, (t*(64*4))+(l*4)+2) 
+;			v = b And $f0
+;			i = PeekByte (track_data, (t*(64*4))+(l*4)+1)
+;			
+;			If (v = vol And v > 0)
+;				PokeByte (track_data,(t*(64*4))+(l*4)+2,(b And $0f))
+;				v_found = v_found + 1
+;			Else If (v > 0 )
+;				vol = v
+;			EndIf
+;			If (i = ins And i > 0)
+;				PokeByte (track_data,(t*(64*4))+(l*4)+1,0)
+;				i_found = i_found + 1
+;			Else If (i > 0)
+;				ins = i
+;			EndIf
+;		Next
+;	Next
+;	AddTextAreaText (logging," "+v_found+" duplicate volumes found."+Chr(10))
+;	AddTextAreaText (logging," "+ins_track+" duplicate instruments found."+Chr(10))
 	
 
 

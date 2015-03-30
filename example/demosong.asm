@@ -552,7 +552,7 @@
 	db $C0		;[Wait] 1
 	db $A7, $55	;[CMD vibrato]
 				;[Skip delay] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $02	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $13		;[Note] 20
 				;[Skip delay] 2
@@ -876,11 +876,11 @@
 	db $C2		;[Wait] 3
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $05	;[CMD vibrato] rep
 	db $C4		;[Wait] 5
 	db $A5, $10; slide-down
 	db $C0		;[Wait] 1
-	db $AF, $01; slide-down rep
+	db $AF, $02; slide-down rep
 	db $C1		;[Wait] 2
 	db $BF		;[End-Of-Track]
 .track_6:
@@ -911,7 +911,7 @@
 	db $C2		;[Wait] 3
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $02	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $35		;[Note] 54
 	db $6F		;[Volume] 15
@@ -924,7 +924,7 @@
 	db $C2		;[Wait] 3
 	db $A7, $56	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $68		;[Volume] 8
 	db $C0		;[Wait] 1
@@ -936,7 +936,7 @@
 	db $A5, $10; slide-down
 				;[Skip delay] 1
 	db $64		;[Volume] 4
-	db $AF, $01; slide-down rep
+	db $AF, $02; slide-down rep
 				;[Skip delay] 1
 	db $63		;[Volume] 3
 				;[Skip delay] 1
@@ -949,7 +949,7 @@
 	db $C0		;[Wait] 1
 	db $A7, $55	;[CMD vibrato]
 				;[Skip delay] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $02	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $30		;[Note] 49
 				;[Skip delay] 2
@@ -965,7 +965,7 @@
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
 	db $67		;[Volume] 7
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $08	;[CMD vibrato] rep
 				;[Skip delay] 1
 	db $66		;[Volume] 6
 				;[Skip delay] 1
@@ -1168,7 +1168,7 @@
 	db $C0		;[Wait] 1
 	db $A7, $55	;[CMD vibrato]
 				;[Skip delay] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $02	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $13		;[Note] 20
 				;[Skip delay] 2
@@ -1479,11 +1479,11 @@
 	db $C2		;[Wait] 3
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $05	;[CMD vibrato] rep
 	db $C4		;[Wait] 5
 	db $A5, $10; slide-down
 	db $C0		;[Wait] 1
-	db $AF, $01; slide-down rep
+	db $AF, $02; slide-down rep
 	db $C1		;[Wait] 2
 	db $BF		;[End-Of-Track]
 .track_14:
@@ -1518,7 +1518,7 @@
 	db $C2		;[Wait] 3
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $02	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $35		;[Note] 54
 	db $6F		;[Volume] 15
@@ -1531,7 +1531,7 @@
 	db $C2		;[Wait] 3
 	db $A7, $56	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $68		;[Volume] 8
 	db $C0		;[Wait] 1
@@ -1543,7 +1543,7 @@
 	db $A5, $10; slide-down
 				;[Skip delay] 1
 	db $64		;[Volume] 4
-	db $AF, $01; slide-down rep
+	db $AF, $02; slide-down rep
 				;[Skip delay] 1
 	db $63		;[Volume] 3
 				;[Skip delay] 1
@@ -1556,7 +1556,7 @@
 	db $C0		;[Wait] 1
 	db $A7, $55	;[CMD vibrato]
 				;[Skip delay] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $02	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $37		;[Note] 56
 				;[Skip delay] 2
@@ -1566,7 +1566,7 @@
 	db $C1		;[Wait] 2
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $08	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $6F		;[Volume] 15
 				;[Skip delay] 2
@@ -1579,7 +1579,7 @@
 	db $A5, $10; slide-down
 				;[Skip delay] 1
 	db $67		;[Volume] 7
-	db $AF, $01; slide-down rep
+	db $AF, $03; slide-down rep
 	db $C1		;[Wait] 2
 	db $65		;[Volume] 5
 	db $C0		;[Wait] 1
@@ -1636,7 +1636,7 @@
 	db $A5, $10; slide-down
 				;[Skip delay] 1
 	db $67		;[Volume] 7
-	db $AF, $01; slide-down rep
+	db $AF, $03; slide-down rep
 	db $C1		;[Wait] 2
 	db $65		;[Volume] 5
 	db $C0		;[Wait] 1
@@ -1867,7 +1867,7 @@
 	db $C1		;[Wait..] 2
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $2D		;[Note] 46
 	db $C1		;[Wait] 2
@@ -1875,11 +1875,11 @@
 	db $C2		;[Wait] 3
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $05	;[CMD vibrato] rep
 	db $C4		;[Wait] 5
 	db $A5, $10; slide-down
 	db $C0		;[Wait] 1
-	db $AF, $01; slide-down rep
+	db $AF, $03; slide-down rep
 	db $C2		;[Wait] 3
 	db $60		;[Note] 97
 	db $C4		;[Wait] 5
@@ -1896,7 +1896,7 @@
 	db $C1		;[Wait..] 2
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $28		;[Note] 41
 	db $C1		;[Wait] 2
@@ -1904,11 +1904,11 @@
 	db $C2		;[Wait] 3
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $05	;[CMD vibrato] rep
 	db $C4		;[Wait] 5
 	db $A5, $10; slide-down
 	db $C0		;[Wait] 1
-	db $AF, $01; slide-down rep
+	db $AF, $03; slide-down rep
 	db $C2		;[Wait] 3
 	db $60		;[Note] 97
 	db $C4		;[Wait] 5
@@ -2204,11 +2204,11 @@
 	db $C2		;[Wait] 3
 	db $A7, $56	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $04	;[CMD vibrato] rep
 				;[Skip delay] 1
 	db $6A		;[Volume] 10
 				;[Skip delay] 1
@@ -2434,7 +2434,7 @@
 	db $C1		;[Wait..] 2
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $2D		;[Note] 46
 	db $C1		;[Wait] 2
@@ -2442,11 +2442,11 @@
 	db $C2		;[Wait] 3
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $05	;[CMD vibrato] rep
 	db $C4		;[Wait] 5
 	db $A5, $10; slide-down
 	db $C0		;[Wait] 1
-	db $AF, $01; slide-down rep
+	db $AF, $03; slide-down rep
 	db $C2		;[Wait] 3
 	db $60		;[Note] 97
 	db $C4		;[Wait] 5
@@ -2784,7 +2784,7 @@
 	db $A7, $67	;[CMD vibrato]
 				;[Skip delay] 1
 	db $67		;[Volume] 7
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $02	;[CMD vibrato] rep
 				;[Skip delay] 1
 	db $65		;[Volume] 5
 				;[Skip delay] 1
@@ -2795,11 +2795,11 @@
 	db $C2		;[Wait] 3
 	db $A7, $56	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $04	;[CMD vibrato] rep
 				;[Skip delay] 1
 	db $6A		;[Volume] 10
 				;[Skip delay] 1
@@ -2831,13 +2831,13 @@
 	db $C2		;[Wait] 3
 	db $A7, $56	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $02	;[CMD vibrato] rep
 	db $C1		;[Wait] 2
 	db $69		;[Volume] 9
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
 	db $67		;[Volume] 7
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $02	;[CMD vibrato] rep
 				;[Skip delay] 1
 	db $66		;[Volume] 6
 				;[Skip delay] 1
@@ -3238,7 +3238,7 @@
 	db $A5, $10; slide-down
 				;[Skip delay] 1
 	db $68		;[Volume] 8
-	db $AF, $01; slide-down rep
+	db $AF, $02; slide-down rep
 				;[Skip delay] 1
 	db $66		;[Volume] 6
 				;[Skip delay] 1
@@ -3249,7 +3249,7 @@
 	db $24		;[Note] 37
 	db $A6, $07; tone-slide
 				;[Skip delay] 1
-	db $B0, $01; tone-slide rep
+	db $B0, $02; tone-slide rep
 				;[Skip delay] 1
 	db $60		;[Note] 97
 				;[Skip delay] 1
@@ -3297,7 +3297,7 @@
 	db $C4		;[Wait] 5
 	db $A5, $10; slide-down
 	db $C0		;[Wait] 1
-	db $AF, $01; slide-down rep
+	db $AF, $08; slide-down rep
 	db $C7		;[Wait] 8
 	db $60		;[Note] 97
 	db $C3		;[Wait] 4
@@ -3320,7 +3320,7 @@
 	db $C3		;[Wait] 4
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $34		;[Note] 53
 	db $C1		;[Wait] 2
@@ -3369,7 +3369,7 @@
 	db $C3		;[Wait] 4
 	db $A7, $56	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $67		;[Volume] 7
 	db $A7, $55	;[CMD vibrato]
@@ -3632,7 +3632,7 @@
 	db $C0		;[Wait] 1
 	db $60		;[Note] 97
 	db $6D		;[Volume] 13
-	db $AF, $01; slide-down rep
+	db $AF, $03; slide-down rep
 				;[Skip delay] 1
 	db $6C		;[Volume] 12
 				;[Skip delay] 1
@@ -3685,7 +3685,7 @@
 	db $A5, $10; slide-down
 	db $C0		;[Wait] 1
 	db $6D		;[Volume] 13
-	db $AF, $01; slide-down rep
+	db $AF, $03; slide-down rep
 				;[Skip delay] 1
 	db $6C		;[Volume] 12
 				;[Skip delay] 1
@@ -3751,7 +3751,7 @@
 	db $A5, $10; slide-down
 	db $C0		;[Wait] 1
 	db $6A		;[Volume] 10
-	db $AF, $01; slide-down rep
+	db $AF, $03; slide-down rep
 				;[Skip delay] 1
 	db $69		;[Volume] 9
 				;[Skip delay] 1
@@ -3814,7 +3814,7 @@
 	db $A5, $10; slide-down
 				;[Skip delay] 1
 	db $6D		;[Volume] 13
-	db $AF, $01; slide-down rep
+	db $AF, $03; slide-down rep
 				;[Skip delay] 1
 	db $6A		;[Volume] 10
 				;[Skip delay] 1
@@ -3843,7 +3843,7 @@
 	db $24		;[Note] 37
 	db $A6, $07; tone-slide
 				;[Skip delay] 1
-	db $B0, $01; tone-slide rep
+	db $B0, $02; tone-slide rep
 				;[Skip delay] 1
 	db $60		;[Note] 97
 				;[Skip delay] 1
@@ -3903,7 +3903,7 @@
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
 	db $65		;[Volume] 5
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 				;[Skip delay] 1
 	db $64		;[Volume] 4
 				;[Skip delay] 1
@@ -3930,7 +3930,7 @@
 	db $C3		;[Wait] 4
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $3E		;[Note] 63
 	db $C0		;[Wait] 1
@@ -3988,7 +3988,7 @@
 	db $A7, $55	;[CMD vibrato]
 	db $C0		;[Wait] 1
 	db $69		;[Volume] 9
-	db $B1, $01	;[CMD vibrato] rep
+	db $B1, $03	;[CMD vibrato] rep
 				;[Skip delay] 1
 	db $67		;[Volume] 7
 				;[Skip delay] 1
