@@ -269,16 +269,10 @@ _replay_check_patternend:
 	ld	hl,(TRACK_pointer1)
 	ld	a,(hl)
 	
-
 	;--- check for end of pattern
 	cp	191	
 	jp	nz,replay_decodedata_NO
 
-	;-- next_pattern
-	ld	a,(pattern)
-	inc	a
-	ld	(pattern),a
-	
 	;--- Set track pointers to start
 	ld	hl,(replay_orderpointer)
 	xor	a
