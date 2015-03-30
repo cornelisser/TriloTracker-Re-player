@@ -122,9 +122,6 @@ Function prepare()
 						Exit
 					EndIf
 				Next
-						If (p =0 And c = 2)
-							AddTextAreaText (logging,"dup:"+dup+Chr(10))
-						EndIf							
 				If (dup = 1)
 					PokeShort(track_list,p*16+c*2,t)
 					found_dupes = found_dupes+1
@@ -694,10 +691,10 @@ Function compile_instrument_row(fileout,ins,r,e)
 	If ((byte2 And $20) = $00)
 		;base volume
 		result1 = result1 + $01
-	Else If (((byte2 And $30) = $10) And (result2 > 0))
+	Else If (((byte2 And $30) = $20) And (result2 > 0))
 		; add volume
 		result1 = result1 + $03
-	Else If (result > 0)
+	Else If (result2 > 0)
 		;min volume
 		result1 = result1 + $03
 		result2 = (255-result2)+1
