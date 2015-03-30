@@ -1,3 +1,7 @@
+Const VERSION$ = "V0.2.1"
+Const DATE$ = "[30-03-2015]"
+
+
 Global	patterns 		= CreateBank ((((4*8))*64)*128)
 Global	pattern_lengths	= CreateBank (128)
 Global	samples			= CreateBank (32*(3+(32*4)))

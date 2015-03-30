@@ -269,7 +269,7 @@ End Function
 
 Function compile_header(fileout)
 
-	WriteLine (fileout, "; Compiled using tt_compile.exe V0.1 [02-03-2015]")
+	WriteLine (fileout, "; Compiled using tt_compile.exe "+VERSION$ + " "+ DATE$)
 	WriteLine (fileout, "; Copyright 2015 Richard Cornelisse")
 	WriteLine (fileout, "")
 	
