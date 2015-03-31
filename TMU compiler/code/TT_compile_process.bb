@@ -245,7 +245,7 @@ Function prepare()
 		If v > 0
 			last_instrument = i
 			wave = PeekByte(samples,((i-1)*(32*4+3))+2)	
-			AddTextAreaText (logging," Wave "+wave+" Instrument"+i+Chr(10))
+;			AddTextAreaText (logging," Wave "+wave+" Instrument"+i+Chr(10))
 			PokeByte (used_waveforms,wave,1)
 		EndIf
 	Next
@@ -431,7 +431,8 @@ Const CMD_E6  = SINGLE_BASE+7;
 Const CMD_E8  = SINGLE_BASE+8;
 Const CMD_EF  = SINGLE_BASE+9;
 Const CMD_F   = SINGLE_BASE+10;
-Const CMD_CALL= SINGLE_BASE+11;       /// Call to a re-occurring part
+Const CMD_E5  = SINGLE_BASE+11;		 // note link
+;Const CMD_CALL= SINGLE_BASE+11;       /// Call to a re-occurring part
 Const CMD_RET = SINGLE_BASE+12;       /// Return from call to original track.
 
 Const CMD_B1  = SINGLE_BASE+13;
@@ -611,6 +612,8 @@ Function compile_track(fileout,t)
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E2),2)+", $"+Right(Hex(par),2)+Chr(9)+"; fine slide down")
 							Case 4	; Vibrato control
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E4),2)+", $"+Right(Hex(par),2)+Chr(9)+"; vibrato control")
+							Case 5	; Note link
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E5),2)+Chr(9)+Chr(9)+";Note link")
 							Case 6	; Track detune
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E6),2)+", $"+Right(Hex(par),2)+Chr(9)+"; track detune")
 							Case 8	; Global detune

@@ -821,7 +821,8 @@ DECODE_CMDLIST:
 	dw	_CHIPcmd18_transpose		;8
 	dw	_CHIPcmd1A_trigger		;9
 	dw	_CHIPcmd1B_speed			;a
-	dw	_CHIPcmd1C_call			;b	
+	dw	_CHIPcmd1C_notelink		;b
+;	dw	_CHIPcmd1C_call			;b	
 	dw	_CHIPcmd1D_ret			;c
 	
 	; These effects are also processed in the processing
@@ -1297,8 +1298,10 @@ _CHIPcmd1B_speed:
 
 	jp	_rdc	
 	
-
-
+_CHIPcmd1C_notelink:
+	res	B_TRGNOT,d
+	dec 	bc
+	jp	_rdc	
 _CHIPcmd1C_call:
 _CHIPcmd1D_ret:
 	;< not implemented yet>
