@@ -2,6 +2,7 @@ Function prepare()
 
 	For x=0 To 30
 		PokeByte(used_instruments,x,0)
+		PokeByte(used_waveforms,x,255)
 	Next		
 
 
@@ -167,9 +168,33 @@ Function prepare()
 				For x=0 To 63
 					For y = 0 To 3
 						v=PeekByte(temp_track,(x*4)+y)
+						;--- count instruments used
 						If y= 1 And v < 255
-							PokeByte(used_instruments,(v),1)
+							t = PeekByte (used_instruments,v)
+							PokeByte(used_instruments,(v),1)		
 						EndIf	
+						;--- count waveforms used by Bxy
+						If	y=2 And	((v And $0f) = $0B)
+							w = PeekByte(temp_track,(x*4)+y+1)
+							e = w And $f0
+							w = w And $0f
+							If (e = $20 Or e=$40 Or e=$b0) 
+							Else If (e = $30 Or e=$50 Or e=$c0)	; upper 16
+								w = w +16
+							Else
+								w=255
+							EndIf
+							If w  <255
+								PokeByte(used_waveforms,w,1)
+							EndIf
+		 				EndIf
+						;--- count waveforms used by Cxy
+						If	y=2 And	((v And $0f) = $0C)		
+							w = PeekByte(temp_track,(x*4)+y+1)
+							w = (w Shr 4) And $0f
+							PokeByte(used_waveforms,w,1)
+						EndIf
+										
 						PokeByte(track_data,(last_track*(64*4))+(x*4)+y,v)
 					Next
 				Next
@@ -215,20 +240,32 @@ Function prepare()
 
 
 	;--- get highest instrument used
-	For i= 0 To 31
-		If PeekByte(used_instruments,i) > 0
+	For i= 1 To 31
+		v = PeekByte(used_instruments,i)
+		If v > 0
 			last_instrument = i
+			wave = PeekByte(samples,((i-1)*(32*4+3))+2)	
+			AddTextAreaText (logging," Wave "+wave+" Instrument"+i+Chr(10))
+			PokeByte (used_waveforms,wave,1)
 		EndIf
 	Next
-	;--- get highest waveform used
-	For i = 0 To last_instrument 
-		wave = PeekByte(samples,(i*(32*4+3))+2)	
-		If wave > last_waveform
-			last_waveform = wave
+	;--- Renumber waveforms 
+	waveform = 0
+	For i = 0 To 31
+		v = PeekByte(used_waveforms,i)
+		If v <255
+			PokeByte(used_waveforms,i,waveform)
+			waveform = waveform + 1
 		EndIf
 	Next
 	
-;	For t = 0 To last_track
+	;--- undo renumbering if there is no waveform included (but external)
+	If Not (ButtonState(includeWave))
+		For i = 0 To 31
+			PokeByte(used_waveforms,i,i)
+		Next
+	EndIf
+
 		
 	
 	
@@ -263,8 +300,10 @@ Function compile()
 
 			If (ButtonState(includeWave))
 				WriteLine (fileout, l_pre$+"waveform_start:")
-				For w=0 To last_waveform;31
-					compile_waveform(fileout,w)
+				For w=0 To 31
+					If (PeekByte(used_waveforms,w) < 255)
+						compile_waveform(fileout,w)
+					EndIf
 				Next
 				WriteLine (fileout, "")
 			EndIf
@@ -532,30 +571,32 @@ Function compile_track(fileout,t)
 					Case $b		; SCC commands
 						sub = (par  And $f0)/16
 						par = par And $f
+						wav = PeekByte(used_waveforms,par)
 						Select sub
 							Case 0		; reset waveform to instrument original
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B0),2)+Chr(9)+"; reset waveform")
 							Case 1		; duty cycle
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B1),2)+", $"+Right(Hex(par),2)+"; duty cycle")
 							Case 2		; waveform cut
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B2),2)+", $"+Right(Hex(par),2)+"; waveform cut")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B2),2)+", $"+Right(Hex(wav),2)+"; waveform cut")
 							Case 4		; waveform compress
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B4),2)+", $"+Right(Hex(par),2)+"; waveform compress")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B4),2)+", $"+Right(Hex(wav),2)+"; waveform compress")
 							Case $b		; set waveform
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex(par),2)+"; set waveform")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex(wav),2)+"; set waveform")
 							Case $c		; set waveform + 16
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex(par+16),2)+"; set waveform + 16")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex(wav+16),2)+"; set waveform + 16")
 						End Select
 					Case $c		; SCC morph	
 						sub = (par  And $f0)/16
 						par = par And $f						
+						wav = PeekByte(used_waveforms,sub)
 						
-						If (par = 0 ) ;--- Slave command
+						If (sub = 0 ) ;--- Slave command
 							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cs),2)+Chr(9)+"; Morph slave")
-						Else If (sub = 0)	;--- continue morph from current
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cc),2)+", $"+Right(Hex(par/16),2)+Chr(9)+"; continue from current")
+						Else If (par = 0)	;--- continue morph from current
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cc),2)+", $"+Right(Hex(wav),2)+Chr(9)+"; continue from current")
 						Else		; --- New morph from instrument
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cm),2)+", $"+Right(Hex(par),2)+Chr(9)+"; new morph from instrument")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cm),2)+", $"+Right(Hex(par+(wav*16)),2)+Chr(9)+"; new morph from instrument")
 						EndIf	
 					Case $e		; Extended events
 						sub = (par  And $f0)/16
@@ -650,7 +691,7 @@ Function compile_waveform(fileout,w)
 		EndIf
 	Next
 
-	WriteLine (fileout, result$+Chr(9)+"; Waveform "+w)
+	WriteLine (fileout, result$+Chr(9)+"; Waveform "+PeekByte(used_waveforms,w)+"(was "+w+")")
 
 End Function
 
@@ -660,6 +701,7 @@ Function compile_instrument(fileout,ins)
 	ins = ins -1
 	
 	wave = PeekByte(samples,(ins*(32*4+3))+2)
+	wave2 = PeekByte(used_waveforms,wave)			; translate number
 	restart = PeekByte(samples,(ins*(32*4+3))+1)
 	length = PeekByte(samples,(ins*(32*4+3)))
 	
@@ -678,7 +720,7 @@ Function compile_instrument(fileout,ins)
 	EndIf	
 	
 	
-	WriteLine (fileout, Chr(9)+Chr(9)+"db "+wave+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform")
+	WriteLine (fileout, Chr(9)+Chr(9)+"db "+wave2+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform (was "+wave+")")
 	WriteLine (fileout, Chr(9)+Chr(9)+"db "+l_pre$+"rst_i"+ins+"-("+l_pre$+"ins_"+ins+" +2)"+Chr(9)+Chr(9)+"; Restart")
 	
 	

@@ -17,6 +17,7 @@ Global	last_pattern	= 0
 Global 	last_instrument = 0	; starting at 0
 Global	last_waveform	= 0	; starting at 0
 Global	used_instruments= CreateBank(32)
+Global  used_waveforms  = CreateBank(32)
 
 
 Global 	songname 		= CreateBank (32)
