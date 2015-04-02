@@ -1849,7 +1849,7 @@ _pcAY_cmdasub:
 	; vol	slide
 	ld	a,[ix+TRACK_cmd_A]
 	ld	c,a
-	and	$0f
+	and	$7f
 	ld	[ix+TRACK_Timer],a
 
 	ld	a,[IX+TRACK_cmd_VolumeAdd]
