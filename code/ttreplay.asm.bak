@@ -854,7 +854,7 @@ DECODE_CMDLIST:
 	dw	_CHIPcmd2_RE_port_down		;21
 	dw	_CHIPcmd3_RE_port_tone		;22
 	dw	_CHIPcmd4_RE_vibrato		;23
-	dw	_CHIPcmd5_RE_vibrato_port_tone ;24
+	dw	_CHIPcmd5_RE_vibrato_port_tone;24
 	dw	_CHIPcmd6_RE_vibrato_vol	;25
 	dw	_CHIPcmd7_RE_vol_slide		;26
 	dw	_CHIPcmd8_RE_macro_offset	;27

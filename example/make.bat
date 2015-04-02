@@ -1,3 +1,4 @@
-sjasm -s main.asm main{scc}.rom
+REM asmsx  main.asm 
+sjasm -s main.asm main{SCC}.rom
 
 pause

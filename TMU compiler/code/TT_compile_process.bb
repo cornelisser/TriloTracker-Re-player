@@ -310,14 +310,15 @@ Function compile()
 			
 			If (ButtonState(includeIns))
 				WriteLine (fileout, l_pre$+"instrument_start:")
-				out$ = Chr(9)+"dw "
+;				out$ = Chr(9)+"dw "
 				For i=1 To last_instrument;31
-					out$ = out$ +l_pre$+"ins_"+i
-					If i<last_instrument
-						out$ = out$ +","
-					EndIf
+					WriteLine (fileout, Chr(9)+"dw "+l_pre$+"ins_"+i)
+;					out$ = out$ +l_pre$+"ins_"+i
+;					If i<last_instrument
+;						out$ = out$ +","
+;					EndIf
 				Next
-				WriteLine (fileout, out$)
+;				WriteLine (fileout, out$)
 			
 				For i=1 To last_instrument;31
 					compile_instrument(fileout,i)
