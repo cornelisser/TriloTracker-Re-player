@@ -1483,17 +1483,30 @@ _vol_base:
 	jp	_noVolume	
 	
 _noEnv:
-	add 	a,[ix+TRACK_cmd_VolumeAdd]
-	cp  	128
-	jp 	c,@@skip
-	xor 	a
-	jp 	@@skip2
-@@skip:  	
-	cp 	16
-	jp 	c,@@skip2
- 	ld 	a,$f
-@@skip2:
 	or	[ix+TRACK_Volume]
+	ld	c,a			; store volume add
+
+	ld 	a,[ix+TRACK_cmd_VolumeAdd]
+	rla				; shift to detect shift
+	jp 	c,@@sub_Vadd		
+@@add_Vadd:  
+	add	a,c
+	jp	nc,_Vadd
+	ld	a,c
+	or	0xf0
+	jp	_Vadd	
+@@sub_Vadd:	
+	ld	b,a
+	xor	a
+	sub 	b
+	ld	b,a
+	ld	a,c
+	sub	a,b
+	jp 	nc,@@skip2
+	ld	a,c
+ 	and	0x0f
+@@skip2:
+
 	
 	;-- next is _Vadd
 _Vadd:
