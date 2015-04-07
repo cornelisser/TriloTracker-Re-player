@@ -737,11 +737,11 @@ _replay_decode_ins:
 	ld	a,(hl)
 	inc	hl
 	
-	ld	e,(hl)
-	inc	hl
+;	ld	e,(hl)
+;	inc	hl
 
 	;---- Store the restart offset
-	ld	(ix+TRACK_MacroRestart),e
+;	ld	(ix+TRACK_MacroRestart),e
 	;--- Store the macro start
 	ld	(ix+TRACK_MacroPointer),l
 	ld	(ix+TRACK_MacroPointer+1),h	
@@ -1458,7 +1458,7 @@ _vol_rel:
 	cp	16
 	jp	c,_vol_base
 	cp	128
-	jp	c,.skip
+	jp	nc,.skip
 	ld	a,$0f
 	jp	_vol_base
 .skip:	
@@ -1584,6 +1584,17 @@ _pcAY_noTone:
 	ld	b,a
 	ld	(ix+TRACK_ToneAdd),b
 _pcAY_noToneAdd:	
+	;---- check for macro end
+	bit	3,e		
+	jp	z,.noend
+	
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	
+
+.noend:
 	ld	(ix+TRACK_MacroPointer),l	;--- store pointer for next time
 	ld	(ix+TRACK_MacroPointer+1),h	
 
@@ -1612,6 +1623,9 @@ _pcAY_noToneAdd:
 	add	hl,bc
 	ld	sp,(_SP_Storage)
 
+	ret
+	
+	
 ;	ld	c,(ix+TRACK_cmd_detune)
 ;	ld	b,(ix+TRACK_cmd_detune+1)
 ;	add	hl,bc
@@ -1630,24 +1644,25 @@ _pcAY_noToneAdd:
 	; END of macro?
 	;
 	;-------------------------------
-	bit	3,e		
-	ret	z
+;	bit	3,e		
+;	ret	z
 	
 	;--- now get new pointer
-	ld	c,(ix+TRACK_MacroStart)
-	ld	b,(ix+TRACK_MacroStart+1)
 	
-	ld	a,(ix+TRACK_MacroRestart)	
-	add	a,c
-	ld	c,a
-	jp	nc,.skip2
-	inc	b
-.skip2:		
+;	ld	c,(ix+TRACK_MacroStart)
+;	ld	b,(ix+TRACK_MacroStart+1)
+;	
+;	ld	a,(ix+TRACK_MacroRestart)	
+;	add	a,c
+;	ld	c,a
+;	jp	nc,.skip2
+;	inc	b
+;.skip2:		
 	;--- Store the macro start	
-	ld	(ix+TRACK_MacroPointer),c
-	ld	(ix+TRACK_MacroPointer+1),b		
+;	ld	(ix+TRACK_MacroPointer),c
+;	ld	(ix+TRACK_MacroPointer+1),b		
 
-	ret
+;	ret
 	
 _pcAY_noNoteActive:
 	xor	a

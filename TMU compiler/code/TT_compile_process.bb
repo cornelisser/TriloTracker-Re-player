@@ -725,7 +725,7 @@ Function compile_instrument(fileout,ins)
 	
 	
 	WriteLine (fileout, Chr(9)+Chr(9)+"db "+wave2+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform (was "+wave+")")
-	WriteLine (fileout, Chr(9)+Chr(9)+"db "+l_pre$+"rst_i"+ins+"-("+l_pre$+"ins_"+ins+" +2)"+Chr(9)+Chr(9)+"; Restart")
+;	WriteLine (fileout, Chr(9)+Chr(9)+"db "+l_pre$+"rst_i"+ins+"-("+l_pre$+"ins_"+ins+" +2)"+Chr(9)+Chr(9)+"; Restart")
 	
 	
 	For r = 0 To length-1
@@ -740,6 +740,7 @@ Function compile_instrument(fileout,ins)
 			compile_instrument_row(fileout,ins,r,0)
 		EndIf
 	Next
+	WriteLine (fileout, Chr(9)+Chr(9)+"dw "+l_pre$+"rst_i"+ins)
 	
 	
 End Function
