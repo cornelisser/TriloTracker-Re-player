@@ -6,13 +6,13 @@
 ;================================
 
 TRACK_Instrument		equ 0-17
-TRACK_Waveform		equ 1-17
-TRACK_Command		equ 2-17
-TRACK_MacroPointer	equ 3-17
-TRACK_MacroStart		equ 5-17
-TRACK_MacroRestart 	equ 7-17
-TRACK_Note			equ 8-17
-TRACK_Volume		equ 9-17
+TRACK_Command		equ 1-17
+TRACK_MacroPointer	equ 2-17
+TRACK_MacroStart		equ 4-17
+TRACK_MacroRestart 	equ 6-17		; no longer needed
+TRACK_Note			equ 7-17
+TRACK_Volume		equ 8-17
+TRACK_Waveform		equ 9-17
 TRACK_Flags			equ 10-17
 	; 0 = note trigger
 	; 1 = note active

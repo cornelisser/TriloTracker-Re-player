@@ -580,13 +580,13 @@ Function compile_track(fileout,t)
 							Case 1		; duty cycle
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B1),2)+", $"+Right(Hex(par),2)+"; duty cycle")
 							Case 2		; waveform cut
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B2),2)+", $"+Right(Hex(wav),2)+"; waveform cut")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B2),2)+", $"+Right(Hex(wav*8),2)+"; waveform cut")
 							Case 4		; waveform compress
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B4),2)+", $"+Right(Hex(wav),2)+"; waveform compress")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B4),2)+", $"+Right(Hex(wav*8),2)+"; waveform compress")
 							Case $b		; set waveform
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex(wav),2)+"; set waveform")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex(wav*8),2)+"; set waveform")
 							Case $c		; set waveform + 16
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex(wav+16),2)+"; set waveform + 16")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex((wav+16)*8),2)+"; set waveform + 16")
 						End Select
 					Case $c		; SCC morph	
 						sub = (par  And $f0)/16
@@ -596,7 +596,7 @@ Function compile_track(fileout,t)
 						If (sub = 0 ) ;--- Slave command
 							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cs),2)+Chr(9)+"; Morph slave")
 						Else If (par = 0)	;--- continue morph from current
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cc),2)+", $"+Right(Hex(wav),2)+Chr(9)+"; continue from current")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cc),2)+", $"+Right(Hex(wav*8),2)+Chr(9)+"; continue from current")
 						Else		; --- New morph from instrument
 							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cm),2)+", $"+Right(Hex(par+(wav*16)),2)+Chr(9)+"; new morph from instrument")
 						EndIf	
@@ -724,7 +724,7 @@ Function compile_instrument(fileout,ins)
 	EndIf	
 	
 	
-	WriteLine (fileout, Chr(9)+Chr(9)+"db "+wave2+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform (was "+wave+")")
+	WriteLine (fileout, Chr(9)+Chr(9)+"db "+(wave2*8)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform (was "+wave+")")
 ;	WriteLine (fileout, Chr(9)+Chr(9)+"db "+l_pre$+"rst_i"+ins+"-("+l_pre$+"ins_"+ins+" +2)"+Chr(9)+Chr(9)+"; Restart")
 	
 	

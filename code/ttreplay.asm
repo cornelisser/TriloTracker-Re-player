@@ -215,7 +215,7 @@ replay_loadsong:
 	ld	(TRACK_Chan7+17+TRACK_Delay),a		
 	ld	(TRACK_Chan8+17+TRACK_Delay),a	
 	
-	ld	a,255
+	ld	a,254
 	ld	(TRACK_Chan1+17+TRACK_Instrument),a	
 	ld	(TRACK_Chan2+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan3+17+TRACK_Instrument),a	
@@ -1124,9 +1124,9 @@ _CHIPcmd11_morph_start:
 	exx
 	;--- load the waveformbuffer
 	ld	a,(ix+TRACK_Waveform)
-	add	a,a
-	add	a,a
-	add	a,a	
+;	add	a,a
+;	add	a,a
+;	add	a,a	
 
 	ld	l,a
 	ld	h,0
@@ -1946,7 +1946,7 @@ _pcAY_cmdd_wave_cut:
 	;=================
 
 	res	B_TRGCMD,d		;(ix+TRACK_Flags)	; reset command
-	res	B_TRGWAV,d		;(ix+TRACK_Flags)	; reset normal wave update
+	set	B_TRGWAV,d		;(ix+TRACK_Flags)	; reset normal wave update
 	ld	a,d
 	ex	AF,AF;'
 
@@ -1962,9 +1962,13 @@ _pcAY_cmdd_wave_cut:
 	inc	d
 .skip:
 	ld	a,(ix+TRACK_Waveform)
-	add	a,a
-	add	a,a
-	add	a,a	
+	inc	a	
+	ld	(ix+TRACK_Waveform),a
+	dec	a
+
+;	add	a,a
+;	add	a,a
+;	add	a,a	
 
 	ld	l,a
 	ld	h,0
@@ -1975,21 +1979,22 @@ _pcAY_cmdd_wave_cut:
 	add	  hl,bc
 
 	ld	a,(ix+TRACK_cmd_B)
-	inc	a
-	add	a
+;	inc	a
+;	add	a
 	ld	c,a
 	ld	b,0
 	ldir
 	
 	EX	DE,HL
-	EX	AF,AF'		;'
-	LD	D,A
+
 	
 	sub	32
 	neg	
+	ld	b,a
+	EX	AF,AF'		;'
+	LD	D,A
 	jp	z,_pcAY_commandEND	
 	
-	ld	b,a
 	xor	a
 _wsc_l:
 	ld	(HL),a
@@ -2021,9 +2026,13 @@ _pcAY_cmde_wave_compr:
 	inc	d
 .skip:
 	ld	a,(ix+TRACK_Waveform)
-	add	a,a
-	add	a,a
-	add	a,a	
+	inc	a
+	ld	(ix+TRACK_Waveform),a
+	dec	a
+
+;	add	a,a
+;	add	a,a
+;	add	a,a	
 
 	ld	l,a
 	ld	h,0
@@ -2260,10 +2269,14 @@ loop:
 _write_SCC_wave:
 	bit	B_ACTMOR,(hl)
 	jp	nz,_write_SCC_special
-	add	a,a
-	add	a,a
-	add	a,a	
+	
+	bit	0,a
+	jp	nz,.ramwave
+;	add	a,a
+;	add	a,a
+;	add	a,a
 
+.normalwave:
 	ld	l,a
 	ld	h,0
 	add	hl,hl
@@ -2273,8 +2286,27 @@ _write_SCC_wave:
 	add	  hl,bc
 	ld	  bc,32
 	ldir
-
 	ret
+	
+	
+.ramwave:
+	dec	hl		; reset the special flag in the wave form number
+	and	$fe
+	ld	(hl),a
+
+	ld	hl,_0x9800
+	ld	a,e
+	add	a,l
+	ld	l,a
+	jp	nc,.skip
+	inc	h
+.skip:
+	ld	  bc,32
+	ldir
+	ret	
+	
+	
+	
 
 
 _write_SCC_special:
