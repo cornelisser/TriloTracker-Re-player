@@ -6,18 +6,10 @@
 ;================================
 	
 ; Converted:
-; replace ( and ) with [ and ]
-; replace [cr]. with [cr]@@	
-; diable all defines and ifdef	
-	
-	
-;===============================
-; todo:
-; - add external SCC support through conditional code.
-; - add replayer speed up through conditional code.
-; - optimize replayer code
-; - instructions for external usage of the RAM variables [setting PSG/SCC base volumes etc]
-
+; replace [ and ] with [ and ]
+; replace \n. with \n@@
+; replace \t. with \t@@	
+; disable all defines and ifdef	
 	
 ;define EXTERNAL_SCC 
 ;define INTERNAL_SCC	
@@ -221,7 +213,7 @@ replay_loadsong:
 	ld	[TRACK_Chan7+17+TRACK_Delay],a		
 	ld	[TRACK_Chan8+17+TRACK_Delay],a	
 	
-	ld	a,255
+	ld	a,254
 	ld	[TRACK_Chan1+17+TRACK_Instrument],a	
 	ld	[TRACK_Chan2+17+TRACK_Instrument],a		
 	ld	[TRACK_Chan3+17+TRACK_Instrument],a	
@@ -521,7 +513,14 @@ replay_decodedata_NO:
 	ld	a,d
 	ld	[TRACK_Chan3+17+TRACK_Flags],a	
 	ld	a,[SCC_regVOLE]
-	ld	[AY_regVOLC],a	
+	ld	[AY_regVOLC],a
+	
+	;--- To disable track 3 just comment above lines [9 lines] and enable below 2 lines.
+	;    This can be done for all tracks.
+;	ld	hl,SCC_regMIXER   
+;	srl	[hl]
+
+	
 
 	;-- Convert mixer to AY
 	ld	a,[SCC_regMIXER]		
@@ -743,11 +742,11 @@ _replay_decode_ins:
 	ld	a,[hl]
 	inc	hl
 	
-	ld	e,[hl]
-	inc	hl
+;	ld	e,[hl]
+;	inc	hl
 
 	;---- Store the restart offset
-	ld	[ix+TRACK_MacroRestart],e
+;	ld	[ix+TRACK_MacroRestart],e
 	;--- Store the macro start
 	ld	[ix+TRACK_MacroPointer],l
 	ld	[ix+TRACK_MacroPointer+1],h	
@@ -923,7 +922,7 @@ _CHIPcmd3_port_tone:
 	; towards the specified	note.	Example:
 	;	C-4 1....
 	;	F-4 ..305 [bend the note up towards	F-4]
-	;	... ..300 [continue to slide up, until F-4
+	;	@@.. ..300 [continue to slide up, until F-4
 	;						  is reached
 
 
@@ -1130,9 +1129,9 @@ _CHIPcmd11_morph_start:
 	exx
 	;--- load the waveformbuffer
 	ld	a,[ix+TRACK_Waveform]
-	add	a,a
-	add	a,a
-	add	a,a	
+;	add	a,a
+;	add	a,a
+;	add	a,a	
 
 	ld	l,a
 	ld	h,0
@@ -1464,7 +1463,7 @@ _vol_rel:
 	cp	16
 	jp	c,_vol_base
 	cp	128
-	jp	c,@@skip
+	jp	nc,@@skip
 	ld	a,$0f
 	jp	_vol_base
 @@skip:	
@@ -1590,6 +1589,17 @@ _pcAY_noTone:
 	ld	b,a
 	ld	[ix+TRACK_ToneAdd],b
 _pcAY_noToneAdd:	
+	;---- check for macro end
+	bit	3,e		
+	jp	z,@@noend
+	
+	ld	a,[hl]
+	inc	hl
+	ld	h,[hl]
+	ld	l,a
+	
+
+@@noend:
 	ld	[ix+TRACK_MacroPointer],l	;--- store pointer for next time
 	ld	[ix+TRACK_MacroPointer+1],h	
 
@@ -1618,6 +1628,9 @@ _pcAY_noToneAdd:
 	add	hl,bc
 	ld	sp,[_SP_Storage]
 
+	ret
+	
+	
 ;	ld	c,[ix+TRACK_cmd_detune]
 ;	ld	b,[ix+TRACK_cmd_detune+1]
 ;	add	hl,bc
@@ -1636,24 +1649,25 @@ _pcAY_noToneAdd:
 	; END of macro?
 	;
 	;-------------------------------
-	bit	3,e		
-	ret	z
+;	bit	3,e		
+;	ret	z
 	
 	;--- now get new pointer
-	ld	c,[ix+TRACK_MacroStart]
-	ld	b,[ix+TRACK_MacroStart+1]
 	
-	ld	a,[ix+TRACK_MacroRestart]	
-	add	a,c
-	ld	c,a
-	jp	nc,@@skip2
-	inc	b
-@@skip2:		
+;	ld	c,[ix+TRACK_MacroStart]
+;	ld	b,[ix+TRACK_MacroStart+1]
+;	
+;	ld	a,[ix+TRACK_MacroRestart]	
+;	add	a,c
+;	ld	c,a
+;	jp	nc,@@skip2
+;	inc	b
+;.skip2:		
 	;--- Store the macro start	
-	ld	[ix+TRACK_MacroPointer],c
-	ld	[ix+TRACK_MacroPointer+1],b		
+;	ld	[ix+TRACK_MacroPointer],c
+;	ld	[ix+TRACK_MacroPointer+1],b		
 
-	ret
+;	ret
 	
 _pcAY_noNoteActive:
 	xor	a
@@ -1893,7 +1907,7 @@ _pcAY_cmdc_wave_duty:
 	; Waveform PWM / Duty Cycle
 	;=================
 	res	B_TRGCMD,d			;[ix+TRACK_Flags]	; reset command
-	res	B_TRGWAV,d			;[ix+TRACK_Flags]	; reset normal wave update
+	set	B_TRGWAV,d			;[ix+TRACK_Flags]	; reset normal wave update
 
 	;get the waveform	start	in [DE]
 	ld	hl,_0x9800
@@ -1937,9 +1951,9 @@ _pcAY_cmdd_wave_cut:
 	;=================
 
 	res	B_TRGCMD,d		;[ix+TRACK_Flags]	; reset command
-	res	B_TRGWAV,d		;[ix+TRACK_Flags]	; reset normal wave update
+	set	B_TRGWAV,d		;[ix+TRACK_Flags]	; reset normal wave update
 	ld	a,d
-	ex	af,af'	;'
+	ex	af,af'		;'
 
 	;get the waveform	start	in [DE]
 	ld	de,_0x9800
@@ -1953,9 +1967,13 @@ _pcAY_cmdd_wave_cut:
 	inc	d
 @@skip:
 	ld	a,[ix+TRACK_Waveform]
-	add	a,a
-	add	a,a
-	add	a,a	
+	inc	a	
+	ld	[ix+TRACK_Waveform],a
+	dec	a
+
+;	add	a,a
+;	add	a,a
+;	add	a,a	
 
 	ld	l,a
 	ld	h,0
@@ -1966,21 +1984,22 @@ _pcAY_cmdd_wave_cut:
 	add	  hl,bc
 
 	ld	a,[ix+TRACK_cmd_B]
-	inc	a
-	add	a
+;	inc	a
+;	add	a
 	ld	c,a
 	ld	b,0
 	ldir
 	
 	EX	DE,HL
-	EX	af,af'	;'
-	LD	D,A
+
 	
 	sub	32
 	neg	
+	ld	b,a
+	EX	AF,AF'		;'
+	LD	D,A
 	jp	z,_pcAY_commandEND	
 	
-	ld	b,a
 	xor	a
 _wsc_l:
 	ld	[HL],a
@@ -1996,9 +2015,9 @@ _pcAY_cmde_wave_compr:
 	; Waveform Compress
 	;=================
 	res	B_TRGCMD,d	;[ix+TRACK_Flags]	; reset command
-	res	B_TRGWAV,d	;[ix+TRACK_Flags]	; reset normal wave update
+	set	B_TRGWAV,d	;[ix+TRACK_Flags]	; reset normal wave update
 	ld	a,d
-	ex	af,af'	;'
+	ex	AF,AF'	;'
 	
 	;get the waveform	start	in [DE]
 	ld	de,_0x9800
@@ -2012,9 +2031,13 @@ _pcAY_cmde_wave_compr:
 	inc	d
 @@skip:
 	ld	a,[ix+TRACK_Waveform]
-	add	a,a
-	add	a,a
-	add	a,a	
+	inc	a
+	ld	[ix+TRACK_Waveform],a
+	dec	a
+
+;	add	a,a
+;	add	a,a
+;	add	a,a	
 
 	ld	l,a
 	ld	h,0
@@ -2251,10 +2274,14 @@ loop:
 _write_SCC_wave:
 	bit	B_ACTMOR,[hl]
 	jp	nz,_write_SCC_special
-	add	a,a
-	add	a,a
-	add	a,a	
+	
+	bit	0,a
+	jp	nz,@@ramwave
+;	add	a,a
+;	add	a,a
+;	add	a,a
 
+@@normalwave:
 	ld	l,a
 	ld	h,0
 	add	hl,hl
@@ -2264,8 +2291,27 @@ _write_SCC_wave:
 	add	  hl,bc
 	ld	  bc,32
 	ldir
-
 	ret
+	
+	
+@@ramwave:
+	dec	hl		; reset the special flag in the wave form number
+	and	$fe
+	ld	[hl],a
+
+	ld	hl,_0x9800
+	ld	a,e
+	add	a,l
+	ld	l,a
+	jp	nc,@@skip
+	inc	h
+@@skip:
+	ld	  bc,32
+	ldir
+	ret	
+	
+	
+	
 
 
 _write_SCC_special:
