@@ -72,8 +72,8 @@ Function prepare()
 				v = PeekByte(patterns,(p*64*32)+(l*32)+(c*4)+2) And $0f
 					If (v = $d) And (length = 63)
 					length = l
-					v = PeekByte(patterns,(p*PATTERN_SIZE)+(l*32)+(c*4)+2) And $f0
-					PokeByte (patterns,(p*PATTERN_SIZE)+(l*32)+(c*4)+2,v)
+					v = PeekByte(patterns,(p*64*32)+(l*32)+(c*4)+2) And $f0
+					PokeByte (patterns,(p*64*32)+(l*32)+(c*4)+2,v)
 				EndIf
 			Next
 		Next	
@@ -139,7 +139,6 @@ Function prepare()
 					PokeByte(temp_track,(l*4)+b,v)
 				Next	 
 			Next
-			
 			;--- Now look for duplicate data
 			For t = 0 To last_track
 				dup = 1
