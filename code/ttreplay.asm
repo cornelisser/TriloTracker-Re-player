@@ -515,7 +515,14 @@ replay_decodedata_NO:
 	ld	a,d
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 	ld	a,(SCC_regVOLE)
-	ld	(AY_regVOLC),a	
+	ld	(AY_regVOLC),a
+	
+	;--- To disable track 3 just comment above lines (9 lines) and enable below 2 lines.
+	;    This can be done for all tracks.
+;	ld	hl,SCC_regMIXER   
+;	srl	(hl)
+
+	
 
 	;-- Convert mixer to AY
 	ld	a,(SCC_regMIXER)		
@@ -1902,7 +1909,7 @@ _pcAY_cmdc_wave_duty:
 	; Waveform PWM / Duty Cycle
 	;=================
 	res	B_TRGCMD,d			;(ix+TRACK_Flags)	; reset command
-	res	B_TRGWAV,d			;(ix+TRACK_Flags)	; reset normal wave update
+	set	B_TRGWAV,d			;(ix+TRACK_Flags)	; reset normal wave update
 
 	;get the waveform	start	in [DE]
 	ld	hl,_0x9800
@@ -2010,7 +2017,7 @@ _pcAY_cmde_wave_compr:
 	; Waveform Compress
 	;=================
 	res	B_TRGCMD,d	;(ix+TRACK_Flags)	; reset command
-	res	B_TRGWAV,d	;(ix+TRACK_Flags)	; reset normal wave update
+	set	B_TRGWAV,d	;(ix+TRACK_Flags)	; reset normal wave update
 	ld	a,d
 	ex	AF,AF;'
 	
