@@ -1,5 +1,5 @@
-Const VERSION$ = "V0.2.1"
-Const DATE$ = "[30-03-2015]"
+Const VERSION$ = "V0.3"
+Const DATE$ = "[12-04-2015]"
 
 
 Global	patterns 		= CreateBank ((((4*8))*64)*128)
