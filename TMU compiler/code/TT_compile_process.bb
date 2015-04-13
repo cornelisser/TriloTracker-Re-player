@@ -562,9 +562,9 @@ Function compile_track(fileout,t)
 							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_A),2)+", $"+Right(Hex(rep),2)+"; volume slide rep")
 						Else
 							If (par < 16)
-								tmp = (par Shl 1)+128
+								tmp = par+128
 							Else
-								tmp = (par Shr 3)
+								tmp = (par Shr 4) 
 							EndIf
 							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_A),2)+", $"+Right(Hex(tmp),2)+"; volume slide")
 						EndIf					
