@@ -348,7 +348,7 @@ replay_decodedata:
 	
 	
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
-	and	11110011b		; reset B_TRGENV and B_TRGCMD
+	and	11111011b		; reset B_TRGENV
 	ld	d,a
 	ld	a,(TRACK_Chan1+17+TRACK_Note)	
 	ld	ix,TRACK_Chan1+17
@@ -373,7 +373,7 @@ replay_decodedata:
 	jp	nz,.decode3
 
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
-	and	11110011b		; reset B_TRGENV and B_TRGCMD
+	and	11111011b		; reset B_TRGENV
 	ld	d,a
 	ld	a,(TRACK_Chan2+17+TRACK_Note)	
 	ld	ix,TRACK_Chan2+17
@@ -398,7 +398,7 @@ replay_decodedata:
 	jp	nz,.decode4
 
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
-	and	11110011b		; reset B_TRGENV and B_TRGCMD
+	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan3+17+TRACK_Note)	
 	ld	ix,TRACK_Chan3+17
@@ -423,7 +423,7 @@ replay_decodedata:
 	jp	nz,.decode5
 
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
-	and	11110011b		; reset B_TRGENV and B_TRGCMD
+	and	11111011b		; reset B_TRGENV
 	ld 	d,a		;'
 	ld	a,(TRACK_Chan4+17+TRACK_Note)	
 	ld	ix,TRACK_Chan4+17
@@ -449,7 +449,7 @@ replay_decodedata:
 	jp	nz,.decode6
 
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
-	and	11110011b		; reset B_TRGENV and B_TRGCMD
+	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan5+17+TRACK_Note)	
 	ld	ix,TRACK_Chan5+17
@@ -471,10 +471,10 @@ replay_decodedata:
 	dec	hl
 ;	ld 	hl,TRACK_Chan6+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode6
+	jp	nz,.decode7
 
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
-	and	11110011b		; reset B_TRGENV and B_TRGCMD
+	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan6+17+TRACK_Note)	
 	ld	ix,TRACK_Chan6+17
@@ -500,7 +500,7 @@ replay_decodedata:
 	jp	nz,.decode8
 
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
-	and	11110011b		; reset B_TRGENV and B_TRGCMD
+	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan7+17+TRACK_Note)	
 	ld	ix,TRACK_Chan7+17
@@ -526,7 +526,7 @@ replay_decodedata:
 	jp	nz,.decode_end
 
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
-	and	11110011b		; reset B_TRGENV and B_TRGCMD
+	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan8+17+TRACK_Note)	
 	ld	ix,TRACK_Chan8+17
