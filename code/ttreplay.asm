@@ -1955,7 +1955,7 @@ _pcAY_cmdd_wave_cut:
 	res	B_TRGCMD,d		;(ix+TRACK_Flags)	; reset command
 	set	B_TRGWAV,d		;(ix+TRACK_Flags)	; reset normal wave update
 	ld	a,d
-	ex	AF,AF;'
+	ex	af,af'		;'
 
 	;get the waveform	start	in [DE]
 	ld	de,_0x9800
@@ -2019,7 +2019,7 @@ _pcAY_cmde_wave_compr:
 	res	B_TRGCMD,d	;(ix+TRACK_Flags)	; reset command
 	set	B_TRGWAV,d	;(ix+TRACK_Flags)	; reset normal wave update
 	ld	a,d
-	ex	AF,AF;'
+	ex	af,af'	;'
 	
 	;get the waveform	start	in [DE]
 	ld	de,_0x9800
