@@ -331,10 +331,22 @@ replay_play:
 ;===========================================================
 replay_decodedata:
 	;--- process the channels (tracks)
-	ld 	hl,TRACK_Chan1+17+TRACK_Delay
+	ld 	hl,TRACK_Chan1+17+TRACK_Retrig
+	dec	(hl)				;Check if retrig has ended
+	jp	nz,.retrig_skip1
+	ld	a,(TRACK_Chan1+17+TRACK_Flags)
+	res	B_TRGCMD,a
+	ld	(TRACK_Chan1+17+TRACK_Flags),a
+	
+.retrig_skip1:	
+	dec	hl
+;	ld 	hl,TRACK_Chan1+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode2
 
+	
+	
+	
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	and	11110011b		; reset B_TRGENV and B_TRGCMD
 	ld	d,a
@@ -347,7 +359,16 @@ replay_decodedata:
 	ld	(TRACK_Chan1+17+TRACK_Flags),a	
 
 .decode2:	
-	ld 	hl,TRACK_Chan2+17+TRACK_Delay
+	ld 	hl,TRACK_Chan2+17+TRACK_Retrig
+	dec	(hl)				;Check if retrig has ended
+	jp	nz,.retrig_skip2
+	ld	a,(TRACK_Chan2+17+TRACK_Flags)
+	res	B_TRGCMD,a
+	ld	(TRACK_Chan2+17+TRACK_Flags),a
+	
+.retrig_skip2:	
+	dec	hl
+;	ld 	hl,TRACK_Chan2+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode3
 
@@ -363,7 +384,16 @@ replay_decodedata:
 	ld	(TRACK_Chan2+17+TRACK_Flags),a	
 
 .decode3:
-	ld 	hl,TRACK_Chan3+17+TRACK_Delay
+	ld 	hl,TRACK_Chan3+17+TRACK_Retrig
+	dec	(hl)				;Check if retrig has ended
+	jp	nz,.retrig_skip3
+	ld	a,(TRACK_Chan3+17+TRACK_Flags)
+	res	B_TRGCMD,a
+	ld	(TRACK_Chan3+17+TRACK_Flags),a
+	
+.retrig_skip3:	
+	dec	hl
+;	ld 	hl,TRACK_Chan3+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode4
 
@@ -379,7 +409,16 @@ replay_decodedata:
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 
 .decode4:
-	ld 	hl,TRACK_Chan4+17+TRACK_Delay
+	ld 	hl,TRACK_Chan4+17+TRACK_Retrig
+	dec	(hl)				;Check if retrig has ended
+	jp	nz,.retrig_skip4
+	ld	a,(TRACK_Chan4+17+TRACK_Flags)
+	res	B_TRGCMD,a
+	ld	(TRACK_Chan4+17+TRACK_Flags),a
+	
+.retrig_skip4:	
+	dec	hl
+;	ld 	hl,TRACK_Chan4+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode5
 
@@ -396,7 +435,16 @@ replay_decodedata:
 
 
 .decode5:
-	ld 	hl,TRACK_Chan5+17+TRACK_Delay
+	ld 	hl,TRACK_Chan5+17+TRACK_Retrig
+	dec	(hl)				;Check if retrig has ended
+	jp	nz,.retrig_skip5
+	ld	a,(TRACK_Chan5+17+TRACK_Flags)
+	res	B_TRGCMD,a
+	ld	(TRACK_Chan5+17+TRACK_Flags),a
+	
+.retrig_skip5:	
+	dec	hl
+;	ld 	hl,TRACK_Chan5+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode6
 
@@ -413,9 +461,17 @@ replay_decodedata:
 
 
 .decode6:
-	ld 	hl,TRACK_Chan6+17+TRACK_Delay
+	ld 	hl,TRACK_Chan6+17+TRACK_Retrig
+	dec	(hl)				;Check if retrig has ended
+	jp	nz,.retrig_skip6
+	ld	a,(TRACK_Chan6+17+TRACK_Flags)
+	res	B_TRGCMD,a
+	ld	(TRACK_Chan6+17+TRACK_Flags),a	
+.retrig_skip6:	
+	dec	hl
+;	ld 	hl,TRACK_Chan6+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode7
+	jp	nz,.decode6
 
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	and	11110011b		; reset B_TRGENV and B_TRGCMD
@@ -430,7 +486,16 @@ replay_decodedata:
 
 
 .decode7:
-	ld 	hl,TRACK_Chan7+17+TRACK_Delay
+	ld 	hl,TRACK_Chan7+17+TRACK_Retrig
+	dec	(hl)				;Check if retrig has ended
+	jp	nz,.retrig_skip7
+	ld	a,(TRACK_Chan7+17+TRACK_Flags)
+	res	B_TRGCMD,a
+	ld	(TRACK_Chan7+17+TRACK_Flags),a
+	
+.retrig_skip7:	
+	dec	hl
+;	ld 	hl,TRACK_Chan7+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode8
 
@@ -447,7 +512,16 @@ replay_decodedata:
 
 
 .decode8:
-	ld 	hl,TRACK_Chan8+17+TRACK_Delay
+	ld 	hl,TRACK_Chan8+17+TRACK_Retrig
+	dec	(hl)				;Check if retrig has ended
+	jp	nz,.retrig_skip8
+	ld	a,(TRACK_Chan8+17+TRACK_Flags)
+	res	B_TRGCMD,a
+	ld	(TRACK_Chan8+17+TRACK_Flags),a
+	
+.retrig_skip8:	
+	dec	hl
+;	ld 	hl,TRACK_Chan8+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode_end
 
@@ -649,12 +723,12 @@ replay_decode_chan:
 ;	ld	a,(ix+TRACK_Note)
 	ld	(replay_previous_note),a
 
-	;--- Check if retrig has ended
-	dec	(ix+TRACK_Retrig)
-	jp	nz,.skip_retrig_reset
-	res 	B_TRGCMD,(ix+TRACK_Flags)
-
-.skip_retrig_reset:
+;	;--- Check if retrig has ended
+;	dec	(ix+TRACK_Retrig)
+;	jp	nz,.skip_retrig_reset
+;	res 	B_TRGCMD,(ix+TRACK_Flags)
+;
+;.skip_retrig_reset:
 	;=============
 	; Note 
 	;=============
