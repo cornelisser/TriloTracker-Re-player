@@ -1,5 +1,5 @@
 ;=================================
-; TriloTracker re-player v0.3
+; TriloTracker re-player v0.3.1
 ;
 ; 
 ; Also expects the code to run as a cartridge with SCC mapper
