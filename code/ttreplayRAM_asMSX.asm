@@ -61,11 +61,11 @@ B_TRGWAV			.equ 6			; waveform trigger
 B_PSGSCC			.equ 7			; chip type (PSG or SCC)
 
 
-_SP_Storage:		.ds 1			; to store the SP
+_SP_Storage:		.ds 2			; to store the SP
 
 replay_trigger:		.ds 1			; trigger byte.
-replay_mainPSGvol:		.ds 2			; volume mixer for PSG SCC balance
-replay_mainSCCvol:		.ds 2			; volume mixer for PSG SCC balance
+replay_mainPSGvol:	.ds 2			; volume mixer for PSG SCC balance
+replay_mainSCCvol:	.ds 2			; volume mixer for PSG SCC balance
 ;replay_songbase:		.ds 2			; pointer to song data
 replay_wavebase:		.ds 2			; pointer to waveform data
 replay_insbase:		.ds 2			; pointer to instrument data
