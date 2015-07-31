@@ -344,9 +344,6 @@ replay_decodedata:
 	dec	(hl)
 	jp	nz,.decode2
 
-	
-	
-	
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	and	11111011b		; reset B_TRGENV
 	ld	d,a
@@ -955,7 +952,7 @@ _CHIPcmd0_arpeggio:
 	ld	(ix+TRACK_cmd_0),a
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Timer),0
-
+	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
 	
 _CHIPcmd1_port_up:
@@ -967,7 +964,7 @@ _CHIPcmd1_port_up:
 	; being played by	the given speed. 
 	ld	(ix+TRACK_cmd_1),a
 	set	B_TRGCMD,d
-
+	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
 	
 	
@@ -981,7 +978,7 @@ _CHIPcmd2_port_down:
 	; being played by	the given speed.	
 	ld	(ix+TRACK_cmd_2),a
 	set	B_TRGCMD,d
-
+	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
 	
 
@@ -1004,6 +1001,7 @@ _CHIPcmd3_port_tone:
 
 	ld	(ix+TRACK_cmd_3),a
 	ld	(ix+TRACK_Timer),2
+	ld	(ix+TRACK_Retrig),1
 _CHIPcmd3_port_tone_cont:
 	set	B_TRGCMD,d
 	set	B_ACTNOT,d
@@ -1087,6 +1085,7 @@ _CHIPcmd4_vibrato:
 	ld	(ix+TRACK_Step),a
 	
 	set	B_TRGCMD,d
+	ld	(ix+TRACK_Retrig),1
 	jp	_rdc	
 
 
@@ -1114,7 +1113,7 @@ _CHIPcmd7_vol_slide:
 	ld	(ix+TRACK_cmd_A),a
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Timer),1
-
+	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
 
 
@@ -1139,7 +1138,7 @@ _CHIPcmd8_macro_offset:
 _CHIPcmd9_env_shape:
 	set	B_TRGENV,d
 	ld	(AY_regEnvShape),a
-
+	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
 
 

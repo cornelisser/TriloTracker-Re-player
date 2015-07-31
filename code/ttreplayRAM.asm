@@ -61,7 +61,7 @@ B_TRGWAV			equ 6			; waveform trigger
 B_PSGSCC			equ 7			; chip type (PSG or SCC)
 
 
-_SP_Storage			#1			; to store the SP
+_SP_Storage			#2			; to store the SP
 
 replay_trigger		#1			; trigger byte.
 replay_mainPSGvol		#2			; volume mixer for PSG SCC balance
