@@ -62,10 +62,15 @@ initmain:
 	
 	;--- initialise replayer
 	call	replay_init
+	call	SFX_INIT
 	
 	;--- initialise demo song
 	ld	hl,demo_song
 	call	replay_loadsong
+	
+	;--- initialise sfx pointers
+	
+	
 	
 	ei
 	
@@ -73,20 +78,30 @@ initmain:
 	ld	(pattern),a
 
 	
+	
 infinite:
 	halt
+	;--- display debug info
+	
+	
+	
+	
+	
 	;---- Test for space
 	xor	a
 	call	$00D8
 	and	a
 	jp	z,infinite
 
+	call	replay_pause
+	ld	bc,$0101
+	call	sccFX_START
 ;	ld	a,0
 ;	call	replay_set_SCC_balance
 ;	ld	de,-2
 ;	call	replay_transpose	
-	ld	a,32
-	call	replay_fade_out
+;	ld	a,32
+;	call	replay_fade_out
 ;	call	replay_pause
 	; wait_key_release
 99:	
@@ -103,15 +118,47 @@ isr:
 	in	a,(0x99)
 	call	replay_route		; first outout data
 	call	replay_play			; calculate next output
+	call	ayFX_PLAY
+	call	sccFX_PLAY
 	ret
 	
 	
 	
 	include	"..\code\ttreplay.asm"
 	include	"..\code\ttreplayDAT.asm"
+	include	"..\ttsfxplay\ttsfxplay.asm"
 demo_song:
 	include	".\demosong.asm"
 	
+ayFX_STREAMS:
+sccFX_STREAMS:
+	dw	sfx1
+	dw	sfx2
+	dw	sfx3
+	dw	sfx4
+	dw	sfx5
+
+
+
+sfx1:
+	db	1
+	incbin	"..\ttsfxplay\sfx\menu1.afx"
+sfx2:
+	db	1
+	incbin	"..\ttsfxplay\sfx\menu2.afx"	
+sfx3:
+	db	1
+	incbin	"..\ttsfxplay\sfx\menu3.afx"
+sfx4:
+	db	1
+	incbin	"..\ttsfxplay\sfx\menu4.afx"
+sfx5:
+	db	1
+	incbin	"..\ttsfxplay\sfx\menu5.afx"
+
+	
+	
 	map	0xc000
 	include	"..\code\ttreplayRAM.asm"
+	include	"..\ttsfxplay\ttsfxplay_RAM.asm"
 pattern	#1

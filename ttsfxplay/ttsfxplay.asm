@@ -1,6 +1,6 @@
 				; --- ayFX REPLAYER v2.01r ---
 				; --- Build uppon the work of Shiru, Alone Coder, Z80st, ARTRAG
-				
+
 				; --- V2.01r re-added check on end of sfx (ayFX format compatible)
 				; --- v2.01  added SCC functions. + clean up of the code.
 				; --- v2.00  ayFX_Init now expects data in BC. Also DE is no longer used (1 less push/pop)
@@ -14,21 +14,23 @@
 				
 
 SFX_INIT:
-	ld	a,8
-	call	ayFX_set_SCC_balance
-	ld	a,8
-	jp	ayFX_set_PSG_balance				
+	ld	a,15
+	call	SFX_set_SCC_balance
+	ld	a,15
+	call	SFX_set_PSG_balance	
+	call	sccFX_END
+	jp	ayFX_END
 										
 				
 ;===========================================================
 ; ---	ayFX_set_SCC_balance
 ; Set the main SFX volume for the SCC chip. This enables for
 ;
-; in: [A] master volume (0-7) 0=halve volume, 8=full volume. 
+; in: [A] master volume (0-8) 0=halve volume, 8=full volume. 
 ;===========================================================	
 SFX_set_SCC_balance:
-	call	_getnewbalancebase
-	ld	(replay_mainSCCvol),hl	
+	call	_getsfxbalancebase
+	ld	(sccFX_BALANCE),hl	
 	ret
 	
 ;===========================================================
@@ -37,14 +39,32 @@ SFX_set_SCC_balance:
 ; setting the balance between SCC en PSG as some MSX models 
 ; default balance differs. 
 ;
-; in: [A] master volume (0-7) 0=halve volume, 8=full volume. 
+; in: [A] master volume (0-8) 0=halve volume, 8=full volume. 
 ;===========================================================	
 SFX_set_PSG_balance:
-	call	_getnewbalancebase
-	ld	(replay_mainPSGvol),hl	
+	call	_getsfxbalancebase
+	ld	(ayFX_BALANCE),hl	
 	ret				
 				
 
+_getsfxbalancebase:
+	rlca
+	rlca
+	rlca
+	rlca
+	ld	hl,_VOLUME_TABLE
+	and	$f0
+	add	a,l
+	ld	l,a
+	ret 	nc
+	inc	h
+	ret			
+				
+				
+				
+				
+				
+				
 ayFX_END:	; --- End of an ayFX stream ---
 		ld	a,255				; Lowest ayFX priority
 		ld	(ayFX_PRIORITY),a		; Priority saved (not playing ayFX stream)
@@ -57,9 +77,9 @@ ayFX_START:	; ---     START A NEW ayFX STREAM     ---
 		; ---        C -> sound priority     ---
 		push	bc				; Store bc in stack
 		push	hl				; Store hl in stack
-		ld	a,(ayFX_PRIORITY)	; a:=Current ayFX stream priority
+		ld	a,(ayFX_PRIORITY)		; a:=Current ayFX stream priority
 		cp	c				; If new ayFX stream priority is higher than currently one...
-		jp	c,_INIT_END		3	; ...we don't start the new ayFX stream
+		jp	c,_INIT_END			; ...we don't start the new ayFX stream
 
 		; --- INITS ---
 		ld	a,c				; a:=New priority
@@ -75,6 +95,7 @@ ayFX_START:	; ---     START A NEW ayFX STREAM     ---
 		ld	c,(hl)			; e:=lower byte of new ayFX stream pointer
 		inc	hl				; Increment pointer to the pointer
 		ld	b,(hl)			; bc:=pointer to the new ayFX stream
+		inc	bc				; skip the waveform as this is psg
 		ld	(ayFX_POINTER),bc		; Pointer saved in RAM
 _INIT_END:	
 		pop	hl				; Retrieve hl from stack
@@ -152,7 +173,7 @@ _aySETPOINTER:	; --- Update ayFX pointer ---
 		ld	a,c				; a:=Control byte
 		and	$0F				; lower nibble
 		;sub	b				; subtract prio from vol
-		ret	m				; return if volume < 0
+;		ret	m				; return if volume < 0
 		; --- Fix the volume using PT3 Volume Table ---
 		ld	hl,(ayFX_BALANCE)		; hl:=Pointer to relative volume table
 		ld	e,a				; e:=a (ayFX volume)
@@ -185,6 +206,7 @@ _aySETMASKS:	; --- Set mixer masks ---
 		;--- Set the PSG mixer value
 		ld	c,a				; c:=OR mask
 		ld	a,(AY_regMIXER)		; a:=PSG mixer value
+		and	00011011b
 		or	c				; OR mask
 		ld	(AY_regMIXER),a		; PSG mixer value updated
 		
@@ -240,7 +262,7 @@ _sccSETPOINTER:	; --- Update sccFX pointer ---
 		ld	a,c				; a:=Control byte
 		and	$0F				; lower nibble
 		;sub	b				; subtract prio from vol
-		ret	m				; return if volume < 0
+;		ret	m				; return if volume < 0
 		; --- Fix the volume using PT3 Volume Table ---
 		ld	hl,(sccFX_BALANCE)	; hl:=Pointer to relative volume table
 		ld	e,a				; e:=a (sccFX volume)
@@ -270,7 +292,7 @@ _sccSETPOINTER:	; --- Update sccFX pointer ---
 		;--- Set the SCC mixer value
 ;		ld	c,a				; c:=OR mask
 		ld	a,(SCC_regMIXER)		; a:=SCC mixer value
-		and 	$1E				; erase volume bit (1) for channel 1
+;		and 	$1E				; erase volume bit (1) for channel 1
 		ld	(SCC_regMIXER),a		; SCC mixer value updated
 		
 		ld 	a,b				; relative volume

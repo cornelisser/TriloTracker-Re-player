@@ -16,6 +16,7 @@ sccFX_WAVE:	    		#1			; Current waveform of the sccFX stream
 sccFX_VOLUME:		#1			; Current volume of the sccFX stream
 sccFX_BALANCE:		#2			; Pointer to the volume table
 
+
 ;ayFX_CHANNEL:			#1			; PSG channel to play the ayFX stream
 ;ayFX_VT:	    		#2			; ayFX relative volume table pointer
 
