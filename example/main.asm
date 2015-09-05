@@ -62,7 +62,7 @@ initmain:
 	
 	;--- initialise replayer
 	call	replay_init
-	call	SFX_INIT
+	call	ttsfx_init
 	
 	;--- initialise demo song
 	ld	hl,demo_song
@@ -93,9 +93,9 @@ infinite:
 	and	a
 	jp	z,infinite
 
-	call	replay_pause
-	ld	bc,$0101
-	call	sccFX_START
+;call	replay_pause
+	ld	bc,$0301
+	call	ttsfx_scc_start
 ;	ld	a,0
 ;	call	replay_set_SCC_balance
 ;	ld	de,-2
@@ -118,8 +118,7 @@ isr:
 	in	a,(0x99)
 	call	replay_route		; first outout data
 	call	replay_play			; calculate next output
-	call	ayFX_PLAY
-	call	sccFX_PLAY
+	call	ttsfx_play
 	ret
 	
 	
@@ -127,11 +126,14 @@ isr:
 	include	"..\code\ttreplay.asm"
 	include	"..\code\ttreplayDAT.asm"
 	include	"..\ttsfxplay\ttsfxplay.asm"
+ttsfx_waveforms:
+	
+	
 demo_song:
 	include	".\demosong.asm"
 	
-ayFX_STREAMS:
-sccFX_STREAMS:
+sfx_PSG_STREAMS:
+sfx_SCC_STREAMS:
 	dw	sfx1
 	dw	sfx2
 	dw	sfx3
@@ -141,19 +143,19 @@ sccFX_STREAMS:
 
 
 sfx1:
-	db	1
+	db	4*8
 	incbin	"..\ttsfxplay\sfx\menu1.afx"
 sfx2:
-	db	1
+	db	2*8
 	incbin	"..\ttsfxplay\sfx\menu2.afx"	
 sfx3:
-	db	1
+	db	3*8
 	incbin	"..\ttsfxplay\sfx\menu3.afx"
 sfx4:
-	db	1
+	db	5*8
 	incbin	"..\ttsfxplay\sfx\menu4.afx"
 sfx5:
-	db	1
+	db	6*8
 	incbin	"..\ttsfxplay\sfx\menu5.afx"
 
 	

@@ -1,25 +1,19 @@
-		; --- ayFX REPLAYER v1.11r ---
+		; --- TT sfx player v0.1 ---
 
 		; --- THIS FILE MUST BE COMPILED IN RAM ---
 
-ayFX_PRIORITY:		#1			; Current ayFX stream priority
-ayFX_POINTER:		#2			; Pointer to the current ayFX stream
-ayFX_TONE:	    		#2			; Current tone of the ayFX stream
-ayFX_NOISE:	    		#1			; Current noise of the ayFX stream
-ayFX_VOLUME:		#1			; Current volume of the ayFX stream
-ayFX_BALANCE:		#2			; Pointer to the volume table
+sfx_PSG_PRIORITY:		#1			; Current sfx_PSG stream priority
+sfx_PSG_POINTER:		#2			; Pointer to the current sfx_PSG stream
+sfx_PSG_TONE:	    	#2			; Current tone of the sfx_PSG stream
+sfx_PSG_NOISE:	    	#1			; Current noise of the sfx_PSG stream
+sfx_PSG_VOLUME:		#1			; Current volume of the sfx_PSG stream
+sfx_PSG_BALANCE:		#2			; Pointer to the volume table
 
-sccFX_PRIORITY:		#1			; Current sccFX stream priority
-sccFX_POINTER:		#2			; Pointer to the current sccFX stream
-sccFX_TONE:	    		#2			; Current tone of the sccFX stream
-sccFX_WAVE:	    		#1			; Current waveform of the sccFX stream
-sccFX_VOLUME:		#1			; Current volume of the sccFX stream
-sccFX_BALANCE:		#2			; Pointer to the volume table
+sfx_SCC_PRIORITY:		#1			; Current sfx_SCC stream priority
+sfx_SCC_POINTER:		#2			; Pointer to the current sfx_SCC stream
+sfx_SCC_TONE:	    		#2			; Current tone of the sfx_SCC stream
+sfx_SCC_WAVE:	    		#1			; Current waveform of the sfx_SCC stream
+sfx_SCC_VOLUME:		#1			; Current volume of the sfx_SCC stream
+sfx_SCC_BALANCE:		#2			; Pointer to the volume table
 
 
-;ayFX_CHANNEL:			#1			; PSG channel to play the ayFX stream
-;ayFX_VT:	    		#2			; ayFX relative volume table pointer
-
-;_psg_volume:   			#1
-;_scc_volume:			#1
-;_sfx_volume:			#1

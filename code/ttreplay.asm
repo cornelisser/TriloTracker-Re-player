@@ -2273,6 +2273,17 @@ _ptAY_noEnv:
 	ld  a,03Fh				; enable SCC
 	ld  (0x9000),a
 
+	
+	;--- This for the ttsfxplayer!!!
+;	ld	a,(sfx_SCC_WAVE)
+;	cp	255
+;	jp	z,.nosfx		; if a == 255 there is no waveform
+;
+;	ld	de,0x9800
+;	call	_write_SFX_wave	
+;	jp	.skip	
+	
+.nosfx:	
 	;--- Set the waveforms
 	ld	hl,TRACK_Chan4+17+TRACK_Flags
 	bit	B_TRGWAV,(hl)
