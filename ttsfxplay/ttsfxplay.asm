@@ -91,7 +91,6 @@ ttsfx_scc_start:	; ---     START A NEW sfx_SCC STREAM     ---
 		; ---        C -> sound priority     ---
 		push	bc				; Store bc in stack
 		push	hl				; Store hl in stack
-		;ld	b,a				; b:=a (new sfx_SCC stream index)
 		ld	a,(sfx_SCC_PRIORITY)	; a:=Current sfx_SCC stream priority
 		cp	c				; If new sfx_SCC stream priority is higher than currently one...
 		jp	c,_ttsfx_end_start			; ...we don't start the new sfx_SCC stream
@@ -130,7 +129,6 @@ ttsfx_play:	; --- PLAY A FRAME OF AN sfx_PSG STREAM ---
 		or	a				; If priority has bit 7 on...
 		jp	m,_ttsfx_scc_play				; ...return
 
-;		ld	b,a					; store prio to subtract on vol.
 		; --- Extract control byte from stream ---
 		ld	hl,(sfx_PSG_POINTER)		; Pointer to the current sfx_PSG stream
 		ld	c,(hl)			; c:=Control byte
@@ -158,8 +156,6 @@ _aySETPOINTER:	; --- Update sfx_PSG pointer ---
 		; --- Extract volume ---
 		ld	a,c				; a:=Control byte
 		and	$0F				; lower nibble
-		;sub	b				; subtract prio from vol
-;		ret	m				; return if volume < 0
 		; --- Fix the volume using PT3 Volume Table ---
 		ld	hl,(sfx_PSG_BALANCE)		; hl:=Pointer to relative volume table
 		ld	e,a				; e:=a (sfx_PSG volume)
@@ -226,7 +222,6 @@ _ttsfx_scc_play:	; --- PLAY A FRAME OF AN sfx_SCC STREAM ---
 		ld	hl,TRACK_Chan4+17+TRACK_Flags
 		res	B_TRGWAV,(hl)
 		
-;		ld	b,a				; store prio to subtract on vol.
 		; --- Extract control byte from stream ---
 		ld	hl,(sfx_SCC_POINTER)	; Pointer to the current sfx_SCC stream
 		ld	c,(hl)			; c:=Control byte
@@ -254,8 +249,6 @@ _sccSETPOINTER:	; --- Update sfx_SCC pointer ---
 		; --- Extract volume ---
 		ld	a,c				; a:=Control byte
 		and	$0F				; lower nibble
-		;sub	b				; subtract prio from vol
-;		ret	m				; return if volume < 0
 		; --- Fix the volume using PT3 Volume Table ---
 		ld	hl,(sfx_SCC_BALANCE)	; hl:=Pointer to relative volume table
 		ld	e,a				; e:=a (sfx_SCC volume)
@@ -279,13 +272,12 @@ _sccSETPOINTER:	; --- Update sfx_SCC pointer ---
 		; --- Set mixer masks ---
 		ld	a,c				; a:=Control byte
 		and	$80				; Only bit 4 (tone mask for SCC)
-;		cp	$80				; If no noise and no tone...
 		ret	z				; ...return (don't copy sfx_SCC values in to sccREGS)
 
 		;--- Set the SCC mixer value
-;		ld	c,a				; c:=OR mask
 		ld	a,(SCC_regMIXER)		; a:=SCC mixer value
 ;		and 	$1E				; erase volume bit (1) for channel 1
+		or	1
 		ld	(SCC_regMIXER),a		; SCC mixer value updated
 		
 		ld 	a,b				; relative volume
