@@ -1,6 +1,7 @@
-				; --- ayFX REPLAYER v2.01 ---
+				; --- ayFX REPLAYER v2.01r ---
 				; --- Build uppon the work of Shiru, Alone Coder, Z80st, ARTRAG
 				
+				; --- V2.01r re-added check on end of sfx (ayFX format compatible)
 				; --- v2.01  added SCC functions. + clean up of the code.
 				; --- v2.00  ayFX_Init now expects data in BC. Also DE is no longer used (1 less push/pop)
 				;            Priority mask is changed (0..127 is possible)
@@ -11,29 +12,54 @@
 				; --- v1.0f  Bug fixed (error when using noise)
 				; --- v1.0   Initial release
 				
-	;TODO:
-			;--- add SCC SFX part
-			;--- replace relative volume with ay and scc counterparts. 
-			;--- Let replayer use TT replayer RAM values.
+
+SFX_INIT:
+	ld	a,8
+	call	ayFX_set_SCC_balance
+	ld	a,8
+	jp	ayFX_set_PSG_balance				
+										
 				
+;===========================================================
+; ---	ayFX_set_SCC_balance
+; Set the main SFX volume for the SCC chip. This enables for
+;
+; in: [A] master volume (0-7) 0=halve volume, 8=full volume. 
+;===========================================================	
+SFX_set_SCC_balance:
+	call	_getnewbalancebase
+	ld	(replay_mainSCCvol),hl	
+	ret
+	
+;===========================================================
+; ---	ayFX_set_PSG_balance
+; Set the main SFXvolume for the PSG chip. This enables for
+; setting the balance between SCC en PSG as some MSX models 
+; default balance differs. 
+;
+; in: [A] master volume (0-7) 0=halve volume, 8=full volume. 
+;===========================================================	
+SFX_set_PSG_balance:
+	call	_getnewbalancebase
+	ld	(replay_mainPSGvol),hl	
+	ret				
+				
+
 ayFX_END:	; --- End of an ayFX stream ---
 		ld	a,255				; Lowest ayFX priority
 		ld	(ayFX_PRIORITY),a		; Priority saved (not playing ayFX stream)
 		ret					; Return
-sccFX_END:	; --- End of an sccFX stream ---
-		ld	a,255				; Lowest sccFX priority
-		ld	(sccFX_PRIORITY),a	; Priority saved (not playing sccFX stream)
-		ret					; Return
+
 		
 		
-ayFX_INIT:	; ---     INIT A NEW ayFX STREAM     ---
+ayFX_START:	; ---     START A NEW ayFX STREAM     ---
 		; --- INPUT: B -> sound to be played ---
 		; ---        C -> sound priority     ---
 		push	bc				; Store bc in stack
 		push	hl				; Store hl in stack
 		ld	a,(ayFX_PRIORITY)	; a:=Current ayFX stream priority
 		cp	c				; If new ayFX stream priority is higher than currently one...
-		jp	c,_INIT_END			; ...we don't start the new ayFX stream
+		jp	c,_INIT_END		3	; ...we don't start the new ayFX stream
 
 		; --- INITS ---
 		ld	a,c				; a:=New priority
@@ -56,7 +82,7 @@ _INIT_END:
 		ret					; Return
 
 		
-sccFX_INIT:	; ---     INIT A NEW sccFX STREAM     ---
+sccFX_START:	; ---     START A NEW sccFX STREAM     ---
 		; --- INPUT: B -> sound to be played ---
 		; ---        C -> sound priority     ---
 		push	bc				; Store bc in stack
@@ -170,6 +196,15 @@ _aySETMASKS:	; --- Set mixer masks ---
 		ld	(AY_regToneC),hl		; copied in to AYREGS (channel C tone)
 		ret					; Return
 
+		
+		
+sccFX_END:	; --- End of an sccFX stream ---
+		ld	a,255				; Lowest sccFX priority
+		ld	(sccFX_PRIORITY),a	; Priority saved (not playing sccFX stream)
+		ret					; Return		
+		
+		
+		
 
 sccFX_PLAY:	; --- PLAY A FRAME OF AN sccFX STREAM ---
 		ld	a,(sccFX_PRIORITY)	; a:=Current sccFX stream priority
@@ -183,13 +218,22 @@ sccFX_PLAY:	; --- PLAY A FRAME OF AN sccFX STREAM ---
 		inc	hl				; Increment pointer
 		; --- Check if there's new tone on stream ---
 		bit	5,c				; If bit 5 c is off...
-		jp	z,_sccSETPOINTER		; ...jump to _sccCHECK_NN (no new tone)
+		jp	z,_sccCHECK_NN		; ...jump to _sccCHECK_NN (no new tone)
 		; --- Extract new tone from stream ---
 		ld	e,(hl)			; e:=lower byte of new tone
 		inc	hl				; Increment pointer
 		ld	d,(hl)			; d:=higher byte of new tone
 		inc	hl				; Increment pointer
 		ld	(sccFX_TONE),de		; sccFX tone updated
+_sccCHECK_NN:	; --- Check if there's the end of the sfx ---
+		bit	6,c				; if bit 6 c is off...
+		jp	z,_sccSETPOINTER		; ...jump to _sccSETPOINTER (no end)
+		; --- Extract new noise from stream ---
+		ld	a,(hl)			; a:=New noise
+		inc	hl				; Increment pointer
+		cp	$20				; If it's an illegal value of noise (used to mark end of stream)...
+		jp	z,sccFX_END			; ...jump to sccFX_END
+		
 _sccSETPOINTER:	; --- Update sccFX pointer ---
 		ld	(sccFX_POINTER),hl	; Update sccFX stream pointer
 		; --- Extract volume ---
