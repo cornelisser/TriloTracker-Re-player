@@ -1,4 +1,4 @@
-Const VERSION$ = "V0.3"
+Const VERSION$ = "V0.3.0"
 Const DATE$ = "[12-04-2015]"
 
 
