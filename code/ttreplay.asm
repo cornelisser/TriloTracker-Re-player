@@ -1621,10 +1621,10 @@ _noVolume:
 	or	128
 	ld	(SCC_regMIXER),a
 
-	bit	5,e
-	jp	z,_noNoise
 	ld	a,(hl)	; get	the deviation	
 	inc	hl
+	bit	5,e
+	jp	z,_noNoise
 	bit	6,e
 	jp	z,.skip
 	add	(ix+TRACK_Noise)
