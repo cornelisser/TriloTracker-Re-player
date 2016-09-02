@@ -810,13 +810,15 @@ Function compile_instrument_row(fileout,ins,r,e)
 	If ((result1 And $03) > 0)
 		out$ = out$ + ",$"+Right(Hex(result2),2)
 	EndIf
-	If ((result1 And $60) > 0)
+	If ((result1 And $80) > 0)
 		out$ = out$ +",$"+Right(Hex(result3),2)
 	EndIf
 	If ((result1 And $04) > 0)
 		out$ = out$ + ",$"+Right(Hex(result4),2)
 		out$ = out$ + ",$"+Right(Hex(result5),2)
 	EndIf
+
+	
 	WriteLine (fileout, out$)
 
 
