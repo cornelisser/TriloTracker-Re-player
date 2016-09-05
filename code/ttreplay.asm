@@ -20,7 +20,7 @@ define INTERNAL_SCC
 ;===========================================================
 ; ---	replay_init
 ; Initialize replayer data
-; 
+; Only call this on start-up
 ; Input: none
 ;===========================================================
 replay_init:
@@ -31,6 +31,9 @@ replay_init:
 
 	xor	a
 	ld	(replay_mode),a	
+	ld	(equalization_cnt),a
+	ld	(equalization_flag),a	
+	ld	(equalization_freq),a	
 	
 	ret
 
@@ -310,6 +313,30 @@ replay_play:
 	ret	z		; replay mode = 0	; halted
 				
 				; replay mode = 1	; active
+	
+	;---- SPEED EQUALIZATION 
+	ld	a,(equalization_freq)		; 0 = 50Hz, otherwise 60Hz
+	and	a
+    jr.	z,PAL               		; if PAL process at any interrupt;
+
+NTSC:
+    ld	hl,equalization_cnt  		; if NTSC call 5 times out of 6
+    dec	(hl)
+    jr.	nz,PAL               		; skip music data processing one tic out of 6
+
+	;--- Reset timer and raise equalization flag
+	ld	a,6
+	ld	(hl),a						
+ 	ld	(equalization_flag),a		
+
+	call	NZ,replay_decodedata_NO	
+	xor	a
+	ld	(equalization_flag),a
+	ret
+PAL:                             ; execute the PSG and ayFX core	
+	;---- END SPEED EQUALIZATION	
+
+		
 	;--- The speed timer
 	ld	hl,replay_speed_timer
 	dec	(hl)
@@ -1436,6 +1463,14 @@ replay_process_chan_AY:
 	ld	hl,SCC_regMIXER   
 	srl	(hl)
 
+	;===== 
+	; Speed equalization check
+	;=====
+	ld	a,(equalization_flag)			; check for speed equalization
+	and	a
+	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
+	
+	
 	;=====
 	; COMMAND
 	;=====
@@ -1621,10 +1656,10 @@ _noVolume:
 	or	128
 	ld	(SCC_regMIXER),a
 
-	ld	a,(hl)	; get	the deviation	
-	inc	hl
 	bit	5,e
 	jp	z,_noNoise
+	ld	a,(hl)	; get the deviation	
+	inc	hl
 	bit	6,e
 	jp	z,.skip
 	add	(ix+TRACK_Noise)

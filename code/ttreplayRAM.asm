@@ -6,14 +6,14 @@
 ;================================
 
 TRACK_Instrument		equ 0-17
-TRACK_Command		equ 1-17
-TRACK_MacroPointer	equ 2-17
+TRACK_Command			equ 1-17
+TRACK_MacroPointer		equ 2-17
 TRACK_MacroStart		equ 4-17
-TRACK_MacroRestart 	equ 6-17		; no longer needed
-TRACK_Note			equ 7-17
-TRACK_Volume		equ 8-17
-TRACK_Waveform		equ 9-17
-TRACK_Flags			equ 10-17
+TRACK_MacroRestart 		equ 6-17		; no longer needed
+TRACK_Note				equ 7-17
+TRACK_Volume			equ 8-17
+TRACK_Waveform			equ 9-17
+TRACK_Flags				equ 10-17
 	; 0 = note trigger
 	; 1 = note active
 	; 4 = morph active		;-< for SCC when 1 then waveform is following morph buffer
@@ -81,7 +81,6 @@ replay_fade			#1			; Fade active (value = fade speed)
 replay_fade_timer		#1			; Timer for fade
 replay_fade_vol		#1			; fade volume to lower the channel volume.
 
-
 replay_previous_note	#1			; previous note played
 replay_mainvol		#2			; the volume correction.
 
@@ -95,6 +94,11 @@ replay_morph_speed	#1
 replay_morph_counter	#1			; counter till end morph
 replay_morph_buffer	#64			; interleaved buffer with morphed waveform and morph delta values
 replay_morph_waveform	#1 			; waveform we are morphing to.
+
+equalization_freq:			#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
+equalization_cnt:			#1	; counter for correct playback on 60hz
+equalization_flag:			#1	; flag indicating if only instruments need to be processed.
+
 
 
 TRACK_Chan1			#TRACK_REC_SIZE
