@@ -329,7 +329,7 @@ NTSC:
 	ld	(hl),a						
  	ld	(equalization_flag),a		
 
-	call	NZ,replay_decodedata_NO	
+	call	replay_decodedata_NO	
 	xor	a
 	ld	(equalization_flag),a
 	ret
