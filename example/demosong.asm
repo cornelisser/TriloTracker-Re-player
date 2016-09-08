@@ -1,4 +1,5 @@
-; Compiled using tt_compile.exe V0.2.1 [30-03-2015]
+
+; Compiled using tt_compile.exe V0.3.1 [04-09-2016]
 ; Copyright 2015 Richard Cornelisse
 
 ; Song: Usas Stage1        - Konami     
@@ -22,78 +23,103 @@
 		dw 0x0000, .restart			; End of sequence delimiter + restart address.
 
 .waveform_start:
-	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00	; Waveform 0
-	db $80,$B0,$C0,$10,$1A,$2A,$2C,$1A,$00,$E0,$D0,$E0,$22,$53,$70,$75,$70,$31,$EA,$80,$88,$8A,$8C,$8E,$00,$7F,$75,$73,$62,$00,$C0,$90	; Waveform 1
-	db $30,$50,$50,$30,$00,$00,$10,$40,$60,$70,$60,$30,$F0,$E0,$E0,$00,$20,$20,$10,$C0,$A0,$90,$A0,$C0,$00,$00,$D0,$B0,$B0,$D0,$00,$00	; Waveform 2
-	db $AA,$AA,$AA,$AA,$EE,$EE,$EE,$EE,$EE,$FF,$FF,$FF,$FF,$CC,$CC,$CC,$CC,$C5,$55,$55,$55,$77,$77,$77,$77,$88,$88,$88,$88,$88,$88,$88	; Waveform 3
-	db $17,$77,$47,$5F,$27,$E7,$A7,$2F,$6F,$B7,$FF,$E7,$1F,$0F,$4F,$DF,$EF,$F7,$E7,$CF,$E7,$67,$47,$DF,$17,$97,$B7,$EF,$DF,$D7,$E7,$FF	; Waveform 4
-	db $00,$40,$7F,$40,$01,$C0,$81,$C0,$01,$40,$7F,$40,$01,$C0,$01,$40,$01,$E0,$01,$20,$01,$F0,$01,$10,$01,$FF,$FF,$FF,$FF,$40,$40,$40	; Waveform 5
-	db $00,$19,$31,$47,$5A,$6A,$75,$7D,$7F,$7D,$75,$6A,$5A,$47,$31,$19,$00,$E0,$C0,$A0,$80,$A0,$C0,$E0,$00,$20,$40,$60,$7F,$60,$40,$20	; Waveform 6
-	db $00,$4E,$62,$6D,$75,$7A,$7D,$7E,$7F,$7E,$7D,$7A,$75,$6D,$62,$4E,$00,$B1,$9D,$92,$8A,$85,$82,$81,$80,$81,$82,$85,$8A,$92,$9D,$B1	; Waveform 7
-	db $00,$19,$31,$47,$5A,$6A,$75,$7D,$7F,$7D,$75,$6A,$5A,$47,$31,$19,$80,$90,$A0,$B0,$C0,$D0,$E0,$F0,$00,$10,$20,$30,$40,$50,$60,$70	; Waveform 8
-	db $00,$F8,$F0,$E8,$E0,$D8,$D0,$C8,$C0,$B8,$B0,$A8,$A0,$98,$90,$88,$80,$7F,$70,$68,$60,$58,$50,$48,$40,$38,$30,$28,$20,$18,$10,$08	; Waveform 9
-	db $00,$F0,$E0,$D0,$C0,$B0,$A0,$90,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$7F,$70,$60,$50,$40,$30,$20,$10	; Waveform 10
-	db $01,$2A,$40,$50,$5C,$68,$70,$78,$7F,$78,$70,$68,$5C,$50,$40,$2A,$FF,$D6,$C0,$B0,$A4,$98,$90,$88,$81,$88,$90,$98,$A4,$B0,$C0,$D6	; Waveform 11
-	db $4F,$5F,$67,$6F,$77,$77,$77,$77,$77,$6F,$5F,$4F,$3F,$27,$17,$07,$F7,$E7,$D7,$C7,$AF,$97,$87,$87,$87,$87,$87,$87,$8F,$97,$9F,$AF	; Waveform 12
-	db $00,$19,$31,$47,$5A,$6A,$75,$7D,$7F,$7D,$75,$6A,$5A,$47,$31,$19,$80,$90,$A0,$B0,$C0,$D0,$E0,$F0,$00,$10,$20,$30,$40,$50,$60,$70	; Waveform 13
-	db $00,$F0,$E0,$D0,$C0,$B0,$A0,$90,$80,$70,$60,$50,$40,$30,$20,$10,$00,$F0,$E0,$D0,$C0,$B0,$A0,$90,$80,$70,$60,$50,$40,$30,$20,$10	; Waveform 14
-	db $80,$C8,$20,$7F,$30,$C8,$80,$90,$A8,$C0,$E0,$00,$20,$38,$50,$60,$70,$78,$7C,$7F,$7C,$78,$70,$60,$50,$38,$20,$00,$E0,$C0,$A8,$90	; Waveform 15
-	db $00,$F8,$F0,$E8,$E0,$D8,$D0,$C8,$C0,$B8,$B0,$A8,$A0,$98,$90,$20,$00,$E0,$C0,$A0,$80,$A0,$C0,$E0,$00,$20,$40,$60,$7F,$60,$40,$20	; Waveform 16
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00	; Waveform 0(was 0)
+	db $80,$B0,$C0,$10,$1A,$2A,$2C,$1A,$00,$E0,$D0,$E0,$22,$53,$70,$75,$70,$31,$EA,$80,$88,$8A,$8C,$8E,$00,$7F,$75,$73,$62,$00,$C0,$90	; Waveform 1(was 1)
+	db $30,$50,$50,$30,$00,$00,$10,$40,$60,$70,$60,$30,$F0,$E0,$E0,$00,$20,$20,$10,$C0,$A0,$90,$A0,$C0,$00,$00,$D0,$B0,$B0,$D0,$00,$00	; Waveform 2(was 2)
+	db $17,$77,$47,$5F,$27,$E7,$A7,$2F,$6F,$B7,$FF,$E7,$1F,$0F,$4F,$DF,$EF,$F7,$E7,$CF,$E7,$67,$47,$DF,$17,$97,$B7,$EF,$DF,$D7,$E7,$FF	; Waveform 3(was 4)
+	db $00,$40,$7F,$40,$01,$C0,$81,$C0,$01,$40,$7F,$40,$01,$C0,$01,$40,$01,$E0,$01,$20,$01,$F0,$01,$10,$01,$FF,$FF,$FF,$FF,$40,$40,$40	; Waveform 4(was 5)
+	db $00,$19,$31,$47,$5A,$6A,$75,$7D,$7F,$7D,$75,$6A,$5A,$47,$31,$19,$00,$E0,$C0,$A0,$80,$A0,$C0,$E0,$00,$20,$40,$60,$7F,$60,$40,$20	; Waveform 5(was 6)
+	db $00,$4E,$62,$6D,$75,$7A,$7D,$7E,$7F,$7E,$7D,$7A,$75,$6D,$62,$4E,$00,$B1,$9D,$92,$8A,$85,$82,$81,$80,$81,$82,$85,$8A,$92,$9D,$B1	; Waveform 6(was 7)
+	db $00,$F0,$E0,$D0,$C0,$B0,$A0,$90,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$7F,$70,$60,$50,$40,$30,$20,$10	; Waveform 7(was 10)
+	db $01,$2A,$40,$50,$5C,$68,$70,$78,$7F,$78,$70,$68,$5C,$50,$40,$2A,$FF,$D6,$C0,$B0,$A4,$98,$90,$88,$81,$88,$90,$98,$A4,$B0,$C0,$D6	; Waveform 8(was 11)
+	db $4F,$5F,$67,$6F,$77,$77,$77,$77,$77,$6F,$5F,$4F,$3F,$27,$17,$07,$F7,$E7,$D7,$C7,$AF,$97,$87,$87,$87,$87,$87,$87,$8F,$97,$9F,$AF	; Waveform 9(was 12)
+	db $00,$F0,$E0,$D0,$C0,$B0,$A0,$90,$80,$70,$60,$50,$40,$30,$20,$10,$00,$F0,$E0,$D0,$C0,$B0,$A0,$90,$80,$70,$60,$50,$40,$30,$20,$10	; Waveform 10(was 14)
+	db $00,$F8,$F0,$E8,$E0,$D8,$D0,$C8,$C0,$B8,$B0,$A8,$A0,$98,$90,$20,$00,$E0,$C0,$A0,$80,$A0,$C0,$E0,$00,$20,$40,$60,$7F,$60,$40,$20	; Waveform 11(was 16)
+	db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$11,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF	; Waveform 12(was 31)
 
 .instrument_start:
-	dw .ins_1,.ins_2,.ins_3,.ins_4,.ins_5,.ins_6,.ins_7,.ins_8,.ins_9,.ins_10,.ins_11,.ins_12,.ins_13,.ins_14,.ins_15,.ins_16,.ins_17,.ins_18,.ins_19,.ins_20,.ins_21,.ins_22,.ins_23,.ins_24,.ins_25,.ins_26,.ins_27,.ins_28,.ins_29,.ins_30,.ins_31
+	dw .ins_1
+	dw .ins_2
+	dw .ins_3
+	dw .ins_4
+	dw .ins_5
+	dw .ins_6
+	dw .ins_7
+	dw .ins_8
+	dw .ins_9
+	dw .ins_10
+	dw .ins_11
+	dw .ins_12
+	dw .ins_13
+	dw .ins_14
+	dw .ins_15
+	dw .ins_16
+	dw .ins_17
+	dw .ins_18
+	dw .ins_19
+	dw .ins_20
+	dw .ins_21
+	dw .ins_22
+	dw .ins_23
+	dw .ins_24
+	dw .ins_25
+	dw .ins_26
+	dw .ins_27
+	dw .ins_28
+	dw .ins_29
+	dw .ins_30
+	dw .ins_31
 .ins_1:						; BD POW Solid    
-		db 0					; Waveform
-		db .rst_i1-(.ins_1 +2)		; Restart
+		db 0					; Waveform (was 0)
 		db $11,$0F
 .rst_i1:
-		db $89,$00
+		db $89,$00,$00
+		dw .rst_i1
 .ins_2:						; SD POW Solid    
-		db 0					; Waveform
-		db .rst_i2-(.ins_2 +2)		; Restart
+		db 0					; Waveform (was 0)
 		db $11,$0F
-		db $85,$0F,$FF,$FF
+		db $85,$0F,$00,$FF,$FF
 		db $A5,$0E,$07,$FF,$FF
-		db $85,$0D,$FF,$FF
+		db $85,$0D,$00,$FF,$FF
 		db $A5,$0D,$09,$FF,$FF
-		db $85,$0C,$FF,$FF
-		db $85,$0C,$FF,$FF
-		db $85,$0B,$07,$00
-		db $81,$0B
-		db $81,$0A
-		db $81,$0A
-		db $81,$08
-		db $81,$06
-		db $81,$05
+		db $85,$0C,$00,$FF,$FF
+		db $85,$0C,$00,$FF,$FF
+		db $85,$0B,$00,$07,$00
+		db $81,$0B,$00
+		db $81,$0A,$00
+		db $81,$0A,$00
+		db $81,$08,$00
+		db $81,$06,$00
+		db $81,$05,$00
 .rst_i2:
-		db $89,$02
+		db $89,$02,$00
+		dw .rst_i2
 .ins_3:						; HH close So HI  
-		db 0					; Waveform
-		db .rst_i3-(.ins_3 +2)		; Restart
-		db $91,$0E
-		db $91,$06
+		db 0					; Waveform (was 0)
+		db $91,$0E,$00
+		db $91,$06,$00
 .rst_i3:
-		db $99,$00
+		db $99,$00,$00
+		dw .rst_i3
 .ins_4:						; HH open Solid   
-		db 0					; Waveform
-		db .rst_i4-(.ins_4 +2)		; Restart
-		db $91,$0E
-		db $91,$0E
-		db $91,$0C
+		db 0					; Waveform (was 0)
+		db $91,$0E,$00
+		db $91,$0E,$00
+		db $91,$0C,$00
 .rst_i4:
-		db $9B,$FF
+		db $9B,$FF,$00
+		dw .rst_i4
 .ins_5:						; Ride Cymbal     
 .ins_6:						; Tom             
-		db 0					; Waveform
-		db .rst_i6-(.ins_6 +2)		; Restart
+		db 0					; Waveform (was 0)
 		db $15,$0F,$2F,$00
 		db $15,$0E,$2F,$00
 .rst_i6:
 		db $14,$2F,$00
 		db $1F,$FF,$2F,$00
+		dw .rst_i6
 .ins_7:						; PSG Attack      
-		db 0					; Waveform
-		db .rst_i7-(.ins_7 +2)		; Restart
+		db 0					; Waveform (was 0)
 		db $11,$0E
 		db $11,$0C
 		db $11,$0C
@@ -108,9 +134,9 @@
 		db $11,$0A
 		db $11,$0A
 		db $19,$0A
+		dw .rst_i7
 .ins_8:						; PSG Lead        
-		db 0					; Waveform
-		db .rst_i8-(.ins_8 +2)		; Restart
+		db 0					; Waveform (was 0)
 		db $11,$0A
 		db $11,$0B
 		db $11,$0C
@@ -121,9 +147,9 @@
 		db $11,$0F
 .rst_i8:
 		db $19,$0F
+		dw .rst_i8
 .ins_9:						; PGS String snake
-		db 0					; Waveform
-		db .rst_i9-(.ins_9 +2)		; Restart
+		db 0					; Waveform (was 0)
 		db $11,$0A
 		db $11,$0B
 		db $11,$0C
@@ -157,9 +183,9 @@
 		db $11,$0D
 		db $15,$0D,$FF,$FF
 		db $19,$0D
+		dw .rst_i9
 .ins_10:						; SC Bass         
-		db 1					; Waveform
-		db .rst_i10-(.ins_10 +2)		; Restart
+		db 8					; Waveform (was 1)
 		db $11,$0F
 		db $11,$0A
 		db $11,$0A
@@ -181,9 +207,9 @@
 		db $11,$03
 .rst_i10:
 		db $19,$02
+		dw .rst_i10
 .ins_11:						; SC Piano        
-		db 2					; Waveform
-		db .rst_i11-(.ins_11 +2)		; Restart
+		db 16					; Waveform (was 2)
 		db $11,$0F
 		db $11,$0E
 		db $11,$0D
@@ -205,9 +231,9 @@
 		db $11,$03
 .rst_i11:
 		db $19,$02
+		dw .rst_i11
 .ins_12:						; SC Lead         
-		db 10					; Waveform
-		db .rst_i12-(.ins_12 +2)		; Restart
+		db 56					; Waveform (was 10)
 		db $11,$0A
 		db $11,$0B
 		db $11,$0C
@@ -218,9 +244,9 @@
 		db $11,$0F
 .rst_i12:
 		db $19,$0F
+		dw .rst_i12
 .ins_13:						; SC Bell         
-		db 4					; Waveform
-		db .rst_i13-(.ins_13 +2)		; Restart
+		db 24					; Waveform (was 4)
 		db $11,$0F
 		db $11,$09
 		db $11,$09
@@ -235,9 +261,9 @@
 		db $11,$04
 .rst_i13:
 		db $19,$03
+		dw .rst_i13
 .ins_14:						; SC Pad LOW      
-		db 5					; Waveform
-		db .rst_i14-(.ins_14 +2)		; Restart
+		db 32					; Waveform (was 5)
 		db $11,$03
 		db $11,$05
 		db $11,$08
@@ -248,9 +274,9 @@
 		db $11,$0B
 .rst_i14:
 		db $19,$0B
+		dw .rst_i14
 .ins_15:						; SC PianoBell    
-		db 6					; Waveform
-		db .rst_i15-(.ins_15 +2)		; Restart
+		db 40					; Waveform (was 6)
 		db $11,$0F
 		db $11,$08
 		db $11,$09
@@ -272,9 +298,9 @@
 		db $11,$03
 .rst_i15:
 		db $19,$02
+		dw .rst_i15
 .ins_16:						; SC Flute        
-		db 12					; Waveform
-		db .rst_i16-(.ins_16 +2)		; Restart
+		db 72					; Waveform (was 12)
 		db $11,$0A
 		db $11,$0B
 		db $11,$0D
@@ -285,10 +311,10 @@
 		db $11,$0E
 .rst_i16:
 		db $19,$0E
+		dw .rst_i16
 .ins_17:						; SC Flute2       
 .ins_18:						; SC HI HITS      
-		db 5					; Waveform
-		db .rst_i18-(.ins_18 +2)		; Restart
+		db 32					; Waveform (was 5)
 		db $11,$0F
 		db $11,$0C
 		db $11,$0C
@@ -300,10 +326,10 @@
 		db $11,$02
 .rst_i18:
 		db $19,$02
+		dw .rst_i18
 .ins_19:						; SC Sawlead      
 .ins_20:						; SC Brass        
-		db 10					; Waveform
-		db .rst_i20-(.ins_20 +2)		; Restart
+		db 56					; Waveform (was 10)
 		db $11,$0F
 		db $11,$0D
 		db $11,$0D
@@ -314,19 +340,19 @@
 		db $11,$0D
 .rst_i20:
 		db $19,$0D
+		dw .rst_i20
 .ins_21:						; SD Tom          
-		db 11					; Waveform
-		db .rst_i21-(.ins_21 +2)		; Restart
+		db 64					; Waveform (was 11)
 		db $15,$0F,$2A,$00
 		db $15,$0C,$2A,$00
 .rst_i21:
 		db $14,$2A,$00
 		db $1F,$FF,$2A,$00
+		dw .rst_i21
 .ins_22:						; SC Bass         
 .ins_23:						; SC Snake OD Gtr 
 .ins_24:						; SC SlowStringsnk
-		db 7					; Waveform
-		db .rst_i24-(.ins_24 +2)		; Restart
+		db 48					; Waveform (was 7)
 		db $11,$06
 		db $11,$07
 		db $11,$08
@@ -360,10 +386,10 @@
 		db $15,$0F,$FF,$FF
 		db $15,$0F,$FF,$FF
 		db $1D,$0F,$FF,$FF
+		dw .rst_i24
 .ins_25:						; SC String solid 
 .ins_26:						; SC Piano3       
-		db 16					; Waveform
-		db .rst_i26-(.ins_26 +2)		; Restart
+		db 88					; Waveform (was 16)
 		db $11,$0F
 		db $11,$0E
 		db $11,$0D
@@ -385,9 +411,9 @@
 		db $11,$03
 .rst_i26:
 		db $19,$02
+		dw .rst_i26
 .ins_27:						; SC Piano solid  
-		db 4					; Waveform
-		db .rst_i27-(.ins_27 +2)		; Restart
+		db 24					; Waveform (was 4)
 		db $11,$0F
 		db $11,$0A
 		db $11,$0A
@@ -397,13 +423,13 @@
 		db $11,$0A
 		db $11,$09
 .rst_i27:
-		db $39,$09,$0B
+		db $39,$09
+		dw .rst_i27
 .ins_28:						; SC Piano sol LOW
 .ins_29:						; SC Pian SnakeLOW
 .ins_30:						; SC Mantabrass sn
 .ins_31:						; SC Brass Snend  
-		db 14					; Waveform
-		db .rst_i31-(.ins_31 +2)		; Restart
+		db 80					; Waveform (was 14)
 		db $11,$0F
 		db $11,$0D
 		db $11,$0C
@@ -412,6 +438,7 @@
 		db $11,$08
 .rst_i31:
 		db $19,$08
+		dw .rst_i31
 
 ; [ Song track data ]
 .track_0:

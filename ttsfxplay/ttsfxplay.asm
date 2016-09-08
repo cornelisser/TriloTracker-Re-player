@@ -65,11 +65,9 @@ ttsfx_psg_start:
 		; ---     START A NEW sfx_PSG STREAM     ---
 		; --- INPUT: B -> sound to be played ---
 		; ---        C -> sound priority     ---
-		push	bc				; Store bc in stack
-		push	hl				; Store hl in stack
 		ld	a,(sfx_PSG_PRIORITY)	; a:=Current sfx_PSG stream priority
 		cp	c				; If new sfx_PSG stream priority is higher than currently one...
-		jp	c,_ttsfx_end_start	; ...we don't start the new sfx_PSG stream
+		ret	c 			; ...we don't start the new sfx_PSG stream
 
 		; --- INITS ---
 		ld	a,c				; a:=New priority
@@ -87,9 +85,7 @@ ttsfx_psg_start:
 		ld	b,(hl)			; bc:=pointer to the new sfx_PSG stream
 		inc	bc				; skip the waveform as this is psg
 		ld	(sfx_PSG_POINTER),bc	; Pointer saved in RAM
-_ttsfx_end_start:	
-		pop	hl				; Retrieve hl from stack
-		pop	bc				; Retrieve bc from stack
+
 		ret					; Return
 
 		
@@ -97,11 +93,9 @@ ttsfx_scc_start:
 		; ---     START A NEW sfx_SCC STREAM     ---
 		; --- INPUT: B -> sound to be played ---
 		; ---        C -> sound priority     ---
-		push	bc				; Store bc in stack
-		push	hl				; Store hl in stack
 		ld	a,(sfx_SCC_PRIORITY)	; a:=Current sfx_SCC stream priority
 		cp	c				; If new sfx_SCC stream priority is higher than currently one...
-		jp	c,_ttsfx_end_start			; ...we don't start the new sfx_SCC stream
+		ret 	c			; ...we don't start the new sfx_SCC stream
 
 		; --- INITS ---
 		ld	a,c				; a:=New priority
@@ -125,22 +119,22 @@ ttsfx_scc_start:
 		inc	bc
 		ld	(sfx_SCC_POINTER),bc	; Pointer saved in RAM		
 		cp	h
-		jp	z,_ttsfx_end_start			; no unessecary updates
+		ret	z			; no unessecary updates
 		ld	(sfx_SCC_WAVE),a
-		jp	_ttsfx_end_start	
+		ret
 		
 		
 		
 		
 ttsfx_play:	; --- PLAY A FRAME OF AN sfx_PSG STREAM ---
 		ld	a,(sfx_PSG_PRIORITY)	; a:=Current sfx_PSG stream priority
-		or	a				; If priority has bit 7 on...
-		jp	m,_ttsfx_scc_play				; ...return
+		or	a			; If priority has bit 7 on...
+		jp	m,_ttsfx_scc_play	; ...return
 
 		; --- Extract control byte from stream ---
 		ld	hl,(sfx_PSG_POINTER)	; Pointer to the current sfx_PSG stream
 		ld	c,(hl)			; c:=Control byte
-		inc	hl				; Increment pointer
+		inc	hl			; Increment pointer
 		; --- Check if there's new tone on stream ---
 		bit	5,c				; If bit 5 c is off...
 		jp	z,_ayCHECK_NN		; ...jump to _ayCHECK_NN (no new tone)
@@ -208,7 +202,6 @@ _aySETMASKS:	; --- Set mixer masks ---
 		ld	(AY_regToneC),hl		; copied in to AYREGS (channel C tone)
 		ret					; Return
 
-		
 		
 _ttsfx_scc_end:	; --- End of an sfx_SCC stream ---
 		ld	a,255				; Lowest sfx_SCC priority
