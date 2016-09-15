@@ -17,14 +17,15 @@ Global mainPanel = CreatePanel(0,0,798,478,mainWin)
 Global logging = CreateTextArea(0,80,788,300,mainPanel)
 SetTextAreaFont logging,ttfont 
 ;---- Buttons
-Global loadButton  = CreateButton("Load TMU",690,2,96,24,mainPanel,0)
-Global saveButton  = CreateButton("Save TT",690,30,96,24,mainPanel,0)  
-Global includeWave = CreateButton("waveforms",600,20,90,16,mainPanel,2)
+Global loadButton  = CreateButton("Load TMU",590,2,96,24,mainPanel,0)
+Global saveButton  = CreateButton("Save TT",590,30,96,24,mainPanel,0)  
+Global sfxButton  = CreateButton("Save SFX",688,30,96,24,mainPanel,0) 
+Global includeWave = CreateButton("waveforms",500,20,90,16,mainPanel,2)
 SetButtonState includeWave,1
-Global includeIns  = CreateButton("instruments",600,38,90,16,mainPanel,2)
+Global includeIns  = CreateButton("instruments",500,38,90,16,mainPanel,2)
 SetButtonState includeIns,1
 ;---- Select boxes.
-Global outputSelect = CreateComboBox (690,58,96,24,mainPanel)
+Global outputSelect = CreateComboBox (590,58,96,24,mainPanel)
 AddGadgetItem outputSelect,"sjasm"
 AddGadgetItem outputSelect,"asMSX"
 SelectGadgetItem outputSelect,0
@@ -32,5 +33,5 @@ SelectGadgetItem outputSelect,0
 
 
 ;--- Labels
-CreateLabel "Output type:",600,62,60,16,mainPanel
-CreateLabel "Include:",600,2,60,16,mainPanel
+CreateLabel "Output type:",500,62,60,16,mainPanel
+CreateLabel "Include:",500,2,60,16,mainPanel

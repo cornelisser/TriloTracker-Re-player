@@ -1,4 +1,11 @@
 Function prepare()
+	; - Removes unused patterns en renumber them sequential
+	; - Calculate pattern lengths	
+	; - Remove redundant instrument in tracks
+	; - Set volume first pattern to max if none is set for tracks
+	; - Convert patterns to tracks and find duplicates
+	; - Remove unused waveforms and renumber sequential if set.
+
 
 	For x=0 To 30
 		PokeByte(used_instruments,x,0)
@@ -167,7 +174,7 @@ Function prepare()
 						v = PeekByte(temp_track,(x*4)+b)
 						w = PeekByte(track_data,(t*(64*4))+(x*4)+b)
 						
-						If (v <> w)
+						If ((v <> w) Or REMOVE_Redundancy_Tracks = False)
 							dup	= 0
 							Exit
 						EndIf 	
@@ -227,37 +234,6 @@ Function prepare()
 	AddTextAreaText (logging," "+last_track+" unique tracks found."+Chr(10))
 	
 	
-;	;--- remove redundant instruments in patterns
-;	AddTextAreaText (logging,"-Removing redundant instruments and volumes in tracks..."+Chr(10))
-;	v_found = 0
-;	i_found = 0
-;	For t = 0 To last_track
-;		vol = 255
-;		ins = 255
-;		For l = 0 To (64)-1
-;			b = PeekByte (track_data, (t*(64*4))+(l*4)+2) 
-;			v = b And $f0
-;			i = PeekByte (track_data, (t*(64*4))+(l*4)+1)
-;			
-;			If (v = vol And v > 0)
-;				PokeByte (track_data,(t*(64*4))+(l*4)+2,(b And $0f))
-;				v_found = v_found + 1
-;			Else If (v > 0 )
-;				vol = v
-;			EndIf
-;			If (i = ins And i > 0)
-;				PokeByte (track_data,(t*(64*4))+(l*4)+1,0)
-;				i_found = i_found + 1
-;			Else If (i > 0)
-;				ins = i
-;			EndIf
-;		Next
-;	Next
-;	AddTextAreaText (logging," "+v_found+" duplicate volumes found."+Chr(10))
-;	AddTextAreaText (logging," "+ins_track+" duplicate instruments found."+Chr(10))
-	
-
-
 	;--- get highest instrument used
 	For i= 1 To 31
 		v = PeekByte(used_instruments,i)
@@ -284,10 +260,6 @@ Function prepare()
 			PokeByte(used_waveforms,i,i)
 		Next
 	EndIf
-
-		
-	
-	
 End Function
 
 
@@ -366,7 +338,7 @@ End Function
 Function compile_header(fileout)
 
 	WriteLine (fileout, "; Compiled using tt_compile.exe "+VERSION$ + " "+ DATE$)
-	WriteLine (fileout, "; Copyright 2015 Richard Cornelisse")
+	WriteLine (fileout, "; Copyright 2016 Richard Cornelisse")
 	WriteLine (fileout, "")
 	
 	out$ = "; Song: "
