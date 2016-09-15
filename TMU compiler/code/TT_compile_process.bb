@@ -116,6 +116,26 @@ Function prepare()
 	AddTextAreaText (logging," "+ins_track+" duplicate instruments found."+Chr(10))
 
 
+	;--- Check volume setting on first pattern. Add volume F if none is set.
+	p = PeekByte(sequence,0)	
+	For c = 0 To 7
+		found=0
+		For l = 0 To (PeekByte(pattern_lengths,p))
+			v = PeekByte(patterns,(p*64*32)+(l*32)+(c*4)+2)	And $f0
+			If (v > 0)
+				found = 1
+			EndIf	
+		Next
+		If (found = 0)
+			v = PeekByte(patterns,(p*64*32)+(c*4)+2)
+			v = (v And $0f) + $f0
+			PokeByte(patterns,(p*64*32)+(c*4)+2,v)
+		EndIf
+	Next
+	
+
+
+
 
 
 	;--- Convert patterns to tracks.
