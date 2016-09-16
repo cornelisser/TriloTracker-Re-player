@@ -1,6 +1,8 @@
-; --- TT sfx player v0.1r ---
+; --- TT sfx player v0.2 ---
 ; --- Build uppon ayFX replayer, the work of Shiru, Z80st, ARTRAG
 
+
+; --- plays SFX over PSG(chan3) and SCC (chan1)
 				
 ;===========================================================
 ; ---	ttsfx_init
@@ -54,87 +56,168 @@ _getsfxbalancebase:
 	ret			
 				
 				
-_ttsfx_psg_end:	; --- End of an sfx_PSG stream ---
-		ld	a,255				; Lowest sfx_PSG priority
-		ld	(sfx_PSG_PRIORITY),a	; Priority saved (not playing sfx_PSG stream)
-		ret					; Return
 
-		
-		
-ttsfx_psg_start:	
-		; ---     START A NEW sfx_PSG STREAM     ---
-		; --- INPUT: B -> sound to be played ---
-		; ---        C -> sound priority     ---
-		ld	a,(sfx_PSG_PRIORITY)	; a:=Current sfx_PSG stream priority
-		cp	c				; If new sfx_PSG stream priority is higher than currently one...
-		ret	c 			; ...we don't start the new sfx_PSG stream
 
-		; --- INITS ---
-		ld	a,c				; a:=New priority
-		and	$7F				; We mask the priority
-		ld	(sfx_PSG_PRIORITY),a	; new sfx_PSG stream priority saved in RAM
 
-		; --- sfx_PSG stream pointer ---
-		ld	l,b				; l:=b (new sfx_PSG stream index)
-		ld	h,0				; hl:=b (new sfx_PSG stream index)
-		add	hl,hl				; hl:=hl*2
-		ld	bc,sfx_PSG_STREAMS	; Pointer to the pointer list of the sfx_PSG streams
-		add	hl,bc				; Pointer to the pointer of new sfx_PSG stream to be played
-		ld	c,(hl)			; e:=lower byte of new sfx_PSG stream pointer
-		inc	hl				; Increment pointer to the pointer
-		ld	b,(hl)			; bc:=pointer to the new sfx_PSG stream
-		inc	bc				; skip the waveform as this is psg
-		ld	(sfx_PSG_POINTER),bc	; Pointer saved in RAM
-
-		ret					; Return
-
-		
+ttsfx_start:
+		;--- Start a new SFX
+		;--- Input B -> sfx number
+		;--- Input C -> priority
+		ld	hl,.sfxlist				; get sfx data
+		ld	a,b
+		add	a
+		add	a,l
+		ld	l,a
+		jp	nc,99f
+		inc	h
+99:
+.ts_loop:
+		ld	a,(hl)			; get type
+		and	a
+		ret	z				; end of sfx init data
+		inc	hl
+		dec	a
+		jp	z,ttsfx_psg_start
 ttsfx_scc_start:	
-		; ---     START A NEW sfx_SCC STREAM     ---
-		; --- INPUT: B -> sound to be played ---
 		; ---        C -> sound priority     ---
 		ld	a,(sfx_SCC_PRIORITY)	; a:=Current sfx_SCC stream priority
 		cp	c				; If new sfx_SCC stream priority is higher than currently one...
-		ret 	c			; ...we don't start the new sfx_SCC stream
+		jp	c,ttsfx_nostart		; ...we don't start the new sfx_SCC stream
 
 		; --- INITS ---
 		ld	a,c				; a:=New priority
-		and	$7F				; We mask the priority
 		ld	(sfx_SCC_PRIORITY),a	; new sfx_SCC stream priority saved in RAM
 
 		; --- sfx_SCC stream pointer ---
-		ld	l,b				; l:=b (new sfx_SCC stream index)
-		ld	h,0				; hl:=b (new sfx_SCC stream index)
-		add	hl,hl				; hl:=hl*2
-		ld	bc,sfx_SCC_STREAMS	; Pointer to the pointer list of the sfx_SCC streams
-		add	hl,bc				; Pointer to the pointer of new sfx_SCC stream to be played
 		ld	c,(hl)			; e:=lower byte of new sfx_SCC stream pointer
 		inc	hl				; Increment pointer to the pointer
 		ld	b,(hl)			; bc:=pointer to the new sfx_SCC stream
+		inc	hl
+		ld	(sfx_SCC_POINTER),bc	; Pointer saved in RAM
+		jp	.ts_loop
 		
-		;--- get the waveform		
-		ld	a,(TRACK_Chan4+17+TRACK_Waveform)
-		ld	h,a
-		ld	a,(bc)
-		inc	bc
-		ld	(sfx_SCC_POINTER),bc	; Pointer saved in RAM		
-		cp	h
-		ret	z			; no unessecary updates
-		ld	(sfx_SCC_WAVE),a
-		ret
-		
-		
-		
-		
-ttsfx_play:	; --- PLAY A FRAME OF AN sfx_PSG STREAM ---
+	
+	
+ttsfx_psg_start:	
+		; ---        C -> sound priority     ---
 		ld	a,(sfx_PSG_PRIORITY)	; a:=Current sfx_PSG stream priority
-		or	a			; If priority has bit 7 on...
-		jp	m,_ttsfx_scc_play	; ...return
+		cp	c				; If new sfx_PSG stream priority is higher than currently one...
+		jp	c,ttsfx_nostart		; ...we don't start the new sfx_PSG stream
+
+		; --- INITS ---
+		ld	a,c				; a:=New priority
+		ld	(sfx_PSG_PRIORITY),a	; new sfx_PSG stream priority saved in RAM
+
+		; --- sfx_PSG stream pointer ---
+		ld	c,(hl)			; e:=lower byte of new sfx_PSG stream pointer
+		inc	hl				; Increment pointer to the pointer
+		ld	b,(hl)			; bc:=pointer to the new sfx_PSG stream
+		inc	hl				; skip the waveform as this is psg
+		ld	(sfx_PSG_POINTER),bc	; Pointer saved in RAM
+		jp	.ts_loop					; Return
+
+ttsfx_nostart:
+		inc	hl
+		inc	hl
+		jp	.ts_loop
+
+
+
+		
+
+		
+		
+
+ttsfx_play:
+	;--------------------------------
+	; Play both sfx streams
+	;--------------------------------
+		ld	a,(sfx_PSG_PRIORITY)	; a:=Current sfx_PSG stream priority
+		inc	a				; If priority is 255
+		call	nz,ttsfx_psg_play
+		
+_ttsfx_scc_play:	; --- PLAY A FRAME OF AN sfx_SCC STREAM ---
+		ld	a,(sfx_SCC_PRIORITY)	; a:=Current sfx_SCC stream priority
+		inc	a				; If priority is 255
+		ret	z				; ...return
+
+		;--- disable music Waveform updates
+		ld	hl,TRACK_Chan4+17+TRACK_Flags
+		res	B_TRGWAV,(hl)
+		
+		; --- Extract control byte from stream ---
+		ld	hl,(sfx_SCC_POINTER)	; Pointer to the current sfx_SCC stream
+		ld	c,(hl)			; c:=Control byte
+		cp	10000000b			; end marker
+		jp	z,_ttsfx_scc_end
+		inc	hl				; Increment pointer
+		; --- Check if there's new tone on stream ---
+		bit	5,c				; If bit 5 c is off...
+		jp	z,_sccCHECK_W		; ...jump to _sccCHECK_NN (no new tone)
+		; --- Extract new tone from stream ---
+		ld	e,(hl)			; e:=lower byte of new tone
+		inc	hl				; Increment pointer
+		ld	d,(hl)			; d:=higher byte of new tone
+		inc	hl				; Increment pointer
+		ld	(sfx_SCC_TONE),de		; sfx_SCC tone updated
+_sccCHECK_W:	; --- Check if there's the end of the sfx ---
+		bit	6,c				; if bit 6 c is off...
+		jp	z,_sccSETPOINTER		; ...jump to _sccSETPOINTER (no end)
+		; --- Extract new waveform from stream ---
+		ld	a,(hl)			; a:=New noise
+		inc	hl				; Increment pointer
+		ld	(sfx_SCC_WAVE),a		; Set a new waveform trigger, ttreplay will handle this
+		
+_sccSETPOINTER:	; --- Update sfx_SCC pointer ---
+		ld	(sfx_SCC_POINTER),hl	; Update sfx_SCC stream pointer
+		; --- Extract volume ---
+		ld	a,c				; a:=Control byte
+		and	$0F				; lower nibble
+		; --- Fix the volume using TT Volume Table ---
+		ld	hl,(sfx_SCC_BALANCE)	; hl:=Pointer to relative volume table
+		ld	e,a				; e:=a (sfx_SCC volume)
+		ld	d,0				; d:=0
+		add	hl,de				; hl:=hl+de (hl points to the relative volume of this frame
+		ld	a,(hl)			; a:=sfx_SCC relative volume
+		rra					; SCC relative volume is in the higher 4 bits
+		rra
+		rra
+		rra
+		and	$0f				; mask only scc volume
+		ld	(sfx_SCC_VOLUME),a	; sfx_SCC volume updated
+		or	a				; If relative volume is zero...
+		ret	z				; ...return (don't copy sfx_SCC values in to sccREGS)
+
+		ld	b,a 				; Store relative volume in b
+		; -------------------------------------
+		; --- COPY sfx_SCC VALUES IN TO sccREGS ---
+		; -------------------------------------
+
+		; --- Set mixer masks ---
+		ld	a,c				; a:=Control byte
+		and	$80				; Only bit 4 (tone mask for SCC)
+		ret	z				; ...return (don't copy sfx_SCC values in to sccREGS)
+
+		;--- Set the SCC mixer value
+		ld	a,(SCC_regMIXER)		; a:=SCC mixer value
+		or	1				; Set the tone enabled bit.
+		ld	(SCC_regMIXER),a		; SCC mixer value updated
+		
+		ld 	a,b				; relative volume
+		ld	(SCC_regVOLA),a		; Volume copied in to SCCREGS (channel 1 volume)
+		ld	hl,(sfx_SCC_TONE)		; sfx_SCC tone value
+		ld	(SCC_regToneA),hl		; copied in to SCCREGS (channel 1 tone)
+		ret					; Return	
+
+		
+_ttsfx_psg_play:	; --- PLAY A FRAME OF AN sfx_PSG STREAM ---
 
 		; --- Extract control byte from stream ---
 		ld	hl,(sfx_PSG_POINTER)	; Pointer to the current sfx_PSG stream
 		ld	c,(hl)			; c:=Control byte
-		inc	hl			; Increment pointer
+		cp	01000000b			; Check for end marker
+		jp	z,_ttsfx_psg_end
+		inc	hl				; Increment pointer
 		; --- Check if there's new tone on stream ---
 		bit	5,c				; If bit 5 c is off...
 		jp	z,_ayCHECK_NN		; ...jump to _ayCHECK_NN (no new tone)
@@ -150,8 +233,8 @@ _ayCHECK_NN:	; --- Check if there's new noise on stream ---
 		; --- Extract new noise from stream ---
 		ld	a,(hl)			; a:=New noise
 		inc	hl				; Increment pointer
-		cp	$20				; If it's an illegal value of noise (used to mark end of stream)...
-		jp	z,_ttsfx_psg_end			; ...jump to _ttsfx_psg_end
+;		cp	$20				; If it's an illegal value of noise (used to mark end of stream)...
+;		jp	z,_ttsfx_psg_end			; ...jump to _ttsfx_psg_end
 		ld	(sfx_PSG_NOISE),a		; sfx_PSG noise updated
 _aySETPOINTER:	; --- Update sfx_PSG pointer ---
 		ld	(sfx_PSG_POINTER),hl	; Update sfx_PSG stream pointer
@@ -211,83 +294,15 @@ _ttsfx_scc_end:	; --- End of an sfx_SCC stream ---
 		set	B_TRGWAV,(hl)		
 		ret					; Return		
 		
+_ttsfx_psg_end:	; --- End of an sfx_PSG stream ---
+		ld	a,255				; Lowest sfx_PSG priority
+		ld	(sfx_PSG_PRIORITY),a	; Priority saved (not playing sfx_PSG stream)
+		ret					; Return		
 		
 		
-
-_ttsfx_scc_play:	; --- PLAY A FRAME OF AN sfx_SCC STREAM ---
-		ld	a,(sfx_SCC_PRIORITY)	; a:=Current sfx_SCC stream priority
-		or	a				; If priority has bit 7 on...
-		ret	m				; ...return
-
-		;--- disable music Waveform updates
-		ld	hl,TRACK_Chan4+17+TRACK_Flags
-		res	B_TRGWAV,(hl)
 		
-		; --- Extract control byte from stream ---
-		ld	hl,(sfx_SCC_POINTER)	; Pointer to the current sfx_SCC stream
-		ld	c,(hl)			; c:=Control byte
-		inc	hl				; Increment pointer
-		; --- Check if there's new tone on stream ---
-		bit	5,c				; If bit 5 c is off...
-		jp	z,_sccCHECK_NN		; ...jump to _sccCHECK_NN (no new tone)
-		; --- Extract new tone from stream ---
-		ld	e,(hl)			; e:=lower byte of new tone
-		inc	hl				; Increment pointer
-		ld	d,(hl)			; d:=higher byte of new tone
-		inc	hl				; Increment pointer
-		ld	(sfx_SCC_TONE),de		; sfx_SCC tone updated
-_sccCHECK_NN:	; --- Check if there's the end of the sfx ---
-		bit	6,c				; if bit 6 c is off...
-		jp	z,_sccSETPOINTER		; ...jump to _sccSETPOINTER (no end)
-		; --- Extract new noise from stream ---
-		ld	a,(hl)			; a:=New noise
-		inc	hl				; Increment pointer
-		cp	$20				; If it's an illegal value of noise (used to mark end of stream)...
-		jp	z,_ttsfx_scc_end			; ...jump to _ttsfx_scc_end
 		
-_sccSETPOINTER:	; --- Update sfx_SCC pointer ---
-		ld	(sfx_SCC_POINTER),hl	; Update sfx_SCC stream pointer
-		; --- Extract volume ---
-		ld	a,c				; a:=Control byte
-		and	$0F				; lower nibble
-		; --- Fix the volume using TT Volume Table ---
-		ld	hl,(sfx_SCC_BALANCE)	; hl:=Pointer to relative volume table
-		ld	e,a				; e:=a (sfx_SCC volume)
-		ld	d,0				; d:=0
-		add	hl,de				; hl:=hl+de (hl points to the relative volume of this frame
-		ld	a,(hl)			; a:=sfx_SCC relative volume
-		rra					; SCC relative volume is in the higher 4 bits
-		rra
-		rra
-		rra
-		and	$0f				; mask only scc volume
-		ld	(sfx_SCC_VOLUME),a	; sfx_SCC volume updated
-		or	a				; If relative volume is zero...
-		ret	z				; ...return (don't copy sfx_SCC values in to sccREGS)
-
-		ld	b,a 				; Store relative volume in b
-		; -------------------------------------
-		; --- COPY sfx_SCC VALUES IN TO sccREGS ---
-		; -------------------------------------
-
-		; --- Set mixer masks ---
-		ld	a,c				; a:=Control byte
-		and	$80				; Only bit 4 (tone mask for SCC)
-		ret	z				; ...return (don't copy sfx_SCC values in to sccREGS)
-
-		;--- Set the SCC mixer value
-		ld	a,(SCC_regMIXER)		; a:=SCC mixer value
-		or	1				; Set the tone enabled bit.
-		ld	(SCC_regMIXER),a		; SCC mixer value updated
-		
-		ld 	a,b				; relative volume
-		ld	(SCC_regVOLA),a		; Volume copied in to SCCREGS (channel 1 volume)
-		ld	hl,(sfx_SCC_TONE)		; sfx_SCC tone value
-		ld	(SCC_regToneA),hl		; copied in to SCCREGS (channel 1 tone)
-		ret					; Return	
-
-		
-;-- Used but the tt music replayer to update the waveform for sfx.		
+;-- Used by the tt music replayer to update the waveform for sfx.		
 _write_SFX_wave:
 	ld	l,a
 	ld	h,0

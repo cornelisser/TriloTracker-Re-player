@@ -23,15 +23,15 @@ Function compile_sfx()
 			compile_sfx_sequence(fileout)
 
 
-			If (ButtonState(includeWave))
-				WriteLine (fileout, l_pre$+"waveform_start:")
-				For w=0 To 31
-					If (PeekByte(used_waveforms,w) < 255)
-						compile_waveform(fileout,w)
-					EndIf
-				Next
-				WriteLine (fileout, "")
-			EndIf
+	;		If (ButtonState(includeWave))
+	;			WriteLine (fileout, l_pre$+"waveform_start:")
+	;			For w=0 To 31
+	;				If (PeekByte(used_waveforms,w) < 255)
+	;					compile_waveform(fileout,w)
+	;				EndIf
+	;			Next
+	;			WriteLine (fileout, "")
+	;		EndIf
 			
 			
 			WriteLine (fileout, "; [ SFX data ]")
@@ -68,14 +68,25 @@ Function compile_sfx_header(fileout)
 	WriteLine (fileout, out$)
 	WriteLine (fileout, "")
 		
+	WriteLine (fileout, "ttsfx_waveforms:")
+	For w=0 To 31
+		If (PeekByte(used_waveforms,w) < 255)
+			compile_waveform(fileout,w)
+		EndIf
+	Next
+	WriteLine (fileout, "")
+	
+	
+	
+	
 	
 
 	WriteLine (fileout, "; [ sfx start data ]")
-	If ButtonState(includeWave)
-		WriteLine (fileout, Chr(9)+"dw "+l_pre$+"waveform_start "+Chr(9)+Chr(9)+"; Start of the waveform data.")
-	Else
-		WriteLine (fileout, Chr(9)+"dw $0000"+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform data is external.")
-	EndIf	
+;	If ButtonState(includeWave)
+;		WriteLine (fileout, Chr(9)+"dw "+l_pre$+"waveform_start "+Chr(9)+Chr(9)+"; Start of the waveform data.")
+;	Else
+;		WriteLine (fileout, Chr(9)+"dw $0000"+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform data is external.")
+;	EndIf	
 	WriteLine (fileout, "")
 End Function
 
@@ -231,6 +242,30 @@ Function compile_reg_updates(fileout)
 
 	Select TRACK_Chip
 		Case 0	; PSG
+			byte1 = regVOL
+			byte1 = byte1 + (regMIXER And 144)	; Tone and Noise active flags
+			If (regTone <> old_regTone)			; Tone update
+				byte1 = byte1 Or 32
+			EndIf				
+			If ((regMIXER And 128) And (regNOISE <> old_regNOISE))			; Noise update
+				byte1 = byte1 Or 64
+			EndIf				
+			out$ = Chr(9)+"db $"+Right(Hex(byte1),2)
+
+			If (regTone <> old_regTone)			; Tone update
+				byte2 = regTone And $ff
+				byte3 = (regTone Shr 8) And $ff
+				out$ = out$ +", $"+Right(Hex(byte2),2)+", $"+Right(Hex(byte3),2)
+			EndIf
+			
+			If ((regMIXER And 128) And (regNOISE <> old_regNOISE))			; Tone update
+				byte4 = regNOISE And $1f
+				
+				out$ = out$ +", $"+Right(Hex(byte4),2)
+			EndIf
+			
+						
+			
 			
 		Case 1	; SCC
 			byte1 = regVOL
@@ -251,21 +286,21 @@ Function compile_reg_updates(fileout)
 			EndIf
 			
 			If (TRACK_Flag_6)
-				byte4 = TRACK_Waveform
+				byte4 = TRACK_Waveform *8
 				out$ = out$ +", $"+Right(Hex(byte4),2)
 			EndIf
 			
-			TRACK_Flag_6 = False
-			
-			old_regTone = regTone
-			old_regNOISE = regNOISE
-			old_regMIXER = regMIXER
-			old_regVOL = regVOL
-			old_regEnv = regEnv
-			old_regEnvShape = regEnvShape			
+	End Select		
+	TRACK_Flag_6 = False
+	old_regTone = regTone
+	old_regNOISE = regNOISE
+	old_regMIXER = regMIXER
+	old_regVOL = regVOL
+	old_regEnv = regEnv
+	old_regEnvShape = regEnvShape			
 
-			WriteLine (fileout,out$)
-	End Select
+	WriteLine (fileout,out$)
+	
 End Function	
 
 			
@@ -300,11 +335,11 @@ Function compile_decodedata_NO(fileout,t)
 				Else
 					TRACK_Timer = 1
 				EndIf
-			Case 1
+			Case 1 ; slide up
 				TRACK_cmd_ToneSlideAdd = TRACK_cmd_ToneSlideAdd - TRACK_cmd_1
-			Case 2
+			Case 2  ; Slide down
 				TRACK_cmd_ToneSlideAdd = TRACK_cmd_ToneSlideAdd + TRACK_cmd_2
-			Case 3
+			Case 3 ; Tone slide
 				If (TRACK_cmd_ToneSlideAdd < 0)
 					; add
 					TRACK_cmd_ToneSlideAdd = TRACK_cmd_ToneSlideAdd + TRACK_cmd_3
@@ -321,10 +356,45 @@ Function compile_decodedata_NO(fileout,t)
 					EndIf
 
 				EndIf
-			Case 4
-			Case 5
-			Case 5
-			Case 7
+			Case 4	; Vibrato
+				TRACK_Step = (TRACK_Step + TRACK_cmd_4_step) And $3f
+				TRACK_cmd_ToneAdd = vibrato_table(TRACK_Step) / TRACK_cmd_4_depth
+			Case $a	; Volume slide
+.vol_slide_label		
+				TRACK_Timer = TRACK_Timer -1
+				If (TRACK_Timer = 0)
+					TRACK_Timer = (TRACK_cmd_A And $7f)
+				
+					If (TRACK_Timer And 128)
+						If (TRACK_cmd_VolumeAdd > -240)
+							TRACK_cmd_VolumeAdd = TRACK_cmd_VolumeAdd -16
+						EndIf
+					Else
+						If (TRACK_cmd_VolumeAdd < 240)
+							TRACK_cmd_VolumeAdd = TRACK_cmd_VolumeAdd +16
+						EndIf							
+					EndIf
+			
+				EndIf
+		
+			Case $10	; Short arp
+				TRACK_Timer = TRACK_Timer - 1
+				If (TRACK_Timer And 1)
+					TRACK_cmd_NoteAdd = TRACK_cmd_E
+				EndIf
+			Case $11	;	Fine slide up	
+				TRACK_Timer = TRACK_Timer - 1
+				If (TRACK_Timer = 0)
+					TRACK_Flag_3 = False
+					TRACK_cmd_ToneSlideAdd = TRACK_cmd_ToneSlideAdd + TRACK_cmd_E
+				EndIf
+			Case $12	;	Fine slide down	
+				TRACK_Timer = TRACK_Timer - 1
+				If (TRACK_Timer = 0)
+					TRACK_Flag_3 = False
+					TRACK_cmd_ToneSlideAdd = TRACK_cmd_ToneSlideAdd - TRACK_cmd_E
+				EndIf
+
 		End Select		
 	EndIf				
 		
@@ -737,7 +807,7 @@ End Function
 
 
 Function get_chiptype(t)
-
+	t = t And 7
 	;--- get the CHIPtype
 	If (t < 3)
 		TRACK_Chip = PSG
@@ -749,4 +819,28 @@ End Function
 
 
 
+Function set_vibrato_table(t)
+
+	Select t
+		Case 0
+			Restore vibrato_sine
+			For x= 0 To 31
+				Read v
+				vibrato_table(x) = v
+			Next
+		Case 1
+			Restore vibrato_triangle
+			For x= 0 To 31
+				Read v
+				vibrato_table(x) = v
+			Next	
+		Case 2		
+			Restore vibrato_pulse
+			For x= 0 To 31
+				Read v
+				vibrato_table(x) = v
+			Next	
+	End Select	
+			
+End Function			
 

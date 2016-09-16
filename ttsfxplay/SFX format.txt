@@ -1,0 +1,35 @@
+SFX format:
+
+[xx10xxxx] is end of sfx marker
+
+PSG
+=======
+[NntTvvvv]
+[dddddddd] [....dddd]
+[...nnnnn]
+
+[01000000] end
+
+SCC
+==========
+[.WtTvvvv]
+[dddddddd] [....dddd]
+[...wwwww]
+
+[10000000] end
+
+FM
+==========
+[.ItTvvvv]
+[dddddddd] [..SKooot]
+[...iiiii]
+
+[10000000] end
+
+[SN]
+==========
+[VntTvvvv]
+[dddddddd] [......dd]
+[..vvvvnn]
+
+[????????] end

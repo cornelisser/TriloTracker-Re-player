@@ -1,5 +1,5 @@
-Const VERSION$ = "V0.3.1"
-Const DATE$ = "[04-09-2016]"
+Const VERSION$ = "V0.4.0"
+Const DATE$ = "[16-09-2016]"
 Const PSG = 0
 Const SCC = 1
 Const FM = 2
@@ -170,7 +170,22 @@ Next
 
 
 
+.vibrato_sine
+Data  	0*2,	2*2, 4*2, 7*2,11*2,16*2,22*2,28*2,35*2,43*2,51*2,59*2,68*2,77*2,87*2,96*2
+Data	-96*2,-86*2,-77*2,-68*2,-59*2,-51*2,-43*2,-35*2,-28*2,-22*2,-16*2,-11*2, -7*2,	-4*2, -2*2, -0*2
 
+.vibrato_triangle
+Data	 0, 6,12,18,24,30,36,42,48,54,60,66,72,78,84,90
+Data	-96,-90,-84,-78,-72,-66,-60,-54,-48,-42,-36,-30,-24,-18,-12, -6
+
+
+.vibrato_pulse
+Data	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
+Data      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+
+
+Dim vibrato_table(32)
+set_vibrato_table(0)
 
 ;Global instrument_pointers	=	CreateBank (31*2)
 ;Global pattern_pointers		= 	CreateBank (128*2)
