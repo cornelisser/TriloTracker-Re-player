@@ -77,7 +77,9 @@ initmain:
 	xor	a
 	ld	(pattern),a
 
-	
+;	call	replay_pause
+;	ld	bc,$0001
+;	call	ttsfx_start
 	
 infinite:
 	halt
@@ -93,9 +95,9 @@ infinite:
 	and	a
 	jp	z,infinite
 
-;call	replay_pause
-	ld	bc,$0301
-	call	ttsfx_scc_start
+;	call	replay_pause
+	ld	bc,$0001
+	call	ttsfx_start
 ;	ld	a,0
 ;	call	replay_set_SCC_balance
 ;	ld	de,-2
@@ -126,38 +128,38 @@ isr:
 	include	"..\code\ttreplay.asm"
 	include	"..\code\ttreplayDAT.asm"
 	include	"..\ttsfxplay\ttsfxplay.asm"
-ttsfx_waveforms:
-	
 	
 demo_song:
 	include	".\demosong.asm"
+
+	include ".\sfx.asm"
 	
-sfx_PSG_STREAMS:
-sfx_SCC_STREAMS:
-	dw	sfx1
-	dw	sfx2
-	dw	sfx3
-	dw	sfx4
-	dw	sfx5
-
-
-
-sfx1:
-	db	4*8
-	incbin	"..\ttsfxplay\sfx\menu1.afx"
-sfx2:
-	db	2*8
-	incbin	"..\ttsfxplay\sfx\menu2.afx"	
-sfx3:
-	db	3*8
-	incbin	"..\ttsfxplay\sfx\menu3.afx"
-sfx4:
-	db	5*8
-	incbin	"..\ttsfxplay\sfx\menu4.afx"
-sfx5:
-	db	6*8
-	incbin	"..\ttsfxplay\sfx\menu5.afx"
-
+;sfx_PSG_STREAMS:
+;sfx_SCC_STREAMS:
+;	dw	sfx1
+;	dw	sfx2
+;	dw	sfx3
+;	dw	sfx4
+;	dw	sfx5
+;
+;
+;
+;sfx1:
+;	db	1,4*8
+;	incbin	"..\ttsfxplay\sfx\menu1.afx"
+;sfx2:
+;	db	1,2*8
+;	incbin	"..\ttsfxplay\sfx\menu2.afx"	
+;sfx3:
+;	db	1,3*8
+;	incbin	"..\ttsfxplay\sfx\menu3.afx"
+;sfx4:
+;	db	1,5*8
+;	incbin	"..\ttsfxplay\sfx\menu4.afx"
+;sfx5:
+;	db	1,6*8
+;	incbin	"..\ttsfxplay\sfx\menu5.afx"
+;
 	
 	
 	map	0xc000

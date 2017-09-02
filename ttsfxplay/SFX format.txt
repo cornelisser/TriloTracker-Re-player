@@ -1,6 +1,6 @@
 SFX format:
 
-[xx10xxxx] is end of sfx marker
+[00100000] is end of sfx marker (dec: 64)
 
 PSG
 =======

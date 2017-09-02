@@ -63,7 +63,7 @@ ttsfx_start:
 		;--- Start a new SFX
 		;--- Input B -> sfx number
 		;--- Input C -> priority
-		ld	hl,.sfxlist				; get sfx data
+		ld	hl,sfxlist				; get sfx data
 		ld	a,b
 		add	a
 		add	a,l
@@ -71,14 +71,20 @@ ttsfx_start:
 		jp	nc,99f
 		inc	h
 99:
-.ts_loop:
+		ld	a,(hl)
+		inc	hl
+		ld	h,(hl)
+		ld	l,a
+
+
+_ts_loop:
 		ld	a,(hl)			; get type
 		and	a
 		ret	z				; end of sfx init data
 		inc	hl
 		dec	a
-		jp	z,ttsfx_psg_start
-ttsfx_scc_start:	
+		jp	z,_ttsfx_psg_start
+_ttsfx_scc_start:	
 		; ---        C -> sound priority     ---
 		ld	a,(sfx_SCC_PRIORITY)	; a:=Current sfx_SCC stream priority
 		cp	c				; If new sfx_SCC stream priority is higher than currently one...
@@ -94,11 +100,11 @@ ttsfx_scc_start:
 		ld	b,(hl)			; bc:=pointer to the new sfx_SCC stream
 		inc	hl
 		ld	(sfx_SCC_POINTER),bc	; Pointer saved in RAM
-		jp	.ts_loop
+		jp	_ts_loop
 		
 	
 	
-ttsfx_psg_start:	
+_ttsfx_psg_start:	
 		; ---        C -> sound priority     ---
 		ld	a,(sfx_PSG_PRIORITY)	; a:=Current sfx_PSG stream priority
 		cp	c				; If new sfx_PSG stream priority is higher than currently one...
@@ -114,12 +120,12 @@ ttsfx_psg_start:
 		ld	b,(hl)			; bc:=pointer to the new sfx_PSG stream
 		inc	hl				; skip the waveform as this is psg
 		ld	(sfx_PSG_POINTER),bc	; Pointer saved in RAM
-		jp	.ts_loop					; Return
+		jp	_ts_loop					; Return
 
 ttsfx_nostart:
 		inc	hl
 		inc	hl
-		jp	.ts_loop
+		jp	_ts_loop
 
 
 
@@ -134,7 +140,7 @@ ttsfx_play:
 	;--------------------------------
 		ld	a,(sfx_PSG_PRIORITY)	; a:=Current sfx_PSG stream priority
 		inc	a				; If priority is 255
-		call	nz,ttsfx_psg_play
+		call	nz,_ttsfx_psg_play
 		
 _ttsfx_scc_play:	; --- PLAY A FRAME OF AN sfx_SCC STREAM ---
 		ld	a,(sfx_SCC_PRIORITY)	; a:=Current sfx_SCC stream priority
@@ -148,6 +154,7 @@ _ttsfx_scc_play:	; --- PLAY A FRAME OF AN sfx_SCC STREAM ---
 		; --- Extract control byte from stream ---
 		ld	hl,(sfx_SCC_POINTER)	; Pointer to the current sfx_SCC stream
 		ld	c,(hl)			; c:=Control byte
+		ld	a,c
 		cp	10000000b			; end marker
 		jp	z,_ttsfx_scc_end
 		inc	hl				; Increment pointer
@@ -200,22 +207,22 @@ _sccSETPOINTER:	; --- Update sfx_SCC pointer ---
 
 		;--- Set the SCC mixer value
 		ld	a,(SCC_regMIXER)		; a:=SCC mixer value
-		or	1				; Set the tone enabled bit.
+		or	1						; Set the tone enabled bit.
 		ld	(SCC_regMIXER),a		; SCC mixer value updated
 		
-		ld 	a,b				; relative volume
-		ld	(SCC_regVOLA),a		; Volume copied in to SCCREGS (channel 1 volume)
+		ld 	a,b						; relative volume
+		ld	(SCC_regVOLA),a			; Volume copied in to SCCREGS (channel 1 volume)
 		ld	hl,(sfx_SCC_TONE)		; sfx_SCC tone value
 		ld	(SCC_regToneA),hl		; copied in to SCCREGS (channel 1 tone)
-		ret					; Return	
+		ret							; Return	
 
 		
 _ttsfx_psg_play:	; --- PLAY A FRAME OF AN sfx_PSG STREAM ---
-
 		; --- Extract control byte from stream ---
 		ld	hl,(sfx_PSG_POINTER)	; Pointer to the current sfx_PSG stream
 		ld	c,(hl)			; c:=Control byte
-		cp	01000000b			; Check for end marker
+		ld	a,c
+		cp	64				; Check for end marker
 		jp	z,_ttsfx_psg_end
 		inc	hl				; Increment pointer
 		; --- Check if there's new tone on stream ---
@@ -227,7 +234,8 @@ _ttsfx_psg_play:	; --- PLAY A FRAME OF AN sfx_PSG STREAM ---
 		ld	d,(hl)			; d:=higher byte of new tone
 		inc	hl				; Increment pointer
 		ld	(sfx_PSG_TONE),de		; sfx_PSG tone updated
-_ayCHECK_NN:	; --- Check if there's new noise on stream ---
+_ayCHECK_NN:	
+		; --- Check if there's new noise on stream ---
 		bit	6,c				; if bit 6 c is off...
 		jp	z,_aySETPOINTER		; ...jump to _aySETPOINTER (no new noise)
 		; --- Extract new noise from stream ---
@@ -256,33 +264,40 @@ _aySETPOINTER:	; --- Update sfx_PSG pointer ---
 		; -------------------------------------
 		; --- COPY sfx_PSG VALUES IN TO AYREGS ---
 		; -------------------------------------
-		; --- Set noise channel ---
+		
+		; --- Set tone register ---	
+		bit	4,c				; If tone is off...
+		jp	z,0f				; ...return
+		ld	hl,(sfx_PSG_TONE)		; sfx_PSG tone value
+		ld	(AY_regToneC),hl		; copied in to AYREGS (channel C tone)		
+		
+0:		; --- Set noise register ---
 		bit	7,c				; If noise is off...
-		jp	nz,_aySETMASKS		; ...jump to _aySETMASKS
+		jp	z,_aySETMASKS		; ...jump to _aySETMASKS
 		ld	a,(sfx_PSG_NOISE)		; sfx_PSG noise value
 		ld	(AY_regNOISE),a		; copied in to AYREGS (noise channel)
 _aySETMASKS:	; --- Set mixer masks ---
 		ld	a,c				; a:=Control byte
 		and	$90				; Only bits 7 and 4 (noise and tone mask for psg reg 7)
-		cp	$90				; If no noise and no tone...
+	;	cp	$90				; If no noise and no tone...
 		ret	z				; ...return (don't copy sfx_PSG values in to AYREGS)
 		; --- Copy sfx_PSG values in to ARYREGS ---
 		rrc	a				; Rotate a to the right (1 TIME)
 		rrc	a				; Rotate a to the right (2 TIMES) (OR mask)
 		
 		;--- Set the PSG mixer value
-		ld	c,a				; c:=OR mask
+		ld 	c,00100000b
+;		ld	c,a				; c:=OR mask
 		ld	a,(AY_regMIXER)		; a:=PSG mixer value
 		and	00011011b
+
+
 		or	c				; OR mask
 		ld	(AY_regMIXER),a		; PSG mixer value updated
-		
+	
 		ld 	a,b				; relative volume
 		ld	(AY_regVOLC),a		; Volume copied in to AYREGS (channel C volume)
-		bit	2,c				; If tone is off...
-		ret	nz				; ...return
-		ld	hl,(sfx_PSG_TONE)		; sfx_PSG tone value
-		ld	(AY_regToneC),hl		; copied in to AYREGS (channel C tone)
+	
 		ret					; Return
 
 		

@@ -1,6 +1,5 @@
-
-; Compiled using tt_compile.exe V0.3.1 [04-09-2016]
-; Copyright 2015 Richard Cornelisse
+; Compiled using tt_compile.exe V0.4.0 [16-09-2016]
+; Copyright 2016 Richard Cornelisse
 
 ; Song: Usas Stage1        - Konami     
 ; By:   Arr. by Gryzor87        (c) 2013
