@@ -366,6 +366,7 @@ Function compile()
 ;						out$ = out$ +","
 ;					EndIf
 				Next
+				WriteLine (fileout,"")
 
 				For w=0 To 20-1
 					If (PeekByte(used_drums,w) < 255)
@@ -682,7 +683,7 @@ Function compile_track(fileout,t)
 							EndIf
 						Else If (par < 19) 			; FM drum
 							d = PeekByte(used_drums,par)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cd),2)+", $"+Right(Hex(d),2)+"; FM drum macro"+par)
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cd),2)+", $"+Right(Hex(d),2)+Chr(9)+Chr(9)+";[FM drum] "+par)
 						EndIf
 								
 					Case $e		; Extended events
@@ -821,10 +822,11 @@ Function compile_drum(fileout,w)
 
 	;--- drum data
 	
-	
-	drm_off = (((16*7)+1)*w)+1
+	WriteLine(fileout,Chr(9)+";  Flg,Prc,Ton, vB,Ton,vHS,Ton,vTC")
+	drm_off = (((16*7)+1)*(w-1))+1
 	l = PeekByte (drummacros,(drm_off-1))
-	For r = 0 To 15
+
+	For r = 0 To 16
 		out$ = ""
 		result$ = Chr(9)+"db "
 		skip$ = "    "
@@ -915,14 +917,13 @@ Function compile_instrument(fileout,ins)
 	
 	ins = ins +1
 	
-	out$ = Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; "
+	out$ = Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; "
 	For x=0 To 15
 		out$ = out$ + Chr(PeekByte(instrumentnames,x+((ins-1)*16)))
 	Next
 	
 	
 	WriteLine (fileout, l_pre$+"ins_"+(ins)+":"+out$)
-	
 	If (PeekByte(used_instruments,ins) = 0)
 		Return	
 	EndIf	
@@ -936,6 +937,7 @@ Function compile_instrument(fileout,ins)
 	EndIf
 ;	WriteLine (fileout, Chr(9)+Chr(9)+"db "+l_pre$+"rst_i"+ins+"-("+l_pre$+"ins_"+ins+" +2)"+Chr(9)+Chr(9)+"; Restart")
 	
+	WriteLine(fileout, Chr(9)+Chr(9)+";  Flg,Vol,Noi,Lnk,Tone")
 	
 	For r = 0 To length-1
 		If (r = restart)
@@ -952,7 +954,7 @@ Function compile_instrument(fileout,ins)
 		EndIf
 	Next
 	WriteLine (fileout, Chr(9)+Chr(9)+"dw "+l_pre$+"rst_i"+ins)
-	
+	WriteLine (fileout, "")
 	
 End Function
 
@@ -1145,13 +1147,27 @@ Function compile_instrument_row(fileout,ins,r,e)
 	out$ = Chr(9)+Chr(9)+"db $"+Right(Hex(result1),2)
 	If ((result1 And $03) > 0)
 		out$ = out$ + ",$"+Right(Hex(result2),2)
+	Else 
+		out$ = out$ + "    "
 	EndIf
+	
 	If (result3 > 0)
-		out$ = out$ +",$"+Right(Hex(result3),2)
+		If (voicelinke > 0)
+			out$ = out$ + "    "
+			out$ = out$ +",$"+Right(Hex(result3),2)
+		Else
+			
+			out$ = out$ +",$"+Right(Hex(result3),2)
+			out$ = out$ + "    "
+		EndIf
+	Else 
+		out$ = out$ + "        "
 	EndIf
 	If ((result1 And $04) > 0)
 		out$ = out$ + ",$"+Right(Hex(result4),2)
 		out$ = out$ + ",$"+Right(Hex(result5),2)
+	Else 
+		out$ = out$ + "        "	
 	EndIf
 	out$ = out$ +Chr(9)+Chr(9)+"; "+Right(Bin(result1),8)
 	
