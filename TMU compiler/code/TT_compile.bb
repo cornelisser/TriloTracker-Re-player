@@ -1,5 +1,5 @@
-Const VERSION$ = "V0.4.0"
-Const DATE$ = "[16-09-2016]"
+Const VERSION$ = "V0.5.0"
+Const DATE$ = "[06-09-2019]"
 Const PSG = 0
 Const SCC = 1
 Const FM = 2
@@ -12,6 +12,12 @@ Global	pattern_lengths	= CreateBank (128)
 Global	samples			= CreateBank (32*(3+(32*4)))
 Global	waveforms		= CreateBank (1024)
 Global  instrumentnames	= CreateBank (31*16)
+Global	customvoices	= CreateBank (255*8)
+Global  drumnames		= CreateBank (16*20)
+Global  drummacros		= CreateBank (19*((16*7)+1))
+
+
+Global	fmnotes			= CreateBank (12*16)
 
 Global  track_data		= CreateBank (((4*64)*8)*128)			; individual tracks
 Global	track_list		= CreateBank ((8*2)*128)				; 8 track#'s per pattern
@@ -21,8 +27,11 @@ Global 	last_track      = 0
 Global	last_pattern	= 0
 Global 	last_instrument = 0	; starting at 0
 Global	last_waveform	= 0	; starting at 0
+Global  last_drum		= 0 ; starting at 0
 Global	used_instruments= CreateBank(32)
 Global  used_waveforms  = CreateBank(32)
+Global 	used_customvoices=CreateBank(256)
+Global  used_drums		= CreateBank(32)
 
 
 Global 	songname 		= CreateBank (32)
@@ -186,6 +195,30 @@ Data      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 Dim vibrato_table(32)
 set_vibrato_table(0)
+
+.fmnotes
+Data	$ad,$00,$b7,$00,$c2,$00,$cd,$00,$d9,$00,$e6,$00
+Data	$f4,$00,$03,$01,$12,$01,$22,$01,$34,$01,$46,$01
+Data 	$ad,$02,$b7,$02,$c2,$02,$cd,$02,$d9,$02,$e6,$02
+Data 	$f4,$02,$03,$03,$12,$03,$22,$03,$34,$03,$46,$03
+Data 	$ad,$04,$b7,$04,$c2,$04,$cd,$04,$d9,$04,$e6,$04
+Data 	$f4,$04,$03,$05,$12,$05,$22,$05,$34,$05,$46,$05
+Data 	$ad,$06,$b7,$06,$c2,$06,$cd,$06,$d9,$06,$e6,$06
+Data 	$f4,$06,$03,$07,$12,$07,$22,$07,$34,$07,$46,$07
+Data 	$ad,$08,$b7,$08,$c2,$08,$cd,$08,$d9,$08,$e6,$08
+Data 	$f4,$08,$03,$09,$12,$09,$22,$09,$34,$09,$46,$09
+Data 	$ad,$0a,$b7,$0a,$c2,$0a,$cd,$0a,$d9,$0a,$e6,$0a
+Data 	$f4,$0a,$03,$0b,$12,$0b,$22,$0b,$34,$0b,$46,$0b
+Data 	$ad,$0c,$b7,$0c,$c2,$0c,$cd,$0c,$d9,$0c,$e6,$0c
+Data 	$f4,$0c,$03,$0d,$12,$0d,$22,$0d,$34,$0d,$46,$0d
+Data 	$ad,$0e,$b7,$0e,$c2,$0e,$cd,$0e,$d9,$0e,$e6,$0e
+Data	$f4,$0e,$03,$0f,$12,$0f,$22,$0f,$34,$0f,$46,$0f
+
+Restore fmnotes
+For x= 0 To (12*16)-1;
+	Read v
+	PokeByte(fmnotes,x,v)
+Next	
 
 ;Global instrument_pointers	=	CreateBank (31*2)
 ;Global pattern_pointers		= 	CreateBank (128*2)

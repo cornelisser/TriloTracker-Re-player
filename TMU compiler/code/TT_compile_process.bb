@@ -10,7 +10,16 @@ Function prepare()
 	For x=0 To 30
 		PokeByte(used_instruments,x,0)
 		PokeByte(used_waveforms,x,255)
-	Next		
+		PokeByte(used_drums,x,255)
+	Next	
+	For x= 0 To 255
+		PokeByte(used_customvoices,x,255)
+	Next	
+	
+
+	
+	
+	
 
 
 	AddTextAreaText (logging,Chr(10)+"Preparing data for compiling:"+Chr(10))
@@ -219,7 +228,15 @@ Function prepare()
 							w = PeekByte(temp_track,(x*4)+y+1)
 							w = (w Shr 4) And $0f
 							PokeByte(used_waveforms,w,1)
-						EndIf
+						EndIf		
+						;--- count drums used by Cxy
+						If	y=2 And	((v And $0f) = $0C)		
+							w = PeekByte(temp_track,(x*4)+y+1)
+							;AddTextAreaText (logging,"drum "+w+Chr(10))
+							If (w < 20)
+								PokeByte(used_drums,w,1)
+							EndIf
+						EndIf						
 										
 						PokeByte(track_data,(last_track*(64*4))+(x*4)+y,v)
 					Next
@@ -234,14 +251,21 @@ Function prepare()
 	AddTextAreaText (logging," "+last_track+" unique tracks found."+Chr(10))
 	
 	
+	AddTextAreaText (logging,"-Calculating and renumbering waveform,custom voices and drum usage."+Chr(10))
+	
 	;--- get highest instrument used
 	For i= 1 To 31
 		v = PeekByte(used_instruments,i)
 		If v > 0
 			last_instrument = i
 			wave = PeekByte(samples,((i-1)*(32*4+3))+2)	
-;			AddTextAreaText (logging," Wave "+wave+" Instrument"+i+Chr(10))
-			PokeByte (used_waveforms,wave,1)
+
+			If (songtype = 0)
+				PokeByte (used_waveforms,wave,1)
+			Else If (wave > 15)
+				PokeByte (used_customvoices,wave-16,1)
+			;	AddTextAreaText (logging," Wave "+(wave)+" Instrument"+i+Chr(10))
+			EndIf 
 		EndIf
 	Next
 	;--- Renumber waveforms 
@@ -253,7 +277,31 @@ Function prepare()
 			waveform = waveform + 1
 		EndIf
 	Next
-	
+	;--- Renumber custom voices 
+	voice = 0
+	For i = 0 To 255
+		v = PeekByte(used_customvoices,i)
+		If v <255
+			PokeByte(used_customvoices,i,voice)
+			voice = voice + 1
+		EndIf
+	Next
+	;--- Renumber drums 
+	drum = 1
+	For i = 0 To 31-1
+		v = PeekByte(used_drums,i)
+		If v <255
+			PokeByte(used_drums,i,drum)
+			drum = drum + 1
+		EndIf
+	Next
+	If (songtype = 0)
+		AddTextAreaText (logging," used waveforms:"+wave+Chr(10))
+	Else
+		AddTextAreaText (logging," used custom voices:"+voice+Chr(10))	
+		AddTextAreaText (logging," used drums:"+(drum-1)+Chr(10))
+		last_drum = drum -1
+	EndIf 
 	;--- undo renumbering if there is no waveform included (but external)
 	If Not (ButtonState(includeWave))
 		For i = 0 To 31
@@ -289,7 +337,7 @@ Function compile()
 			compile_sequence(fileout)
 
 
-			If (ButtonState(includeWave))
+			If (ButtonState(includeWave) And songtype = 0)
 				WriteLine (fileout, l_pre$+"waveform_start:")
 				For w=0 To 31
 					If (PeekByte(used_waveforms,w) < 255)
@@ -298,6 +346,36 @@ Function compile()
 				Next
 				WriteLine (fileout, "")
 			EndIf
+			
+			If (songtype > 0)
+				WriteLine (fileout, l_pre$+"customvoice_start:")
+				For w=0 To 255
+					If (PeekByte(used_customvoices,w) < 255)
+						compile_customvoice(fileout,w)
+					EndIf
+				Next
+				WriteLine (fileout, "")
+			EndIf				
+			
+			If (songtype > 0)
+				WriteLine (fileout, l_pre$+"drummacro_start:")
+				For i=1 To last_drum;31
+					WriteLine (fileout, Chr(9)+"dw "+l_pre$+"drm_"+i)
+;					out$ = out$ +l_pre$+"ins_"+i
+;					If i<last_instrument
+;						out$ = out$ +","
+;					EndIf
+				Next
+
+				For w=0 To 20-1
+					If (PeekByte(used_drums,w) < 255)
+						compile_drum(fileout,w)
+					EndIf
+				Next
+				WriteLine (fileout, "")
+			EndIf				
+			
+			
 			
 			If (ButtonState(includeIns))
 				WriteLine (fileout, l_pre$+"instrument_start:")
@@ -362,14 +440,19 @@ Function compile_header(fileout)
 ;	WriteLine (fileout, Chr(9)+"dw .restart "+Chr(9)+Chr(9)+Chr(9)+"; Restart position (offset from End).")
 	WriteLine (fileout, Chr(9)+"db $"+Right(Hex(speed),2)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Initial song speed.")
 
-	If ButtonState(includeWave)
-		WriteLine (fileout, Chr(9)+"dw "+l_pre$+"waveform_start "+Chr(9)+Chr(9)+"; Start of the waveform data.")
-	Else
-		WriteLine (fileout, Chr(9)+"dw $0000"+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform data is external.")
-	EndIf	
+	If (songtype = 0)
+		If (ButtonState(includeWave))
+			WriteLine (fileout, Chr(9)+"dw "+l_pre$+"waveform_start "+Chr(9)+Chr(9)+"; Start of the waveform data.")
+		Else
+			WriteLine (fileout, Chr(9)+"dw $0000"+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform data is external.")
+		EndIf	
+	Else 
+		WriteLine (fileout, Chr(9)+"dw "+l_pre$+"customvoice_start "+Chr(9)+Chr(9)+"; Start of the custom voices data.")
+		WriteLine (fileout, Chr(9)+"dw "+l_pre$+"drummacro_start "+Chr(9)+Chr(9)+"; Start of the drum macro data.")
+	EndIf
 	If ButtonState(includeIns)		
-		WriteLine (fileout, Chr(9)+"dw "+l_pre$+"instrument_start "+Chr(9)+Chr(9)+"; Start of the instrument data.")
-	Else
+			WriteLine (fileout, Chr(9)+"dw "+l_pre$+"instrument_start "+Chr(9)+Chr(9)+"; Start of the instrument data.")
+		Else
 		WriteLine (fileout, Chr(9)+"dw $0000"+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Instruments are external.")
 	EndIf
 
@@ -415,6 +498,7 @@ Const RETRIG_START = 10 + COMMAND_START      ;/// Start # of retrig command.
 Const CMD_8   = SINGLE_BASE+0;        ///HW envelope multiplier
 Const CMD_B0  = SINGLE_BASE+1;
 Const CMD_BB  = SINGLE_BASE+2;
+Const CMD_Cd  = SINGLE_BASE+3;
 Const CMD_Cs  = SINGLE_BASE+3;
 Const CMD_Cm  = SINGLE_BASE+4;
 Const CMD_Cc  = SINGLE_BASE+5;
@@ -444,7 +528,7 @@ Const CMD_4   = MULTIPLE_BASE+4;        ///vibrato
 Const CMD_5   = MULTIPLE_BASE+5;        ///slide tone + volume slide
 Const CMD_6   = MULTIPLE_BASE+6;        ///vibrato + volume slide
 Const CMD_A   = MULTIPLE_BASE+7;        ///volume slide up
-Const CMD_9   = MULTIPLE_BASE+8;       /// Macro offset
+Const CMD_9   = MULTIPLE_BASE+8;       /// Macro offsetCMD_Cd
 Const CMD_EE  = MULTIPLE_BASE+9;       ///HE envelope shape
 
 
@@ -561,36 +645,46 @@ Function compile_track(fileout,t)
 							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_A),2)+", $"+Right(Hex(tmp),2)+"; volume slide")
 						EndIf					
 
-					Case $b		; SCC commands
-						sub = (par  And $f0)/16
-						par = par And $f
-						wav = PeekByte(used_waveforms,par)
-						Select sub
-							Case 0		; reset waveform to instrument original
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B0),2)+Chr(9)+"; reset waveform")
-							Case 1		; duty cycle
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B1),2)+", $"+Right(Hex(par),2)+"; duty cycle")
-							Case 2		; waveform cut
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B2),2)+", $"+Right(Hex(wav*8),2)+"; waveform cut")
-							Case 4		; waveform compress
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B4),2)+", $"+Right(Hex(wav*8),2)+"; waveform compress")
-							Case $b		; set waveform
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex(wav*8),2)+"; set waveform")
-							Case $c		; set waveform + 16
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex((wav+16)*8),2)+"; set waveform + 16")
-						End Select
-					Case $c		; SCC morph	
-						sub = (par  And $f0)/16
-						par = par And $f						
-						wav = PeekByte(used_waveforms,sub)
+					Case $b		
+						If (songtype = 0); SCC commands
+							sub = (par  And $f0)/16
+							par = par And $f
+							wav = PeekByte(used_waveforms,par)
+							Select sub
+								Case 0		; reset waveform to instrument original
+									WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B0),2)+Chr(9)+"; reset waveform")
+								Case 1		; duty cycle
+									WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B1),2)+", $"+Right(Hex(par),2)+"; duty cycle")
+								Case 2		; waveform cut
+									WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B2),2)+", $"+Right(Hex(wav*8),2)+"; waveform cut")
+								Case 4		; waveform compress
+									WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_B4),2)+", $"+Right(Hex(wav*8),2)+"; waveform compress")
+								Case $b		; set waveform
+									WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex(wav*8),2)+"; set waveform")
+								Case $c		; set waveform + 16
+									WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_BB),2)+", $"+Right(Hex((wav+16)*8),2)+"; set waveform + 16")
+							End Select
+						Else If (par < 19) 			; FM drum
+						;	WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cd),2)+", $"+Right(Hex(par),2)+"; FM drum macro")
+						EndIf
+					Case $c		; SCC morph
+						If (songtype = 0)	
+							sub = (par  And $f0)/16
+							par = par And $f						
+							wav = PeekByte(used_waveforms,sub)
 						
-						If (sub = 0 ) ;--- Slave command
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cs),2)+Chr(9)+"; Morph slave")
-						Else If (par = 0)	;--- continue morph from current
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cc),2)+", $"+Right(Hex(wav*8),2)+Chr(9)+"; continue from current")
-						Else		; --- New morph from instrument
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cm),2)+", $"+Right(Hex(par+(wav*16)),2)+Chr(9)+"; new morph from instrument")
-						EndIf	
+							If (sub = 0 ) ;--- Slave command
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cs),2)+Chr(9)+"; Morph slave")
+							Else If (par = 0)	;--- continue morph from current
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cc),2)+", $"+Right(Hex(wav*8),2)+Chr(9)+"; continue from current")
+							Else		; --- New morph from instrument
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cm),2)+", $"+Right(Hex(par+(wav*16)),2)+Chr(9)+"; new morph from instrument")
+							EndIf
+						Else If (par < 19) 			; FM drum
+							d = PeekByte(used_drums,par)
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_Cd),2)+", $"+Right(Hex(d),2)+"; FM drum macro"+par)
+						EndIf
+								
 					Case $e		; Extended events
 						sub = (par  And $f0)/16
 						par = par And $f					
@@ -686,8 +780,121 @@ Function compile_waveform(fileout,w)
 		EndIf
 	Next
 
-	WriteLine (fileout, result$+Chr(9)+"; Waveform "+PeekByte(used_waveforms,w)+"(was "+w+")")
+	WriteLine (fileout, result$+Chr(9)+"; Waveform "+PeekByte(used_waveforms,w)+" (was "+w+")")
 
+End Function
+
+
+Function compile_customvoice(fileout,w)
+	result$ = Chr(9)+"db "
+	
+	For x=0 To 7
+		v = PeekByte(customvoices,(w*8)+x)
+		result$ = result$ + "$"+Right(Hex(v),2)
+		If x < 7
+			result$ = result$ +","
+		EndIf
+	Next
+
+	WriteLine (fileout, result$+Chr(9)+"; Custom voice "+PeekByte(used_customvoices,w)+"(was "+(w)+")")
+
+
+End Function
+
+
+
+Function compile_drum(fileout,w)
+	drm = PeekByte(used_drums,w)
+	
+	;--- Drum label and name
+	out$ = Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; "
+;	For x=0 To 15
+;		out$ = out$ + (PeekByte(drumnames,x+((w)*16)))
+;	Next
+	WriteLine (fileout, l_pre$+"drm_"+(drm)+":"+out$+" (was "+w+")")
+
+;	;--- length
+;	result$ = Chr(9)+"db "
+
+;	WriteLine (fileout, result$+Right(Hex(v),2)+"; Drum macro "+PeekByte(used_drums,w)+"(was "+w+")")
+
+
+	;--- drum data
+	
+	
+	drm_off = (((16*7)+1)*w)+1
+	l = PeekByte (drummacros,(drm_off-1))
+	For r = 0 To 15
+		out$ = ""
+		result$ = Chr(9)+"db "
+		skip$ = "    "
+		p = PeekByte (drummacros,drm_off+(r*7)+0)	; percusion
+		t1= PeekByte (drummacros,drm_off+(r*7)+1)	; tone 1
+		v1= PeekByte (drummacros,drm_off+(r*7)+2)	; volume 1
+		t2= PeekByte (drummacros,drm_off+(r*7)+3)	; tone 2 etc
+		v2= PeekByte (drummacros,drm_off+(r*7)+4)
+		t3= PeekByte (drummacros,drm_off+(r*7)+5)	
+		v3= PeekByte (drummacros,drm_off+(r*7)+6)
+		flag = 0									; indicator for updates
+		
+		If (r = l-1)
+			flag = flag + 1							; set bit 0	
+		EndIf	
+		If p > 0
+			flag = flag + 128						; set bit 7
+			out$ = out$ + ",$"+Right(Hex(p),2)
+		Else 
+			out$ = out$ + skip$	
+		EndIf
+		If t1 > 0 
+			flag = flag + 64						; set bit 6
+			out$ = out$ + ",$"+Right(Hex(t1),2)	
+		Else 
+			out$ = out$ + skip$	
+		EndIf
+		If v1 > 0 
+			flag = flag + 32						; set bit 5
+			out$ = out$ + ",$"+Right(Hex(v1),2)	
+		Else 
+			out$ = out$ + skip$	
+		EndIf
+		If t2 > 0 
+			flag = flag + 16						; set bit 4
+			out$ = out$ + ",$"+Right(Hex(t2),2)	
+		Else 
+			out$ = out$ + skip$	
+		EndIf
+		If v2 > 0 
+			flag = flag + 8							; set bit 3
+			out$ = out$ + ",$"+Right(Hex(v2),2)	
+		Else 
+			out$ = out$ + skip$	
+		EndIf
+		If t3 > 0 
+			flag = flag + 4							; set bit 2
+			out$ = out$ + ",$"+Right(Hex(t3),2)	
+		Else 
+			out$ = out$ + skip$	
+		EndIf
+		If v3 > 0 
+			flag = flag + 2							; set bit 1
+			out$ = out$ + ",$"+Right(Hex(v3),2)	
+		Else 
+			out$ = out$ + skip$	
+		EndIf
+
+		
+		result$ = result$ + "$"+Right(Hex(flag),2)+out$+Chr(9)+Chr(9)+"; "+Right(Bin(flag),8)		; write flags first
+
+		WriteLine (fileout, result$)	
+		
+		
+		;--- stop if we reached drm end
+		If (r = l-1)
+			Exit
+		EndIf
+		
+	Next
 End Function
 
 
@@ -696,7 +903,13 @@ Function compile_instrument(fileout,ins)
 	ins = ins -1
 	
 	wave = PeekByte(samples,(ins*(32*4+3))+2)
-	wave2 = PeekByte(used_waveforms,wave)			; translate number
+	If (songtype = 0)
+		wave2 = PeekByte(used_waveforms,wave)			; translate number
+	Else If wave >16
+		wave2 = PeekByte(used_customvoices,wave-16)+16		; translate voices > 15 (software voice)
+	Else 
+		wave2 = wave									; do not translate hw voices
+	EndIf
 	restart = PeekByte(samples,(ins*(32*4+3))+1)
 	length = PeekByte(samples,(ins*(32*4+3)))
 	
@@ -714,8 +927,13 @@ Function compile_instrument(fileout,ins)
 		Return	
 	EndIf	
 	
-	
-	WriteLine (fileout, Chr(9)+Chr(9)+"db "+(wave2*8)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform (was "+wave+")")
+	If (songtype = 0)
+		WriteLine (fileout, Chr(9)+Chr(9)+"db "+(wave2*8)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Waveform (was "+wave+")")
+	Else If wave>15
+		WriteLine (fileout, Chr(9)+Chr(9)+"db "+(wave2)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Custom voice (was "+(wave-16)+")")
+	Else
+		WriteLine (fileout, Chr(9)+Chr(9)+"db "+(wave2)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)+"; Hardware voice")
+	EndIf
 ;	WriteLine (fileout, Chr(9)+Chr(9)+"db "+l_pre$+"rst_i"+ins+"-("+l_pre$+"ins_"+ins+" +2)"+Chr(9)+Chr(9)+"; Restart")
 	
 	
@@ -727,14 +945,132 @@ Function compile_instrument(fileout,ins)
 		
 		If r= length-1
 			compile_instrument_row(fileout,ins,r,8)
+			;compile_instrument_row2(fileout,ins,r,8)
 		Else
 			compile_instrument_row(fileout,ins,r,0)
+			;compile_instrument_row2(fileout,ins,r,0)
 		EndIf
 	Next
 	WriteLine (fileout, Chr(9)+Chr(9)+"dw "+l_pre$+"rst_i"+ins)
 	
 	
 End Function
+
+
+Function compile_instrument_row2(fileout,ins,r,e)
+
+	; THIS IS A WIP FOR SUPPORT FOR SMS PSG !!!
+
+	;-- flags
+	F_loop = $01
+	F_vlink = $02
+	F_tvol = $04
+	F_tupdate = $08
+	F_tone = $10
+	F_nvol = $20
+	F_nupdate = $40
+	F_noise = $80
+	
+	;-- read data	
+	ins = ins -1
+	byte1 = PeekByte(samples,(ins*(32*4+3))+3+(r*4))
+	byte2 = PeekByte(samples,(ins*(32*4+3))+3+(r*4)+1)
+	
+	byte3 = PeekByte(samples,(ins*(32*4+3))+3+(r*4)+2)
+	byte4 = PeekByte(samples,(ins*(32*4+3))+3+(r*4)+3)
+
+	;--- output
+	resultFlag = 0
+	resultNu = 0
+	resultTvol = 0
+	resultT1 = 0
+	resultT2 = 0
+
+	out$ = ""
+
+
+	;- loop flag
+	If e > 0 
+		resultFlag = resultFlag Or F_loop
+		
+	EndIf
+	;- noise flag
+	If (byte1 And $80 > 0)
+		result = result Or F_noise
+	EndIf
+	
+	;- noise value update
+	If ((byte1 And $60) = $40)					; add noise 
+		resultNu =  (byte1 And $1f) 		
+	Else If ((byte1 And $60) = $60)	
+		resultNu =  (255-(byte1 And $1f))+1		; neg noise
+	Else 
+		resultNu = (byte1 And $1f) Or $40		; bit 7=0 and bit 6=1 to indicate base
+	EndIf
+	If (byte1 And $1f) > 0
+		resultFlag = resultFlag Or F_nupdate
+		out$ = out$ + ",$"+Right(Hex(resultNu),2)
+	Else
+		out$ = out$ + "    "
+	EndIf
+	
+	;- noise volume update
+	
+	; todo
+	
+	
+	;- tone flag
+	If (byte2 And $80)
+		resultFlag = resultFlag Or F_tone		
+	EndIf
+
+	;- tone update
+	If ((byte2 And $40) = $40)					; min
+		resultT1 = ($ffff - (byte3 + (byte4*256)) +1) And $ff
+		resultT2 = (($ffff - (byte3 + (byte4*256)) +1) Shr 8) And $ff
+	Else 
+		resultT1 = byte3
+		resultT2 = byte4
+	EndIf
+	If (resultT1 > 0 Or resultT2 > 0)
+		resultFlag = resultFlag Or F_tupdate
+		out$ = out$ + ",$"+Right(Hex(resultT1),2)
+		out$ = out$ + ",$"+Right(Hex(resultT2),2)
+	Else
+		out$ = out$ + "    "
+		out$ = out$ + "    "
+	EndIf
+
+	
+	
+	; tone volume update
+	If ((byte2 And $20) = $00)						;base volume
+		resultTvol = (byte2 And $0f) Or $40			;bit 7=0 And bit 6=1 To indicate base
+	Else If ((byte2 And $30) = $20)
+		resultTvol = (byte2 And $0f)				; add volume
+	Else 
+		resultTvol = (255-(byte2 And $0f))+1		; neg volume
+	EndIf	
+	If (byte2 And $0f) > 0
+		resultFlag = resultFlag Or F_tvol
+		out$ = out$ + ",$"+Right(Hex(resultTvol),2)
+	Else
+		out$ = out$ + "    "
+	EndIf
+	
+	
+	
+	;-- voice link
+	
+	; todo 
+	
+	
+	WriteLine (fileout,Chr(9)+Chr(9)+"db $"+Right(Hex(resultFlag),2)+out$+Chr(9)+Chr(9)+"; "+Right(Bin(resultFlag),8))
+	
+	
+	
+End Function 	
+	
 
 
 Function compile_instrument_row(fileout,ins,r,e)
@@ -750,18 +1086,21 @@ Function compile_instrument_row(fileout,ins,r,e)
 	result1 = result1 + e						; Set the END macro bit
 
 	result2 = byte2 And $0f			; volume value
-	result3 = 0;byte1 And $1f			; noise value
+	result3 = 0;byte1 And $1f			; noise value / voicelink
 
 	result4 = byte3
-	result5 = byte4
+	result5 = byte4 And $7f			; tone without voicelink bit
+	
+	voicelink = byte4 And $80		; voicelink bit
+
 
 	;Calculate noise
 	If (byte1 And $80 > 0)
 		result3 = byte1 And $1f			; noise value
-		If ((byte1 And $40) = 0)
+		If ((byte1 And $40) = 0)		
 			; base noise
 			result1 = result1 +$20
-		Else If (result3 > 0)
+		Else If (result3 > 0)	
 			If ((byte1 And $60) = $40)
 				; add noise
 				result1 = result1 + $60
@@ -772,6 +1111,11 @@ Function compile_instrument_row(fileout,ins,r,e)
 			EndIf
 		EndIf
 	EndIf
+	
+	If (voicelink > 0)
+		result3 = byte1 And $0f			; voice value
+	EndIf
+	
 
 	; calculate volume
 	If ((byte2 And $20) = $00)
@@ -787,7 +1131,7 @@ Function compile_instrument_row(fileout,ins,r,e)
 	EndIf
 	
 	
-	; calculate tone
+	; calculate tone	
 	If (result4 + result5 > 0)
 		If ((byte2 And $40) = $40)
 			; min
@@ -802,13 +1146,15 @@ Function compile_instrument_row(fileout,ins,r,e)
 	If ((result1 And $03) > 0)
 		out$ = out$ + ",$"+Right(Hex(result2),2)
 	EndIf
-	If ((result1 And $80) > 0)
+	If (result3 > 0)
 		out$ = out$ +",$"+Right(Hex(result3),2)
 	EndIf
 	If ((result1 And $04) > 0)
 		out$ = out$ + ",$"+Right(Hex(result4),2)
 		out$ = out$ + ",$"+Right(Hex(result5),2)
 	EndIf
+	out$ = out$ +Chr(9)+Chr(9)+"; "+Right(Bin(result1),8)
+	
 
 	
 	WriteLine (fileout, out$)

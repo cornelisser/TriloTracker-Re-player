@@ -6,6 +6,8 @@ Global mainWinH = 480
 ;/////////////////////////////////////////////////////
 ; Main GUI
 ;/////////////////////////////////////////////////////
+
+
 ; character set
 Global xsmallfont=LoadFont("Verdana",10,False,False,False)
 Global smallfont=LoadFont("Verdana",12,False,False,False)
@@ -18,8 +20,10 @@ Global logging = CreateTextArea(0,80,788,300,mainPanel)
 SetTextAreaFont logging,ttfont 
 ;---- Buttons
 Global loadButton  = CreateButton("Load TMU",590,2,96,24,mainPanel,0)
-Global saveButton  = CreateButton("Save TT",590,30,96,24,mainPanel,0)  
-Global sfxButton  = CreateButton("Save SFX",688,30,96,24,mainPanel,0) 
+Global saveButton  = CreateButton("Save TT",590,30,96,24,mainPanel,0) 
+Global sfxButton  = CreateButton("Save SFX",688,30,96,24,mainPanel,0)   
+
+
 Global includeWave = CreateButton("waveforms",500,20,90,16,mainPanel,2)
 SetButtonState includeWave,1
 Global includeIns  = CreateButton("instruments",500,38,90,16,mainPanel,2)
@@ -29,7 +33,6 @@ Global outputSelect = CreateComboBox (590,58,96,24,mainPanel)
 AddGadgetItem outputSelect,"sjasm"
 AddGadgetItem outputSelect,"asMSX"
 SelectGadgetItem outputSelect,0
-
 
 
 ;--- Labels
