@@ -1,0 +1,35 @@
+SFX format:
+
+[00100000] is end of sfx marker (dec: 64)
+
+PSG
+=======
+[NntTvvvv]
+[dddddddd] [....dddd]
+[...nnnnn]
+
+[01000000] end
+
+SCC
+==========
+[.WtTvvvv]
+[dddddddd] [....dddd]
+[...wwwww]
+
+[10000000] end
+
+FM
+==========
+[.ItTvvvv]
+[dddddddd] [..SKooot]
+[...iiiii]
+
+[10000000] end
+
+[SN]
+==========
+[VntTvvvv]
+[dddddddd] [......dd]
+[..vvvvnn]
+
+[????????] end

@@ -577,73 +577,73 @@ Function compile_track(fileout,t)
 			If (cmd > 0 Or par > 0)
 				Select cmd
 					Case 0		; arpegio
-						WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_0),2)+", $"+Right(Hex(par),2)+"; arpegio")
+						WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_0),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; arpegio")
 				
 					Case 1		; slide up
 						If (par = 0)
 							rep = getCmdRepeat(t,l,cmd,par)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_1),2)+", $"+Right(Hex(rep),2)+"; slide-up rep")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_1),2)+", $"+Right(Hex(rep),2)+Chr(9)+Chr(9)+"; slide-up rep")
 						Else
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_1),2)+", $"+Right(Hex(par),2)+"; slide-up")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_1),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; slide-up")
 						EndIf	
 					Case 2		; slide down
 						If (par = 0)
 							rep = getCmdRepeat(t,l,cmd,par)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_2),2)+", $"+Right(Hex(rep),2)+"; slide-down rep")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_2),2)+", $"+Right(Hex(rep),2)+Chr(9)+Chr(9)+"; slide-down rep")
 						Else
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_2),2)+", $"+Right(Hex(par),2)+"; slide-down")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_2),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; slide-down")
 						EndIf					
 					Case 3		; tone slide
 						If (par = 0)
 							rep = getCmdRepeat(t,l,cmd,par)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_3),2)+", $"+Right(Hex(rep),2)+"; tone-slide rep")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_3),2)+", $"+Right(Hex(rep),2)+Chr(9)+Chr(9)+"; tone-slide rep")
 						Else
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_3),2)+", $"+Right(Hex(par),2)+"; tone-slide")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_3),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; tone-slide")
 						EndIf				
 					Case 4		; vibrato
 						If (par = 0)
 							rep = getCmdRepeat(t,l,cmd,par)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_4),2)+", $"+Right(Hex(rep),2)+Chr(9)+";[CMD vibrato] rep")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_4),2)+", $"+Right(Hex(rep),2)+Chr(9)+Chr(9)+";[CMD vibrato] rep")
 						Else
 							tmp = 8 - (par And $07)
 							tmp = tmp + (par And $F0)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_4),2)+", $"+Right(Hex(tmp),2)+Chr(9)+";[CMD vibrato]")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_4),2)+", $"+Right(Hex(tmp),2)+Chr(9)+Chr(9)+";[CMD vibrato]")
 						EndIf						
 					Case 5		; tone slide + vol slide
 						If (par = 0)
 							rep = getCmdRepeat(t,l,cmd,par)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_5),2)+", $"+Right(Hex(rep),2)+"; tone slide + vol slide rep")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_5),2)+", $"+Right(Hex(rep),2)+Chr(9)+Chr(9)+"; tone slide + vol slide rep")
 						Else
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_5),2)+", $"+Right(Hex(par),2)+"; tone slide + vol slide")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_5),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; tone slide + vol slide")
 						EndIf				
 					Case 6		; vibrato + vol slide
 						If (par = 0)
 							rep = getCmdRepeat(t,l,cmd,par)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_6),2)+", $"+Right(Hex(rep),2)+"; tone slide + vol slide rep")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_6),2)+", $"+Right(Hex(rep),2)+Chr(9)+Chr(9)+"; tone slide + vol slide rep")
 						Else
 							; no vibrato translation needed?
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_6),2)+", $"+Right(Hex(par),2)+"; tone slide + vol slide")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_6),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; tone slide + vol slide")
 						EndIf			
 					Case 8		; envelope multiplier
-						WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_8),2)+", $"+Right(Hex(par),2)+"; envelope multiplier")
+						WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_8),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; envelope multiplier")
 					Case 9		; macro offset
 						If (par = 0)
 							rep = getCmdRepeat(t,l,cmd,par)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_9),2)+", $"+Right(Hex(rep),2)+"; macro offset rep")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_9),2)+", $"+Right(Hex(rep),2)+Chr(9)+Chr(9)+"; macro offset rep")
 						Else
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_9),2)+", $"+Right(Hex(par),2)+"; macro offset")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_9),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; macro offset")
 						EndIf			
 					Case $a		; volume slide
 						If (par = 0)
 							rep = getCmdRepeat(t,l,cmd,par)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_A),2)+", $"+Right(Hex(rep),2)+"; volume slide rep")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_A),2)+", $"+Right(Hex(rep),2)+Chr(9)+Chr(9)+"; volume slide rep")
 						Else
 							If (par < 16)
 								tmp = par+128
 							Else
 								tmp = (par Shr 4) 
 							EndIf
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_A),2)+", $"+Right(Hex(tmp),2)+"; volume slide")
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_A),2)+", $"+Right(Hex(tmp),2)+Chr(9)+Chr(9)+"; volume slide")
 						EndIf					
 
 					Case $b		
@@ -692,23 +692,23 @@ Function compile_track(fileout,t)
 					
 						Select sub
 							Case 0	; short arp
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E0),2)+", $"+Right(Hex(par),2)+Chr(9)+"; short arp")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E0),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; short arp")
 							Case 1	; fine slide up
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E1),2)+", $"+Right(Hex(par),2)+Chr(9)+"; fine slide up")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E1),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; fine slide up")
 							Case 2	; fine slide down
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E2),2)+", $"+Right(Hex(par),2)+Chr(9)+"; fine slide down")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E2),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; fine slide down")
 							Case 4	; Vibrato control
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E4),2)+", $"+Right(Hex(par),2)+Chr(9)+"; vibrato control")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E4),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; vibrato control")
 							Case 5	; Note link
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E5),2)+Chr(9)+Chr(9)+";Note link")
 							Case 6	; Track detune
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E6),2)+", $"+Right(Hex(par),2)+Chr(9)+"; track detune")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E6),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; track detune")
 							Case 8	; Global detune
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E8),2)+", $"+Right(Hex(par),2)+Chr(9)+"; global detune")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E8),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; global detune")
 							Case $c	; note note
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_EC),2)+", $"+Right(Hex(par),2)+Chr(9)+"; note cut")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_EC),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; note cut")
 							Case $d	; note delay
-								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_ED),2)+", $"+Right(Hex(par),2)+Chr(9)+"; note delay")
+								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_ED),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; note delay")
 							Case $e	; Envelope shape
 								If (par = 0)
 									rep = getCmdRepeat(t,l,cmd,(par+(sub*16)))
