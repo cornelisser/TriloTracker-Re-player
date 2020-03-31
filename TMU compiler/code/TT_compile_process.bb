@@ -499,10 +499,12 @@ Const RETRIG_START = 10 + COMMAND_START      ;/// Start # of retrig command.
 Const CMD_8   = SINGLE_BASE+0;        ///HW envelope multiplier
 Const CMD_B0  = SINGLE_BASE+1;
 Const CMD_BB  = SINGLE_BASE+2;
-Const CMD_Cd  = SINGLE_BASE+3;
+Const CMD_Cd  = SINGLE_BASE+3;		  // FM drum
 Const CMD_Cs  = SINGLE_BASE+3;
 Const CMD_Cm  = SINGLE_BASE+4;
+Const CMD_E7OFF=SINGLE_BASE+4;		// Sustain off
 Const CMD_Cc  = SINGLE_BASE+5;
+Const CMD_E7ON= SINGLE_BASE+5;		// Sustain on
 Const CMD_E4  = SINGLE_BASE+6;
 Const CMD_E6  = SINGLE_BASE+7;
 Const CMD_E8  = SINGLE_BASE+8;
@@ -703,6 +705,12 @@ Function compile_track(fileout,t)
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E5),2)+Chr(9)+Chr(9)+";Note link")
 							Case 6	; Track detune
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E6),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; track detune")
+							Case 7	; FM Sustain
+								If (par = 0) 
+									WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E7OFF),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; [Sustain] OFF")
+								Else		
+									WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E7ON),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; [Sustain] ON")
+								EndIf
 							Case 8	; Global detune
 								WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_E8),2)+", $"+Right(Hex(par),2)+Chr(9)+Chr(9)+"; global detune")
 							Case $c	; note note

@@ -936,8 +936,8 @@ DECODE_CMDLIST:
 	dw	_CHIPcmdB_wave_res		;1	CHAN 3-5
 	dw	_CHIPcmdF_wave_set		;2	CHAN 2-6
 	dw	_CHIPcmd10_morph_slave		;3	FM DRUM
-	dw	_CHIPcmd11_morph_start		;4	SUSTAIN ON	
-	dw	_CHIPcmd12_morph_cont		;5	SUSTAIN OFF
+	dw	_CHIPcmd11_sustain_on		;4	SUSTAIN ON	
+	dw	_CHIPcmd12_sustain_off		;5	SUSTAIN OFF
 	dw	_CHIPcmd16_vib_ctrl		;6
 	dw	_CHIPcmd17_track_detune		;7
 	dw	_CHIPcmd18_transpose		;8
@@ -1205,16 +1205,25 @@ _CHIPcmdA_env_mul:
 	
 	jp	_rdc	
 
-
-
+_CHIPcmd11_sustain_on:
+	set	B_SUST,d
+	dec	bc
+	jp	_rdc	
+	
+_CHIPcmd12_sustain_off:
+	res	B_SUST,d
+	dec	bc
+	jp	_rdc	
+	
+	
 _CHIPcmdB_wave_res:
 _CHIPcmdC_wave_duty:
 _CHIPcmdD_wave_cut:
 _CHIPcmdE_wave_compr:
 _CHIPcmdF_wave_set:
 _CHIPcmd10_morph_slave:
-_CHIPcmd11_morph_start:
-_CHIPcmd12_morph_cont:
+_CHIPcmd11_sustain_on:
+_CHIPcmd12_sustain_off:
 	dec	bc
 	jp	_rdc		
 	
