@@ -53,12 +53,13 @@ TRACK_REC_SIZE		equ 38
 
 B_TRGNOT			equ 0			; note trigger
 B_ACTNOT			equ 1			; note active
+B_TRGENV			equ 2			; envelope trigger
 B_TRGCMD			equ 3			; command active
 B_KEYON			equ 4			; for fm note trigger
 B_SUST			equ 5			; for fm note sustain
 B_TRGVOI			equ 6			; custom voice trigger	
 B_PSGFM			equ 7			; chip type (PSG or FM)	
-;B_TRGENV			equ 2			; envelope trigger
+
 ;B_ACTMOR			equ 4			; morph active
 ;B_TRGINS			equ 5			; instrument trigger
 ;B_TRGWAV			equ 6			; waveform trigger

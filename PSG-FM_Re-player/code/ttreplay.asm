@@ -815,6 +815,7 @@ _rd_delay:
 _replay_decode_note:
 	ld	(ix+TRACK_Note),a
 	set 	B_TRGNOT,d
+	set 	B_KEYON,d
 ;	res	B_ACTMOR,d
 
 	inc	bc
@@ -822,7 +823,8 @@ _replay_decode_note:
 	jp	_rdn
 	
 _replay_decode_rest:
-	res	B_ACTNOT,d				; set	note bit to	0
+	res	B_ACTNOT,d				; reset note bit to	0
+	res	B_SUST				; rest sustain
 ;	res	B_ACTMOR,d				; reset morph slave mode
 
 	inc	bc
@@ -850,7 +852,7 @@ _replay_decode_ins:
 	ld	h,(hl)
 	ld	l,a
 
-	;-- get waveform
+	;-- get voice
 	ld	a,(hl)
 	inc	hl
 	
@@ -865,12 +867,13 @@ _replay_decode_ins:
 	;--- Store the macro re-start
 	ld	(ix+TRACK_MacroStart),l
 	ld	(ix+TRACK_MacroStart+1),h		
-	;--- Set the waveform  (if needed)
+	;--- Set the voiceform  (if needed)
 	cp	(ix+TRACK_Voice)
 	jp	z,.skip_ins
 	
 	;--- this is a new waveform
 	ld	(ix+TRACK_Voice),a
+	set	B_TRGVOI,d
 ;	set	B_TRGWAV,d
 	
 .skip_ins:	
@@ -930,11 +933,11 @@ _replay_decode_cmd:
 DECODE_CMDLIST:
 	; These effects are only processed 1 once in decoding
 	dw	_CHIPcmdA_env_mul			;0
-	dw	_CHIPcmdB_wave_res		;1
-	dw	_CHIPcmdF_wave_set		;2
-	dw	_CHIPcmd10_morph_slave		;3
-	dw	_CHIPcmd11_morph_start		;4
-	dw	_CHIPcmd12_morph_cont		;5
+	dw	_CHIPcmdB_wave_res		;1	CHAN 3-5
+	dw	_CHIPcmdF_wave_set		;2	CHAN 2-6
+	dw	_CHIPcmd10_morph_slave		;3	FM DRUM
+	dw	_CHIPcmd11_morph_start		;4	SUSTAIN ON	
+	dw	_CHIPcmd12_morph_cont		;5	SUSTAIN OFF
 	dw	_CHIPcmd16_vib_ctrl		;6
 	dw	_CHIPcmd17_track_detune		;7
 	dw	_CHIPcmd18_transpose		;8
@@ -945,9 +948,9 @@ DECODE_CMDLIST:
 	dw	_CHIPcmd1D_ret			;c
 	
 	; These effects are also processed in the processing
-	dw	_CHIPcmdC_wave_duty		;d
-	dw	_CHIPcmdD_wave_cut		;e
-	dw	_CHIPcmdE_wave_compr		;f
+	dw	_CHIPcmdC_wave_duty		;d	DELETE
+	dw	_CHIPcmdD_wave_cut		;e	DELETE
+	dw	_CHIPcmdE_wave_compr		;f	DELETE
 	dw	_CHIPcmd13_short_arp		;10
 	dw	_CHIPcmd14_fine_up		;11
 	dw	_CHIPcmd15_fine_down		;12
@@ -1205,88 +1208,14 @@ _CHIPcmdA_env_mul:
 
 
 _CHIPcmdB_wave_res:
-;	set	B_TRGWAV,d
-;	res	B_ACTMOR,d
-
-	dec 	bc
-	jp	_rdc
-
-
 _CHIPcmdC_wave_duty:
 _CHIPcmdD_wave_cut:
 _CHIPcmdE_wave_compr:
-	ld	(ix+TRACK_cmd_B),a
-	set	B_TRGCMD,d
-;	res	B_ACTMOR,d
-
-	jp	_rdc	
-
-
 _CHIPcmdF_wave_set:
-	ld	(ix+TRACK_Voice),a
-;	set	B_TRGWAV,d
-;	res	B_ACTMOR,d
-
-	jp	_rdc	
-
-
 _CHIPcmd10_morph_slave:
-;	set	B_ACTMOR,d
-	
-	dec 	bc
-	jp	_rdc	
-	
 _CHIPcmd11_morph_start:
-	and	0x0f
-	ld	(replay_morph_speed),a
-	
-	exx
-	;--- load the waveformbuffer
-	ld	a,(ix+TRACK_Voice)
-;	add	a,a
-;	add	a,a
-;	add	a,a	
-
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	de,(replay_voicebase)
-	add	hl,de
-
-	ld	de,replay_morph_buffer
-	ld	a,32
-.loop:
-	ex	af,af'	;'
-	ld	a,(hl)
-	ld	(de),a		; copy value to both wave and delta pos
-	inc	de
-	ld	(de),a
-	inc	hl
-	inc	de
-	ex	af,af'	;'
-	dec	a
-	jp	nz,.loop
-	exx
-	
-	ld	a,(bc)
-
 _CHIPcmd12_morph_cont:
-	;---- init new morph
-	and	0xf0	
-	ld	(replay_morph_waveform),a	; store dest form offset
-	
-	xor	a
-	ld	(replay_morph_counter),a
-	inc	a
-	ld	(replay_morph_timer),a
-
-	;--- calculate the delta's	
-	ld	a,255				; 255 triggers calc init
-	ld	(replay_morph_active),a	
-
-;	set	B_ACTMOR,d
+	dec	bc
 	jp	_rdc		
 	
 

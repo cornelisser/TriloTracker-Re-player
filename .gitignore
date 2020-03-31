@@ -6,3 +6,19 @@ TMU compiler/code/TT_compile.bb_bak2
 *.rej
 
 *.bb_bak2
+
+PSG-FM_Re-player/test/alisia.tmu
+
+PSG-FM_Re-player/test/valkyrie.tmu
+
+PSG-FM_Re-player/test/zerowing.tmu
+
+TMU compiler/boy.asm
+
+TMU compiler/boy.lst
+
+TMU compiler/boy.out
+
+TMU compiler/boy.tmu
+
+TMU compiler/boymsx.tmu
