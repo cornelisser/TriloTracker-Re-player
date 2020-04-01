@@ -581,11 +581,6 @@ replay_decodedata:
 ; 
 ;===========================================================
 replay_decodedata_NO:
-	;---- morph routine here
-	ld	a,(replay_morph_active)
-	and	a
-	call	nz,replay_process_morph
-
 	;--- Initialize PSG Mixer and volume
 	xor	a
 	ld	(FM_regMIXER),a
@@ -602,7 +597,7 @@ replay_decodedata_NO:
 	ld	(AY_regToneA),hl
 	ld	a,d
 	ld	(TRACK_Chan1+17+TRACK_Flags),a	
-	ld	a,(FM_regVOLE)
+	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLA),a	
 
 	;--- Process track 2
@@ -613,9 +608,14 @@ replay_decodedata_NO:
 	ld	(AY_regToneB),hl
 	ld	a,d
 	ld	(TRACK_Chan2+17+TRACK_Flags),a	
-	ld	a,(FM_regVOLE)
+	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLB),a	
 
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,_rdd_2psg_6fm
+
+_rdd_3psg_5fm:
 	;--- Process track 3	
 	ld	ix,TRACK_Chan3+17
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
@@ -624,8 +624,11 @@ replay_decodedata_NO:
 	ld	(AY_regToneC),hl
 	ld	a,d
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
-	ld	a,(FM_regVOLE)
+	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLC),a
+	
+	
+	
 	
 	;--- To disable track 3 just comment above lines (9 lines) and enable below 2 lines.
 	;    This can be done for all tracks.
@@ -633,9 +636,10 @@ replay_decodedata_NO:
 ;	srl	(hl)
 
 	
-
+_rdd_2psg_6fm:
 	;-- Convert mixer to AY
 	ld	a,(FM_regMIXER)		
+	srl	a
 	srl	a
 	srl	a
 	xor	0x3f
@@ -647,57 +651,72 @@ replay_decodedata_NO:
 	ld	(replay_mainvol),hl
 
 	
-	ld	iyh,0			; iyh stores the SCC chan#
+;	ld	iyh,0			; iyh stores the SCC chan#
+;
 					; used for waveform updates
-	;--- Process track 4
-	ld	ix,TRACK_Chan4+17
-	ld	a,(TRACK_Chan4+17+TRACK_Flags)
+	;--- Process track 3
+	ld	ix,TRACK_Chan3+17
+	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneA),hl
 	ld	a,d
 	ld	(TRACK_Chan4+17+TRACK_Flags),a	
-	ld	a,(FM_regVOLE)
+	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLA),a	
 
+
+_rdd_cont:
+	;--- Process track 4
+	ld	ix,TRACK_Chan4+17
+	ld	a,(TRACK_Chan4+17+TRACK_Flags)
+	ld	d,a
+	call	replay_process_chan_AY
+	ld	(FM_regToneB),hl
+	ld	a,d
+	ld	(TRACK_Chan4+17+TRACK_Flags),a	
+	ld	a,(FM_regVOLF)
+	ld	(FM_regVOLB),a	
+
+
 	;--- Process track 5
-	inc	iyh
+;	inc	iyh
 	
 	ld	ix,TRACK_Chan5+17
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a
 	call	replay_process_chan_AY
-	ld	(FM_regToneB),hl
+	ld	(FM_regToneC),hl
 	ld	a,d
 	ld	(TRACK_Chan5+17+TRACK_Flags),a	
-	ld	a,(FM_regVOLE)
-	ld	(FM_regVOLB),a	
+	ld	a,(FM_regVOLF)
+	ld	(FM_regVOLC),a	
 
 	;--- Process track 6
-	inc	iyh
+;	inc	iyh
 		
 	ld	ix,TRACK_Chan6+17
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a
 	call	replay_process_chan_AY
-	ld	(FM_regToneC),hl
+	ld	(FM_regToneD),hl
 	ld	a,d
 	ld	(TRACK_Chan6+17+TRACK_Flags),a	
-	ld	a,(FM_regVOLE)
-	ld	(FM_regVOLC),a	
+	ld	a,(FM_regVOLF)
+	ld	(FM_regVOLD),a	
 
 	;--- Process track 7
-	inc	iyh
+;	inc	iyh
 		
 	ld	ix,TRACK_Chan7+17
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a
 	call	replay_process_chan_AY
-	ld	(FM_regToneD),hl
+	ld	(FM_regToneE),hl
 	ld	a,d
 	ld	(TRACK_Chan7+17+TRACK_Flags),a	
-	ld	a,(FM_regVOLE)
-	ld	(FM_regVOLD),a		
+	ld	a,(FM_regVOLF)
+	ld	(FM_regVOLE),a		
 
 	;--- Process track 8
 ;	inc	iyh			; no waveform for SCC channel 5
@@ -706,7 +725,7 @@ replay_decodedata_NO:
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
 	call	replay_process_chan_AY
-	ld	(FM_regToneE),hl
+	ld	(FM_regToneF),hl
 	ld	a,d
 	ld	(TRACK_Chan8+17+TRACK_Flags),a	
 
@@ -738,7 +757,7 @@ replay_decodedata_NO:
 	ld	b,3
 	ld	hl,AY_regVOLA
 	call	.calc_vol
-	ld	b,5
+	ld	b,6
 	ld	hl,FM_regVOLA
 
 .calc_vol:	
@@ -824,7 +843,7 @@ _replay_decode_note:
 	
 _replay_decode_rest:
 	res	B_ACTNOT,d				; reset note bit to	0
-	res	B_SUST				; rest sustain
+	res	B_SUST,d				; rest sustain
 ;	res	B_ACTMOR,d				; reset morph slave mode
 
 	inc	bc
@@ -933,9 +952,9 @@ _replay_decode_cmd:
 DECODE_CMDLIST:
 	; These effects are only processed 1 once in decoding
 	dw	_CHIPcmdA_env_mul			;0
-	dw	_CHIPcmdB_wave_res		;1	CHAN 3-5
-	dw	_CHIPcmdF_wave_set		;2	CHAN 2-6
-	dw	_CHIPcmd10_morph_slave		;3	FM DRUM
+	dw	0					;1	CHAN 3-5
+	dw	0					;2	CHAN 2-6
+	dw	_CHIPcmdCd_drum			;3	FM DRUM
 	dw	_CHIPcmd11_sustain_on		;4	SUSTAIN ON	
 	dw	_CHIPcmd12_sustain_off		;5	SUSTAIN OFF
 	dw	_CHIPcmd16_vib_ctrl		;6
@@ -948,9 +967,9 @@ DECODE_CMDLIST:
 	dw	_CHIPcmd1D_ret			;c
 	
 	; These effects are also processed in the processing
-	dw	_CHIPcmdC_wave_duty		;d	DELETE
-	dw	_CHIPcmdD_wave_cut		;e	DELETE
-	dw	_CHIPcmdE_wave_compr		;f	DELETE
+	dw	0					;d	DELETE
+	dw	0					;e	DELETE
+	dw	0					;f	DELETE
 	dw	_CHIPcmd13_short_arp		;10
 	dw	_CHIPcmd14_fine_up		;11
 	dw	_CHIPcmd15_fine_down		;12
@@ -1216,14 +1235,36 @@ _CHIPcmd12_sustain_off:
 	jp	_rdc	
 	
 	
-_CHIPcmdB_wave_res:
-_CHIPcmdC_wave_duty:
-_CHIPcmdD_wave_cut:
-_CHIPcmdE_wave_compr:
-_CHIPcmdF_wave_set:
-_CHIPcmd10_morph_slave:
-_CHIPcmd11_sustain_on:
-_CHIPcmd12_sustain_off:
+
+_CHIPcmdCd_drum:
+	and 	a		; drum reset not supported
+	jr 	z,0f
+	
+	; Get the base addres of the drum list
+	add 	a 
+	ld	hl,(replay_drumbase)
+	add	a,l 
+	jp	nc,99f
+	inc	h 
+99:
+	ld	l,a
+	; Get the start of the drum macro
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	
+	; Store the length
+	ld	a,(hl)
+	ld	(FM_DRUM_LEN),a
+	inc	hl
+	; Store the address
+	ld	a,l
+	ld 	(FM_DRUM_MACRO),a
+	ld	a,h
+	ld	(FM_DRUM_MACRO+1),a
+	jp	_rdc		
+0:
 	dec	bc
 	jp	_rdc		
 	
