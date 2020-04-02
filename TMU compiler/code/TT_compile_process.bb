@@ -1116,7 +1116,8 @@ Function compile_instrument_row(fileout,ins,r,e)
 				result1 = result1 + $60
 			Else If ((byte1 And $60) = $60)
 				; min noise
-				result1 = result1 + $40
+				;result1 = result1 + $40		Be aware changed this as only an add is needed as value is negative
+				result1 = result1 + $60
 				result3 = (255-result3)+1
 			EndIf
 		EndIf
@@ -1124,6 +1125,7 @@ Function compile_instrument_row(fileout,ins,r,e)
 	
 	If (voicelink > 0)
 		result3 = byte1 And $0f			; voice value
+		result1 = result1 + $40
 	EndIf
 	
 

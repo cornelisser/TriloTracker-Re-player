@@ -1579,7 +1579,7 @@ _vol_base:
 ;	bit	B_TRGENV,d		;'(IX+TRACK_Flags)
 	jp	z,_noEnv		; if not set then normal volume calculation
 	ld	a,16			; set volume to 16 == envelope
-	ld	(FM_regVOLE),a
+	ld	(FM_regVOLF),a
 	jp	_noVolume	
 	
 _noEnv:
@@ -1627,7 +1627,7 @@ _Vadd:
 	rra
 .skip2:
 	and	0x0f
-	ld	(FM_regVOLE),a
+	ld	(FM_regVOLF),a
 
 _noVolume:
 	;-------------------------------
@@ -1638,7 +1638,7 @@ _noVolume:
 	bit 	7,e			; test if noise
 	jp	z,_noNoise
 	
-	;--- prevent SCC and noise
+	;--- prevent FM and noise
 	bit	B_PSGFM,d		;(ix+TRACK_Flags)
 	jp	nz,_noLink		; Noise and Link not at the same time
 
@@ -1747,46 +1747,70 @@ _pcAY_noToneAdd:
 	add	hl,bc
 	ld	sp,(_SP_Storage)
 
+	;-----------------
+	; FM Octave wrapper
+	; enable slides over multiple octaves.
+	; [BC] still contains tone slide add.
+	;-----------------
+	bit	B_PSGFM,d			;(ix+TRACK_Flags)
+	ret	z				; skip wrapper for PSG
+	
+	bit	0,h
+	jp	z,_wrap_lowcheck
+_wrap_highcheck:
+	ld	a,l
+	cp	$60				; $46 is the strict limit
+	ret	c				; stop if smaller	
+	
+	push	hl
+	;--- Set 12 notes (1 octave) higher
+	ld	a,(ix+TRACK_Note)
+	add	12
+	cp	96
+	jr.	c,99f
+	add	160		; wrap notes
+99:
+	ld	(ix+TRACK_Note),a
+	;--- Set new ToneSlide Add
+	rr	h
+	rr	l			
+	ld	h,0
+	xor	a
+	;--- shuffle regs
+	ld	c,d		; store flags
+	ld	d,b		; load DE with BC
+	ld	e,c
+	ex	de,hl
+	sbc	hl,de				; subtract new wraped base tone - note tone to get delta slide add.
+	ld	(ix+TRACK_cmd_ToneSlideAdd),l
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
+	pop	hl	
+	;-- restore flags
+	ld	d,c
 	ret
 	
+_wrap_lowcheck:
+	ld	a,l
+	cp	$90				; $ad is the strict limit
+	ret	nc				; stop if smaller	
+	push	hl
+	;--- Set 12 notes (1 octave) lower
+	ld	a,(ix+TRACK_Note)
+	sub	12
+	cp	96
+	jr.	c,99f
+	sub	160				; wrap notes
+99:
+	ld	(ix+TRACK_Note),a
+	;--- Set new ToneSlide Add	
+	ld	h,0
+	add	hl,bc	
 	
-;	ld	c,(ix+TRACK_cmd_detune)
-;	ld	b,(ix+TRACK_cmd_detune+1)
-;	add	hl,bc
-;
-;	ld	c,(ix+TRACK_cmd_ToneAdd)
-;	ld	b,(ix+TRACK_cmd_ToneAdd+1)
-;	add	hl,bc
-;	
-;	ld	c,(ix+TRACK_cmd_ToneSlideAdd)
-;	ld	b,(ix+TRACK_cmd_ToneSlideAdd+1)
-;	
-;	add	hl,bc
+	ld	(ix+TRACK_cmd_ToneSlideAdd),l
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
+	pop	hl	
+	ret
 
-	;-------------------------------
-	;
-	; END of macro?
-	;
-	;-------------------------------
-;	bit	3,e		
-;	ret	z
-	
-	;--- now get new pointer
-	
-;	ld	c,(ix+TRACK_MacroStart)
-;	ld	b,(ix+TRACK_MacroStart+1)
-;	
-;	ld	a,(ix+TRACK_MacroRestart)	
-;	add	a,c
-;	ld	c,a
-;	jp	nc,.skip2
-;	inc	b
-;.skip2:		
-	;--- Store the macro start	
-;	ld	(ix+TRACK_MacroPointer),c
-;	ld	(ix+TRACK_MacroPointer+1),b		
-
-;	ret
 	
 _pcAY_noNoteActive:
 	xor	a

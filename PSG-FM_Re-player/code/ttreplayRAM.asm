@@ -46,7 +46,7 @@ TRACK_Step			equ 33-17		; only for VIBRATO???
 TRACK_Delay			equ 34-17		; rows to wait till next data
 TRACK_Retrig		equ 35-17		; rows to retrigger command
 TRACK_prevDelay		equ 36-17
-TRACK_cmd_A_add		equ 37-17	;<< Still in use???
+TRACK_cmd_A_add		equ 37-17		;<< Still in use???
 
 TRACK_REC_SIZE		equ 38
 
