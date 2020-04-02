@@ -93,13 +93,13 @@ replay_mainvol		#2			; the volume correction.
 replay_vib_table		#2			; pointer to the vibrato table
 replay_Tonetable		#2			; ToneTable (affected by transpose);
 
-replay_morph_active	#1			; flag to indicate morphing is active
-;replay_morph_update	#1			; flag to indicate a new waveform is ready
-replay_morph_timer	#1			; step timer between morphs
-replay_morph_speed	#1 
-replay_morph_counter	#1			; counter till end morph
-replay_morph_buffer	#64			; interleaved buffer with morphed waveform and morph delta values
-replay_morph_waveform	#1 			; waveform we are morphing to.
+;replay_morph_active	#1			; flag to indicate morphing is active
+;;replay_morph_update	#1			; flag to indicate a new waveform is ready
+;replay_morph_timer	#1			; step timer between morphs
+;replay_morph_speed	#1 
+;replay_morph_counter	#1			; counter till end morph
+;replay_morph_buffer	#64			; interleaved buffer with morphed waveform and morph delta values
+;replay_morph_waveform	#1 			; waveform we are morphing to.
 
 equalization_freq:			#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
 equalization_cnt:			#1	; counter for correct playback on 60hz
@@ -169,6 +169,8 @@ FM_regVOLC  		#1	; Chan C volume
 FM_regVOLD 			#1	; Chan D volume
 FM_regVOLE  		#1	; Chan E volume
 FM_regVOLF  		#1	; Chan F volume
+
+FM_SoftVoice		#1	; current loaded software voice
 
 FM_DRUM			#1	; Percussion bits
 FM_DRUM_Flags		#1	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update

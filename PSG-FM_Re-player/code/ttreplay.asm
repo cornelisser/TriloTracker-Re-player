@@ -4,7 +4,8 @@
 ; 
 ; 
 ;================================
-	
+FM_WRITE:	equ	0x7c	; port to set fm reg nr.
+FM_DATA:	equ	0x7d	; port to set fm data for reg	
 ;===============================
 ; todo:
 ; - FM find + enable
@@ -221,8 +222,8 @@ replay_loadsong:
 
 	ld	a,1
 	ld	(replay_speed_timer),a
-	ld	(replay_morph_timer),a
-	ld	(replay_morph_speed),a
+;	ld	(replay_morph_timer),a
+;	ld	(replay_morph_speed),a
 	ld	(TRACK_Chan1+17+TRACK_Delay),a	
 	ld	(TRACK_Chan2+17+TRACK_Delay),a		
 	ld	(TRACK_Chan3+17+TRACK_Delay),a	
@@ -978,8 +979,8 @@ DECODE_CMDLIST:
 
 	; These effects can be retriggered
 	dw	_CHIPcmd0_arpeggio		;15
-	dw	_CHIPcmd1_port_down		;16
-	dw	_CHIPcmd2_port_up			;17
+	dw	_CHIPcmd2_port_down		;16
+	dw	_CHIPcmd1_port_up			;17
 	dw	_CHIPcmd3_port_tone		;18
 	dw	_CHIPcmd4_vibrato			;19
 	dw	_CHIPcmd5_vibrato_port_tone	;1a
@@ -989,8 +990,8 @@ DECODE_CMDLIST:
 	dw	_CHIPcmd9_env_shape		;1e
 
 	dw	_CHIPcmd0_RE_arpeggio		;1f
-	dw	_CHIPcmd1_RE_port_up		;20
-	dw	_CHIPcmd2_RE_port_down		;21
+	dw	_CHIPcmd2_RE_port_down		;20
+	dw	_CHIPcmd1_RE_port_up		;21
 	dw	_CHIPcmd3_RE_port_tone		;22
 	dw	_CHIPcmd4_RE_vibrato		;23
 	dw	_CHIPcmd5_RE_vibrato_port_tone ;24
@@ -1023,7 +1024,7 @@ _CHIPcmd1_port_up:
 	;--------------------------------------------------
 	; This will	slide	up the pitch of the current note
 	; being played by	the given speed. 
-	bit 	B_FMPSG,d
+	bit 	B_PSGFM,d
 	jp	nz,_cmd2_psg		; swap cmd 1 en 2 for psg
 _cmd1_psg:
 	ld	(ix+TRACK_cmd_1),a
@@ -1040,9 +1041,9 @@ _CHIPcmd2_port_down:
 	;--------------------------------------------------
 	; This will	slide	down the pitch of	the current	note
 	; being played by	the given speed.	
-	bit 	B_FMPSG,d
+	bit 	B_PSGFM,d
 	jp	nz,_cmd1_psg		; swap cmd 1 en 2 for psg
-_cmd_psg:
+_cmd2_psg:
 	ld	(ix+TRACK_cmd_2),a
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Retrig),1
@@ -1250,6 +1251,7 @@ _CHIPcmdCd_drum:
 	add 	a 
 	ld	hl,(replay_drumbase)
 	add	a,l 
+	ld	l,a
 	jp	nc,99f
 	inc	h 
 99:
@@ -1842,8 +1844,8 @@ _pcAY_cmdlist:
 	dw	_pcAY_cmdXX_note_cut		;14
 	
 	dw	_pcAY_cmd0_arpeggio		;15
-	dw	_pcAY_cmd1_port_down		;16
-	dw	_pcAY_cmd2_port_up		;17
+	dw	_pcAY_cmd2_port_down		;16
+	dw	_pcAY_cmd1_port_up		;17
 	dw	_pcAY_cmd3_port_tone		;18
 	dw	_pcAY_cmd4_vibrato		;19
 	dw	_pcAY_cmd5_vibrato_port_tone	;1a
@@ -1853,8 +1855,8 @@ _pcAY_cmdlist:
 	dw	0	;env shape
 
 	dw	_pcAY_cmd0_arpeggio		;1e
-	dw	_pcAY_cmd1_port_down		;1f
-	dw	_pcAY_cmd2_port_up		;20
+	dw	_pcAY_cmd2_port_down		;1f
+	dw	_pcAY_cmd1_port_up		;20
 	dw	_pcAY_cmd3_port_tone		;21
 	dw	_pcAY_cmd4_vibrato
 	dw	_pcAY_cmd5_vibrato_port_tone
@@ -1967,7 +1969,7 @@ _pcAY_cmd4_vibrato:
 
 ; neg	
 	and	$1f
-	add	l
+	add	a,l
 	ld	l,a
 	jp	nc,.skip
 	inc	h
@@ -1988,7 +1990,7 @@ _pcAY_cmd4_vibrato:
 
 _pcAY_cmd4pos:	
 ;	and	$1f
-	add	l
+	add	a,l
 	ld	l,a
 	jp	nc,.skip
 	inc	h
@@ -2162,152 +2164,89 @@ _ptAY_loop:
 	
 	
 _ptAY_noEnv:
-;--------------
-; S C	C 
-;--------------
-	ld  a,03Fh				; enable SCC
-	ld  (0x9000),a
-
+;---------------
+; F M
+;---------------
+	ld 	b,6	; 6 channels
+	ld 	hl,TRACK_Chan3+TRACK_Flags
+ptFM_voice_loop:
+	bit 	B_TRGVOI,(hl)
+	jp	z,0f
+	;-- new voice	
+	res 	B_TRGVOI,(hl)
+	dec 	hl
+	ld	a,(hl)
+	cp	16
+	jp	c,_ptFM_noSoftware
 	
-	;--- This for the ttsfxplayer!!!
-;	ld	a,(sfx_SCC_WAVE)
-;	cp	255
-;	jp	z,.nosfx		; if a == 255 there is no waveform
-;
-;	ld	de,0x9800
-;	call	_write_SFX_wave	
-;	jp	.skip	
+	;-- Check if same software voice is loaded.
+	ld	c,a
+	ld	a,(FM_SoftVoice)
+	cp	c
+	ld	a,c
+	jp	z,_ptFM_noSoftware
 	
-.nosfx:	
-	;--- Set the waveforms
-	ld	hl,TRACK_Chan4+17+TRACK_Flags
-;	bit	B_TRGWAV,(hl)
-	jp	z,.skip
-	;--- set wave form
-;	res	B_TRGWAV,(hl)
-	ld	a,(TRACK_Chan4+17+TRACK_Voice)
-	ld	de,0x9800
-	call	_write_SCC_wave
-.skip:
-	ld	hl,TRACK_Chan5+17+TRACK_Flags
-;	bit	B_TRGWAV,(hl)
-	jp	z,.skip2
-	;--- set wave form
-;	res	B_TRGWAV,(hl)
-	ld	a,(TRACK_Chan5+17+TRACK_Voice)
-	ld	de,0x9820
-	call	_write_SCC_wave
-.skip2:
-	ld	hl,TRACK_Chan6+17+TRACK_Flags
-;	bit	B_TRGWAV,(hl)
-	jp	z,.skip3
-	;--- set wave form
-;	res	B_TRGWAV,(hl)
-	ld	a,(TRACK_Chan6+17+TRACK_Voice)
-	ld	de,0x9840
-	call	_write_SCC_wave
-.skip3:
-	ld	hl,TRACK_Chan7+17+TRACK_Flags
-;	bit	B_TRGWAV,(hl)
-	jp	z,.skip4
-	;--- set wave form
-;	res	B_TRGWAV,(hl)
-	ld	a,(TRACK_Chan7+17+TRACK_Voice)
-	ld	de,0x9860
-	call	_write_SCC_wave
-.skip4:
-
-FM_reg_update:
-
-	ld  a,03Fh				; enable SCC
-	ld  (0x9000),a
-
-	;--- Update changed SCC registers.
-	ld hl,oldregs
-	ld de,FM_registers
-	ld bc,0x9880
-	ld a,3*5+1
-loop:
-	ex af,af'	;'
-	ld a,(de)
-	cp (hl)
-	jr z,.skip
-	ld (hl),a	     ; update old	registers in ram
-	ld (bc),a	     ; update scc	registers
-.skip:	    
-	inc hl
-	inc de
-	inc bc
-	ex af,af'		;'
-	dec a
-	jr nz, loop
-	ret
-
+	;--- Load a softwarevoice	
+	ld	(FM_SoftVoice),a		; Store softvoice#
+	ex 	de,hl
+	ld	hl,(replay_voicebase)
+	sub	16
 	
-	
-;==================
-; _write_SCC_wave
-;
-; Writes waveform	data.	[DE] contains location for data
-; [A]	contains waveform	number + flags for special actions
-; Data is not written to SCC but into RAM	shadow registers.
-;==================
-_write_SCC_wave:
-;	bit	B_ACTMOR,(hl)
-	jp	nz,_write_SCC_special
-	
-	bit	0,a
-	jp	nz,.ramwave
-;	add	a,a
-;	add	a,a
-;	add	a,a
-
-.normalwave:
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	  bc,(replay_voicebase)
-	add	  hl,bc
-	ld	  bc,32
-	ldir
-	ret
-	
-	
-.ramwave:
-	dec	hl		; reset the special flag in the wave form number
-	and	$fe
-	ld	(hl),a
-
-	ld	hl,_0x9800
-	ld	a,e
+	add	a		; x2
+	add	a		; x4
+	add	a		; x8
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jp	nc,99f
 	inc	h
-.skip:
-	ld	  bc,32
-	ldir
-	ret	
+99:
+	;--- copy data to FM custom voice register
+	ld	c,8
+	ld	a,$0
+_tt_voice_fmloop:
+	out	(FM_WRITE),a
+	inc	a			; 4 cycles
+	ex	af,af'		; 4 cycles	'
+	ld	a,(hl)		; 7 cycles    the low byte
+	out	(FM_DATA),a
 	
+	;--- delay
+	push 	ix
+	pop	ix
+	nop
+	nop	
+	inc	hl
+	ex	af,af'		
+	dec	c
+	jr.	nz,ptFM_voice_loop	
+	
+	ex	de,hl
+	xor	a			; Voice 0
+_ptFM_noSoftware:
+	ld	(hl),a		; Store the (HW)voice (0-15)
+	inc	hl
+0:
+	; next channel
+	ld	a,TRACK_REC_SIZE
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	dec	b
+	djnz	_tt_voice_fmloop
+	
+
+	; here vol and tone regs.
 	
 	
 
 
-_write_SCC_special:
-	ld	hl,replay_morph_buffer+1
-	ld	b,32
-_wss_l:
-	ld	a,(hl)
-	ld	(de),a
-	inc	hl
-	inc	hl
-	inc	de
-	djnz	_wss_l
-	 
-	
+
 	ret
+
+	
+	
 
 	
 
