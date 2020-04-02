@@ -978,8 +978,8 @@ DECODE_CMDLIST:
 
 	; These effects can be retriggered
 	dw	_CHIPcmd0_arpeggio		;15
-	dw	_CHIPcmd1_port_up			;16
-	dw	_CHIPcmd2_port_down		;17
+	dw	_CHIPcmd1_port_down		;16
+	dw	_CHIPcmd2_port_up			;17
 	dw	_CHIPcmd3_port_tone		;18
 	dw	_CHIPcmd4_vibrato			;19
 	dw	_CHIPcmd5_vibrato_port_tone	;1a
@@ -1023,6 +1023,9 @@ _CHIPcmd1_port_up:
 	;--------------------------------------------------
 	; This will	slide	up the pitch of the current note
 	; being played by	the given speed. 
+	bit 	B_FMPSG,d
+	jp	nz,_cmd2_psg		; swap cmd 1 en 2 for psg
+_cmd1_psg:
 	ld	(ix+TRACK_cmd_1),a
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Retrig),1
@@ -1033,10 +1036,13 @@ _CHIPcmd1_port_up:
 _CHIPcmd2_port_down:
 	; in:	[A] contains the paramvalue
 	; 
-	; ! do not change	[BC] this is the data pointer
+	; ! do1_ not change	[BC] this is the data pointer
 	;--------------------------------------------------
 	; This will	slide	down the pitch of	the current	note
 	; being played by	the given speed.	
+	bit 	B_FMPSG,d
+	jp	nz,_cmd1_psg		; swap cmd 1 en 2 for psg
+_cmd_psg:
 	ld	(ix+TRACK_cmd_2),a
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Retrig),1
@@ -1826,9 +1832,9 @@ _pcAY_noNoteActive:
 ;[13]	dw 	stop_debug
 
 _pcAY_cmdlist:
-	dw	_pcAY_cmdc_wave_duty		;d
-	dw	_pcAY_cmdd_wave_cut		;e
-	dw	_pcAY_cmde_wave_compr		;f
+	dw	0					;d
+	dw	0					;e
+	dw	0					;f
 	dw	_pcAY_cmd13_short_arp		;10
 	dw	_pcAY_cmd14_fine_up		;11
 	dw	_pcAY_cmd15_fine_down		;12
@@ -1836,8 +1842,8 @@ _pcAY_cmdlist:
 	dw	_pcAY_cmdXX_note_cut		;14
 	
 	dw	_pcAY_cmd0_arpeggio		;15
-	dw	_pcAY_cmd1_port_up		;16
-	dw	_pcAY_cmd2_port_down		;17
+	dw	_pcAY_cmd1_port_down		;16
+	dw	_pcAY_cmd2_port_up		;17
 	dw	_pcAY_cmd3_port_tone		;18
 	dw	_pcAY_cmd4_vibrato		;19
 	dw	_pcAY_cmd5_vibrato_port_tone	;1a
@@ -1847,8 +1853,8 @@ _pcAY_cmdlist:
 	dw	0	;env shape
 
 	dw	_pcAY_cmd0_arpeggio		;1e
-	dw	_pcAY_cmd1_port_up		;1f
-	dw	_pcAY_cmd2_port_down		;20
+	dw	_pcAY_cmd1_port_down		;1f
+	dw	_pcAY_cmd2_port_up		;20
 	dw	_pcAY_cmd3_port_tone		;21
 	dw	_pcAY_cmd4_vibrato
 	dw	_pcAY_cmd5_vibrato_port_tone
@@ -2044,185 +2050,6 @@ _pcAY_cmd8_macro_offset:
 	res	B_TRGCMD,d			;(ix+TRACK_Flags)
 	jp	_pcAY_commandEND
 
-
-_pcAY_cmdc_wave_duty:
-	;=================
-	; Waveform PWM / Duty Cycle
-	;=================
-	res	B_TRGCMD,d			;(ix+TRACK_Flags)	; reset command
-;	set	B_TRGWAV,d			;(ix+TRACK_Flags)	; reset normal wave update
-
-	;get the waveform	start	in [DE]
-	ld	hl,_0x9800
-	ld	a,iyh		;ixh contains chan#
-	rrca			; a mac value is 4 so
-	rrca			; 3 times rrca is	X32
-	rrca			; max	result is 128.
-	add	a,l
-	ld	l,a
-	jp	nc,.skip
-	inc	h
-.skip:
-	ld	b,(ix+TRACK_cmd_B)
-	inc	b
-
-	ld	c,96	
-	ld	a,32
-	sub	b
-_wspw_loop_h:
-	ld	(hl),c
-	inc	hl
-	djnz	_wspw_loop_h
-	
-	and	a
-	jp	z,_pcAY_commandEND
-	
-	ld	c,-96
-	ld	b,a
-_wspw_loop_l:
-	ld	(hl),c
-	inc	hl
-	djnz	_wspw_loop_l
-
-	jp	_pcAY_commandEND
-	
-	
-	
-_pcAY_cmdd_wave_cut:
-	;=================
-	; Waveform Cut
-	;=================
-
-	res	B_TRGCMD,d		;(ix+TRACK_Flags)	; reset command
-;	set	B_TRGWAV,d		;(ix+TRACK_Flags)	; reset normal wave update
-	ld	a,d
-	ex	af,af'		;'
-
-	;get the waveform	start	in [DE]
-	ld	de,_0x9800
-	ld	a,iyh		;ixh contains chan#
-	rrca			; a mac value is 4 so
-	rrca			; 3 times rrca is	X32
-	rrca			; max	result is 128.
-	add	a,e
-	ld	e,a
-	jp	nc,.skip
-	inc	d
-.skip:
-	ld	a,(ix+TRACK_Voice)
-	inc	a	
-	ld	(ix+TRACK_Voice),a
-	dec	a
-
-;	add	a,a
-;	add	a,a
-;	add	a,a	
-
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	  bc,(replay_voicebase)
-	add	  hl,bc
-
-	ld	a,(ix+TRACK_cmd_B)
-;	inc	a
-;	add	a
-	ld	c,a
-	ld	b,0
-	ldir
-	
-	EX	DE,HL
-
-	
-	sub	32
-	neg	
-	ld	b,a
-	EX	AF,AF'		;'
-	LD	D,A
-	jp	z,_pcAY_commandEND	
-	
-	xor	a
-_wsc_l:
-	ld	(HL),a
-	inc	HL
-	djnz	_wsc_l
-	
-	jp	_pcAY_commandEND
-		
-	
-	
-_pcAY_cmde_wave_compr:
-	;=================
-	; Waveform Compress
-	;=================
-	res	B_TRGCMD,d	;(ix+TRACK_Flags)	; reset command
-;	set	B_TRGWAV,d	;(ix+TRACK_Flags)	; reset normal wave update
-	ld	a,d
-	ex	af,af'	;'
-	
-	;get the waveform	start	in [DE]
-	ld	de,_0x9800
-	ld	a,iyh		;ixh contains chan#
-	rrca			; a mac value is 4 so
-	rrca			; 3 times rrca is	X32
-	rrca			; max	result is 128.
-	add	a,e
-	ld	e,a
-	jp	nc,.skip
-	inc	d
-.skip:
-	ld	a,(ix+TRACK_Voice)
-	inc	a
-	ld	(ix+TRACK_Voice),a
-	dec	a
-
-;	add	a,a
-;	add	a,a
-;	add	a,a	
-
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	  bc,(replay_voicebase)
-	add	  hl,bc
-
-	ld	a,(ix+TRACK_cmd_B)
-	ld	bc,0x0040
-	rrca	; x32
-	rrca
-	rrca
-	add	31
-	ld	iyl,a		; fraction
-	xor	a	
-_wcomp_loop:
-	ldi			
-	dec	c
-	jp	z,.skip
-	add	iyl
-	jp	nc,_wcomp_loop
-	inc	hl
-	inc	b
-	dec	c
-	dec	c
-	jp	nz,_wcomp_loop
-	
-	;--- remaining data
-.skip:
-	dec	hl
-	ld	a,(hl)
-.loop:
-	ld	(de),a
-	inc	de
-	djnz	.loop
-	
-	EX	AF,AF'		;'
-	LD	D,A	
-	jp	_pcAY_commandEND		
-	
 
 _pcAY_cmd13_short_arp:
 	dec	(ix+TRACK_Timer)
@@ -2483,149 +2310,7 @@ _wss_l:
 	ret
 
 	
-;=============
-; in [A] the morph active status	
-replay_process_morph:
-	ld	hl,replay_morph_timer
-	dec	(hl)
-	ret	nz
-	
-	;---- not sure what to do with this.
-	; trigger any waveform updates
-	ld	b,4
-	ld	de,TRACK_REC_SIZE
-	ld	hl,TRACK_Chan4+17+TRACK_Flags
-.loop:	
-;	bit 	B_ACTMOR,(hl)
-	jp	z,.skip
-;	set	B_TRGWAV,(hl)
-.skip:
-	add	hl,de
-	djnz	.loop	
-	
-	
-	;---- timer ended.
-	inc	a
-	jp	nz,_rpm_next_step		; if status was !=255 then skip init
 
-	;---- calculate offset
-	inc	a		
-	ld	(replay_morph_active),a		; set status to 1
-;	ld	(replay_morph_update),a		; after this update the waveforms of the SCC
-
-	ld	a,(replay_morph_speed)
-	ld	(replay_morph_timer),a
-	
-
-	;--- calculate the delta's
-	ld	de,replay_morph_buffer
-	ld	hl,(replay_voicebase)
-	ld	a,(replay_morph_waveform)
-	add	a
-	jp	nc,.skip2
-	inc	h
-.skip2:
-	add	a,l
-	ld	l,a
-	jp	nc,.skip3
-	inc	h
-.skip3:	
-	;---- start calculating
-	ld	b,32		; 32 values
-_rpm_loop:	
-	inc	de
-	ld	a,(de)
-	dec	de
-	add	a,128
-	ld	c,a
-	ld	a,(hl)
-	add	a,128
-	cp	c
-	jp	c,_rpm_smaller		; dest is smaller
-
-	
-_rpm_larger:
-	sub	c
-	rrca
-	rrca
-	rrca
-	rrca
-	and	$ef		; reset bit 5
-	ld	(de),a
-	
-	inc	de
-	inc	de
-	inc	hl
-	djnz	_rpm_loop
-	ret	
-	
-_rpm_smaller:
-	sub	c
-	neg	
-	rrca
-	rrca
-	rrca
-	rrca
-	or	$10		; set bit 5
-	ld	(de),a
-	
-	inc	de
-	inc	de
-	inc	hl
-	djnz	_rpm_loop
-	ret		
-	
-;============================
-_rpm_next_step:
-	ld	a,(replay_morph_speed)
-	ld	(replay_morph_timer),a
-
-	;-- apply the delta's
-	ld	a,(replay_morph_counter)
-	ld	c,a
-	add	16
-	ld	(replay_morph_counter),a
-	jp	nz,.skip
-	;--- end morph
-	ld	(replay_morph_active),a
-
-.skip:
-	dec c
-	ld	hl,replay_morph_buffer
-	ld	b,32
-_rpm_ns_loop:	
-	ld	a,(hl)
-	bit 	4,a
-	jp	z,_rmp_ns_add
-_rmp_ns_sub:
-	;--- handle corection
-	and	$ef
-	cp	c		; correction < counteR?
-	jp	c,.skip
-	inc	a		; if smaller C was set
-.skip:
-	and	00011111b	; keep lower 5 bits
-	inc	hl
-	ld	d,a
-	ld	a,(hl)
-	sub	d
-	ld	(hl),a	; load new value
-	inc	hl
-	djnz	_rpm_ns_loop
-	ret	
-_rmp_ns_add:
-	;--- handle corection
-	cp	c		; correction < counter?
-	jp	c,.skip
-	inc	a		; if smaller C was set
-.skip:
-	and	00011111b	; keep lower 5 bits
-	inc	hl
-	add	(hl)		; subtract waveform value
-	ld	(hl),a	; load new value
-	inc	hl
-	djnz	_rpm_ns_loop
-	ret		
 	
 
 
