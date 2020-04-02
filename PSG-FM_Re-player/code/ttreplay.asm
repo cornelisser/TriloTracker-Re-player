@@ -1452,7 +1452,7 @@ replay_process_chan_AY:
 
 	;-- set the	mixer	right
 	ld	hl,FM_regMIXER   
-	srl	(hl)
+	rrc	(hl)
 
 	;===== 
 	; Speed equalization check
@@ -1640,7 +1640,7 @@ _noVolume:
 	
 	;--- prevent SCC and noise
 	bit	B_PSGFM,d		;(ix+TRACK_Flags)
-	jp	nz,_noNoise
+	jp	nz,_noLink		; Noise and Link not at the same time
 
 	;--- Set the mixer for noise
 	ld	a,(FM_regMIXER)
@@ -1648,16 +1648,34 @@ _noVolume:
 	ld	(FM_regMIXER),a
 
 	bit	5,e
-	jp	z,_noNoise
+	jp	z,_noLink
 	ld	a,(hl)	; get the deviation	
 	inc	hl
 	bit	6,e
 	jp	z,.skip
 	add	(ix+TRACK_Noise)
-.skip:	ld	(ix+TRACK_Noise),a
+.skip:	
+	ld	(ix+TRACK_Noise),a
 	ld	(AY_regNOISE),a
+	jp	_noLink
 	
 _noNoise:
+	;-------------------------------
+	;
+	; VoiceLink
+	;
+	;-------------------------------
+	ld	a,$60		; Mask only the noise bits
+	and	d
+	cp	$40		; 0100 000 is link value
+	jp	nz,_noLink
+
+	ld	a,(hl)				; get the new hw voice	
+	inc	hl	
+	set 	B_TRGVOI,(ix+TRACK_Flags)
+	ld	(ix+TRACK_Voice),a			; set new voice to be loaded
+
+_noLink
 	;-------------------------------
 	;
 	; TONE
