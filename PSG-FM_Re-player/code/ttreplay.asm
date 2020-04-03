@@ -90,10 +90,14 @@ replay_fade_out:
 ; in: [DE] number of halve tones (pos or neg) to transpose. 
 ;===========================================================
 replay_transpose:
-	ld	hl,TRACK_ToneTable;(replay_Tonetable)
+	ld	hl,TRACK_ToneTable_PSG
 	add	hl,de	
 	add	hl,de
-	ld	(replay_Tonetable),hl	
+	ld	(replay_tonetable_PSG),hl
+	ld	hl,TRACK_ToneTable_FM
+	add	hl,de	
+	add	hl,de
+	ld	(replay_tonetable_FM),hl	
 	ret
 	
 ;===========================================================
@@ -183,8 +187,6 @@ replay_loadsong:
 	;--- Initialize replayer variables.
 	xor	a
 	ld	(replay_speed_subtimer),a
-;	ld	(replay_morph_active),a
-;	ld	(replay_morph_waveform),a
 	
 	;--- Erase channel data	in RAM
 	ld	bc,TRACK_REC_SIZE*8-1
@@ -217,13 +219,13 @@ replay_loadsong:
 	ld	(replay_vib_table),hl
 	
 	;--- Set the tone table base
-	ld	hl,TRACK_ToneTable
-	ld	(replay_Tonetable),hl
+	ld	hl,TRACK_ToneTable_PSG
+	ld	(replay_tonetable_PSG),hl
+	ld	hl,TRACK_ToneTable_FM
+	ld	(replay_tonetable_PSG),hl
 
 	ld	a,1
 	ld	(replay_speed_timer),a
-;	ld	(replay_morph_timer),a
-;	ld	(replay_morph_speed),a
 	ld	(TRACK_Chan1+17+TRACK_Delay),a	
 	ld	(TRACK_Chan2+17+TRACK_Delay),a		
 	ld	(TRACK_Chan3+17+TRACK_Delay),a	
@@ -582,6 +584,10 @@ replay_decodedata:
 ; 
 ;===========================================================
 replay_decodedata_NO:
+	; Set tone table
+	ld	hl,(replay_tonetable_PSG)
+	ld	(replay_tonetable),hl
+
 	;--- Initialize PSG Mixer and volume
 	xor	a
 	ld	(FM_regMIXER),a
@@ -589,6 +595,7 @@ replay_decodedata_NO:
 	;--- PSG balance
 	ld	hl,(replay_mainPSGvol)
 	ld	(replay_mainvol),hl
+	
 
 	;--- Process track 1
 	ld	ix,TRACK_Chan1+17
@@ -627,15 +634,24 @@ _rdd_3psg_5fm:
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLC),a
-	
-	
-	
-	
-	;--- To disable track 3 just comment above lines (9 lines) and enable below 2 lines.
-	;    This can be done for all tracks.
-;	ld	hl,FM_regMIXER   
-;	srl	(hl)
 
+	;-- Convert mixer to AY
+	ld	a,(FM_regMIXER)		
+	srl	a
+	srl	a
+;	srl	a
+	xor	0x3f
+	ld	(AY_regMIXER),a
+
+	; Set tone table
+	ld	hl,(replay_tonetable_FM)
+	ld	(replay_tonetable),hl
+	;--- set SCC balance
+	ld	hl,(replay_mainSCCvol)
+	ld	(replay_mainvol),hl
+	
+	jp	_rdd_cont
+	
 	
 _rdd_2psg_6fm:
 	;-- Convert mixer to AY
@@ -646,15 +662,14 @@ _rdd_2psg_6fm:
 	xor	0x3f
 	ld	(AY_regMIXER),a
 
-
+	; Set tone table
+	ld	hl,(replay_tonetable_FM)
+	ld	(replay_tonetable),hl
 	;--- set SCC balance
 	ld	hl,(replay_mainSCCvol)
 	ld	(replay_mainvol),hl
 
-	
-;	ld	iyh,0			; iyh stores the SCC chan#
-;
-					; used for waveform updates
+
 	;--- Process track 3
 	ld	ix,TRACK_Chan3+17
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
@@ -1082,7 +1097,16 @@ _CHIPcmd3_port_tone_cont:
 	add	a
 
 	exx
-	ld	hl,(replay_Tonetable)	;TRACK_ToneTable
+	bit	B_PSGFM,d
+	jp	nz,_cmd3_fm
+_cmd3_psg:
+	ld	hl,(replay_tonetable_PSG)	;TRACK_ToneTable
+	jp	99f
+_cmd3_fm:
+	ld	hl,(replay_tonetable_FM)	;TRACK_ToneTable
+
+99:
+	push	hl			; store address for later
 	add	a,l
 	ld	l,a
 	jp	nc,.skip
@@ -1102,7 +1126,8 @@ _CHIPcmd3_port_tone_cont:
 	;--- get the current note freq
 	ld	a,(ix+TRACK_Note)
 	add	a
-	ld	hl,(replay_Tonetable)	;TRACK_ToneTable
+	;ld	hl,(replay_Tonetable)	;TRACK_ToneTable
+	pop 	hl
 	add	a,l
 	ld	l,a
 	jp	nc,.skip2
@@ -1123,7 +1148,6 @@ _CHIPcmd3_port_tone_cont:
 	exx
 	
 	res	B_TRGNOT,d
-
 	jp	_rdc	
 
 	
@@ -1339,7 +1363,15 @@ _CHIPcmd17_track_detune:
 _CHIPcmd18_transpose:
 	ld	e,a
 	add	a
-	ld	hl,TRACK_ToneTable		;(replay_Tonetable)
+	
+	bit	B_PSGFM,d
+	jp	nz,_cmd18_fm
+_cmd18_psg:
+	ld	hl,(replay_tonetable_PSG)	;TRACK_ToneTable
+	jp	99f
+_cmd18_fm:
+	ld	hl,(replay_tonetable_FM)	;TRACK_ToneTable
+99:	
 	and	15		; low	4 bits is value
 	bit	3,e		; Center around 8
 	jp	z,.pos
@@ -1348,19 +1380,23 @@ _CHIPcmd18_transpose:
 	neg	
 	add	a,l
 	ld	l,a
-	jp	nc,.skip1
+	jp	nc,.skip
 	dec	h
-.skip1:
-	ld	(replay_Tonetable),hl
-	jp	_rdc
-; pos
+	jp 	.skip
+	; pos
 .pos:	
 	add	a,l
 	ld	l,a
-	jp	nc,.skip2
+	jp	nc,.skip
 	inc	h
-.skip2:
-	ld	(replay_Tonetable),hl
+.skip:
+	bit	B_PSGFM,d
+	jp	nz,_cmd18b_fm
+_cmd18b_psg:
+	ld	(replay_tonetable_PSG),hl	;TRACK_ToneTable
+	jp	_rdc
+_cmd18b_fm:
+	ld	(replay_tonetable_FM),hl	;TRACK_ToneTable
 	jp	_rdc
 
 _CHIPcmdXX_note_cut:
@@ -1731,7 +1767,7 @@ _pcAY_noToneAdd:
 	ld	(ix+TRACK_MacroPointer+1),h	
 
 	ex	af,af'			;';restore note offset
-	ld	hl,(replay_Tonetable)
+	ld	hl,(replay_tonetable)
 	add	a,l
 	ld	l,a
 	jp	nc,.skip
@@ -2238,7 +2274,6 @@ _ptFM_noSoftware:
 	
 
 	; here vol and tone regs.
-	
 	
 
 
