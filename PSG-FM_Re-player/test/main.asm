@@ -63,6 +63,8 @@ initmain:
 	;--- initialise replayer
 	call	replay_init
 ;	call	ttsfx_init
+	ld	a,1
+	ld	(equalization_freq),a
 	
 	;--- initialise demo song
 	ld	hl,demo_song

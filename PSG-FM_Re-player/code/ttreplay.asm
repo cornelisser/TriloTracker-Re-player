@@ -9,14 +9,6 @@ FM_DATA:	equ	0x7d	; port to set fm data for reg
 ;===============================
 ; todo:
 ; - FM find + enable
-; - Everything
-	
-	
-;define EXTERNAL_SCC 
-;define INTERNAL_SCC	
-	
-
-	
 	
 	
 ;===========================================================
@@ -222,7 +214,7 @@ replay_loadsong:
 	ld	hl,TRACK_ToneTable_PSG
 	ld	(replay_tonetable_PSG),hl
 	ld	hl,TRACK_ToneTable_FM
-	ld	(replay_tonetable_PSG),hl
+	ld	(replay_tonetable_FM),hl
 
 	ld	a,1
 	ld	(replay_speed_timer),a
@@ -263,9 +255,9 @@ replay_loadsong:
 	;--- Check if there are 3 psg chans.
 	ld	a,(replay_chan_setup)
 	and	a
-	jp	z,99f
+	jp	nz,99f
 	xor 	a
-	ld	(TRACK_Chan3+TRACK_Flags),a	
+	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 99:	
 	
 ;	call FM_reg_update
@@ -357,6 +349,7 @@ PAL:                             ; execute the PSG and ayFX core
 	dec	(hl)
 
 	jp	nz,_replay_check_patternend	
+		
 	
 	;--- Re-init Timer == 0
 	xor	a
@@ -367,6 +360,7 @@ PAL:                             ; execute the PSG and ayFX core
 	ld	(replay_speed_subtimer),a
 	add	c
 	ld	(replay_speed_timer),a
+		
 ;===========================================================
 ; ---	replay_decodedata
 ; Process the patterndata 
@@ -437,7 +431,7 @@ replay_decodedata:
 	jp	nz,.decode4
 
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
-	and	11111011b		; reset B_TRGENV
+;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan3+17+TRACK_Note)	
 	ld	ix,TRACK_Chan3+17
@@ -462,7 +456,7 @@ replay_decodedata:
 	jp	nz,.decode5
 
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
-	and	11111011b		; reset B_TRGENV
+;	and	11111011b		; reset B_TRGENV
 	ld 	d,a		;'
 	ld	a,(TRACK_Chan4+17+TRACK_Note)	
 	ld	ix,TRACK_Chan4+17
@@ -488,7 +482,7 @@ replay_decodedata:
 	jp	nz,.decode6
 
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
-	and	11111011b		; reset B_TRGENV
+;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan5+17+TRACK_Note)	
 	ld	ix,TRACK_Chan5+17
@@ -513,7 +507,7 @@ replay_decodedata:
 	jp	nz,.decode7
 
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
-	and	11111011b		; reset B_TRGENV
+;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan6+17+TRACK_Note)	
 	ld	ix,TRACK_Chan6+17
@@ -539,7 +533,7 @@ replay_decodedata:
 	jp	nz,.decode8
 
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
-	and	11111011b		; reset B_TRGENV
+;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan7+17+TRACK_Note)	
 	ld	ix,TRACK_Chan7+17
@@ -565,7 +559,7 @@ replay_decodedata:
 	jp	nz,.decode_end
 
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
-	and	11111011b		; reset B_TRGENV
+;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan8+17+TRACK_Note)	
 	ld	ix,TRACK_Chan8+17
@@ -677,7 +671,7 @@ _rdd_2psg_6fm:
 	call	replay_process_chan_AY
 	ld	(FM_regToneA),hl
 	ld	a,d
-	ld	(TRACK_Chan4+17+TRACK_Flags),a	
+	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLA),a	
 
@@ -850,7 +844,7 @@ _rd_delay:
 _replay_decode_note:
 	ld	(ix+TRACK_Note),a
 	set 	B_TRGNOT,d
-	set 	B_KEYON,d
+	res 	B_KEYON,d
 ;	res	B_ACTMOR,d
 
 	inc	bc
@@ -1443,6 +1437,7 @@ _CHIPcmd1B_speed:
 	
 _CHIPcmd1C_notelink:
 	res	B_TRGNOT,d
+	set 	B_KEYON,d
 	dec 	bc
 	jp	_rdc	
 _CHIPcmd1C_call:
@@ -1710,7 +1705,7 @@ _noNoise:
 	;
 	;-------------------------------
 	ld	a,$60		; Mask only the noise bits
-	and	d
+	and	e
 	cp	$40		; 0100 000 is link value
 	jp	nz,_noLink
 
@@ -2204,7 +2199,7 @@ _ptAY_noEnv:
 ; F M
 ;---------------
 	ld 	b,6	; 6 channels
-	ld 	hl,TRACK_Chan3+TRACK_Flags
+	ld 	hl,TRACK_Chan3+17+TRACK_Flags
 ptFM_voice_loop:
 	bit 	B_TRGVOI,(hl)
 	jp	z,0f
@@ -2254,7 +2249,7 @@ _tt_voice_fmloop:
 	inc	hl
 	ex	af,af'		
 	dec	c
-	jr.	nz,ptFM_voice_loop	
+	jr.	nz,_tt_voice_fmloop	
 	
 	ex	de,hl
 	xor	a			; Voice 0
@@ -2269,14 +2264,124 @@ _ptFM_noSoftware:
 	jp	nc,99f
 	inc	h
 99:
-	dec	b
-	djnz	_tt_voice_fmloop
+	djnz	ptFM_voice_loop
 	
 
-	; here vol and tone regs.
+	;--- write volume register
+	ld	de,FM_regVOLA
+	ld	hl,TRACK_Chan3+17+TRACK_Voice
+	ld	b,6		; 5 tracks
+	ld	a,$30
+;	ex	af,af'	;'
+_tt_route_fmvol:
+	ex	af,af'	; '
+	ld	a,(hl)
+	rla
+	rla
+	rla
+	rla
+	and	$f0
+	ld	c,a
+	
+	ld	a,(de)	
+	push	hl
+	ld	hl,FM_regMIXER
+
+	bit	7,(hl)
+	jr	nz,33f
+	ld	a,$0f			; silentio
+33:
+	rrc	(hl)
+	pop	hl	
+	
+	and	0x0f
+	or	c
+	ex	af,af'		;'
+	out	(FM_WRITE),a
+	inc	a			; 4 cycles
+	ex	af,af'		; 4 cycles	 '
+	inc	de			; 6 cycles
+	out	(FM_DATA),a
+
+	ld	a,TRACK_REC_SIZE
+	add	a,l
+	ld	l,a
+	jr.	nc,99f
+	inc	h
+99:
+	ex	af,af'		;	'
+
+
+	djnz	_tt_route_fmvol
+
+
+	
+
+	;--- write tone register
+	ld	hl,FM_registers
+	ld	de,TRACK_Chan3+17+TRACK_Flags
+	ld	b,6		; 5 tracks
+	ld	a,$10
+;	ex	af,af'	;'
+_tt_route_fmtone:
+
+	out	(FM_WRITE),a
+	ex	af,af'		; 4 cycles 	'
+	ld	a,(hl)		; 13 cycles  	the low byte
+	out	(FM_DATA),a
+	inc	hl
+	ld	a,(de)		; the flags (bit 4 has key)
+	ld	c,a
+	and	48			; preserve key and sustain
+
+	;--- check for new note (keyon is off '0')
+	bit	4,a
+	jp	nz,99f		; skip if no keyoff
+
+	or	(hl)
+	ex	af,af'		;'
+	add	a,$10
+	out	(FM_WRITE),a
+	ex	af,af'		; 4 cycles '
+	out 	(FM_DATA),a
+
+	or	16			; set keyon on '1'
+	ld	(de),a		; store keyon
+	ex	af,af'		;'
+	jp 	88f	
+			
 	
 
 
+99:
+	or	(hl)			; add the tone high byte
+
+	ex	af,af'		;'
+	add	a,$10
+	
+	;--- delay to get 84 cycles at least
+;	push ix
+;	pop ix
+;	nop
+	
+	
+	
+88:	out	(FM_WRITE),a
+	ex	af,af'		; 4 cycles '
+	inc	hl			; 6 cycles 
+	out 	(FM_DATA),a
+	ld	a,16
+	or	c
+	ld	(de),a		; write key flag enabled to disable retrigger of note
+	ld	a,TRACK_REC_SIZE
+	add	a,e
+	ld	e,a
+	jr.	nc,99f
+	inc	d
+99:
+	ex	af,af'		;'
+	sub	$f
+	djnz	_tt_route_fmtone
 
 	ret
 
