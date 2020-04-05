@@ -613,8 +613,9 @@ loopy:
 	ld	hl,(replay_mainPSGvol)
 	ld	(replay_mainvol),hl
 	
-
+	;--------------------
 	;--- Process track 1
+	;--------------------
 	ld	ix,TRACK_Chan1+17
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	ld	d,a
@@ -625,7 +626,9 @@ loopy:
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLA),a	
 
+	;--------------------
 	;--- Process track 2
+	;--------------------
 	ld	ix,TRACK_Chan2+17
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
 	ld	d,a
@@ -641,7 +644,9 @@ loopy:
 	jp	z,_rdd_2psg_6fm
 
 _rdd_3psg_5fm:
+	;--------------------
 	;--- Process track 3	
+	;--------------------
 	ld	ix,TRACK_Chan3+17
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
@@ -686,8 +691,9 @@ _rdd_2psg_6fm:
 	ld	hl,(replay_mainSCCvol)
 	ld	(replay_mainvol),hl
 
-
+	;--------------------
 	;--- Process track 3
+	;--------------------
 	ld	ix,TRACK_Chan3+17
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
@@ -700,7 +706,9 @@ _rdd_2psg_6fm:
 
 
 _rdd_cont:
+	;--------------------
 	;--- Process track 4
+		;--------------------
 	ld	ix,TRACK_Chan4+17
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld	d,a
@@ -711,10 +719,9 @@ _rdd_cont:
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLB),a	
 
-
+	;--------------------
 	;--- Process track 5
-;	inc	iyh
-	
+	;--------------------	
 	ld	ix,TRACK_Chan5+17
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a
@@ -725,8 +732,9 @@ _rdd_cont:
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLC),a	
 
+	;--------------------
 	;--- Process track 6
-;	inc	iyh
+	;--------------------
 		
 	ld	ix,TRACK_Chan6+17
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
@@ -738,9 +746,9 @@ _rdd_cont:
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLD),a	
 
+	;--------------------
 	;--- Process track 7
-;	inc	iyh
-		
+	;--------------------
 	ld	ix,TRACK_Chan7+17
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a
@@ -751,9 +759,9 @@ _rdd_cont:
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLE),a		
 
+	;--------------------
 	;--- Process track 8
-;	inc	iyh			; no waveform for SCC channel 5
-		
+	;--------------------		
 	ld	ix,TRACK_Chan8+17
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
@@ -984,7 +992,7 @@ _replay_decode_cmd:
 
 DECODE_CMDLIST:
 	; These effects are only processed 1 once in decoding
-	dw	_CHIPcmdA_env_mul			;0
+	dw	_CHIPcmd0_env_mul			;0
 	dw	0					;1	CHAN 3-5
 	dw	0					;2	CHAN 2-6
 	dw	_CHIPcmdCd_drum			;3	FM DRUM
@@ -1257,7 +1265,7 @@ _CHIPcmd9_env_shape:
 	;--------------------------------------------------
 	; This command set the envelope frequency using a
 	; multiplier value (00-ff)
-_CHIPcmdA_env_mul:
+_CHIPcmd0_env_mul:
 	ld	d,a
 	xor	a
 	srl	d
@@ -1323,6 +1331,7 @@ _CHIPcmd13_short_arp:
 	ld	(ix+TRACK_Timer),0
 
 	set	B_TRGCMD,d		; command active
+	ld	(ix+TRACK_Retrig),1
 	jp	_rdc	
 	
 	
@@ -1331,7 +1340,7 @@ _CHIPcmd15_fine_down:
 	ld	(ix+TRACK_cmd_E),a
 	ld	(ix+TRACK_Timer),2
 	set	B_TRGCMD,d		; command active
-
+	ld	(ix+TRACK_Retrig),1
 	jp	_rdc	
 
 
@@ -1418,6 +1427,7 @@ _cmd18b_fm:
 
 _CHIPcmdXX_note_cut:
 	set	B_TRGCMD,d
+	ld	(ix+TRACK_Retrig),1
 	inc	a
 	ld	(ix+TRACK_Timer),a		; set	the timer to param y
 	jp 	_rdc
@@ -1428,6 +1438,7 @@ _CHIPcmd19_note_delay:
 	jp	z,_rdc
 
 	set	B_TRGCMD,d					; command active
+	ld	(ix+TRACK_Retrig),1
 	inc	a
 	ld	(ix+TRACK_Timer),a			; set	the timer to param y
 	ld	a,(ix+TRACK_Note)
@@ -2021,6 +2032,9 @@ _pcAY_cmd3_stop:
 
 	;-- vibrato	
 _pcAY_cmd4_vibrato:
+	;DEBUG disabled
+	jp	_pcAY_commandEND
+
 	ld	hl,(replay_vib_table)
 	;--- Get next step
 	ld	a,(IX+TRACK_Step)
