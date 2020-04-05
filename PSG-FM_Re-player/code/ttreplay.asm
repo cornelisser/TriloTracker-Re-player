@@ -253,11 +253,11 @@ replay_loadsong:
 	ld	(TRACK_Chan8+17+TRACK_Flags),a	
 	
 	;--- Check if there are 3 psg chans.
-	ld	a,(replay_chan_setup)
-	and	a
-	jp	nz,99f
-	xor 	a
-	ld	(TRACK_Chan3+17+TRACK_Flags),a	
+;	ld	a,(replay_chan_setup)
+;	and	a
+;	jp	nz,99f
+;	xor 	a
+;	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 99:	
 	
 ;	call FM_reg_update
@@ -578,6 +578,29 @@ replay_decodedata:
 ; 
 ;===========================================================
 replay_decodedata_NO:
+	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a
+
+	ld	b,10
+loopy:
+	push 	hl
+	pop 	hl
+	push 	hl
+	pop 	hl
+	push 	hl
+	pop 	hl
+	djnz	loopy
+
+
+;	ld	a,$fa ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+;	out	(0x99),a
+;	ld	a,7+128
+;	out	(0x99),a
+
+
+
 	; Set tone table
 	ld	hl,(replay_tonetable_PSG)
 	ld	(replay_tonetable),hl
@@ -1507,6 +1530,13 @@ replay_process_chan_AY:
 	bit	B_TRGCMD,d	;(ix+TRACK_Flags)
 	jp	z,_pcAY_noCommand
 	
+	ld	a,$f6 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
+
+	
+	
 	ld	hl,_pcAY_cmdlist-26
 	ld	a,(ix+TRACK_Command)
 	add	a
@@ -1523,7 +1553,10 @@ replay_process_chan_AY:
 	
 _pcAY_noCommand:	
 _pcAY_commandEND:
-
+	ld	a,$fe ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
 	;=====
 	; NOTE
 	;=====

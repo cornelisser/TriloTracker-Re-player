@@ -60,12 +60,27 @@ initmain:
 	ld	(0xFD9A),a
 	ld	(0xFD9B),hl	
 	
+	
+	;--- Set speed equalization
+	ld	a,($FFE8)	; get mirror of VDP reg# 9
+	and	2
+	jp	z,99f
+	ld	a,-1
+99:
+	inc	a			; 1 = 60hz
+	ld	(equalization_freq),a
+	ld	(equalization_cnt),a
+	
+	;--- Init screen
+	call 	init_vdp
+	call	init_font		; set the new font
+	
 	;--- initialise replayer
 	call	replay_init
 ;	call	ttsfx_init
 	ld	a,1
 	ld	(equalization_freq),a
-	
+	ld	(equalization_cnt),a	
 	;--- initialise demo song
 	ld	hl,demo_song
 	call	replay_loadsong
@@ -76,6 +91,31 @@ initmain:
 	
 	ei
 	
+	call	clear_screen
+	ld	hl,80*4+22
+	ld	de,TEXT_Title
+	call	draw_label
+	ld	hl,80*6+36
+	ld	de,TEXT_Step
+	call	draw_label
+	ld	hl,80*8+4
+	ld	de,TEXT_Header_Data
+	call	draw_label	
+	
+	ld	hl,80*8+38
+	ld	de,TEXT_Register_Header
+	call	draw_label		
+
+	ld 	hl,80*13+56
+	ld	de,TEXT_Register_Drum
+	call	draw_label	
+
+	ld 	hl,80*18+4
+	ld	de,TEXT_Legend_Data
+	call	draw_label	
+
+
+	
 	xor	a
 	ld	(pattern),a
 
@@ -84,9 +124,30 @@ initmain:
 ;	call	ttsfx_start
 	
 infinite:
-	halt
-	;--- display debug info
+	halt	
+;	call	register_debug
+	call	debuginfo	
 	
+	ld	a,$f8 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
+	call	replay_play			; calculate next output
+
+	
+	ld	a,$f3 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a
+	call	replay_route		; first outout data	
+	ld	a,$f0
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
+	;--- display debug info
+
+;	call	register_debug
+	call	step_debug
 	
 	
 	
@@ -120,19 +181,381 @@ infinite:
 	
 isr:
 	in	a,(0x99)
-	call	replay_route		; first outout data
-	call	replay_play			; calculate next output
+
+
 ;	call	ttsfx_play
+
+
+
 	ret
 	
+
+debuginfo:
+	ld	bc,40
+	call	clear_TEXT
+	
+	ld	b,8
+	ld	hl,TRACK_Chan1+17
+	ld	de,80*8+4
+.loop	
+	push	bc
+	push	hl
+	push	de
+	
+	;--- make the debug string
+	ld	de,TEXT_Chan
+	ld	a,h
+	ld	ixh,a
+	ld	a,l
+	ld	ixl,a
+	
+	ld	a,9
+	sub	b
+	call	draw_decimal
+	inc	de
+	ld	a,(ix+TRACK_Note)
+	call	draw_hex2
+	inc 	de
+	ld	a,(ix+TRACK_Instrument)
+	call	draw_hex2
+	inc 	de
+	ld	a,(ix+TRACK_Voice)
+	call	draw_hex2
+	inc 	de	
+	ld	a,(ix+TRACK_Volume)
+	call	draw_hex2
+	inc 	de
+	ld	a,(ix+TRACK_Command)
+	call	draw_hex2	
+	inc 	de
+
+	ex	de,hl
+	ld	b,(ix+TRACK_Flags)
+	call 	debug_flags
+
+	inc 	de	
+	;-- draw the debug string
+	pop	de
+	ld	hl,80
+	add	hl,de
+	push	hl
+	
+	ld	de,TEXT_Chan
+	ld	b,30
+	call	draw_label_fast
+	
+	pop	de
+	pop	hl
+	
+	ld	bc,TRACK_REC_SIZE
+	add	hl,bc
+	
+	pop	bc
+	djnz	.loop
+	ret
+
+step_debug:
+	ld	bc,7
+	call	clear_TEXT
+	ld	hl,(replay_orderpointer)
+	ld	de,demo_song+7
+	xor 	a
+	sbc	hl,de
+	add	hl,hl		;X2
+	add	hl,hl		;X4	
+	add	hl,hl		;X8
+	add	hl,hl		;X16
+	ld	a,h
+	dec	a
+	ld	hl,debug_pointer1
+	ld	(hl),a
+	ld	de,TEXT_Chan
+	call	draw_decimal3
+	
+	ld	hl,80*6+41
+	ld	de,TEXT_Chan
+	ld	b,3
+	call	draw_label_fast
+	ret
+	
+
+register_debug:
+	ld	bc,7
+	call	clear_TEXT
+	ld	hl,REG_list
+	
+	;	DRAW PSG Tone vol	
+	ld	iyl,3
+	ld 	bc,80*8+47
+	ld	(debug_pointer1),bc
+	call	register_debug_loop
+
+	;	DRAW PSG Noise and mixer	
+	ld	iyl,1
+	ld 	bc,80*8+56
+	ld	(debug_pointer1),bc
+	call	register_debug_loop	
+	
+	;	DRAW PSG Envelop + shape
+	ld	iyl,1
+	ld 	bc,80*8+65
+	ld	(debug_pointer1),bc
+	call	register_debug_loop		
+
+	;	DRAW FM Tone Vol	
+	ld	iyl,6
+	ld 	bc,80*10+38
+	ld	(debug_pointer1),bc
+	call	register_debug_loop
 	
 	
+	;	DRAW FM Drum macro + percusion
+	ld	iyl,1
+	ld 	bc,80*13+56
+	ld	(debug_pointer1),bc
+	call	register_debug_loop
+
+	;	DRAW FM Drum tone + vol
+	ld	iyl,3
+	ld 	bc,80*13+65
+	ld	(debug_pointer1),bc
+	call	register_debug_loop
+	
+	ret
+
+register_debug_loop:
+	ld	de,TEXT_Chan
+	ld	c,(hl)
+	inc	hl
+	ld	b,(hl)
+	inc	hl
+	
+	inc	bc
+	ld	a,(bc)
+	dec	bc
+	call	draw_hex2		; tone
+	ld	a,(bc)
+	call	draw_hex2
+	
+	inc 	de	
+	
+	ld	c,(hl)
+	inc	hl
+	ld	b,(hl)
+	inc	hl	
+	
+	ld	a,(bc)
+	call	draw_hex2		; vol
+	
+	
+	push	hl
+	ld	hl,(debug_pointer1)
+	ld	bc,80
+	add	hl,bc
+	ld	(debug_pointer1),hl
+	ld	de,TEXT_Chan
+	ld	b,7
+	call	draw_label_fast
+
+	pop	hl
+	dec	iyl
+	jp	nz,register_debug_loop
+	ret
+
+REG_list:
+	dw	AY_regToneA,AY_regVOLA
+	dw	AY_regToneB,AY_regVOLB
+	dw	AY_regToneC,AY_regVOLC
+	dw	AY_regNOISE,AY_regMIXER
+	dw	AY_regEnvL,AY_regEnvShape 	
+	dw	FM_regToneA,FM_regVOLA 
+	dw	FM_regToneB,FM_regVOLB 
+	dw	FM_regToneC,FM_regVOLC 
+	dw	FM_regToneD,FM_regVOLD 
+	dw	FM_regToneE,FM_regVOLE 
+	dw	FM_regToneF,FM_regVOLF 
+	dw	FM_DRUM_MACRO,FM_DRUM
+	dw	FM_freqreg1,FM_volreg1
+	dw	FM_freqreg2,FM_volreg2	
+	dw	FM_freqreg3,FM_volreg3	
+
+
+
+
+; input BC length to clear
+clear_TEXT:
+	dec	bc
+	ld	hl,TEXT_Chan
+	ld	de,TEXT_Chan+1
+	ld	(hl),' '
+	ldir
+	ret
+
+debug_flags:
+	bit	7,b
+	jp	z,1f
+	ld	(hl),'F'
+	jp	2f
+1:
+	ld	(hl),'P'
+	
+2:
+	inc	hl
+	bit	6,b
+	jp	z,1f
+	ld	(hl),'V'
+	jp	2f
+1:
+	ld	(hl),' '
+	
+2:	
+	inc	hl
+	bit	5,b
+	jp	z,1f
+	ld	(hl),'S'
+	jp	2f
+1:
+	ld	(hl),' '
+	
+2:	
+	inc	hl
+	bit	4,b
+	jp	nz,1f
+	ld	(hl),'K'
+	jp	2f
+1:
+	ld	(hl),' '
+	
+2:	
+	inc	hl
+	bit	3,b
+	jp	z,1f
+	ld	(hl),'C'
+	jp	2f
+1:
+	ld	(hl),' '
+	
+2:	
+	inc	hl
+	bit	2,b
+	jp	z,1f
+	ld	(hl),'E'
+	jp	2f
+1:
+	ld	(hl),' '
+	
+2:	
+	inc	hl	
+	bit	1,b
+	jp	z,1f
+	ld	(hl),'A'
+	jp	2f
+1:
+	ld	(hl),' '
+	
+2:	
+	inc	hl	
+	bit	0,b
+	jp	z,1f
+	ld	(hl),'N'
+	jp	2f
+1:
+	ld	(hl),' '
+	
+2:	
+	inc	hl		
+	ex	de,hl
+
+	inc 	de
+	ret
+
+
+
+
+	
+	; --- init_vdp
+	; 
+	; Initial init of the vdp
+init_vdp:
+
+	ld	a,00000100b ; Reg#0 [ 0 ][DG ][IE2][IE1][M5 ][M4 ][M3 ][ 0 ]
+	out	(0x99),a
+	ld	a,0+128
+	out	(0x99),a
+
+	ld	a,01110000b ; Reg#1 [ 0 ][BL ][IE0][M1 ][M2 ][ 0 ][SIZ][MAG]
+
+	out	(0x99),a
+	ld	a,1+128
+	out	(0x99),a	
+
+	ld	a,00001011b ; REG#2[ 0 ][A16][A15][A14][A13][A12][ 1 ][ 1 ]  - Pattern layout table
+
+	out	(0x99),a
+	ld	a,2+128
+	out	(0x99),a	
+
+	ld	a,10101111b ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+
+	out	(0x99),a
+	ld	a,3+128
+	out	(0x99),a	
+	
+	ld	a,00010010b ; Reg#4 [ 0 ][ 0 ][A16][A15][A14][A13][A12][A11]  - Pattern generator table
+
+	out	(0x99),a
+	ld	a,4+128
+	out	(0x99),a	
+	
+	ld	a,($FFE8)
+	or	10000000b ; Reg#9 [LN ][ 0 ][S1 ][S0 ][IL ][EO ][NT ][DC ]
+	out	(0x99),a
+	ld	a,9+128
+	out	(0x99),a	
+
+
+	ld	a,$f0
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a
+	ld	a,$e1
+	out	(0x99),a
+	ld	a,12+128
+	out	(0x99),a
+	ld	a,0xF0	;reg#13
+	out	(0x99),a
+	ld	a,13+128
+	out	(0x99),a		
+	
+	
+
+	ret		
+	include	".\screen.asm"
 	include	"..\code\ttreplay.asm"
 	include	"..\code\ttreplayDAT.asm"
 ;	include	"..\ttsfxplay\ttsfxplay.asm"
+
 	
 demo_song:
 	include	".\valk.asm"
+	
+TEXT_Title:
+	db	"TriloTracker FM Re-player Debug info",0	
+TEXT_Step:
+	db	"Step:",0	
+TEXT_Header_Data:
+	db	"C# Nt In FM Vl Cm Flags",0
+TEXT_Register_Header:
+	db 	"Tone Vl  Tone Vl  Nois Mx  Env  Sh",0
+TEXT_Register_Drum:
+	db 	"Macr Drm Tone Vl",0	
+TEXT_Legend_Data:
+	db	"Legend: Psg, Fm, Voice, Env, Keyon, Command, Active(note)",0
+
+	
+	
+font_data:
+	incbin	".\fontpat.bin"
 
 ;	include ".\sfx.asm"
 	
@@ -166,5 +589,11 @@ demo_song:
 	
 	map	0xc000
 	include	"..\code\ttreplayRAM.asm"
+	
+
+debug_pointer1:	#2
+debug_pointer2:	#2	
+TEXT_Chan		#40
+	
 ;	include	"..\ttsfxplay\ttsfxplay_RAM.asm"
 pattern	#1

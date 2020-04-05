@@ -1,5 +1,5 @@
 	; Balance setting space volume max - 8
-	ds 8*16, $F0
+	ds 8*16, $0F
 _VOLUME_TABLE
 	; Combined volume table PSG/FM
 	db	 $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
