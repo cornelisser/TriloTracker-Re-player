@@ -583,23 +583,10 @@ replay_decodedata_NO:
 	ld	a,7+128
 	out	(0x99),a
 
-	ld	b,10
-loopy:
-	push 	hl
-	pop 	hl
-	push 	hl
-	pop 	hl
-	push 	hl
-	pop 	hl
-	djnz	loopy
-
-
 ;	ld	a,$fa ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
 ;	out	(0x99),a
 ;	ld	a,7+128
 ;	out	(0x99),a
-
-
 
 	; Set tone table
 	ld	hl,(replay_tonetable_PSG)
@@ -621,8 +608,8 @@ loopy:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(AY_regToneA),hl
-	ld	a,d
-	ld	(TRACK_Chan1+17+TRACK_Flags),a	
+;	ld	a,d
+;	ld	(TRACK_Chan1+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLA),a	
 
@@ -634,8 +621,8 @@ loopy:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(AY_regToneB),hl
-	ld	a,d
-	ld	(TRACK_Chan2+17+TRACK_Flags),a	
+;	ld	a,d
+;	ld	(TRACK_Chan2+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLB),a	
 
@@ -652,8 +639,8 @@ _rdd_3psg_5fm:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(AY_regToneC),hl
-	ld	a,d
-	ld	(TRACK_Chan3+17+TRACK_Flags),a	
+;	ld	a,d
+;	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLC),a
 
@@ -699,8 +686,8 @@ _rdd_2psg_6fm:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneA),hl
-	ld	a,d
-	ld	(TRACK_Chan3+17+TRACK_Flags),a	
+;	ld	a,d
+;	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLA),a	
 
@@ -714,8 +701,8 @@ _rdd_cont:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneB),hl
-	ld	a,d
-	ld	(TRACK_Chan4+17+TRACK_Flags),a	
+;	ld	a,d
+;	ld	(TRACK_Chan4+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLB),a	
 
@@ -727,8 +714,8 @@ _rdd_cont:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneC),hl
-	ld	a,d
-	ld	(TRACK_Chan5+17+TRACK_Flags),a	
+;	ld	a,d
+;	ld	(TRACK_Chan5+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLC),a	
 
@@ -741,8 +728,8 @@ _rdd_cont:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneD),hl
-	ld	a,d
-	ld	(TRACK_Chan6+17+TRACK_Flags),a	
+;	ld	a,d
+;	ld	(TRACK_Chan6+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLD),a	
 
@@ -754,8 +741,8 @@ _rdd_cont:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneE),hl
-	ld	a,d
-	ld	(TRACK_Chan7+17+TRACK_Flags),a	
+;	ld	a,d
+;	ld	(TRACK_Chan7+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLE),a		
 
@@ -767,8 +754,8 @@ _rdd_cont:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneF),hl
-	ld	a,d
-	ld	(TRACK_Chan8+17+TRACK_Flags),a	
+;	ld	a,d
+;	ld	(TRACK_Chan8+17+TRACK_Flags),a	
 
 	;-- Fade out processing
 	ld	a,(replay_fade)
@@ -1019,8 +1006,8 @@ DECODE_CMDLIST:
 
 	; These effects can be retriggered
 	dw	_CHIPcmd0_arpeggio		;15
-	dw	_CHIPcmd2_port_down		;16
 	dw	_CHIPcmd1_port_up			;17
+	dw	_CHIPcmd2_port_down		;16
 	dw	_CHIPcmd3_port_tone		;18
 	dw	_CHIPcmd4_vibrato			;19
 	dw	_CHIPcmd5_vibrato_port_tone	;1a
@@ -1030,8 +1017,8 @@ DECODE_CMDLIST:
 	dw	_CHIPcmd9_env_shape		;1e
 
 	dw	_CHIPcmd0_RE_arpeggio		;1f
-	dw	_CHIPcmd2_RE_port_down		;20
 	dw	_CHIPcmd1_RE_port_up		;21
+	dw	_CHIPcmd2_RE_port_down		;20
 	dw	_CHIPcmd3_RE_port_tone		;22
 	dw	_CHIPcmd4_RE_vibrato		;23
 	dw	_CHIPcmd5_RE_vibrato_port_tone ;24
@@ -1065,13 +1052,19 @@ _CHIPcmd1_port_up:
 	; This will	slide	up the pitch of the current note
 	; being played by	the given speed. 
 	bit 	B_PSGFM,d
-	jp	nz,_cmd2_psg		; swap cmd 1 en 2 for psg
-_cmd1_psg:
+	jp	z,_cmd2_psg		; swap cmd 1 en 2 for psg
+	; FM
 	ld	(ix+TRACK_cmd_1),a
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
-	
+	;PSG
+_cmd2_psg:
+	inc	(ix+TRACK_Command)
+	ld	(ix+TRACK_cmd_2),a
+	set	B_TRGCMD,d
+	ld	(ix+TRACK_Retrig),1
+	jp	_rdc	
 	
 	 
 _CHIPcmd2_port_down:
@@ -1082,13 +1075,19 @@ _CHIPcmd2_port_down:
 	; This will	slide	down the pitch of	the current	note
 	; being played by	the given speed.	
 	bit 	B_PSGFM,d
-	jp	nz,_cmd1_psg		; swap cmd 1 en 2 for psg
-_cmd2_psg:
+	jp	z,_cmd1_psg		; swap cmd 1 en 2 for psg
+	;FM
 	ld	(ix+TRACK_cmd_2),a
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
-	
+	; PSG
+_cmd1_psg:
+	inc	(ix+TRACK_Command)
+	ld	(ix+TRACK_cmd_1),a
+	set	B_TRGCMD,d
+	ld	(ix+TRACK_Retrig),1
+	jp	_rdc	
 
 _CHIPcmd3_RE_port_tone:
 	ld	(ix+TRACK_Retrig),a
@@ -1487,11 +1486,24 @@ _CHIPcmd0_RE_arpeggio:
 	ld	(ix+TRACK_Timer),0
 	
 _CHIPcmd1_RE_port_up:	
+	set	B_TRGCMD,d
+	ld	(ix+TRACK_Retrig),a
+	bit	B_PSGFM,d
+	jp	nz,_rdc
+	inc	(ix+TRACK_Command)
+	jp	_rdc	
 _CHIPcmd2_RE_port_down:
+	set	B_TRGCMD,d
+	ld	(ix+TRACK_Retrig),a
+	bit	B_PSGFM,d
+	jp	nz,_rdc
+	dec	(ix+TRACK_Command)
+	jp	_rdc	
 _CHIPcmd4_RE_vibrato:
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Retrig),a
-	jp	_rdc		
+	jp	_rdc	
+	
 	
 _CHIPcmd5_RE_vibrato_port_tone:
 _CHIPcmd6_RE_vibrato_vol:
@@ -1562,8 +1574,11 @@ replay_process_chan_AY:
 	ld	l,a	
 	jp	(hl)
 	
-_pcAY_noCommand:	
+	
 _pcAY_commandEND:
+
+
+_pcAY_noCommand:
 	ld	a,$fe ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
 	out	(0x99),a
 	ld	a,7+128
@@ -1819,25 +1834,30 @@ _pcAY_noToneAdd:
 		
 	add	hl,bc		;--- Store tone deviation		
 
+	ld	a,d
+	ld	(ix+TRACK_Flags),d
 	; set	the detune.
 	ld	(_SP_Storage),sp
 	ld	sp,ix
-	pop	bc		; cmd detume
-	add	hl,bc
+	pop	de		; cmd detune
+	add	hl,de
 	pop	bc		; cmd toneadd
 	add	hl,bc
 	pop	bc		; cmd tone slide add
 	add	hl,bc
 	ld	sp,(_SP_Storage)
 
+
+
+
 	;-----------------
 	; FM Octave wrapper
 	; enable slides over multiple octaves.
-	; [BC] still contains tone slide add.
+	; [DE] still contains tone slide add.
 	;-----------------
-	bit	B_PSGFM,d			;(ix+TRACK_Flags)
+	bit	B_PSGFM,a			;(ix+TRACK_Flags)
 	ret	z				; skip wrapper for PSG
-	
+debug:
 	bit	0,h
 	jp	z,_wrap_lowcheck
 _wrap_highcheck:
@@ -1860,22 +1880,19 @@ _wrap_highcheck:
 	ld	h,0
 	xor	a
 	;--- shuffle regs
-	ld	c,d		; store flags
-	ld	d,b		; load DE with BC
-	ld	e,c
 	ex	de,hl
 	sbc	hl,de				; subtract new wraped base tone - note tone to get delta slide add.
 	ld	(ix+TRACK_cmd_ToneSlideAdd),l
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
 	pop	hl	
 	;-- restore flags
-	ld	d,c
 	ret
 	
 _wrap_lowcheck:
 	ld	a,l
 	cp	$90				; $ad is the strict limit
 	ret	nc				; stop if smaller	
+
 	push	hl
 	;--- Set 12 notes (1 octave) lower
 	ld	a,(ix+TRACK_Note)
@@ -1887,7 +1904,7 @@ _wrap_lowcheck:
 	ld	(ix+TRACK_Note),a
 	;--- Set new ToneSlide Add	
 	ld	h,0
-	add	hl,bc	
+	add	hl,de	
 	
 	ld	(ix+TRACK_cmd_ToneSlideAdd),l
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
@@ -1898,6 +1915,7 @@ _wrap_lowcheck:
 _pcAY_noNoteActive:
 	xor	a
 	ld	(FM_regVOLE),a
+	ld	(ix+TRACK_Flags),d
 	ret	
 
 ;---- This is for debugging only	
@@ -1919,8 +1937,8 @@ _pcAY_cmdlist:
 	dw	_pcAY_cmdXX_note_cut		;14
 	
 	dw	_pcAY_cmd0_arpeggio		;15
-	dw	_pcAY_cmd2_port_down		;16
 	dw	_pcAY_cmd1_port_up		;17
+	dw	_pcAY_cmd2_port_down		;16
 	dw	_pcAY_cmd3_port_tone		;18
 	dw	_pcAY_cmd4_vibrato		;19
 	dw	_pcAY_cmd5_vibrato_port_tone	;1a
@@ -1930,8 +1948,8 @@ _pcAY_cmdlist:
 	dw	0	;env shape
 
 	dw	_pcAY_cmd0_arpeggio		;1e
-	dw	_pcAY_cmd2_port_down		;1f
 	dw	_pcAY_cmd1_port_up		;20
+	dw	_pcAY_cmd2_port_down		;1f
 	dw	_pcAY_cmd3_port_tone		;21
 	dw	_pcAY_cmd4_vibrato
 	dw	_pcAY_cmd5_vibrato_port_tone
@@ -1975,8 +1993,8 @@ _pcAY_cmd0_arpeggio:
 	jp	_pcAY_commandEND
 	
 	
-_pcAY_cmd1_port_up:
-	ld	a,(ix+TRACK_cmd_1)
+_pcAY_cmd2_port_down:	
+	ld	a,(ix+TRACK_cmd_2)
 	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	sub	b
@@ -1985,8 +2003,10 @@ _pcAY_cmd1_port_up:
 	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
 	jp	_pcAY_commandEND
 	
-_pcAY_cmd2_port_down:
-	ld	a,(ix+TRACK_cmd_2)
+	
+_pcAY_cmd1_port_up:
+	ld	a,(ix+TRACK_cmd_1)	
+
 	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	add	b

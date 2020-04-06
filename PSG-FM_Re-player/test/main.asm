@@ -126,27 +126,27 @@ initmain:
 infinite:
 	halt	
 ;	call	register_debug
-	call	debuginfo	
+
 	
 	ld	a,$f8 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
 	out	(0x99),a
 	ld	a,7+128
 	out	(0x99),a	
-	call	replay_play			; calculate next output
+
 
 	
 	ld	a,$f3 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
 	out	(0x99),a
 	ld	a,7+128
 	out	(0x99),a
-	call	replay_route		; first outout data	
+	
 	ld	a,$f0
 	out	(0x99),a
 	ld	a,7+128
 	out	(0x99),a	
 	;--- display debug info
-
-;	call	register_debug
+	call	debuginfo	
+	call	register_debug
 	call	step_debug
 	
 	
@@ -181,7 +181,8 @@ infinite:
 	
 isr:
 	in	a,(0x99)
-
+	call	replay_route		; first outout data	
+	call	replay_play			; calculate next output
 
 ;	call	ttsfx_play
 
