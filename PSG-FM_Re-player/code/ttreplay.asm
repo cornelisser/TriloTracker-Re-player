@@ -236,6 +236,8 @@ replay_loadsong:
 	ld	(TRACK_Chan6+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
+	ld	(FM_softvoice_req),a	
+	ld	(FM_softvoice_set),a
 
 	ld	a,1
 	ld	(TRACK_Chan3+17+TRACK_Voice),a
@@ -578,10 +580,10 @@ replay_decodedata:
 ; 
 ;===========================================================
 replay_decodedata_NO:
-	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a
+;	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+;	out	(0x99),a
+;	ld	a,7+128
+;	out	(0x99),a
 
 ;	ld	a,$fa ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
 ;	out	(0x99),a
@@ -901,27 +903,21 @@ _replay_decode_ins:
 
 	;-- get voice
 	ld	a,(hl)
-	inc	hl
+	ld	(ix+TRACK_Voice),a
 	
-;	ld	e,(hl)
-;	inc	hl
-
-	;---- Store the restart offset
-;	ld	(ix+TRACK_MacroRestart),e
+	inc	hl
 	;--- Store the macro start
 	ld	(ix+TRACK_MacroPointer),l
 	ld	(ix+TRACK_MacroPointer+1),h	
 	;--- Store the macro re-start
 	ld	(ix+TRACK_MacroStart),l
 	ld	(ix+TRACK_MacroStart+1),h		
-	;--- Set the voiceform  (if needed)
-	cp	(ix+TRACK_Voice)
-	jp	z,.skip_ins
-	
-	;--- this is a new waveform
-	ld	(ix+TRACK_Voice),a
-	set	B_TRGVOI,d
-;	set	B_TRGWAV,d
+	;--- Set the software voice (if needed)
+.debug:
+	sub	16
+	jp	m,.skip_ins		; negative =  hardware voice
+	ld 	(FM_softvoice_req),a
+
 	
 .skip_ins:	
 	inc	bc
@@ -1554,14 +1550,28 @@ replay_process_chan_AY:
 	jp	z,_pcAY_noCommand
 	
 	ld	a,$f6 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a	
+;	out	(0x99),a
+;	ld	a,7+128
+;	out	(0x99),a	
 
 	
 	
 	ld	hl,_pcAY_cmdlist-26
 	ld	a,(ix+TRACK_Command)
+;[DEBUG]	
+	cp	15
+	jp	nc,99f
+	di
+1:	halt
+	jp	1b
+99:	
+	cp	27+15
+	jp	c,99f
+	di
+	halt	
+	jp	1b
+99:
+;[/DEBUG]
 	add	a
 	add	a,l
 	ld	l,a
@@ -1580,9 +1590,9 @@ _pcAY_commandEND:
 
 _pcAY_noCommand:
 	ld	a,$fe ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a	
+;	out	(0x99),a
+;	ld	a,7+128
+;	out	(0x99),a	
 	;=====
 	; NOTE
 	;=====
@@ -1857,7 +1867,7 @@ _pcAY_noToneAdd:
 	;-----------------
 	bit	B_PSGFM,a			;(ix+TRACK_Flags)
 	ret	z				; skip wrapper for PSG
-debug:
+
 	bit	0,h
 	jp	z,_wrap_lowcheck
 _wrap_highcheck:
@@ -2052,8 +2062,6 @@ _pcAY_cmd3_stop:
 
 	;-- vibrato	
 _pcAY_cmd4_vibrato:
-	;DEBUG disabled
-	jp	_pcAY_commandEND
 
 	ld	hl,(replay_vib_table)
 	;--- Get next step
@@ -2265,31 +2273,17 @@ _ptAY_noEnv:
 ;---------------
 ; F M
 ;---------------
-	ld 	b,6	; 6 channels
-	ld 	hl,TRACK_Chan3+17+TRACK_Flags
-ptFM_voice_loop:
-	bit 	B_TRGVOI,(hl)
-	jp	z,0f
-	;-- new voice	
-	res 	B_TRGVOI,(hl)
-	dec 	hl
+
+	; Check if we need to load a software voice
+	ld	hl,FM_softvoice_req
 	ld	a,(hl)
-	cp	16
-	jp	c,_ptFM_noSoftware
+	inc	hl
+	cp	(hl)
+	jp	z,_tt_route_fm_novoice
 	
-	;-- Check if same software voice is loaded.
-	ld	c,a
-	ld	a,(FM_SoftVoice)
-	cp	c
-	ld	a,c
-	jp	z,_ptFM_noSoftware
-	
-	;--- Load a softwarevoice	
-	ld	(FM_SoftVoice),a		; Store softvoice#
-	ex 	de,hl
+	ld	(hl),a
+
 	ld	hl,(replay_voicebase)
-	sub	16
-	
 	add	a		; x2
 	add	a		; x4
 	add	a		; x8
@@ -2318,22 +2312,10 @@ _tt_voice_fmloop:
 	dec	c
 	jr.	nz,_tt_voice_fmloop	
 	
-	ex	de,hl
-	xor	a			; Voice 0
-_ptFM_noSoftware:
-	ld	(hl),a		; Store the (HW)voice (0-15)
-	inc	hl
-0:
-	; next channel
-	ld	a,TRACK_REC_SIZE
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-	djnz	ptFM_voice_loop
-	
 
+
+
+_tt_route_fm_novoice:
 	;--- write volume register
 	ld	de,FM_regVOLA
 	ld	hl,TRACK_Chan3+17+TRACK_Voice

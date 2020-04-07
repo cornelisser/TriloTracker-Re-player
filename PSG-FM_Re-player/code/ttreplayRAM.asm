@@ -178,6 +178,10 @@ FM_volreg3			#1	; Cymbal(low) TomTom (High)
 FM_DRUM_LEN			#1	; Length of drum macro
 FM_DRUM_MACRO		#2	; Pointer to drum macro data
 
+FM_softvoice_req		#1	; Software voice requested
+FM_softvoice_set 		#1	; Software voice currently loaded
+
+
 ; DEze lijkt niet meer nodig
 FM_regMIXER 		#1	; x3f	; Mixer control (1 = off, 0 = on)
 
