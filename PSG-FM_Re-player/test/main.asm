@@ -88,6 +88,7 @@ initmain:
 	;--- initialise sfx pointers
 	
 	
+	call	clear_debug
 	
 	ei
 	
@@ -128,22 +129,22 @@ infinite:
 ;	call	register_debug
 
 	
-	ld	a,$f8 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
 	out	(0x99),a
 	ld	a,7+128
 	out	(0x99),a	
 
 
 	
-	ld	a,$f3 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a
+;	ld	a,$f3 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+;	out	(0x99),a
+;	ld	a,7+128
+;	out	(0x99),a
 	
-	ld	a,$f0
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a	
+;	ld	a,$f0
+;	out	(0x99),a
+;	ld	a,7+128
+;	out	(0x99),a	
 	;--- display debug info
 	call	debuginfo	
 	call	register_debug
@@ -181,6 +182,7 @@ infinite:
 	
 isr:
 	in	a,(0x99)
+	call	write_debug
 	call	replay_route		; first outout data	
 	call	replay_play			; calculate next output
 
@@ -190,25 +192,40 @@ isr:
 
 	ret
 	
+write_debug:
+	ld 	hl,_PNT+(80*9)
+	call	set_vdpwrite	
+
+	ld 	hl,debug_pnt
+	ld	a,8
+	ld	c,$98
+_wd_loop:
+	ld	b,80
+	otir
+	
+	dec	a
+	jp	nz,_wd_loop
+
+	ret
+	
+clear_debug:
+	ld	hl,debug_pnt
+	ld	de,debug_pnt+1
+	ld	(hl),32
+	ld	bc,(8*80)-1
+	ldir
+	ret
 
 debuginfo:
-	ld	bc,40
-	call	clear_TEXT
+;	ld	bc,40
+;	call	clear_TEXT
 	
 	ld	b,8
-	ld	hl,TRACK_Chan1+17
-	ld	de,80*8+4
+	ld	ix,TRACK_Chan1+17
+	ld	de,debug_pnt+4
 .loop	
 	push	bc
-	push	hl
 	push	de
-	
-	;--- make the debug string
-	ld	de,TEXT_Chan
-	ld	a,h
-	ld	ixh,a
-	ld	a,l
-	ld	ixl,a
 	
 	ld	a,9
 	sub	b
@@ -234,22 +251,17 @@ debuginfo:
 	ld	b,(ix+TRACK_Flags)
 	call 	debug_flags
 
-	inc 	de	
-	;-- draw the debug string
-	pop	de
-	ld	hl,80
-	add	hl,de
-	push	hl
-	
-	ld	de,TEXT_Chan
-	ld	b,30
-	call	draw_label_fast
-	
-	pop	de
+
+	; next line
 	pop	hl
+	ld	de,80
+	add	hl,de
+	ex	de,hl
 	
+
+	;--- Next track
 	ld	bc,TRACK_REC_SIZE
-	add	hl,bc
+	add	ix,bc
 	
 	pop	bc
 	djnz	.loop
@@ -281,51 +293,52 @@ step_debug:
 	
 
 register_debug:
-	ld	bc,7
-	call	clear_TEXT
+;	ld	bc,7
+;	call	clear_TEXT
 	ld	hl,REG_list
 	
 	;	DRAW PSG Tone vol	
 	ld	iyl,3
-	ld 	bc,80*8+47
-	ld	(debug_pointer1),bc
+	ld 	de,debug_pnt+47
+;	ld	(debug_pointer1),bc
 	call	register_debug_loop
 
 	;	DRAW PSG Noise and mixer	
 	ld	iyl,1
-	ld 	bc,80*8+56
-	ld	(debug_pointer1),bc
+	ld 	de,debug_pnt+56
+;	ld	(debug_pointer1),bc
 	call	register_debug_loop	
 	
 	;	DRAW PSG Envelop + shape
 	ld	iyl,1
-	ld 	bc,80*8+65
-	ld	(debug_pointer1),bc
+	ld 	de,debug_pnt+65
+;	ld	(debug_pointer1),bc
 	call	register_debug_loop		
 
 	;	DRAW FM Tone Vol	
 	ld	iyl,6
-	ld 	bc,80*10+38
-	ld	(debug_pointer1),bc
+	ld 	de,debug_pnt+(80*2)+38
+;	ld	(debug_pointer1),bc
 	call	register_debug_loop
 	
 	
 	;	DRAW FM Drum macro + percusion
 	ld	iyl,1
-	ld 	bc,80*13+56
-	ld	(debug_pointer1),bc
+	ld 	de,debug_pnt+(80*5)+56
+;	ld	(debug_pointer1),bc
 	call	register_debug_loop
 
 	;	DRAW FM Drum tone + vol
 	ld	iyl,3
-	ld 	bc,80*13+65
-	ld	(debug_pointer1),bc
+	ld 	de,debug_pnt+(80*5)+65
+;	ld	(debug_pointer1),bc
 	call	register_debug_loop
 	
 	ret
 
 register_debug_loop:
-	ld	de,TEXT_Chan
+	push 	de
+;	ld	de,TEXT_Chan
 	ld	c,(hl)
 	inc	hl
 	ld	b,(hl)
@@ -348,17 +361,14 @@ register_debug_loop:
 	ld	a,(bc)
 	call	draw_hex2		; vol
 	
-	
-	push	hl
-	ld	hl,(debug_pointer1)
-	ld	bc,80
-	add	hl,bc
-	ld	(debug_pointer1),hl
-	ld	de,TEXT_Chan
-	ld	b,7
-	call	draw_label_fast
-
-	pop	hl
+	;-- next line
+	pop 	de
+	ld	a,80
+	add	a,e
+	ld	e,a
+	jp	nc,99f
+	inc	d
+99:	
 	dec	iyl
 	jp	nz,register_debug_loop
 	ret
@@ -594,7 +604,9 @@ font_data:
 
 debug_pointer1:	#2
 debug_pointer2:	#2	
+debug_pnt:		#8*80
 TEXT_Chan		#40
+
 	
 ;	include	"..\ttsfxplay\ttsfxplay_RAM.asm"
 pattern	#1
