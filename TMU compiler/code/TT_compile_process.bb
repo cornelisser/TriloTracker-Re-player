@@ -607,9 +607,13 @@ Function compile_track(fileout,t)
 							rep = getCmdRepeat(t,l,cmd,par)
 							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(RETRIG_START+CMD_4),2)+", $"+Right(Hex(rep),2)+Chr(9)+Chr(9)+";[CMD vibrato] rep")
 						Else
-							tmp = 8 - (par And $07)
-							tmp = tmp + (par And $F0)
-							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_4),2)+", $"+Right(Hex(tmp),2)+Chr(9)+Chr(9)+";[CMD vibrato]")
+							depth = (par And $07)*32		; depth
+							If (depth > 224) 
+								depth = 0
+							EndIf
+							speed = (par And $F0)+1			; speed
+							tmp = depth + speed
+							WriteLine (fileout, Chr(9)+"db $"+Right(Hex(COMMAND_START+CMD_4),2)+", $"+Right(Hex(tmp),2)+Chr(9)+Chr(9)+";[CMD vibrato] depth:"+(par And $07)+" speed:"+(par And $F0)/16)
 						EndIf						
 					Case 5		; tone slide + vol slide
 						If (par = 0)

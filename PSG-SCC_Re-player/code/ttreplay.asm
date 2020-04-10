@@ -1100,6 +1100,7 @@ _CHIPcmd4_vibrato:
 	ld	e,a
 	and	$07
 
+		
 	ld	(ix+TRACK_cmd_4_depth),a
 	ld	a,e
 	rra

@@ -1182,20 +1182,17 @@ _CHIPcmd4_vibrato:
 	;--------------------------------------------------
 	; Vibrato with speed x and depth y.	This command 
 	; will oscillate the frequency of the current note
-	; with a sine wave. (You can change	the vibrato
-	; waveform to a triangle wave, a square wave, or a
-	; random table by	using	the E4x command).
+	; with a sine wave. 
+	;
+	; high 3 bits is depth (0-7) (direct offset in sinetable)
+	; low 5 bits is the speed. 1-16
 	;--- Init values
 	ld	e,a
-	and	$07
+	and	$e0
 
 	ld	(ix+TRACK_cmd_4_depth),a
 	ld	a,e
-	rra
-	rra
-	rra
-	rra
-	and	$0f
+	and	$1f
 	inc	a
 	ld	(ix+TRACK_cmd_4_step),a
 	neg	
@@ -1343,24 +1340,29 @@ _CHIPcmd15_fine_down:
 	ld	(ix+TRACK_Retrig),1
 	jp	_rdc	
 
-
+	;=============================
+	; Removed as pulse and triangle are used rarely.
+	; Also Vibrato data got larger to speed up calculation.
+	; Removing triangle and pulse data makes up for some
+	; of the extra data
+	;=============================
 _CHIPcmd16_vib_ctrl:
-	ld	hl,TRACK_Vibrato_sine
-	cp	1
-	jp	c,_cmd16_sine
-	jp	z,_cmd16_tri
-_cmd16_pulse:
-	ld	hl,TRACK_Vibrato_pulse
-	ld	(replay_vib_table),hl
-	jp	_rdc
-_cmd16_tri:
-	ld	hl,TRACK_Vibrato_triangle
-	ld	(replay_vib_table),hl
-	jp	_rdc	
-
-_cmd16_sine:
-	ld	hl,TRACK_Vibrato_sine
-	ld	(replay_vib_table),hl
+;	ld	hl,TRACK_Vibrato_sine
+;	cp	1
+;	jp	c,_cmd16_sine
+;	jp	z,_cmd16_tri
+;_cmd16_pulse:
+;	ld	hl,TRACK_Vibrato_pulse
+;	ld	(replay_vib_table),hl
+;	jp	_rdc
+;_cmd16_tri:
+;	ld	hl,TRACK_Vibrato_triangle
+;	ld	(replay_vib_table),hl
+;	jp	_rdc	
+;
+;_cmd16_sine:
+;	ld	hl,TRACK_Vibrato_sine
+;	ld	(replay_vib_table),hl
 	jp	_rdc
 
 
@@ -2064,58 +2066,99 @@ _pcAY_cmd3_stop:
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0	
 	jp	_pcAY_commandEND
 
-
-	;-- vibrato	
+	;=================================
+	;
+	; Vibrato	
+	;
+	;=================================
 _pcAY_cmd4_vibrato:
-
-	ld	hl,(replay_vib_table)
+	ld	hl,TRACK_Vibrato_sine
 	;--- Get next step
 	ld	a,(IX+TRACK_Step)
 	add	(ix+TRACK_cmd_4_step)
-	and	$3F			; max	32
+	and	$3F			; max	64
 	ld	(ix+TRACK_Step),a
 	
 	bit	5,a			; step 32-63 the neg	
-	jp	z,_pcAY_cmd4pos
-
-; neg	
-	and	$1f
+	jp	z,.pos	
+	
+.neg:
+	and	$1f	; make it 32 steps again
+	add	a,(ix+TRACK_cmd_4_depth)
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jp	nc,99f
 	inc	h
-.skip:
+99:
 	ld	a,(hl)
-	;apply depth
-	ld	b,(ix+TRACK_cmd_4_depth)
-.loop:
-	srl	a
-	djnz	.loop
-;	and	$0f
-
 	neg
-	jp	z,_pcAY_cmd4_zero			; $ff00 gives strange result ;)	
+	jp	z,.zero			; $ff00 gives strange result ;)	
 	ld	(ix+TRACK_cmd_ToneAdd),a
 	ld	(ix+TRACK_cmd_ToneAdd+1),0xff
-	jp	_pcAY_commandEND
+	jp	_pcAY_commandEND	
 
-_pcAY_cmd4pos:	
-;	and	$1f
+.pos:
+	add	a,(ix+TRACK_cmd_4_depth)
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jp	nc,99f
 	inc	h
-.skip:
+99:
 	ld	a,(hl)
-	;apply depth
-	ld	b,(ix+TRACK_cmd_4_depth)
-.loop:
-	srl	a
-	djnz	.loop
-_pcAY_cmd4_zero:
+.zero:	
 	ld	(ix+TRACK_cmd_ToneAdd),a
 	ld	(ix+TRACK_cmd_ToneAdd+1),0
-	jp	_pcAY_commandEND
+	jp	_pcAY_commandEND	
+
+
+;	ld	hl,(replay_vib_table)
+;	;--- Get next step
+;	ld	a,(IX+TRACK_Step)
+;	add	(ix+TRACK_cmd_4_step)
+;	and	$3F			; max	64
+;	ld	(ix+TRACK_Step),a
+;	
+;	bit	5,a			; step 32-63 the neg	
+;	jp	z,_pcAY_cmd4pos
+;
+;; neg	
+;	and	$1f
+;	add	a,l
+;	ld	l,a
+;	jp	nc,.skip
+;	inc	h
+;.skip:
+;	ld	a,(hl)
+;	;apply depth
+;	ld	b,(ix+TRACK_cmd_4_depth)
+;.loop:
+;	srl	a
+;	djnz	.loop
+;;	and	$0f
+;
+;	neg
+;	jp	z,_pcAY_cmd4_zero			; $ff00 gives strange result ;)	
+;	ld	(ix+TRACK_cmd_ToneAdd),a
+;	ld	(ix+TRACK_cmd_ToneAdd+1),0xff
+;	jp	_pcAY_commandEND
+;
+;_pcAY_cmd4pos:	
+;;	and	$1f
+;	add	a,l
+;	ld	l,a
+;	jp	nc,.skip
+;	inc	h
+;.skip:
+;	ld	a,(hl)
+;	;apply depth
+;	ld	b,(ix+TRACK_cmd_4_depth)
+;.loop:
+;	srl	a
+;	djnz	.loop
+;_pcAY_cmd4_zero:
+;	ld	(ix+TRACK_cmd_ToneAdd),a
+;	ld	(ix+TRACK_cmd_ToneAdd+1),0
+;	jp	_pcAY_commandEND
 		
 	
 
