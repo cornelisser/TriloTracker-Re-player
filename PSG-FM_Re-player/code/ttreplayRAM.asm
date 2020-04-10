@@ -164,7 +164,6 @@ FM_regVOLD 			#1	; Chan D volume
 FM_regVOLE  		#1	; Chan E volume
 FM_regVOLF  		#1	; Chan F volume
 
-FM_SoftVoice		#1	; current loaded software voice
 
 FM_DRUM			#1	; Percussion bits
 FM_DRUM_Flags		#1	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update

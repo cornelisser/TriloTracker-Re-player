@@ -903,8 +903,7 @@ _replay_decode_ins:
 
 	;-- get voice
 	ld	a,(hl)
-	ld	(ix+TRACK_Voice),a
-	
+
 	inc	hl
 	;--- Store the macro start
 	ld	(ix+TRACK_MacroPointer),l
@@ -913,10 +912,15 @@ _replay_decode_ins:
 	ld	(ix+TRACK_MacroStart),l
 	ld	(ix+TRACK_MacroStart+1),h		
 	;--- Set the software voice (if needed)
-.debug:
+
+	cp	16
+	jp	c,.skip_soft
+	; software voice found
 	sub	16
-	jp	m,.skip_ins		; negative =  hardware voice
 	ld 	(FM_softvoice_req),a
+	xor 	a
+.skip_soft:
+	ld	(ix+TRACK_Voice),a
 
 	
 .skip_ins:	
@@ -1192,6 +1196,7 @@ _CHIPcmd4_vibrato:
 	rra
 	rra
 	and	$0f
+	inc	a
 	ld	(ix+TRACK_cmd_4_step),a
 	neg	
 	ld	(ix+TRACK_Step),a
@@ -2307,6 +2312,8 @@ _tt_voice_fmloop:
 	pop	ix
 	nop
 	nop	
+	
+	
 	inc	hl
 	ex	af,af'		
 	dec	c
@@ -2431,7 +2438,7 @@ _tt_route_fmtone:
 	ex	af,af'		;'
 	sub	$f
 	djnz	_tt_route_fmtone
-
+debug:
 	ret
 
 	
