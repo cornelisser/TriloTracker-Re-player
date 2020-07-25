@@ -5,9 +5,6 @@ from pattern import Pattern
 from track import Track
 import sys
 
-
-
-
 USAGE = f"Usage: {sys.argv[0]} [--options] infile [outfile]"
 
 infile = ''
@@ -57,8 +54,7 @@ def load_tmu(infile,song):
 		index += song.length
 		song.order_list = lst				# order list
 		
-		i = 0
-		while i in range(0,31):				# set 16 instrument names.
+		for i in range(0,31):				# set 16 instrument names.
 			ins = Instrument()
 			str = data[index:index+16]	
 			index += 16	
@@ -69,8 +65,7 @@ def load_tmu(infile,song):
 			i += 1
 			song.ins.append(ins)
 
-		i = 0								# set instrument data 16 times
-		while i in range(0,31):
+		for i in range(0,31):
 			ins = song.ins[i]
 			l = data[index]					# length
 			ins.set_length(l)
@@ -89,7 +84,7 @@ def load_tmu(infile,song):
 			
 			ins_data = data[index:index+(l*4)]
 			r = 0
-			while r in range(0,l):
+			for r in range(0,l):
 				row = ins_data[r*4:(r*4)+4]
 				ins.rows.append(row)
 				r+=1
@@ -97,22 +92,20 @@ def load_tmu(infile,song):
 			i += 1
 		
 		if song.type == "SCC":
-			x=0								# Waveforms
-			while x in range(0,32):
+			for x in range(0,32):
 				wf = data[index:index+32]
 				song.waveforms.append(wf)
 				index +=32
 				x+=1
 		else:
-			x=0								# Custom voices
-			while x in range(0,16):
+			for x in range(0,16):
 				wf = data[index:index+8]
 				song.voices.append(wf)
 				index +=8
 				x+=1
 			
-			d=0								# Drum names
-			while d in range(0,20):
+											# Drum names
+			for d in range(0,20):
 				drum = Drum()
 				str = data[index:index+16]
 				drum.name = str.decode('utf-8')
@@ -120,8 +113,8 @@ def load_tmu(infile,song):
 				index+=16
 				song.drums.append(drum)
 				
-			d=0								#drum macros
-			while d in range(0,20):
+											#drum macros
+			for d in range(0,20):
 				drum = song.drums[d]
 				l = data[index]
 				drum.set_length(l)
@@ -129,7 +122,7 @@ def load_tmu(infile,song):
 				drm_data = data[index:index+(l*7)]
 				index+=l*7
 				r=0
-				while r in range(0,l):
+				for r in range(0,l):
 					row = drm_data[r*7:(r*7)+7]
 					drum.rows.append(row)
 					r+=1

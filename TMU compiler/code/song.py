@@ -62,10 +62,6 @@ class Song:
 			raise SystemExit(f"Error reading order data. Invalid data!")		
 		self.length = length
 
-
-
-
-
 	def debug(self):
 		print(f"Name: {self.name}")
 		print(f"By: {self.by}")
@@ -75,9 +71,19 @@ class Song:
 		print(f"Length: {self.length}")
 		print(f"Restart: {self.restart}")
 		print(f"Order list: {self.order_list}")
-		for ins in Song.ins:
+		for ins in self.ins:
 			if (ins.length != 1):
 				ins.debug()
-		for drum in Song.drums:
+		for drum in self.drums:
 		#	if (drum.length != 1):
 				drum.debug()
+
+
+
+	def remove_unused_patterns():
+		for pat in self.patterns:
+			if pat.number in order_list:
+				pat.used = True
+			
+		
+

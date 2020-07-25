@@ -22,3 +22,5 @@ TMU compiler/boy.out
 TMU compiler/boy.tmu
 
 TMU compiler/boymsx.tmu
+
+*.pyc
