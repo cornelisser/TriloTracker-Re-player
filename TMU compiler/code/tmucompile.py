@@ -164,7 +164,7 @@ def load_tmu(infile,song):
 
 						vol = tmp >> 4
 						cmd = tmp & 0x0f
-						track.rows.append([note,ins,tmp,vol,cmd,par])
+						track.rows.append([note,ins,vol,cmd,par])
 						row += 1
 					chan += 1
 					t += 1
@@ -172,26 +172,62 @@ def load_tmu(infile,song):
 		# DONE!	
 		
 def decompress_pattern(data):
-	pat = ['0']*2048
+	pat = [0]*2048
 	
-	s=0
-	d=0
-	for val in range(0,len(data)):
+	s	= 0
+	d	= 0
+	val = 0
+	
+	while d < 2048:
 		val = data[s]
 		if val == 255:
 			return pat
 		if val != 0:					# write val	
 			pat[d] = val
-			#print (f"Value: {val}")
 			d+=1			
 		else:							# repeat 0
-			r = data[s+1]
-			#print (f"Repeat: {r}")
-			d+= r
+			s+= 1
+			r = data[s]
+			d+= r	
 		s+=1
 
 	return pat
 			
+
+
+#===================================================================
+#
+#	ASM Export
+#	
+#===================================================================
+def export_asm(outfile,song):
+
+	index = 0 
+
+	with open(outfile,"w+") as file:
+		file.write(f"; Song: {song.name}\n")
+		file.write(f"; By:   {song.by}\n\n")		
+	
+		file.write("; [ Song start data ]\n")
+		file.write(f"\tdb {hex(song.speed)}\t\t\t\t; Initial song speed.\n")
+
+#	dw .customvoice_start 		; Start of the custom voices data.
+#	dw .drummacro_start 		; Start of the drum macro data.
+#	dw .instrument_start 		; Start of the instrument data.
+
+	
+		file.close()	
+
+
+
+
+
+
+
+
+
+
+
 
 #===================================================================
 #
@@ -222,7 +258,7 @@ def process_commandline_parameters():
 	if len(file_args) > 1:
 		outfile = file_args[1]
 	else:
-		outfile = file_args[0]+'.asm'
+		outfile = file_args[0].split('.')[0]+'.asm'		#rename to asm ext
 		
 	for option in option_args:
 		process_commandline_parameter_option(option)
@@ -244,7 +280,9 @@ process_commandline_parameters()
 song = Song()
 load_tmu(infile,song)
 
-song.remove_unused_patterns()
+song.cleanup()
+
+export_asm(outfile,song)
 
 # Debug info
 print (f"Input file: {infile}")

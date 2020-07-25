@@ -53,7 +53,7 @@ class Song:
 
 	def set_length(self,length):
 		if (self.restart >= length):
-			raise SystemExit(f"Error reading order data. Invalid data!")		
+			raise SystemExit(f"Error reading order data. Invalid data!")
 		self.length = length
 
 	def debug(self):
@@ -75,15 +75,23 @@ class Song:
 
 	
 	def cleanup(self):
-		'''
-			Detect unused patterns (and tracks) and set them to used = False
-		'''
+	
 		for pat in self.patterns:
-			if pat.number in self.order_list:
-				pat.used = True
-				for t in pat.tracks:
+			if pat.number in self.order_list:			# test if pattern is on order list
+				length = 64;
+				pat.used = True							# Set to true if used.
+				for t in pat.tracks:					# Set tracks related to pattern also to true
+					tmp = self.tracks[t].detect_length()	# Detect Effect D00 in track
+					if tmp < length:						
+						length = tmp				
+									
+				pat.length = length
+				for t in pat.tracks:					# update tracks with length
+					self.tracks[t].length = self.length	
 					self.tracks[t].used = True
-
-		for pat in self.patterns if True:
-			
 		
+			#	;--- remove redundant instruments in patterns
+			#	;--- Check volume setting on first pattern. Add volume F if none is set.
+			#	;--- Check used: Instruments, waveforms, voices, drums
+	
+	
