@@ -5,15 +5,18 @@
 #===================================================================
 class Pattern:
 	
-	number	= 0
-	used = False
-	tracks = [0,0,0,0,0,0,0,0]
+
 
 	def __init__(self,number,track):
+		self.used = False
+		self.tracks = []
 		self.number = number
-		t=0
+
+		tmp = []
 		for t in range(0,8):
-			self.tracks[t] = track
+			tmp.append(track)
 			track +=1
+			self.tracks = tmp
+
 			
 	

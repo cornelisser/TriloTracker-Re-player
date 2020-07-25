@@ -9,28 +9,22 @@ from pattern import Pattern
 #===================================================================
 class Song:
 	
-	version = 0
-	type 	= ''
-	
-	speed 	= 0
-	restart = 0
-	length	= 0
-	order_list = []	
-		
-	name 	= ''
-	by 		= ''
-	
-	ins		= []
-	drums	= []
-	
-	waveforms 	= []
-	voices		= []
-	
-	patterns	= []
-	tracks		= []
 	
 	def __init__(self):
-		pass
+		self.version 	= 0
+		self.type 		= ''
+		self.speed 		= 0
+		self.restart 	= 0
+		self.length		= 0
+		self.order_list = []	
+		self.name 		= ''
+		self.by 		= ''
+		self.ins		= []
+		self.drums		= []
+		self.waveforms 	= []
+		self.voices		= []
+		self.patterns	= []
+		self.tracks		= []
 		
 		
 	def set_version(self,version):
@@ -75,15 +69,21 @@ class Song:
 			if (ins.length != 1):
 				ins.debug()
 		for drum in self.drums:
-		#	if (drum.length != 1):
+			if (drum.length != 1):
 				drum.debug()
 
 
-
-	def remove_unused_patterns():
+	
+	def cleanup(self):
+		'''
+			Detect unused patterns (and tracks) and set them to used = False
+		'''
 		for pat in self.patterns:
-			if pat.number in order_list:
+			if pat.number in self.order_list:
 				pat.used = True
+				for t in pat.tracks:
+					self.tracks[t].used = True
+
+		for pat in self.patterns if True:
 			
 		
-

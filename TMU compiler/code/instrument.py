@@ -5,17 +5,13 @@
 #===================================================================
 class Instrument:
 	
-	length 		= 0
-	restart		= 0
-	waveform	= 0
-	voice		= 0
-	rows 		= []
-	name 		= ''
-	
-	
 	def __init__(self):
-		pass
-
+		self.length 	= 0
+		self.restart	= 0
+		self.waveform	= 0
+		self.voice		= 0
+		self.rows 		= []
+		self.name 		= ''
 
 	def set_length(self,length):
 		if length > 64:

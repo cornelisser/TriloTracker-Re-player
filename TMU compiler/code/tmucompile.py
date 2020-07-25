@@ -149,9 +149,11 @@ def load_tmu(infile,song):
 				# store pattern
 				pattern = Pattern(num,t)
 				song.patterns.append(pattern)
+				#print (pattern.tracks)
 				# store tracks
 				chan = 0 
 				for chan in range(0,8):
+					#print(f"Pat:{num} Track: {t}")
 					track = Track(t)
 					row = 0
 					for row in range(0,64):
@@ -242,6 +244,7 @@ process_commandline_parameters()
 song = Song()
 load_tmu(infile,song)
 
+song.remove_unused_patterns()
 
 # Debug info
 print (f"Input file: {infile}")

@@ -5,13 +5,10 @@
 #===================================================================
 class Drum:
 	
-	length 		= 0
-	rows 		= []
-	name 		= ''
-	
-	
 	def __init__(self):
-		pass
+		self.length 	= 0
+		self.rows 		= []
+		self.name 		= ''
 
 
 	def set_length(self,length):
