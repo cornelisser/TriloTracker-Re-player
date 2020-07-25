@@ -381,11 +381,11 @@
 				;[Skip delay] 1
 	db $AE, $0A		; slide-up rep
 	db $C9		;[Wait] 10
-	db $A7, $51		;[CMD vibrato]
+	db $A7, $31		;[CMD vibrato] depth:7 speed:5
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $91		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:7 speed:9
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -396,7 +396,7 @@
 				;[Skip delay] 1
 	db $AE, $0E		; slide-up rep
 	db $CD		;[Wait] 14
-	db $A7, $91		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:7 speed:9
 	db $C0		;[Wait] 1
 	db $B1, $05		;[CMD vibrato] rep
 	db $C4		;[Wait] 5
@@ -410,11 +410,11 @@
 				;[Skip delay] 1
 	db $AE, $0A		; slide-up rep
 	db $C9		;[Wait] 10
-	db $A7, $51		;[CMD vibrato]
+	db $A7, $31		;[CMD vibrato] depth:7 speed:5
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $91		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:7 speed:9
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -425,7 +425,7 @@
 				;[Skip delay] 1
 	db $AE, $0E		; slide-up rep
 	db $CD		;[Wait] 14
-	db $A7, $91		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:7 speed:9
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -448,15 +448,15 @@
 	db $6F		;[Volume] 15
 	db $73		;[Instrument] 4
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $1F		;[CMD vibrato] rep
 	db $DE		;[Wait] 31
@@ -614,11 +614,11 @@
 	db $34		;[Note] 53
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -629,12 +629,12 @@
 	db $34		;[Note] 53
 	db $6B		;[Volume] 11
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $6A		;[Volume] 10
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $35		;[Note] 54
 	db $6C		;[Volume] 12
@@ -652,14 +652,14 @@
 	db $99		;Note link
 	db $C3		;[Wait] 4
 	db $6C		;[Volume] 12
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $6A		;[Volume] 10
 	db $C3		;[Wait] 4
 	db $6B		;[Volume] 11
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $0B		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -805,21 +805,21 @@
 	db $34		;[Note] 53
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $34		;[Note] 53
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $35		;[Note] 54
 				;[Skip delay] 1
@@ -832,29 +832,29 @@
 	db $34		;[Note] 53
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $BF		;[End-Of-Track]
 .track_15:
 	db $2D		;[Note] 46
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $13		;[CMD vibrato] rep
 	db $D2		;[Wait] 19
@@ -864,11 +864,11 @@
 				;[Skip delay] 2
 	db $2D		;[Note] 46
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1067,7 +1067,7 @@
 	db $47		;[Note] 72
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1081,7 +1081,7 @@
 				;[Skip delay] 4
 	db $40		;[Note] 65
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1168,7 +1168,7 @@
 	db $47		;[Note] 72
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1182,7 +1182,7 @@
 				;[Skip delay] 4
 	db $40		;[Note] 65
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1217,7 +1217,7 @@
 	db $47		;[Note] 72
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1231,7 +1231,7 @@
 				;[Skip delay] 4
 	db $40		;[Note] 65
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1363,7 +1363,7 @@
 				;[Skip delay] 2
 	db $4A		;[Note] 75
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1379,7 +1379,7 @@
 				;[Skip delay] 4
 	db $45		;[Note] 70
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1402,7 +1402,7 @@
 				;[Skip delay] 2
 	db $4A		;[Note] 75
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1418,7 +1418,7 @@
 				;[Skip delay] 4
 	db $45		;[Note] 70
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1442,7 +1442,7 @@
 				;[Skip delay] 2
 	db $4A		;[Note] 75
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1458,7 +1458,7 @@
 				;[Skip delay] 4
 	db $45		;[Note] 70
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1600,7 +1600,7 @@
 	db $53		;[Note] 84
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1614,7 +1614,7 @@
 				;[Skip delay] 4
 	db $4C		;[Note] 77
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1624,11 +1624,11 @@
 .track_31:
 	db $34		;[Note] 53
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 				;[Skip delay] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1648,11 +1648,11 @@
 				;[Skip delay] 4
 	db $34		;[Note] 53
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 				;[Skip delay] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1684,7 +1684,7 @@
 	db $43		;[Note] 68
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1698,7 +1698,7 @@
 				;[Skip delay] 4
 	db $3C		;[Note] 61
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1731,7 +1731,7 @@
 	db $53		;[Note] 84
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -1745,7 +1745,7 @@
 				;[Skip delay] 4
 	db $4C		;[Note] 77
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1974,7 +1974,7 @@
 				;[Skip delay] 2
 	db $58		;[Note] 89
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1988,7 +1988,7 @@
 	db $54		;[Note] 85
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -1996,7 +1996,7 @@
 	db $C3		;[Wait] 4
 	db $51		;[Note] 82
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -2010,11 +2010,11 @@
 .track_39:
 	db $34		;[Note] 53
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 				;[Skip delay] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2022,7 +2022,7 @@
 	db $C3		;[Wait] 4
 	db $39		;[Note] 58
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2038,15 +2038,15 @@
 				;[Skip delay] 4
 	db $39		;[Note] 58
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 				;[Skip delay] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2066,7 +2066,7 @@
 				;[Skip delay] 2
 	db $48		;[Note] 73
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -2080,7 +2080,7 @@
 	db $45		;[Note] 70
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2088,7 +2088,7 @@
 	db $C3		;[Wait] 4
 	db $40		;[Note] 65
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -2115,7 +2115,7 @@
 				;[Skip delay] 2
 	db $58		;[Note] 89
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -2129,7 +2129,7 @@
 	db $54		;[Note] 85
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -2137,7 +2137,7 @@
 	db $C3		;[Wait] 4
 	db $51		;[Note] 82
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -2360,7 +2360,7 @@
 .track_46:
 	db $4C		;[Note] 77
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2370,11 +2370,11 @@
 	db $C3		;[Wait] 4
 	db $4A		;[Note] 75
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 				;[Skip delay] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2384,7 +2384,7 @@
 				;[Skip delay] 2
 	db $48		;[Note] 73
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2412,7 +2412,7 @@
 	db $3C		;[Note] 61
 	db $6E		;[Volume] 14
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2422,11 +2422,11 @@
 	db $C3		;[Wait] 4
 	db $3B		;[Note] 60
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 				;[Skip delay] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2436,7 +2436,7 @@
 				;[Skip delay] 2
 	db $39		;[Note] 58
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2463,7 +2463,7 @@
 .track_48:
 	db $58		;[Note] 89
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2473,11 +2473,11 @@
 	db $C3		;[Wait] 4
 	db $56		;[Note] 87
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 				;[Skip delay] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2487,7 +2487,7 @@
 				;[Skip delay] 2
 	db $54		;[Note] 85
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2523,7 +2523,7 @@
 	db $C3		;[Wait] 4
 	db $4A		;[Note] 75
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -2533,7 +2533,7 @@
 				;[Skip delay] 2
 	db $48		;[Note] 73
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2760,7 +2760,7 @@
 .track_54:
 	db $45		;[Note] 70
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2776,15 +2776,15 @@
 				;[Skip delay] 4
 	db $4C		;[Note] 77
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -2796,7 +2796,7 @@
 .track_55:
 	db $35		;[Note] 54
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2812,17 +2812,17 @@
 				;[Skip delay] 4
 	db $3C		;[Note] 61
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
 	db $37		;[Note] 56
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -2832,7 +2832,7 @@
 .track_56:
 	db $51		;[Note] 82
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2848,15 +2848,15 @@
 				;[Skip delay] 4
 	db $58		;[Note] 89
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -2877,7 +2877,7 @@
 				;[Skip delay] 1
 	db $45		;[Note] 70
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2893,15 +2893,15 @@
 				;[Skip delay] 4
 	db $4C		;[Note] 77
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -2988,7 +2988,7 @@
 .track_60:
 	db $4C		;[Note] 77
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -2998,7 +2998,7 @@
 	db $C3		;[Wait] 4
 	db $4A		;[Note] 75
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3008,7 +3008,7 @@
 				;[Skip delay] 2
 	db $48		;[Note] 73
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3035,7 +3035,7 @@
 .track_61:
 	db $3C		;[Note] 61
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3045,7 +3045,7 @@
 	db $C3		;[Wait] 4
 	db $3B		;[Note] 60
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3055,7 +3055,7 @@
 				;[Skip delay] 2
 	db $39		;[Note] 58
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3082,7 +3082,7 @@
 .track_62:
 	db $58		;[Note] 89
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3092,7 +3092,7 @@
 	db $C3		;[Wait] 4
 	db $56		;[Note] 87
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3102,7 +3102,7 @@
 				;[Skip delay] 2
 	db $54		;[Note] 85
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3132,7 +3132,7 @@
 	db $C1		;[Wait] 2
 	db $4C		;[Note] 77
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3142,7 +3142,7 @@
 	db $C3		;[Wait] 4
 	db $4A		;[Note] 75
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3152,7 +3152,7 @@
 				;[Skip delay] 2
 	db $48		;[Note] 73
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3345,7 +3345,7 @@
 .track_67:
 	db $45		;[Note] 70
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3367,15 +3367,15 @@
 	db $C3		;[Wait] 4
 	db $4C		;[Note] 77
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3383,7 +3383,7 @@
 .track_68:
 	db $35		;[Note] 54
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3426,7 +3426,7 @@
 .track_69:
 	db $51		;[Note] 82
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3448,15 +3448,15 @@
 	db $C3		;[Wait] 4
 	db $58		;[Note] 89
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3473,7 +3473,7 @@
 				;[Skip delay] 1
 	db $45		;[Note] 70
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3495,15 +3495,15 @@
 	db $C3		;[Wait] 4
 	db $4C		;[Note] 77
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $BF		;[End-Of-Track]
 .track_71:
@@ -3662,7 +3662,7 @@
 				;[Skip delay] 2
 	db $47		;[Note] 72
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3676,7 +3676,7 @@
 				;[Skip delay] 4
 	db $40		;[Note] 65
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3703,7 +3703,7 @@
 				;[Skip delay] 1
 	db $47		;[Note] 72
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -3717,7 +3717,7 @@
 				;[Skip delay] 4
 	db $40		;[Note] 65
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3795,7 +3795,7 @@
 				;[Skip delay] 2
 	db $47		;[Note] 72
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -3809,7 +3809,7 @@
 				;[Skip delay] 4
 	db $40		;[Note] 65
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -4044,7 +4044,7 @@
 				;[Skip delay] 2
 	db $4A		;[Note] 75
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -4060,13 +4060,13 @@
 				;[Skip delay] 4
 	db $45		;[Note] 70
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 				;[Skip delay] 1
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 				;[Skip delay] 1
 	db $39		;[Note] 58
 	db $6D		;[Volume] 13
@@ -4088,7 +4088,7 @@
 				;[Skip delay] 2
 	db $4A		;[Note] 75
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -4104,11 +4104,11 @@
 				;[Skip delay] 4
 	db $45		;[Note] 70
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -4179,7 +4179,7 @@
 				;[Skip delay] 2
 	db $4A		;[Note] 75
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -4195,13 +4195,13 @@
 				;[Skip delay] 4
 	db $45		;[Note] 70
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 				;[Skip delay] 1
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 				;[Skip delay] 1
 	db $39		;[Note] 58
 	db $6B		;[Volume] 11
@@ -4451,7 +4451,7 @@
 	db $47		;[Note] 72
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -4461,7 +4461,7 @@
 				;[Skip delay] 2
 	db $45		;[Note] 70
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -4471,7 +4471,7 @@
 	db $C3		;[Wait] 4
 	db $43		;[Note] 68
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -4603,7 +4603,7 @@
 	db $47		;[Note] 72
 	db $99		;Note link
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -4613,7 +4613,7 @@
 				;[Skip delay] 2
 	db $45		;[Note] 70
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -4623,7 +4623,7 @@
 	db $C3		;[Wait] 4
 	db $43		;[Note] 68
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -4850,7 +4850,7 @@
 .track_98:
 	db $41		;[Note] 66
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -4872,15 +4872,15 @@
 				;[Skip delay] 4
 	db $3E		;[Note] 63
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -4987,7 +4987,7 @@
 	db $C1		;[Wait] 2
 	db $41		;[Note] 66
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -5009,15 +5009,15 @@
 				;[Skip delay] 4
 	db $3E		;[Note] 63
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
@@ -5244,7 +5244,7 @@
 .track_106:
 	db $41		;[Note] 66
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -5266,7 +5266,7 @@
 				;[Skip delay] 4
 	db $3E		;[Note] 63
 	db $C3		;[Wait..] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $13		;[CMD vibrato] rep
 	db $D2		;[Wait] 19
@@ -5369,7 +5369,7 @@
 	db $C1		;[Wait] 2
 	db $41		;[Note] 66
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $01		;[CMD vibrato] rep
 				;[Skip delay] 1
@@ -5391,7 +5391,7 @@
 				;[Skip delay] 4
 	db $3E		;[Note] 63
 	db $C3		;[Wait..] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $10		;[CMD vibrato] rep
 	db $CF		;[Wait] 16
@@ -5514,11 +5514,11 @@
 	db $C0		;[Wait] 1
 	db $BF		;[End-Of-Track]
 .track_114:
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $0B		;[CMD vibrato] rep
 	db $CA		;[Wait] 11
-	db $A7, $75		;[CMD vibrato]
+	db $A7, $D1		;[CMD vibrato] depth:3 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -5558,11 +5558,11 @@
 .track_117:
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $0B		;[CMD vibrato] rep
 	db $CA		;[Wait] 11
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -5679,15 +5679,15 @@
 	db $71		;[Instrument] 2
 	db $95, $00		; track detune
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $0B		;[CMD vibrato] rep
 	db $CA		;[Wait] 11
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $0B		;[CMD vibrato] rep
 	db $CA		;[Wait] 11
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -5711,7 +5711,7 @@
 .track_122:
 	db $40		;[Note] 65
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $2B		;[CMD vibrato] rep
 	db $EA		;[Wait] 43
@@ -5719,7 +5719,7 @@
 .track_123:
 	db $30		;[Note] 49
 	db $C3		;[Wait] 4
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $2B		;[CMD vibrato] rep
 	db $EA		;[Wait] 43
@@ -5730,15 +5730,15 @@
 	db $C1		;[Wait] 2
 	db $40		;[Note] 65
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $0B		;[CMD vibrato] rep
 	db $CA		;[Wait] 11
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $0B		;[CMD vibrato] rep
 	db $CA		;[Wait] 11
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $07		;[CMD vibrato] rep
 	db $C6		;[Wait] 7
@@ -5752,15 +5752,15 @@
 	db $6F		;[Volume] 15
 	db $73		;[Instrument] 4
 	db $C3		;[Wait] 4
-	db $A7, $78		;[CMD vibrato]
+	db $A7, $71		;[CMD vibrato] depth:0 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $77		;[CMD vibrato]
+	db $A7, $91		;[CMD vibrato] depth:1 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $03		;[CMD vibrato] rep
 	db $C2		;[Wait] 3
-	db $A7, $76		;[CMD vibrato]
+	db $A7, $B1		;[CMD vibrato] depth:2 speed:7
 	db $C0		;[Wait] 1
 	db $B1, $23		;[CMD vibrato] rep
 	db $E2		;[Wait] 35

@@ -110,6 +110,11 @@ clear_files:
 ; ==========================================================
 draw_label:
 	di
+	ld	a,$f3 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
+
 	
 	ld 	bc,_PNT
 	add	hl,bc
@@ -125,6 +130,10 @@ draw_label_loop:
 	jr.	draw_label_loop
 	
 draw_label_end:
+	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
 	ei
 	ret
 
@@ -138,6 +147,11 @@ draw_label_end:
 ; ==========================================================
 draw_label_fast:
 	di
+	ld	a,$f5 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a		
+	
 	push	bc
 	ld 	bc,_PNT
 	add	hl,bc	
@@ -149,7 +163,13 @@ draw_label_fast:
 	
 	otir
 		
+		
+	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a			
 	ei
+	
 	ret
 
 ; ==========================================================	
