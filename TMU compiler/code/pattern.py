@@ -11,6 +11,7 @@ class Pattern:
 		self.used = False
 		self.tracks = []
 		self.number = number
+		self.export_number = number
 
 		tmp = []
 		for t in range(0,8):

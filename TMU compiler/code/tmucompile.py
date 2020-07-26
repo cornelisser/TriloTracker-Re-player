@@ -3,6 +3,9 @@ from instrument import Instrument
 from drum import Drum
 from pattern import Pattern
 from track import Track
+from voice import Voice
+from waveform import Waveform
+
 import sys
 
 USAGE = f"Usage: {sys.argv[0]} [--options] infile [outfile]"
@@ -10,7 +13,9 @@ USAGE = f"Usage: {sys.argv[0]} [--options] infile [outfile]"
 infile = ''
 outfile = ''
 
-
+_DB = "\tdb"
+_DW = "\tdw"
+_CHILD = "."
 #===================================================================
 #
 #	TMU File Loading 
@@ -55,7 +60,7 @@ def load_tmu(infile,song):
 		song.order_list = lst				# order list
 		
 		for i in range(0,31):				# set 16 instrument names.
-			ins = Instrument()
+			ins = Instrument(i+1)
 			str = data[index:index+16]	
 			index += 16	
 			try:
@@ -91,22 +96,24 @@ def load_tmu(infile,song):
 			index += (l*4)
 			i += 1
 		
-		if song.type == "SCC":
+		if song.type == "SCC":				# Waveform data
 			for x in range(0,32):
-				wf = data[index:index+32]
-				song.waveforms.append(wf)
+				waveform = Waveform(x)
+				waveform.data = data[index:index+32]
+				song.waveforms.append(waveform)
 				index +=32
-				x+=1
+
 		else:
-			for x in range(0,16):
-				wf = data[index:index+8]
-				song.voices.append(wf)
+			for x in range(0,16):			# Custom FM voices 
+				voice = Voice(x+178)
+				voice.data = data[index:index+8]
+				song.voices.append(voice)
 				index +=8
-				x+=1
+
 			
 											# Drum names
 			for d in range(0,20):
-				drum = Drum()
+				drum = Drum(d)
 				str = data[index:index+16]
 				drum.name = str.decode('utf-8')
 				d+=1
@@ -209,19 +216,161 @@ def export_asm(outfile,song):
 		file.write(f"; By:   {song.by}\n\n")		
 	
 		file.write("; [ Song start data ]\n")
-		file.write(f"\tdb {hex(song.speed)}\t\t\t\t; Initial song speed.\n")
+		file.write(f"{_DB} ${song.speed:02x}\t\t\t\t\t; Initial song speed.\n")
+		file.write(f"{_DB} {_CHILD}customvoice_start\t\t\t; Start of the custom voices data.\n")
+		file.write(f"{_DB} {_CHILD}drummacro_start\t\t\t; Start of the drum macro data.\n")		
+		file.write(f"{_DB} {_CHILD}instrument_start\t\t\t; Start of the instrument data.\n")		
 
-#	dw .customvoice_start 		; Start of the custom voices data.
-#	dw .drummacro_start 		; Start of the drum macro data.
-#	dw .instrument_start 		; Start of the instrument data.
+		file.write("\n; [ Song order pointer list ]\n")	
+		step = 0
+		for val in song.order_list:
+			if step == song.restart:								# Check if position is restart position
+				file.write(f"{_CHILD}restart:\n")
+			step+=1
+			pat = song.get_pattern(val)
+			file.write(f"{_DB}")
+			file.write(f" {_CHILD}track_{pat.tracks[0]:03},")
+			file.write(f" {_CHILD}track_{pat.tracks[1]:03},")
+			file.write(f" {_CHILD}track_{pat.tracks[2]:03},")
+			file.write(f" {_CHILD}track_{pat.tracks[3]:03},")			
+			file.write(f" {_CHILD}track_{pat.tracks[4]:03},")
+			file.write(f" {_CHILD}track_{pat.tracks[5]:03},")			
+			file.write(f" {_CHILD}track_{pat.tracks[6]:03},")
+			file.write(f" {_CHILD}track_{pat.tracks[7]:03}\t; Step:{step:03} Pattern:{pat.number:03}\n")		
+		file.write(f"{_DW} 0x0000, {_CHILD}restart\t\t\t; End of sequence delimiter + restart address.\n\n")
+
 
 	
+		file.write("; [ Custom FM voices ]\n")		
+		file.write(f"{_CHILD}customvoice_start:\n")
+#		for voice in song.voices:
+#			file.write(f"{_DB}")
+#			for x in range(0,7):
+#				file.write(f" ${voice.data[x]:02x},")
+#			file.write(f" ${voice.data[7]:02x}\t\t; Custom voice:{voice.number:0}\n")				
+	
+		file.write("\n; [ SCC Waveforms ]\n")		
+		file.write(f"{_CHILD}waveform_start:\n")	
+		for waveform in song.waveforms:
+			if waveform.used == True:
+				file.write(f"{_DB}")
+				for x in range(0,31):
+					file.write(f" ${waveform.data[x]:02x},")
+				file.write(f" ${waveform.data[31]:02x}\t\t; Waveform:{waveform.number:0}\n")		
+			
+		file.write("\n; [ FM Drum macros]\n")		
+		file.write(f"{_CHILD}drummacro_start:\n")		
+		for drum in song.drums:
+			if drum.used == True:
+				file.write(f"{_DW} {_CHILD}drum_{drum.number:02}\n")	
+		
+		for drum in song.drums:
+			if drum.used == True:
+				file.write(f"\n{_CHILD}drum_{drum.number:02}:\n")
+			
+		file.write("\n; [ Instruments]\n")				
+		file.write(f"{_CHILD}instrument_start:\n")
+		for instrument in song.ins:
+			if instrument.used == True:
+				file.write(f"{_DW} {_CHILD}instrument_{instrument.number:02}\n")
+		file.write("\n")	
+
+		for instrument in song.ins:
+			if instrument.used == True:
+				file.write(f"{_CHILD}instrument_{instrument.number:02}:\n")
+				if song.type == "SCC":
+					waveform = song.get_waveform(instrument.waveform)
+					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\; Waveform {waveform.number}\n")
+				elif song.type == "FM" or song.type == "SMS":
+					voice = song.get_voice(instrument.waveform)
+					file.write(f"{_DB} ${voice.export_number:02x}\t\t; FM Voice {voice.number}\n")
+			
+		file.write("\n; [ Song track data ]\n")							
+		for track in song.tracks:
+			if track.used:
+				file.write(f"{_CHILD}track_{track.number:03}:\n")
+				wait = 0
+				for row in track.rows:
+					wait = export_trackrow(file,row,wait)
+				if wait > 0:
+					file.write(f"{_DB} ${191+wait:02x}\t\t\t;Wait {wait}\n")
+				file.write(f"{_DB} $bf\t\t\t;[End-Of-Track]\n")
+		file.write("\n")
+
+		
+			
 		file.close()	
 
 
+def export_trackrow(file,row,wait):
+	n = row[0]		# note
+	i = row[1]		# instrument
+	v = row[2]		# volume
+	c = row[3]		# command
+	p = row[4]		# parameters
+	
+	if n == 0 and i == 0 and v == 0 and c == 0 and p == 0:
+		wait += 1
+		return wait
+	elif wait > 0:
+		file.write(f"{_DB} ${192+wait:02x}\t\t\t;Wait {wait}\n")
 
+	if n != 0:
+		file.write(f"{_DB} ${n:02x}\t\t\t;Note {n}\n")
+	if v != 0:
+		file.write(f"{_DB} ${v:02x}\t\t\t;Volume {v}\n")
+		
+	if i != 0:
+		tmp = song.ins[i].export_number
+		file.write(f"{_DB} ${tmp:02x}\t\t\t;Instrument {i}\n")
+	
+	if c == 0 and p == 0:
+		pass	
+	else:
+		if c == 0:					# arpeggio
+			file.write(f"\t\t\t;CMD Arpeggio\n")	
+		elif c == 1:					# portamento up
+			file.write(f"\t\t\t;CMD Portamento up\n")
+		elif c == 2:					# portamento down
+			file.write(f"\t\t\t;CMD Portamento up\n")
+		elif c == 3:					# portamento tone
+			file.write(f"\t\t\t;CMD Portamento tone\n")		
+		elif c == 4:					# vibrato
+			file.write(f"\t\t\t;CMD Vibrato\n")	
+		elif c == 5:					# portamento tone + volume slide
+			file.write(f"\t\t\t;CMD Portamento tone + Volume slide\n")	
+		elif c == 6:					# vibrato + volume slide
+			file.write(f"\t\t\t;CMD Vibrato + Volume slide\n")	
+		elif c == 7:					# Unused
+			file.write(f"\t\t\t;CMD Unused\n")	
+		elif c == 8:	
+			if song.type == 'SMS': 	# unused
+				file.write(f"\t\t\t;CMD Unused\n")	
+			else:					# envelope multiplier
+				file.write(f"\t\t\t;CMD Envelope multiplier\n")	
+		elif c == 9:					# Unused
+			file.write(f"\t\t\t;CMD Unused up\n")
+		elif c == 0xa:				# volume slide
+			file.write(f"\t\t\t;CMD Volume slide up\n")			
+		elif c == 0xb:				
+			if song.type == "SCC":	# SCC commands
+				file.write(f"\t\t\t;CMD SCC up\n")
+			else:					# Channel setup
+				file.write(f"\t\t\t;CMD Channel setup\n")	
+		elif c == 0xc:		
+			if song.type == "SCC":	# SCC commands
+				file.write(f"\t\t\t;CMD SCC up\n")
+			else:					# Drum
+				file.write(f"\t\t\t;CMD Drum\n")	
+		elif c == 0x0d:				# End of pattern
+			pass						
+		elif c == 0x0e:				# Extended command
+			file.write(f"\t\t\t;CMD Entended\n")
+		elif c == 0x0f:				# Speed
+			file.write(f"\t\t\t;CMD Speed\n")			
 
-
+	
+	return 0
 
 
 
