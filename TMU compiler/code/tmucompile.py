@@ -171,9 +171,11 @@ def load_tmu(infile,song):
 
 						vol = tmp >> 4
 						cmd = tmp & 0x0f
+
+						
 						track.rows.append([note,ins,vol,cmd,par])
-						row += 1
-					chan += 1
+						#row += 1
+					#chan += 1
 					t += 1
 					song.tracks.append(track)
 		# DONE!	
@@ -217,9 +219,9 @@ def export_asm(outfile,song):
 	
 		file.write("; [ Song start data ]\n")
 		file.write(f"{_DB} ${song.speed:02x}\t\t\t\t\t; Initial song speed.\n")
-		file.write(f"{_DB} {_CHILD}customvoice_start\t\t\t; Start of the custom voices data.\n")
-		file.write(f"{_DB} {_CHILD}drummacro_start\t\t\t; Start of the drum macro data.\n")		
-		file.write(f"{_DB} {_CHILD}instrument_start\t\t\t; Start of the instrument data.\n")		
+		file.write(f"{_DW} {_CHILD}customvoice_start\t\t\t; Start of the custom voices data.\n")
+		file.write(f"{_DW} {_CHILD}drummacro_start\t\t\t; Start of the drum macro data.\n")		
+		file.write(f"{_DW} {_CHILD}instrument_start\t\t\t; Start of the instrument data.\n")		
 
 		file.write("\n; [ Song order pointer list ]\n")	
 		step = 0
@@ -228,7 +230,7 @@ def export_asm(outfile,song):
 				file.write(f"{_CHILD}restart:\n")
 			step+=1
 			pat = song.get_pattern(val)
-			file.write(f"{_DB}")
+			file.write(f"{_DW}")
 			file.write(f" {_CHILD}track_{pat.tracks[0]:03},")
 			file.write(f" {_CHILD}track_{pat.tracks[1]:03},")
 			file.write(f" {_CHILD}track_{pat.tracks[2]:03},")
@@ -272,19 +274,28 @@ def export_asm(outfile,song):
 		file.write(f"{_CHILD}instrument_start:\n")
 		for instrument in song.ins:
 			if instrument.used == True:
-				file.write(f"{_DW} {_CHILD}instrument_{instrument.number:02}\n")
+				file.write(f"{_DW} {_CHILD}instrument_{instrument.number:02}\t\t\t\t; {instrument.name}\n")
 		file.write("\n")	
 
 		for instrument in song.ins:
 			if instrument.used == True:
-				file.write(f"{_CHILD}instrument_{instrument.number:02}:\n")
+				file.write(f"{_CHILD}instrument_{instrument.number:02}:\t\t\t\t\t; {instrument.name}\n")
 				if song.type == "SCC":
 					waveform = song.get_waveform(instrument.waveform)
-					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\; Waveform {waveform.number}\n")
+					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\; Waveform {waveform.number}\n")
 				elif song.type == "FM" or song.type == "SMS":
 					voice = song.get_voice(instrument.waveform)
-					file.write(f"{_DB} ${voice.export_number:02x}\t\t; FM Voice {voice.number}\n")
+					file.write(f"{_DB} ${voice.export_number:02x}\t\t\t\t\t; FM Voice {voice.number}\n")
 			
+				#file.write("\t\t;Flg,Vol,Noi,Lnk,Tone\n")
+				for r in range(0,instrument.length):
+					if r == instrument.restart:
+						file.write(f"{_CHILD}rst_i{instrument.export_number:02}:\n")
+						# Compile row
+						#===========================================
+					file.write(export_instrument_row_asm(instrument,r))
+				file.write("\n")		
+		
 		file.write("\n; [ Song track data ]\n")							
 		for track in song.tracks:
 			if track.used:
@@ -295,11 +306,106 @@ def export_asm(outfile,song):
 				if wait > 0:
 					file.write(f"{_DB} ${191+wait:02x}\t\t\t;Wait {wait}\n")
 				file.write(f"{_DB} $bf\t\t\t;[End-Of-Track]\n")
-		file.write("\n")
-
-		
-			
+		file.write("\n")			
 		file.close()	
+
+
+
+def export_instrument_row_asm(ins,r):
+	row = ins.rows[r]
+
+	byte1 = row[0]
+	byte2 = row[1]
+	byte3 = row[2]
+	byte4 = row[3]
+
+	if r == ins.length:			# set the end of instrument bit
+		e = 0x08
+	else:
+		e = 0
+
+	result1 = byte1 & 0x80						# Set the noise active bit
+	result1 = result1 + ((byte2 >>3 ) & 0x10)	# Set the tone active bit
+	result1 = result1 + e						# Set the END macro bit
+
+	result2 = byte2 & 0x0f						# volume value
+	result3 = 0;								#byte1 And $1f			; noise value / voicelink
+
+	result4 = byte3
+	result5 = byte4 & 0x7f						# tone without voicelink bit
+	
+	voicelink = byte4 & 0x80					# voicelink bit
+
+	# Calculate noise
+	if (byte1 & 0x80 > 0):
+		result3 = byte1 & 0x1f					#; noise value
+		if ((byte1 & 0x40) == 0):		
+			# base noise
+			result1 = result1 + 0x20
+		elif (result3 > 0):
+			if ((byte1 & 0x60) == 0x40):
+				# add noise
+				result1 = result1 + 0x60
+			elif ((byte1 & 0x60) == 0x60):
+				# min noise
+				#result1 = result1 + $40		Be aware changed this as only an add is needed as value is negative
+				result1 = result1 + 0x60
+				result3 = (255-result3)+1
+	
+	if (voicelink > 0):
+		result3 = byte1 & 0x0f					#; voice value
+		result1 = result1 + 0x40	
+
+	# calculate volume
+	if ((byte2 & 0x20) == 0x00):
+		#base volume
+		result1 = result1 + 0x01
+	elif (byte2 & 0x30) == 0x20 and (result2 > 0):
+		# add volume
+		result1 = result1 + 0x03
+	elif (result2 > 0):
+		#min volume
+		result1 = result1 + 0x03
+		result2 = (255-result2)+1
+	
+	# calculate tone	
+	if (result4 + result5 > 0):
+		if ((byte2 & 0x40) == 0x40):
+			# min
+			result4 = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
+			result5 = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
+		result1 = result1 + 0x04
+
+	
+	# calculate output
+	out = f"{_DB} ${result1:02x}"
+	if ((result1 & 0x03) > 0):
+		out = out + f",${result2:02x}"
+	else: 
+		out = out + "    "
+
+	if (result3 > 0):
+		if (voicelink > 0):
+			out = out + "    "
+			out = out +f",${result:02x}"
+		else:
+			out = out +f",${result3:02x}"
+			out = out + "    "
+	else:
+		out = out + "        "
+	if ((result1 & 0x04) > 0):
+		out = out + f",${result4:02x}"
+		out = out + f",${result5:02x}"
+	else: 
+		out = out + "        "	
+		
+	out = out + f"\t\t; {result1:08b}\n"
+	return out
+
+
+
+
+
 
 
 def export_trackrow(file,row,wait):
@@ -309,68 +415,142 @@ def export_trackrow(file,row,wait):
 	c = row[3]		# command
 	p = row[4]		# parameters
 	
-	if n == 0 and i == 0 and v == 0 and c == 0 and p == 0:
+	ins_offset = 98	
+	vol_offset = 129
+	cmd_offset = 145
+	wait_offset = 192
+	
+	cmd = {
+			# lasting effects
+			"0":	cmd_offset+0,	#arp
+			"1": 	cmd_offset+1,	#p up
+			"2":	cmd_offset+2,	#p down
+			"3":	cmd_offset+3,	#p tone
+			"4":	cmd_offset+4,	#vib
+			"5":	cmd_offset+5,	#p tone+vib
+			"6":	cmd_offset+6,	#vib + v slide			
+			"A":	cmd_offset+7,	#v slide	
+			"EC":	cmd_offset+8,	#note cut				
+			"ED":	cmd_offset+9,	#note delay				
+			
+			# set only effects
+			"END":	cmd_offset+10,	# end all lasting effects
+			"C":	cmd_offset+11,	#SCC Morph/FM Drum			
+			"E0":	cmd_offset+12,	#arp speed
+			"E1":	cmd_offset+13,	#tone up
+			"E2":	cmd_offset+14,	#tone down
+			"E5":	cmd_offset+15,	#note link
+			"E6":	cmd_offset+16,	#track detune
+			"EF":	cmd_offset+17,	#trigger	
+			"F":	cmd_offset+18,	#speed
+			#SMS
+			"E8":	cmd_offset+19,	#tone panning			
+			"E9":	cmd_offset+20,	#noise panning	
+			"B":	cmd_offset+21,	#FM+SG Chan setup	
+			#FM+SCC
+			"EE":	cmd_offset+19,	#envelope	
+			"8":	cmd_offset+20,	#PSG ENV				
+			# SCC
+			"B0":	cmd_offset+21,	#SCC RESET		
+			"B1":	cmd_offset+22,	#SCC Duty Cycle
+			"B2":	cmd_offset+23,	#SCC Waveform cut
+			"BB":	cmd_offset+24,	#SCC set waveform
+			"BC":	cmd_offset+25,	#SCC set waveform +16		
+					}
+
+	
+	
+	if (n == 0 and i == 0 and v == 0 and c == 0 and p == 0):
 		wait += 1
 		return wait
 	elif wait > 0:
-		file.write(f"{_DB} ${192+wait:02x}\t\t\t;Wait {wait}\n")
+		file.write(f"{_DB} ${wait_offset+wait:02x}\t\t\t;Wait {wait}\n")
 
 	if n != 0:
 		file.write(f"{_DB} ${n:02x}\t\t\t;Note {n}\n")
-	if v != 0:
-		file.write(f"{_DB} ${v:02x}\t\t\t;Volume {v}\n")
-		
 	if i != 0:
 		tmp = song.ins[i].export_number
-		file.write(f"{_DB} ${tmp:02x}\t\t\t;Instrument {i}\n")
+		file.write(f"{_DB} ${ins_offset+tmp:02x}\t\t\t;Instrument {i}\n")
+	if v != 0:
+		file.write(f"{_DB} ${vol_offset+v:02x}\t\t\t;Volume {v}\n")
+
 	
 	if c == 0 and p == 0:
 		pass	
 	else:
-		if c == 0:					# arpeggio
-			file.write(f"\t\t\t;CMD Arpeggio\n")	
+		# Add end command detection here (e.g. 100, 300, 400 etc)
+		if p == 0 and (c <= 6 or c == 0xa):	# command end
+			file.write(f"{_DB} ${cmd['END']:02x}\t\t\t;CMD End \n")	
+		elif c == 0:					# arpeggio
+			file.write(f"{_DB} ${cmd['0']:02x},${p:02x}\t\t\t;CMD Arpeggio\n")	
 		elif c == 1:					# portamento up
-			file.write(f"\t\t\t;CMD Portamento up\n")
+			file.write(f"{_DB} ${cmd['1']:02x},${p:02x}\t\t\t;CMD Portamento up\n")	
 		elif c == 2:					# portamento down
-			file.write(f"\t\t\t;CMD Portamento up\n")
+			file.write(f"{_DB} ${cmd['2']:02x},${p:02x}\t\t\t;CMD Portamento down\n")	
 		elif c == 3:					# portamento tone
-			file.write(f"\t\t\t;CMD Portamento tone\n")		
+			file.write(f"{_DB} ${cmd['3']:02x},${p:02x}\t\t\t;CMD Portamento tone\n")	
 		elif c == 4:					# vibrato
-			file.write(f"\t\t\t;CMD Vibrato\n")	
+			file.write(f"{_DB} ${cmd['4']:02x},${p:02x}\t\t\t;CMD Vibrato\n")			
 		elif c == 5:					# portamento tone + volume slide
-			file.write(f"\t\t\t;CMD Portamento tone + Volume slide\n")	
+			file.write(f"{_DB} ${cmd['5']:02x},${p:02x}\t\t\t;CMD Portamento tone + Volume slide\n")
 		elif c == 6:					# vibrato + volume slide
-			file.write(f"\t\t\t;CMD Vibrato + Volume slide\n")	
+			file.write(f"{_DB} ${cmd['6']:02x},${p:02x}\t\t\t;CMD Vibrato + Volume slide\n")
 		elif c == 7:					# Unused
-			file.write(f"\t\t\t;CMD Unused\n")	
+			file.write(f"\t\t\t;CMD 7 Unused\n")	
 		elif c == 8:	
 			if song.type == 'SMS': 	# unused
-				file.write(f"\t\t\t;CMD Unused\n")	
+				file.write(f"\t\t\t;CMD 8 Unused\n")	
 			else:					# envelope multiplier
-				file.write(f"\t\t\t;CMD Envelope multiplier\n")	
+				file.write(f"{_DB} ${cmd['8']:02x},${p:02x}\t\t\t;CMD Envelope multiplier\n")
 		elif c == 9:					# Unused
-			file.write(f"\t\t\t;CMD Unused up\n")
+			file.write(f"\t\t\t;CMD 9 Unused up\n")
 		elif c == 0xa:				# volume slide
-			file.write(f"\t\t\t;CMD Volume slide up\n")			
+			file.write(f"{_DB} ${cmd['A']:02x},${p:02x}\t\t\t;CMD Volume slide up\n")			
 		elif c == 0xb:				
 			if song.type == "SCC":	# SCC commands
 				file.write(f"\t\t\t;CMD SCC up\n")
 			else:					# Channel setup
-				file.write(f"\t\t\t;CMD Channel setup\n")	
+				file.write(f"{_DB} ${cmd['B']:02x},${p:02x}\t\t\t;CMD Channel setup\n")
 		elif c == 0xc:		
 			if song.type == "SCC":	# SCC commands
 				file.write(f"\t\t\t;CMD SCC up\n")
 			else:					# Drum
-				file.write(f"\t\t\t;CMD Drum\n")	
+				file.write(f"{_DB} ${cmd['C']:02x},${p:02x}\t\t\t;CMD Drum ${p:02x}\n")
 		elif c == 0x0d:				# End of pattern
 			pass						
-		elif c == 0x0e:				# Extended command
-			file.write(f"\t\t\t;CMD Entended\n")
+		elif c == 0x0e:		# Extended command
+			x = p & 0xf0
+			y = p & 0x0f
+			if x == 0:				# Arpegio speed
+				file.write(f"{_DB} ${cmd['E0']:02x},${y:02x}\t\t\t;CMD Arpegio speed\n")
+			elif x == 0x10:			# Portamento fine up
+				file.write(f"{_DB} ${cmd['E1']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
+			elif x == 0x20:			# Portamento fine down
+				file.write(f"{_DB} ${cmd['E2']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
+			elif x == 0x50: 			# note link
+				file.write(f"{_DB} ${cmd['E5']:02x}\t\t\t;CMD Note link\n")
+			elif x == 0x60: 			# track detune
+				file.write(f"{_DB} ${cmd['E6']:02x},${y:02x}\t\t\t;CMD Track detune\n")
+			elif x == 0x80 and song.type == 'SMS':
+				file.write(f"{_DB} ${cmd['E8']:02x},${y:02x}\t\t\t;CMD GG tone panning\n")
+			elif x == 0x90 and song.type == 'SMS':
+				file.write(f"{_DB} ${cmd['E9']:02x},${y:02x}\t\t\t;CMD GG noise panning\n")
+			elif x == 0xc0:	
+				file.write(f"{_DB} ${cmd['EC']:02x},${y:02x}\t\t\t;CMD Note cut delay\n")
+			elif x == 0xd0:				# Note delay	
+				file.write(f"{_DB} ${cmd['ED']:02x},${y:02x}\t\t\t;CMD Note delay\n")
+			elif x == 0xe0 and song.type != 'SMS':
+				file.write(f"{_DB} ${cmd['EE']:02x},${y:02x}\t\t\t;CMD Envelope shape\n")
+			elif x == 0xf0:			# Trigger
+				file.write(f"{_DB} ${cmd['EF']:02x},${y:02x}\t\t\t;CMD Trigger ${y:02x}\n")
+			else:
+				print(f"Unable to parse extended command $E{p:02x}")
 		elif c == 0x0f:				# Speed
-			file.write(f"\t\t\t;CMD Speed\n")			
-
+			file.write(f"{_DB} ${cmd['F']:02x},${p:02x}\t\t\t;CMD Speed\n")
+		else:
+			print(f"Unable to parse command ${c:02x}")		
 	
-	return 0
+	return 1			# Return wait = 1 to trigger on next row
 
 
 
@@ -429,14 +609,17 @@ process_commandline_parameters()
 song = Song()
 load_tmu(infile,song)
 
+print (f"Input file: {infile}")
+print (f"Output file: {outfile}")
+
 song.cleanup()
+# Debug info
+song.debug()
+
 
 export_asm(outfile,song)
 
-# Debug info
-print (f"Input file: {infile}")
-print (f"Output file: {outfile}")
-song.debug()
+
 
 
 

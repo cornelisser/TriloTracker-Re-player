@@ -328,6 +328,15 @@ class Song:
 								row[3] = 0x02
 							elif c == 0x02:
 								row[3] = 0x01
+							if c == 0x0e:
+								x = p & 0xf0
+								y = p & 0x0f
+								if x == 0x10:
+									x = 0x20
+									row[4] = x | y
+								elif x == 0x20:
+									x = 0x10
+									row[4] = x | y
 								
 					
 		for instrument in self.ins:
