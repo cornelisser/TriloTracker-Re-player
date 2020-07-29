@@ -44,7 +44,7 @@ TRACK_cmd_E			equ 31-17
 TRACK_Timer			equ 32-17		; used for timing by all cmd's
 TRACK_Step			equ 33-17		; only for VIBRATO???
 TRACK_Delay			equ 34-17		; rows to wait till next data
-TRACK_Retrig		equ 35-17		; rows to retrigger command
+;TRACK_Retrig		equ 35-17		; rows to retrigger command
 TRACK_prevDelay		equ 36-17
 TRACK_cmd_A_add		equ 37-17		;<< Still in use???
 
@@ -71,9 +71,23 @@ replay_trigger		#1			; trigger byte.
 replay_mainPSGvol		#2			; volume mixer for PSG SCC balance
 replay_mainSCCvol		#2			; volume mixer for PSG SCC balance
 ;replay_songbase:		#2			; pointer to song data
+
+; Do not move these
 replay_voicebase:		#2			; pointer to custom voice data
-replay_drumbase:		#2			; pointer to drummacro data
+replay_drumbase:		#2			; pointer to drum macro data
 replay_insbase:		#2			; pointer to instrument data
+TRACK_pointer1		#2
+TRACK_pointer2		#2
+TRACK_pointer3		#2
+TRACK_pointer4		#2
+TRACK_pointer5		#2
+TRACK_pointer6		#2
+TRACK_pointer7		#2
+TRACK_pointer8		#2
+; / Do not move above
+
+
+
 replay_orderpointer:	#2			; pointer to the order track list pointers
 
 replay_speed 		#1			; speed to replay (get from song)
@@ -110,14 +124,6 @@ TRACK_Chan6			#TRACK_REC_SIZE
 TRACK_Chan7			#TRACK_REC_SIZE
 TRACK_Chan8			#TRACK_REC_SIZE
 
-TRACK_pointer1		#2
-TRACK_pointer2		#2
-TRACK_pointer3		#2
-TRACK_pointer4		#2
-TRACK_pointer5		#2
-TRACK_pointer6		#2
-TRACK_pointer7		#2
-TRACK_pointer8		#2
 
 
 ;--- AY SPECIFIC

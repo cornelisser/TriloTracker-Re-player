@@ -300,12 +300,7 @@ def export_asm(outfile,song):
 		for track in song.tracks:
 			if track.used:
 				file.write(f"{_CHILD}track_{track.number:03}:\n")
-				wait = 0
-				for row in track.rows:
-					wait = export_trackrow(file,row,wait)
-				if wait > 0:
-					file.write(f"{_DB} ${191+wait:02x}\t\t\t;Wait {wait}\n")
-				file.write(f"{_DB} $bf\t\t\t;[End-Of-Track]\n")
+				export_track(file, track)
 		file.write("\n")			
 		file.close()	
 
@@ -408,16 +403,14 @@ def export_instrument_row_asm(ins,r):
 
 
 
-def export_trackrow(file,row,wait):
-	n = row[0]		# note
-	i = row[1]		# instrument
-	v = row[2]		# volume
-	c = row[3]		# command
-	p = row[4]		# parameters
+def export_track(file,track):
+	wait = -1
+	wait_prev = 0
 	
-	ins_offset = 98	
-	vol_offset = 129
-	cmd_offset = 145
+	vol_offset = 98
+	ins_offset = 113	
+	cmd_offset = 144
+	special_offset = 184
 	wait_offset = 192
 	
 	cmd = {
@@ -457,100 +450,120 @@ def export_trackrow(file,row,wait):
 			"BB":	cmd_offset+24,	#SCC set waveform
 			"BC":	cmd_offset+25,	#SCC set waveform +16		
 					}
+					
+	for row in track.rows:
 
-	
-	
-	if (n == 0 and i == 0 and v == 0 and c == 0 and p == 0):
-		wait += 1
-		return wait
-	elif wait > 0:
-		file.write(f"{_DB} ${wait_offset+wait:02x}\t\t\t;Wait {wait}\n")
-
-	if n != 0:
-		file.write(f"{_DB} ${n:02x}\t\t\t;Note {n}\n")
-	if i != 0:
-		tmp = song.ins[i].export_number
-		file.write(f"{_DB} ${ins_offset+tmp:02x}\t\t\t;Instrument {i}\n")
-	if v != 0:
-		file.write(f"{_DB} ${vol_offset+v:02x}\t\t\t;Volume {v}\n")
-
-	
-	if c == 0 and p == 0:
-		pass	
-	else:
-		# Add end command detection here (e.g. 100, 300, 400 etc)
-		if p == 0 and (c <= 6 or c == 0xa):	# command end
-			file.write(f"{_DB} ${cmd['END']:02x}\t\t\t;CMD End \n")	
-		elif c == 0:					# arpeggio
-			file.write(f"{_DB} ${cmd['0']:02x},${p:02x}\t\t\t;CMD Arpeggio\n")	
-		elif c == 1:					# portamento up
-			file.write(f"{_DB} ${cmd['1']:02x},${p:02x}\t\t\t;CMD Portamento up\n")	
-		elif c == 2:					# portamento down
-			file.write(f"{_DB} ${cmd['2']:02x},${p:02x}\t\t\t;CMD Portamento down\n")	
-		elif c == 3:					# portamento tone
-			file.write(f"{_DB} ${cmd['3']:02x},${p:02x}\t\t\t;CMD Portamento tone\n")	
-		elif c == 4:					# vibrato
-			file.write(f"{_DB} ${cmd['4']:02x},${p:02x}\t\t\t;CMD Vibrato\n")			
-		elif c == 5:					# portamento tone + volume slide
-			file.write(f"{_DB} ${cmd['5']:02x},${p:02x}\t\t\t;CMD Portamento tone + Volume slide\n")
-		elif c == 6:					# vibrato + volume slide
-			file.write(f"{_DB} ${cmd['6']:02x},${p:02x}\t\t\t;CMD Vibrato + Volume slide\n")
-		elif c == 7:					# Unused
-			file.write(f"\t\t\t;CMD 7 Unused\n")	
-		elif c == 8:	
-			if song.type == 'SMS': 	# unused
-				file.write(f"\t\t\t;CMD 8 Unused\n")	
-			else:					# envelope multiplier
-				file.write(f"{_DB} ${cmd['8']:02x},${p:02x}\t\t\t;CMD Envelope multiplier\n")
-		elif c == 9:					# Unused
-			file.write(f"\t\t\t;CMD 9 Unused up\n")
-		elif c == 0xa:				# volume slide
-			file.write(f"{_DB} ${cmd['A']:02x},${p:02x}\t\t\t;CMD Volume slide up\n")			
-		elif c == 0xb:				
-			if song.type == "SCC":	# SCC commands
-				file.write(f"\t\t\t;CMD SCC up\n")
-			else:					# Channel setup
-				file.write(f"{_DB} ${cmd['B']:02x},${p:02x}\t\t\t;CMD Channel setup\n")
-		elif c == 0xc:		
-			if song.type == "SCC":	# SCC commands
-				file.write(f"\t\t\t;CMD SCC up\n")
-			else:					# Drum
-				file.write(f"{_DB} ${cmd['C']:02x},${p:02x}\t\t\t;CMD Drum ${p:02x}\n")
-		elif c == 0x0d:				# End of pattern
-			pass						
-		elif c == 0x0e:		# Extended command
-			x = p & 0xf0
-			y = p & 0x0f
-			if x == 0:				# Arpegio speed
-				file.write(f"{_DB} ${cmd['E0']:02x},${y:02x}\t\t\t;CMD Arpegio speed\n")
-			elif x == 0x10:			# Portamento fine up
-				file.write(f"{_DB} ${cmd['E1']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
-			elif x == 0x20:			# Portamento fine down
-				file.write(f"{_DB} ${cmd['E2']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
-			elif x == 0x50: 			# note link
-				file.write(f"{_DB} ${cmd['E5']:02x}\t\t\t;CMD Note link\n")
-			elif x == 0x60: 			# track detune
-				file.write(f"{_DB} ${cmd['E6']:02x},${y:02x}\t\t\t;CMD Track detune\n")
-			elif x == 0x80 and song.type == 'SMS':
-				file.write(f"{_DB} ${cmd['E8']:02x},${y:02x}\t\t\t;CMD GG tone panning\n")
-			elif x == 0x90 and song.type == 'SMS':
-				file.write(f"{_DB} ${cmd['E9']:02x},${y:02x}\t\t\t;CMD GG noise panning\n")
-			elif x == 0xc0:	
-				file.write(f"{_DB} ${cmd['EC']:02x},${y:02x}\t\t\t;CMD Note cut delay\n")
-			elif x == 0xd0:				# Note delay	
-				file.write(f"{_DB} ${cmd['ED']:02x},${y:02x}\t\t\t;CMD Note delay\n")
-			elif x == 0xe0 and song.type != 'SMS':
-				file.write(f"{_DB} ${cmd['EE']:02x},${y:02x}\t\t\t;CMD Envelope shape\n")
-			elif x == 0xf0:			# Trigger
-				file.write(f"{_DB} ${cmd['EF']:02x},${y:02x}\t\t\t;CMD Trigger ${y:02x}\n")
+		n = row[0]		# note
+		i = row[1]		# instrument
+		v = row[2]		# volume
+		c = row[3]		# command
+		p = row[4]		# parameters
+		
+		if (n + i + v + c + p == 0):
+			wait += 1
+		elif wait > 0:
+			if wait == wait_prev:
+				file.write(f"\t\t\t\t\t;Wait Repeat\n")
+				wait = 0
 			else:
-				print(f"Unable to parse extended command $E{p:02x}")
-		elif c == 0x0f:				# Speed
-			file.write(f"{_DB} ${cmd['F']:02x},${p:02x}\t\t\t;CMD Speed\n")
-		else:
-			print(f"Unable to parse command ${c:02x}")		
+				file.write(f"{_DB} ${wait_offset+wait:02x}\t\t\t;Wait {wait+1}\n")
+				wait_prev = wait
+				wait = 0
+		if n != 0:
+			n -= 1			#note 1 -> 0
+			if n == 96:
+				file.write(f"{_DB} ${n:02x}\t\t\t;Release {n}\n")
+			elif n == 97:
+				file.write(f"{_DB} ${n:02x}\t\t\t;Sustain {n}\n")
+			else:
+				file.write(f"{_DB} ${n:02x}\t\t\t;Note {n}\n")
+		if v != 0:
+			file.write(f"{_DB} ${vol_offset+v:02x}\t\t\t;Volume {v}\n")
+		if i != 0:
+			tmp = song.ins[i].export_number
+			file.write(f"{_DB} ${ins_offset+tmp:02x}\t\t\t;Instrument {i}\n")
 	
-	return 1			# Return wait = 1 to trigger on next row
+		if c == 0 and p == 0:
+			pass	
+		else:
+			# Add end command detection here (e.g. 100, 300, 400 etc)
+			if p == 0 and (c <= 6 or c == 0xa):	# command end
+				file.write(f"{_DB} ${cmd['END']:02x}\t\t\t;CMD End \n")	
+			elif c == 0:					# arpeggio
+				file.write(f"{_DB} ${cmd['0']:02x},${p:02x}\t\t\t;CMD Arpeggio\n")	
+			elif c == 1:					# portamento up
+				file.write(f"{_DB} ${cmd['1']:02x},${p:02x}\t\t\t;CMD Portamento up\n")	
+			elif c == 2:					# portamento down
+				file.write(f"{_DB} ${cmd['2']:02x},${p:02x}\t\t\t;CMD Portamento down\n")	
+			elif c == 3:					# portamento tone
+				file.write(f"{_DB} ${cmd['3']:02x},${p:02x}\t\t\t;CMD Portamento tone\n")	
+			elif c == 4:					# vibrato
+				file.write(f"{_DB} ${cmd['4']:02x},${p:02x}\t\t\t;CMD Vibrato\n")			
+			elif c == 5:					# portamento tone + volume slide
+				file.write(f"{_DB} ${cmd['5']:02x},${p:02x}\t\t\t;CMD Portamento tone + Volume slide\n")
+			elif c == 6:					# vibrato + volume slide
+				file.write(f"{_DB} ${cmd['6']:02x},${p:02x}\t\t\t;CMD Vibrato + Volume slide\n")
+			elif c == 7:					# Unused
+				file.write(f"\t\t\t;CMD 7 Unused\n")	
+			elif c == 8:	
+				if song.type == 'SMS': 	# unused
+					file.write(f"\t\t\t;CMD 8 Unused\n")	
+				else:					# envelope multiplier
+					file.write(f"{_DB} ${cmd['8']:02x},${p:02x}\t\t\t;CMD Envelope multiplier\n")
+			elif c == 9:					# Unused
+				file.write(f"\t\t\t;CMD 9 Unused up\n")
+			elif c == 0xa:				# volume slide
+				file.write(f"{_DB} ${cmd['A']:02x},${p:02x}\t\t\t;CMD Volume slide up\n")			
+			elif c == 0xb:				
+				if song.type == "SCC":	# SCC commands
+					file.write(f"\t\t\t;CMD SCC up\n")
+				else:					# Channel setup
+					file.write(f"{_DB} ${cmd['B']:02x},${p:02x}\t\t\t;CMD Channel setup\n")
+			elif c == 0xc:		
+				if song.type == "SCC":	# SCC commands
+					file.write(f"\t\t\t;CMD SCC up\n")
+				else:					# Drum
+					file.write(f"{_DB} ${cmd['C']:02x},${p:02x}\t\t\t;CMD Drum ${p:02x}\n")
+			elif c == 0x0d:				# End of pattern
+				pass						
+			elif c == 0x0e:		# Extended command
+				x = p & 0xf0
+				y = p & 0x0f
+				if x == 0:				# Arpegio speed
+					file.write(f"{_DB} ${cmd['E0']:02x},${y:02x}\t\t\t;CMD Arpegio speed\n")
+				elif x == 0x10:			# Portamento fine up
+					file.write(f"{_DB} ${cmd['E1']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
+				elif x == 0x20:			# Portamento fine down
+					file.write(f"{_DB} ${cmd['E2']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
+				elif x == 0x50: 			# note link
+					file.write(f"{_DB} ${cmd['E5']:02x}\t\t\t;CMD Note link\n")
+				elif x == 0x60: 			# track detune
+					file.write(f"{_DB} ${cmd['E6']:02x},${y:02x}\t\t\t;CMD Track detune\n")
+				elif x == 0x80 and song.type == 'SMS':
+					file.write(f"{_DB} ${cmd['E8']:02x},${y:02x}\t\t\t;CMD GG tone panning\n")
+				elif x == 0x90 and song.type == 'SMS':
+					file.write(f"{_DB} ${cmd['E9']:02x},${y:02x}\t\t\t;CMD GG noise panning\n")
+				elif x == 0xc0:	
+					file.write(f"{_DB} ${cmd['EC']:02x},${y:02x}\t\t\t;CMD Note cut delay\n")
+				elif x == 0xd0:				# Note delay	
+					file.write(f"{_DB} ${cmd['ED']:02x},${y:02x}\t\t\t;CMD Note delay\n")
+				elif x == 0xe0 and song.type != 'SMS':
+					file.write(f"{_DB} ${cmd['EE']:02x},${y:02x}\t\t\t;CMD Envelope shape\n")
+				elif x == 0xf0:			# Trigger
+					file.write(f"{_DB} ${cmd['EF']:02x},${y:02x}\t\t\t;CMD Trigger ${y:02x}\n")
+				else:
+					print(f"Unable to parse extended command $E{p:02x}")
+			elif c == 0x0f:				# Speed
+				file.write(f"{_DB} ${cmd['F']:02x},${p:02x}\t\t\t;CMD Speed\n")
+			else:
+				print(f"Unable to parse command ${c:02x}")		
+
+	if wait > 0:
+		if wait == wait_prev:
+			file.write(f"\t\t\t\t\t;Wait Repeat\n")
+		else:
+			file.write(f"{_DB} ${wait_offset+wait:02x}\t\t\t;Wait {wait+1}\n")
+	file.write(f"{_DB} ${191:02x}\t\t\t;[End-Of-Track]\n")
 
 
 

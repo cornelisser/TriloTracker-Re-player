@@ -1,27 +1,34 @@
 ;=================================
-; TriloTracker FM-Play v0.3.1
-;
+; TriloTracker Re-player SMS
 ; 
-; 
+; Functions:
+; 	replay_init
+;	replay_pause
+;	replay_fade_out
 ;================================
 FM_WRITE:	equ	0x7c	; port to set fm reg nr.
 FM_DATA:	equ	0x7d	; port to set fm data for reg	
 ;===============================
-; todo:
-; - FM find + enable
-	
+_REL:		equ	96	; = release
+_SUS:		equ	97	; = sustain
+_VOL:		equ	98	; = volume 1
+_INS:		equ	113	; = instrument 1
+_CMD:		equ	114	; = effect 0
+_SPC:		equ	184	; = special commands
+_EOT:		equ 	191	; = end of track
+_WAIT:	equ	192	; = wait 1
+
 	
 ;===========================================================
 ; ---	replay_init
-; Initialize replayer data
+; Initialize re-player data
 ; Only call this on start-up
 ; Input: none
 ;===========================================================
 replay_init:
-	ld	a,8
-	call	replay_set_SCC_balance
-	ld	a,8
-	call	replay_set_PSG_balance
+;	ld	a,8
+;	call	replay_set_FM
+;	call	replay_set_SN7_balance
 
 	xor	a
 	ld	(replay_mode),a	
@@ -41,23 +48,35 @@ replay_init:
 replay_pause:
 	ld	a,(replay_mode)
 	and	a
-	jp	z,_replay_pause_r
-	;-- stop decding and processing music data
-	xor	a
-	ld	(replay_mode),a
-	;-- set mixers to silence.
-	ld 	a,0x3F
-	ld	(AY_regMIXER),a 
-	xor	a
-	ld	(FM_regMIXER),a
-	ret
-_replay_pause_r:	
-	;-- enable music decoding and processing
+	jp	z,_r_pause_disable
+_r_pause_enable:
+	;-- re-enable music decoding and processing
 	ld	a,1
 	ld	(replay_mode),a
 	ret
-
 	
+r_pause_disable:
+	;-- stop decoding and processing music data
+	xor	a
+	ld	(replay_mode),a	
+	ld	(FM_DRUM),a
+	;--- Silence the SN7 PSG
+	ld	(AY_regVOLA),a
+	ld	(AY_regVOLB),a
+	ld	(AY_regVOLC),a
+	ld	(SN_regVOLN),a
+	; release key on all FM channels
+	ld	b,9
+	ld	hl,FM_Registers+1
+	ld	de,6
+	xor	a
+_r_pause_loop:
+	ld	(hl),a
+	add	hl,de
+	djnz	_r_pause_loop
+	ret	
+	
+
 ;===========================================================
 ; ---	replay_fade_out
 ; Fade out the music. 
@@ -73,37 +92,19 @@ replay_fade_out:
 	ret
 
 
-;===========================================================
-; ---	replay_transpose
-; Transposes the whole song. 
-; TT effect command 'E8y - Global transpose' will undo 
-; this effect.
-;
-; in: [DE] number of halve tones (pos or neg) to transpose. 
-;===========================================================
-replay_transpose:
-	ld	hl,TRACK_ToneTable_PSG
-	add	hl,de	
-	add	hl,de
-	ld	(replay_tonetable_PSG),hl
-	ld	hl,TRACK_ToneTable_FM
-	add	hl,de	
-	add	hl,de
-	ld	(replay_tonetable_FM),hl	
-	ret
 	
 ;===========================================================
-; ---	replay_set_SCC_balance
+; ---	replay_set_FM_balance
 ; Set the main volume for the SCC chip. This enables for
 ; setting the balance between SCC en PSG as some MSX models 
 ; default balance differs. 
 ;
 ; in: [A] master volume (0-7) 0=halve volume, 7=full volume. 
 ;===========================================================	
-replay_set_SCC_balance:
-	call	_getnewbalancebase
-	ld	(replay_mainSCCvol),hl	
-	ret
+;replay_set_balance:
+;	call	_getnewbalancebase
+;	ld	(replay_mainSCCvol),hl	
+;	ret
 	
 ;===========================================================
 ; ---	replay_set_PSG_balance
@@ -113,26 +114,23 @@ replay_set_SCC_balance:
 ;
 ; in: [A] master volume (0-7) 0=halve volume, 7=full volume. 
 ;===========================================================	
-replay_set_PSG_balance:
-	call	_getnewbalancebase
-	ld	(replay_mainPSGvol),hl	
-	ret
-	
-_getnewbalancebase:
-	rlca
-	rlca
-	rlca
-	rlca
-	ld	hl,_VOLUME_TABLE-128
-	and	$f0
-	add	a,l
-	ld	l,a
-	ret 	nc
-	inc	h
-	ret
-	
-	
-	
+;replay_set_PSG_balance:
+;	call	_getnewbalancebase
+;	ld	(replay_mainPSGvol),hl	
+;	ret
+;	
+;_getnewbalancebase:
+;	rlca
+;	rlca
+;	rlca
+;	rlca
+;	ld	hl,_VOLUME_TABLE-128
+;	and	$f0
+;	add	a,l
+;	ld	l,a
+;	ret 	nc
+;	inc	h
+;	ret
 	
 	
 	
@@ -148,35 +146,13 @@ replay_loadsong:
 	inc	hl
 	ld	(replay_speed),a
 
-	;--- Set custom voice start
-	ld	e,(hl)
-	inc	hl
-	ld 	d,(hl)
-	inc	hl
-	ld	(replay_voicebase),de
-
-	;--- Set drum macro start
-	ld	e,(hl)
-	inc	hl
-	ld 	d,(hl)
-	inc	hl
-	ld	(replay_drumbase),de	
-
-	;--- Set the instrument start
-	ld	e,(hl)
-	inc	hl
-	ld 	d,(hl)
-	inc	hl
-	ld	(replay_insbase),de
-	
-
-	;--- Set track pointers to start
-	ld	de,TRACK_pointer1
-	ld	bc,16
+	;--- Set voice base, drum base, instrument base and track pointers
+	ld 	de,replay_voicebase
+	ld	bc,22
 	ldir
 	ld	(replay_orderpointer),hl		; store pointer for next set
 								; of track pointers
-	;--- Initialize replayer variables.
+	;--- Initialize re-player variables.
 	xor	a
 	ld	(replay_speed_subtimer),a
 	
@@ -187,29 +163,15 @@ replay_loadsong:
 	ld	(hl),a
 	ldir
 	
-	;--- Silence the chips
-	ld	(FM_regVOLA),a
-	ld	(FM_regVOLB),a
-	ld	(FM_regVOLC),a
-	ld	(FM_regVOLD),a
-	ld	(FM_regVOLE),a
-	ld	(FM_regVOLF),a
-	
+	ld	(replay_arp_speed),a
 	ld	(FM_DRUM_LEN),a
 	ld	(FM_DRUM),a	
-		
-;	ld	(FM_regMIXER),a
+	
 	ld	(AY_regVOLA),a
 	ld	(AY_regVOLB),a	
 	ld	(AY_regVOLC),a
 	ld	(AY_regNOISE),a
-	ld	a,0x3f
-	ld	(AY_regMIXER),a
-	
-	;--- Set vibrato table
-	ld	hl,TRACK_Vibrato_sine
-	ld	(replay_vib_table),hl
-	
+
 	;--- Set the tone table base
 	ld	hl,TRACK_ToneTable_PSG
 	ld	(replay_tonetable_PSG),hl
@@ -239,7 +201,7 @@ replay_loadsong:
 	ld	(FM_softvoice_req),a	
 	ld	(FM_softvoice_set),a
 
-	ld	a,1
+	ld	a,16
 	ld	(TRACK_Chan3+17+TRACK_Voice),a
 	ld	(TRACK_Chan4+17+TRACK_Voice),a
 	ld	(TRACK_Chan5+17+TRACK_Voice),a
@@ -255,59 +217,19 @@ replay_loadsong:
 	ld	(TRACK_Chan8+17+TRACK_Flags),a	
 	
 	;--- Check if there are 3 psg chans.
-;	ld	a,(replay_chan_setup)
-;	and	a
-;	jp	nz,99f
-;	xor 	a
-;	ld	(TRACK_Chan3+17+TRACK_Flags),a	
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	nz,99f
+	xor 	a
+	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 99:	
-	
-;	call FM_reg_update
+
 	call	replay_route
 	
 	; end	is here
 	ld	a,1
 	ld	(replay_mode),a	
 	ret
-
-
-
-_replay_check_patternend:
-	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
-	dec	a
-	jp	nz,replay_decodedata_NO
-	
-	ld	hl,(TRACK_pointer1)
-	ld	a,(hl)
-	
-	;--- check for end of pattern
-	cp	191	
-	jp	nz,replay_decodedata_NO
-
-	;--- Set track pointers to start
-	ld	hl,(replay_orderpointer)
-	xor	a
-	cp	(hl)
-	jp	nz,.no_restart
-	inc	hl
-	cp	(hl)
-	dec	hl
-	jp	nz,.no_restart
-	;--- next is restart order
-	inc	hl
-	inc	hl
-	ld	a,(hl)
-	inc	hl
-	ld	h,(hl)
-	ld	l,a
-.no_restart:	
-	ld	de,TRACK_pointer1
-	ld	bc,16
-	ldir
-	ld	(replay_orderpointer),hl		; store pointer for next set
-								; of strack pointers
-	jp	replay_decodedata_NO
-
 
 ;===========================================================
 ; ---	replay_play
@@ -326,12 +248,12 @@ replay_play:
 	;---- SPEED EQUALIZATION 
 	ld	a,(equalization_freq)		; 0 = 50Hz, otherwise 60Hz
 	and	a
-    jr.	z,PAL               		; if PAL process at any interrupt;
+	jr.	z,.PAL               		; if PAL process at any interrupt;
 
-NTSC:
-    ld	hl,equalization_cnt  		; if NTSC call 5 times out of 6
-    dec	(hl)
-    jr.	nz,PAL               		; skip music data processing one tic out of 6
+.NTSC:
+	ld	hl,equalization_cnt  		; if NTSC call 5 times out of 6
+	dec	(hl)
+	jr.	nz,.PAL               		; skip music data processing one tic out of 6
 
 	;--- Reset timer and raise equalization flag
 	ld	a,6
@@ -342,7 +264,7 @@ NTSC:
 	xor	a
 	ld	(equalization_flag),a
 	ret
-PAL:                             ; execute the PSG and ayFX core	
+.PAL:                             
 	;---- END SPEED EQUALIZATION	
 
 		
@@ -352,11 +274,10 @@ PAL:                             ; execute the PSG and ayFX core
 
 	jp	nz,_replay_check_patternend	
 		
-	
 	;--- Re-init Timer == 0
 	xor	a
-	ld	bc,(replay_speed)		; [b]	subtimer [c] speed
-	srl	c				; bit	0 is halve speedstep
+	ld	bc,(replay_speed)		; [b]	sub-timer [c] speed
+	srl	c				; bit	0 is halve speed step
 	adc	a,a
 	xor	b				; alternate	speed	to have halve speed.
 	ld	(replay_speed_subtimer),a
@@ -365,25 +286,20 @@ PAL:                             ; execute the PSG and ayFX core
 		
 ;===========================================================
 ; ---	replay_decodedata
-; Process the patterndata 
+; Process the pattern data 
 ;===========================================================
 replay_decodedata:
 	;--- process the channels (tracks)
-	ld 	hl,TRACK_Chan1+17+TRACK_Retrig
-	dec	(hl)				;Check if retrig has ended
-	jp	nz,.retrig_skip1
-	ld	a,(TRACK_Chan1+17+TRACK_Flags)
-	res	B_TRGCMD,a
-	ld	(TRACK_Chan1+17+TRACK_Flags),a
 	
-.retrig_skip1:	
-	dec	hl
-;	ld 	hl,TRACK_Chan1+17+TRACK_Delay
+	ld	hl,CHIP_ToneTable				; Set the PSG note table
+	ld	(replay_Tonetable),hl	
+	
+.decode1:	
+	ld 	hl,TRACK_Chan1+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode2
 
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
-	and	11111011b		; reset B_TRGENV
 	ld	d,a
 	ld	a,(TRACK_Chan1+17+TRACK_Note)	
 	ld	ix,TRACK_Chan1+17
@@ -394,21 +310,11 @@ replay_decodedata:
 	ld	(TRACK_Chan1+17+TRACK_Flags),a	
 
 .decode2:	
-	ld 	hl,TRACK_Chan2+17+TRACK_Retrig
-	dec	(hl)				;Check if retrig has ended
-	jp	nz,.retrig_skip2
-	ld	a,(TRACK_Chan2+17+TRACK_Flags)
-	res	B_TRGCMD,a
-	ld	(TRACK_Chan2+17+TRACK_Flags),a
-	
-.retrig_skip2:	
-	dec	hl
-;	ld 	hl,TRACK_Chan2+17+TRACK_Delay
+	ld 	hl,TRACK_Chan2+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode3
 
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
-	and	11111011b		; reset B_TRGENV
 	ld	d,a
 	ld	a,(TRACK_Chan2+17+TRACK_Note)	
 	ld	ix,TRACK_Chan2+17
@@ -418,22 +324,17 @@ replay_decodedata:
 	ld	a,d				;'
 	ld	(TRACK_Chan2+17+TRACK_Flags),a	
 
+	;--- Set FM Tone table
+	ld	hl,CHIP_FM_ToneTable
+	ld	(replay_Tonetable),hl
+
+
 .decode3:
-	ld 	hl,TRACK_Chan3+17+TRACK_Retrig
-	dec	(hl)				;Check if retrig has ended
-	jp	nz,.retrig_skip3
-	ld	a,(TRACK_Chan3+17+TRACK_Flags)
-	res	B_TRGCMD,a
-	ld	(TRACK_Chan3+17+TRACK_Flags),a
-	
-.retrig_skip3:	
-	dec	hl
-;	ld 	hl,TRACK_Chan3+17+TRACK_Delay
+	ld 	hl,TRACK_Chan3+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode4
 
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
-;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan3+17+TRACK_Note)	
 	ld	ix,TRACK_Chan3+17
@@ -444,21 +345,11 @@ replay_decodedata:
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 
 .decode4:
-	ld 	hl,TRACK_Chan4+17+TRACK_Retrig
-	dec	(hl)				;Check if retrig has ended
-	jp	nz,.retrig_skip4
-	ld	a,(TRACK_Chan4+17+TRACK_Flags)
-	res	B_TRGCMD,a
-	ld	(TRACK_Chan4+17+TRACK_Flags),a
-	
-.retrig_skip4:	
-	dec	hl
-;	ld 	hl,TRACK_Chan4+17+TRACK_Delay
+	ld 	hl,TRACK_Chan4+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode5
 
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
-;	and	11111011b		; reset B_TRGENV
 	ld 	d,a		;'
 	ld	a,(TRACK_Chan4+17+TRACK_Note)	
 	ld	ix,TRACK_Chan4+17
@@ -468,23 +359,12 @@ replay_decodedata:
 	ld	a,d			;'
 	ld	(TRACK_Chan4+17+TRACK_Flags),a	
 
-
 .decode5:
-	ld 	hl,TRACK_Chan5+17+TRACK_Retrig
-	dec	(hl)				;Check if retrig has ended
-	jp	nz,.retrig_skip5
-	ld	a,(TRACK_Chan5+17+TRACK_Flags)
-	res	B_TRGCMD,a
-	ld	(TRACK_Chan5+17+TRACK_Flags),a
-	
-.retrig_skip5:	
-	dec	hl
-;	ld 	hl,TRACK_Chan5+17+TRACK_Delay
+	ld 	hl,TRACK_Chan5+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode6
 
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
-;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan5+17+TRACK_Note)	
 	ld	ix,TRACK_Chan5+17
@@ -494,22 +374,12 @@ replay_decodedata:
 	ld	a,d			;'
 	ld	(TRACK_Chan5+17+TRACK_Flags),a	
 
-
 .decode6:
-	ld 	hl,TRACK_Chan6+17+TRACK_Retrig
-	dec	(hl)				;Check if retrig has ended
-	jp	nz,.retrig_skip6
-	ld	a,(TRACK_Chan6+17+TRACK_Flags)
-	res	B_TRGCMD,a
-	ld	(TRACK_Chan6+17+TRACK_Flags),a	
-.retrig_skip6:	
-	dec	hl
-;	ld 	hl,TRACK_Chan6+17+TRACK_Delay
+	ld 	hl,TRACK_Chan6+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode7
 
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
-;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan6+17+TRACK_Note)	
 	ld	ix,TRACK_Chan6+17
@@ -519,23 +389,12 @@ replay_decodedata:
 	ld	a,d				;'
 	ld	(TRACK_Chan6+17+TRACK_Flags),a	
 
-
 .decode7:
-	ld 	hl,TRACK_Chan7+17+TRACK_Retrig
-	dec	(hl)				;Check if retrig has ended
-	jp	nz,.retrig_skip7
-	ld	a,(TRACK_Chan7+17+TRACK_Flags)
-	res	B_TRGCMD,a
-	ld	(TRACK_Chan7+17+TRACK_Flags),a
-	
-.retrig_skip7:	
-	dec	hl
-;	ld 	hl,TRACK_Chan7+17+TRACK_Delay
+	ld 	hl,TRACK_Chan7+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode8
 
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
-;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan7+17+TRACK_Note)	
 	ld	ix,TRACK_Chan7+17
@@ -545,23 +404,12 @@ replay_decodedata:
 	ld	a,d				;'
 	ld	(TRACK_Chan7+17+TRACK_Flags),a	
 
-
 .decode8:
-	ld 	hl,TRACK_Chan8+17+TRACK_Retrig
-	dec	(hl)				;Check if retrig has ended
-	jp	nz,.retrig_skip8
-	ld	a,(TRACK_Chan8+17+TRACK_Flags)
-	res	B_TRGCMD,a
-	ld	(TRACK_Chan8+17+TRACK_Flags),a
-	
-.retrig_skip8:	
-	dec	hl
-;	ld 	hl,TRACK_Chan8+17+TRACK_Delay
+	ld 	hl,TRACK_Chan8+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode_end
 
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
-;	and	11111011b		; reset B_TRGENV
 	ld	d,a		;'
 	ld	a,(TRACK_Chan8+17+TRACK_Note)	
 	ld	ix,TRACK_Chan8+17
@@ -580,16 +428,6 @@ replay_decodedata:
 ; 
 ;===========================================================
 replay_decodedata_NO:
-;	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-;	out	(0x99),a
-;	ld	a,7+128
-;	out	(0x99),a
-
-;	ld	a,$fa ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-;	out	(0x99),a
-;	ld	a,7+128
-;	out	(0x99),a
-
 	; Set tone table
 	ld	hl,(replay_tonetable_PSG)
 	ld	(replay_tonetable),hl
@@ -597,7 +435,11 @@ replay_decodedata_NO:
 	;--- Initialize PSG Mixer and volume
 	xor	a
 	ld	(FM_regMIXER),a
-
+	ld	(SN_regVOLN),a
+	ld	(AY_regVOLA),a
+	ld	(AY_regVOLB),a
+	ld	(AY_regVOLC),a
+	
 	;--- PSG balance
 	ld	hl,(replay_mainPSGvol)
 	ld	(replay_mainvol),hl
@@ -610,8 +452,6 @@ replay_decodedata_NO:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(AY_regToneA),hl
-;	ld	a,d
-;	ld	(TRACK_Chan1+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLA),a	
 
@@ -623,8 +463,6 @@ replay_decodedata_NO:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(AY_regToneB),hl
-;	ld	a,d
-;	ld	(TRACK_Chan2+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLB),a	
 
@@ -641,8 +479,6 @@ _rdd_3psg_5fm:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(AY_regToneC),hl
-;	ld	a,d
-;	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLC),a
 
@@ -650,7 +486,6 @@ _rdd_3psg_5fm:
 	ld	a,(FM_regMIXER)		
 	srl	a
 	srl	a
-;	srl	a
 	xor	0x3f
 	ld	(AY_regMIXER),a
 
@@ -688,8 +523,6 @@ _rdd_2psg_6fm:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneA),hl
-;	ld	a,d
-;	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLA),a	
 
@@ -697,14 +530,12 @@ _rdd_2psg_6fm:
 _rdd_cont:
 	;--------------------
 	;--- Process track 4
-		;--------------------
+	;--------------------
 	ld	ix,TRACK_Chan4+17
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneB),hl
-;	ld	a,d
-;	ld	(TRACK_Chan4+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLB),a	
 
@@ -716,8 +547,6 @@ _rdd_cont:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneC),hl
-;	ld	a,d
-;	ld	(TRACK_Chan5+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLC),a	
 
@@ -730,8 +559,6 @@ _rdd_cont:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneD),hl
-;	ld	a,d
-;	ld	(TRACK_Chan6+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLD),a	
 
@@ -756,10 +583,11 @@ _rdd_cont:
 	ld	d,a
 	call	replay_process_chan_AY
 	ld	(FM_regToneF),hl
-;	ld	a,d
-;	ld	(TRACK_Chan8+17+TRACK_Flags),a	
+	
 
-	;-- Fade out processing
+	;--------------------
+	; Fade out processing
+	;--------------------
 	ld	a,(replay_fade)
 	and	a
 	ret	z	; if replay fade = 0 then no fade active
@@ -802,53 +630,105 @@ _rdd_cont:
 	ret
 
 
+
+;--------------------
 	
+	
+;--------------------
+_replay_check_patternend:
+	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
+	dec	a
+	jp	nz,replay_decodedata_NO
+	
+	ld	hl,(TRACK_pointer1)
+	ld	a,(hl)
+	
+	;--- check for end of pattern
+	cp	191	
+	jp	nz,replay_decodedata_NO
+
+	;--- Set track pointers to start
+	ld	hl,(replay_orderpointer)
+	xor	a
+	cp	(hl)
+	jp	nz,.no_restart
+	inc	hl
+	cp	(hl)
+	dec	hl
+	jp	nz,.no_restart
+	;--- next is restart order
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+.no_restart:	
+	ld	de,TRACK_pointer1
+	ld	bc,16
+	ldir
+	ld	(replay_orderpointer),hl		; store pointer for next set
+								; of strack pointers
+	jp	replay_decodedata_NO
+
+
+
+
+
+
+
+
+
+
+
+
+;===========================================================
+; ---	replay_decode_chan
+; Process the channel data
+; 
+; in BC is the pointer to the	data
+;===========================================================	
 replay_decode_chan:
 	;--- initialize data
-;	ld	a,(ix+TRACK_Note)
+	ld	a,(ix+TRACK_Note)
 	ld	(replay_previous_note),a
 
-;	;--- Check if retrig has ended
-;	dec	(ix+TRACK_Retrig)
-;	jp	nz,.skip_retrig_reset
-;	res 	B_TRGCMD,(ix+TRACK_Flags)
-;
-;.skip_retrig_reset:
 	;=============
 	; Note 
 	;=============
 	ld	a,(bc)
-	cp	96
-
+	cp	_REL
 	jp	c,_replay_decode_note
-	jp	z,_replay_decode_rest
-_rdn2:cp	112;128
+	cp	_SUS
+	jp	c,_replay_decode_release
+	jp	z,_replay_decode_sutain
+_rdn2:cp	_INS
 	jp	c,_replay_decode_vol
-_rdv2:cp	143
+_rdv2:cp	_CMD
 	jp	c,_replay_decode_ins
 _rdi2:
-	cp	191
+	cp	_EOT
 	jp	nc,_replay_decode_delay
-	jp	c,_replay_decode_cmd
+	jp	c,_replaydecode_cmd
 
 _rdn:
-	cp	97
+	cp	_SUS
 	jp	c,_rd_delay
 	jp	_rdn2
 
 _rdi:
-	cp	143
+	cp	_CMD
 	jp	c,_rd_delay
 	jp	_rdi2
 
 _rdv:
-	cp	112
+	cp	_INS
 	jp	c,_rd_delay
 	jp	_rdv2
 _rdc:
 	inc	bc
 	ld	a,(bc)
-	cp	191
+	cp	_EOT
 	jp	c,_rd_delay
 	jp	_replay_decode_delay
 
@@ -856,7 +736,6 @@ _rdc:
 _rd_delay:
 	ld	a,(ix+TRACK_prevDelay)
 	ld	(ix+TRACK_Delay),a
-
 	ret
 
 
@@ -864,28 +743,36 @@ _rd_delay:
 _replay_decode_note:
 	ld	(ix+TRACK_Note),a
 	set 	B_TRGNOT,d
-	res 	B_KEYON,d
-;	res	B_ACTMOR,d
+	set 	B_KEYON,d
 
 	inc	bc
 	ld	a,(bc)
 	jp	_rdn
 	
-_replay_decode_rest:
+_replay_decode_release:
 	res	B_ACTNOT,d				; reset note bit to	0
 	res	B_SUST,d				; rest sustain
-;	res	B_ACTMOR,d				; reset morph slave mode
+	res	B_KEYON,d				; reset Key on
+
+	inc	bc
+	ld	a,(bc)
+	jp	_rdn	
+	
+_replay_decode_sustain:
+	res	B_ACTNOT,d				; reset note bit to	0
+	set	B_SUST,d				; rest sustain
+	res	B_KEYON,d				; reset Key on
 
 	inc	bc
 	ld	a,(bc)
 	jp	_rdn
 
 _replay_decode_ins:
-;	res	B_ACTMOR,d				; reset morph slave mode
-	sub	112;97
+	sub	_INS
 	cp	(ix+TRACK_Instrument)
 	jp	z,.skip_ins
 	
+	;--- instrument change found	
 	ld	(ix+TRACK_Instrument),a
 
 	;--- set instrument pointer
@@ -919,6 +806,7 @@ _replay_decode_ins:
 	sub	16
 	ld 	(FM_softvoice_req),a
 	xor 	a
+	
 .skip_soft:
 	ld	(ix+TRACK_Voice),a
 
@@ -928,8 +816,10 @@ _replay_decode_ins:
 	ld	a,(bc)
 	jp	_rdi
 
+
+
 _replay_decode_vol:
-	sub	96;127
+	sub	_VOL
 	add	a
 	add	a
 	add	a
@@ -948,7 +838,7 @@ _replay_decode_vol:
 
 
 _replay_decode_delay:
-	sub	191
+	sub	_WAIT-1
 	jp	z,_rd_delay		; EOT found
 	ld	(ix+TRACK_Delay),a
 	ld	(ix+TRACK_prevDelay),a
@@ -957,10 +847,11 @@ _replay_decode_delay:
 	ret
 
 
-_replay_decode_cmd:
 
-	sub	142
-	ld	(ix+TRACK_Command),a
+
+_replaydecode_cmd:
+	sub	_CMD
+	ld	e,a				; store command for later
 	ld	hl,DECODE_CMDLIST
 	add	a,a
 	add	a,l
@@ -977,144 +868,96 @@ _replay_decode_cmd:
 	ld	a,(bc)
 	jp	(hl)
 
+
 DECODE_CMDLIST:
-	; These effects are only processed 1 once in decoding
-	dw	_CHIPcmd0_env_mul			;0
-	dw	0					;1	CHAN 3-5
-	dw	0					;2	CHAN 2-6
-	dw	_CHIPcmdCd_drum			;3	FM DRUM
-	dw	_CHIPcmd11_sustain_on		;4	SUSTAIN ON	
-	dw	_CHIPcmd12_sustain_off		;5	SUSTAIN OFF
-	dw	_CHIPcmd16_vib_ctrl		;6
-	dw	_CHIPcmd17_track_detune		;7
-	dw	_CHIPcmd18_transpose		;8
-	dw	_CHIPcmd1A_trigger		;9
-	dw	_CHIPcmd1B_speed			;a
-	dw	_CHIPcmd1C_notelink		;b
-;	dw	_CHIPcmd1C_call			;b	
-	dw	_CHIPcmd1D_ret			;c
+	dw	decode_cmd0_arpeggio		;
+	dw	decode_cmd1_port_up			;17
+	dw	decode_cmd2_port_down		;16
+	dw	decode_cmd3_port_tone		;18
+	dw	decode_cmd4_vibrato			;19
+	dw	decode_cmd5_vibrato_port_tone	;1a
+	dw	decode_cmd6_vibrato_vol		;1b
+	dw	decode_cmd7_vol_slide		;1c
+	dw	decode_cmd19_note_delay		;13
+	dw	decode_cmdXX_note_cut		;14
+	dw	0					; command effect end
+	dw	decode_cmdCd_drum			;3	FM DRUM
+	dw	decode_cmd13_short_arp		; arp speed
+	dw	decode_cmd14_fine_up		;11
+	dw	decode_cmd15_fine_down		;12
+	dw	decode_cmd1C_notelink		;b	
+	dw	decode_cmd17_track_detune		;7
+	dw	decode_cmd1A_trigger		;9
+	dw	decode_cmd1B_speed			;a	
+	dw	0					; tone paning
+	dw	0					; noise panning
+	dw	0					; chan setup
 	
-	; These effects are also processed in the processing
-	dw	0					;d	DELETE
-	dw	0					;e	DELETE
-	dw	0					;f	DELETE
-	dw	_CHIPcmd13_short_arp		;10
-	dw	_CHIPcmd14_fine_up		;11
-	dw	_CHIPcmd15_fine_down		;12
-	dw	_CHIPcmd19_note_delay		;13
-	dw	_CHIPcmdXX_note_cut		;14
-
-	; These effects can be retriggered
-	dw	_CHIPcmd0_arpeggio		;15
-	dw	_CHIPcmd1_port_up			;17
-	dw	_CHIPcmd2_port_down		;16
-	dw	_CHIPcmd3_port_tone		;18
-	dw	_CHIPcmd4_vibrato			;19
-	dw	_CHIPcmd5_vibrato_port_tone	;1a
-	dw	_CHIPcmd6_vibrato_vol		;1b
-	dw	_CHIPcmd7_vol_slide		;1c
-	dw	_CHIPcmd8_macro_offset		;1d
-	dw	_CHIPcmd9_env_shape		;1e
-
-	dw	_CHIPcmd0_RE_arpeggio		;1f
-	dw	_CHIPcmd1_RE_port_up		;21
-	dw	_CHIPcmd2_RE_port_down		;20
-	dw	_CHIPcmd3_RE_port_tone		;22
-	dw	_CHIPcmd4_RE_vibrato		;23
-	dw	_CHIPcmd5_RE_vibrato_port_tone ;24
-	dw	_CHIPcmd6_RE_vibrato_vol	;25
-	dw	_CHIPcmd7_RE_vol_slide		;26
-	dw	_CHIPcmd8_RE_macro_offset	;27
-	dw	_CHIPcmd9_RE_env_shape		;28
+	
 
 
 
-_CHIPcmd0_arpeggio:
+decode_cmd0_arpeggio:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	; Cycles between note, note+x	halftones, note+y
-	; halftones. 
-	; Ex:	(MOD/XM: C-4 01 .. 037)	This will play 
-	; C-4, C-4+3 semitones andC-4+7 semitones. 
 	ld	(ix+TRACK_cmd_0),a
+	ld	(ix+TRACK_Command),e
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Timer),0
-	ld	(ix+TRACK_Retrig),1
+	ld	(ix+TRACK_Step),2
 	jp	_rdc
+
+
 	
-_CHIPcmd1_port_up:
+decode_cmd1_port_up:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	; This will	slide	up the pitch of the current note
-	; being played by	the given speed. 
-	bit 	B_PSGFM,d
-	jp	z,_cmd2_psg		; swap cmd 1 en 2 for psg
-	; FM
+	ld	(ix+TRACK_Command),e
 	ld	(ix+TRACK_cmd_1),a
 	set	B_TRGCMD,d
-	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
-	;PSG
-_cmd2_psg:
-	inc	(ix+TRACK_Command)
-	ld	(ix+TRACK_cmd_2),a
-	set	B_TRGCMD,d
-	ld	(ix+TRACK_Retrig),1
-	jp	_rdc	
 	
 	 
-_CHIPcmd2_port_down:
+	 
+decode_cmd2_port_down:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do1_ not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	; This will	slide	down the pitch of	the current	note
-	; being played by	the given speed.	
-	bit 	B_PSGFM,d
-	jp	z,_cmd1_psg		; swap cmd 1 en 2 for psg
-	;FM
+	ld	(ix+TRACK_Command),e
 	ld	(ix+TRACK_cmd_2),a
 	set	B_TRGCMD,d
-	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
-	; PSG
-_cmd1_psg:
-	inc	(ix+TRACK_Command)
-	ld	(ix+TRACK_cmd_1),a
-	set	B_TRGCMD,d
-	ld	(ix+TRACK_Retrig),1
-	jp	_rdc	
 
-_CHIPcmd3_RE_port_tone:
-	ld	(ix+TRACK_Retrig),a
-	jp	_CHIPcmd3_port_tone_cont	
-_CHIPcmd3_port_tone:
-	; in:	[A] contains the paramvalue
+
+decode_cmd3_port_tone:
+	; in:	[A] contains the param value
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	; This command is	used together with a note, and 
-	; will bend	the current	pitch	at the given speed
-	; towards the specified	note.	Example:
-	;	C-4 1....
-	;	F-4 ..305 (bend the note up towards	F-4)
-	;	... ..300 (continue to slide up, until F-4
-	;						  is reached
-
-
+	ld	(ix+TRACK_Command),e
+	set	B_TRGCMD,d
+	set	B_NOTACT,d
+	
 	ld	(ix+TRACK_cmd_3),a
 	ld	(ix+TRACK_Timer),2
-	ld	(ix+TRACK_Retrig),1
-_CHIPcmd3_port_tone_cont:
-	set	B_TRGCMD,d
-	set	B_ACTNOT,d
+
+;decode_cmd3_port_tone_cont:
 	;--- Check if we have a	note on the	same event
 	bit	B_TRGNOT,d
 	jp	z,_rdc
+
+	set	B_KEYON,d
+	res 	B_TRGNOT,d
+
+_decode_newNote:
+
+
+
 
 	;-- get the	previous note freq
 	ld	a,(replay_previous_note)
@@ -1138,7 +981,7 @@ _cmd3_fm:
 .skip:
 	ld	e,(hl)
 	inc	hl
-	ld	d,(hl)
+	ld	d,(hl)		<<<< flags get lost here!
 
 	; add	the toneadd
 	ld	l,(ix+TRACK_cmd_ToneSlideAdd)
@@ -1175,7 +1018,7 @@ _cmd3_fm:
 	jp	_rdc	
 
 	
-_CHIPcmd4_vibrato:
+decode_cmd4_vibrato:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -1203,19 +1046,19 @@ _CHIPcmd4_vibrato:
 	jp	_rdc	
 
 
-_CHIPcmd5_vibrato_port_tone:
+decode_cmd5_vibrato_port_tone:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
 	; portTone	+ volumeslide
 	;--- Init values
-_CHIPcmd6_vibrato_vol:
+decode_cmd6_vibrato_vol:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-_CHIPcmd7_vol_slide:
+decode_cmd7_vol_slide:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -1231,65 +1074,9 @@ _CHIPcmd7_vol_slide:
 	jp	_rdc
 
 
-
-_CHIPcmd8_macro_offset:
-	; in:	[A] contains the paramvalue
-	; 
-	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------
-	; This command, when used together with a	note,	
-	; will start playing the sample at the position	xx 
-	; (instead of position 0). If	xx is	00 (900), the 
-	; previous value will be used.
-
-	;--- Init values
-	; NOT SUPPORTED ANYMORE
-	jp	_rdc
-
-
-
-
-_CHIPcmd9_env_shape:
-;	set	B_TRGENV,d
-	ld	(AY_regEnvShape),a
-	ld	(ix+TRACK_Retrig),1
-	jp	_rdc
-
-
-	; in:	[A] contains the paramvalue
-	; 
-	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------
-	; This command set the envelope frequency using a
-	; multiplier value (00-ff)
-_CHIPcmd0_env_mul:
-	ld	d,a
-	xor	a
-	srl	d
-	rra	
-	srl	d
-	rra		
-	srl	d
-	rra	
-	ld	(AY_regEnvL),a
-	ld	a,d
-	ld	(AY_regEnvH),a
-	
-	jp	_rdc	
-
-_CHIPcmd11_sustain_on:
-	set	B_SUST,d
-	dec	bc
-	jp	_rdc	
-	
-_CHIPcmd12_sustain_off:
-	res	B_SUST,d
-	dec	bc
-	jp	_rdc	
-	
 	
 
-_CHIPcmdCd_drum:
+decode_cmdCd_drum:
 	and 	a		; drum reset not supported
 	jr 	z,0f
 	
@@ -1323,7 +1110,7 @@ _CHIPcmdCd_drum:
 	jp	_rdc		
 	
 
-_CHIPcmd13_short_arp:
+decode_cmd13_short_arp:
 	ld	(ix+TRACK_cmd_E),a		; store the halve not to add
 	ld	(ix+TRACK_Timer),0
 
@@ -1332,42 +1119,18 @@ _CHIPcmd13_short_arp:
 	jp	_rdc	
 	
 	
-_CHIPcmd14_fine_up:
-_CHIPcmd15_fine_down:
+decode_cmd14_fine_up:
+decode_cmd15_fine_down:
 	ld	(ix+TRACK_cmd_E),a
 	ld	(ix+TRACK_Timer),2
 	set	B_TRGCMD,d		; command active
 	ld	(ix+TRACK_Retrig),1
 	jp	_rdc	
 
-	;=============================
-	; Removed as pulse and triangle are used rarely.
-	; Also Vibrato data got larger to speed up calculation.
-	; Removing triangle and pulse data makes up for some
-	; of the extra data
-	;=============================
-_CHIPcmd16_vib_ctrl:
-;	ld	hl,TRACK_Vibrato_sine
-;	cp	1
-;	jp	c,_cmd16_sine
-;	jp	z,_cmd16_tri
-;_cmd16_pulse:
-;	ld	hl,TRACK_Vibrato_pulse
-;	ld	(replay_vib_table),hl
-;	jp	_rdc
-;_cmd16_tri:
-;	ld	hl,TRACK_Vibrato_triangle
-;	ld	(replay_vib_table),hl
-;	jp	_rdc	
-;
-;_cmd16_sine:
-;	ld	hl,TRACK_Vibrato_sine
-;	ld	(replay_vib_table),hl
-	jp	_rdc
 
 
 
-_CHIPcmd17_track_detune:
+decode_cmd17_track_detune:
 	; This command sets the	detune of the track.
 	ld	e,a
 	and	0x07		; low	4 bits is value
@@ -1387,47 +1150,9 @@ _CHIPcmd17_track_detune:
 	jp	_rdc	
 
 
-; This command sets the	detune of the track.	
-_CHIPcmd18_transpose:
-	ld	e,a
-	add	a
-	
-	bit	B_PSGFM,d
-	jp	nz,_cmd18_fm
-_cmd18_psg:
-	ld	hl,(replay_tonetable_PSG)	;TRACK_ToneTable
-	jp	99f
-_cmd18_fm:
-	ld	hl,(replay_tonetable_FM)	;TRACK_ToneTable
-99:	
-	and	15		; low	4 bits is value
-	bit	3,e		; Center around 8
-	jp	z,.pos
 
-	;neg	
-	neg	
-	add	a,l
-	ld	l,a
-	jp	nc,.skip
-	dec	h
-	jp 	.skip
-	; pos
-.pos:	
-	add	a,l
-	ld	l,a
-	jp	nc,.skip
-	inc	h
-.skip:
-	bit	B_PSGFM,d
-	jp	nz,_cmd18b_fm
-_cmd18b_psg:
-	ld	(replay_tonetable_PSG),hl	;TRACK_ToneTable
-	jp	_rdc
-_cmd18b_fm:
-	ld	(replay_tonetable_FM),hl	;TRACK_ToneTable
-	jp	_rdc
 
-_CHIPcmdXX_note_cut:
+decode_cmdXX_note_cut:
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Retrig),1
 	inc	a
@@ -1435,7 +1160,7 @@ _CHIPcmdXX_note_cut:
 	jp 	_rdc
 
 
-_CHIPcmd19_note_delay:
+decode_cmd19_note_delay:
 	bit	B_TRGNOT,d		; is there a note	in this eventstep?
 	jp	z,_rdc
 
@@ -1453,12 +1178,12 @@ _CHIPcmd19_note_delay:
 
 
 
-_CHIPcmd1A_trigger:
+decode_cmd1A_trigger:
 	ld	(replay_trigger),a
 	jp	_rdc		
 
 
-_CHIPcmd1B_speed:
+decode_cmd1B_speed:
 	ld	(replay_speed),a
 	;--- Reset Timer == 0
 	srl	a				; divide speed with 2
@@ -1471,61 +1196,13 @@ _CHIPcmd1B_speed:
 
 	jp	_rdc	
 	
-_CHIPcmd1C_notelink:
+decode_cmd1C_notelink:
 	res	B_TRGNOT,d
 	set 	B_KEYON,d
 	dec 	bc
 	jp	_rdc	
-_CHIPcmd1C_call:
-_CHIPcmd1D_ret:
-	;< not implemented yet>
-	dec 	bc
-	jp	_rdc	
 
 
-
-
-_CHIPcmd0_RE_arpeggio:
-	ld	(ix+TRACK_Timer),0
-	
-_CHIPcmd1_RE_port_up:	
-	set	B_TRGCMD,d
-	ld	(ix+TRACK_Retrig),a
-	bit	B_PSGFM,d
-	jp	nz,_rdc
-	inc	(ix+TRACK_Command)
-	jp	_rdc	
-_CHIPcmd2_RE_port_down:
-	set	B_TRGCMD,d
-	ld	(ix+TRACK_Retrig),a
-	bit	B_PSGFM,d
-	jp	nz,_rdc
-	dec	(ix+TRACK_Command)
-	jp	_rdc	
-_CHIPcmd4_RE_vibrato:
-	set	B_TRGCMD,d
-	ld	(ix+TRACK_Retrig),a
-	jp	_rdc	
-	
-	
-_CHIPcmd5_RE_vibrato_port_tone:
-_CHIPcmd6_RE_vibrato_vol:
-_CHIPcmd7_RE_vol_slide:
-	set	B_TRGCMD,d
-	ld	(ix+TRACK_Timer),1
-	ld	(ix+TRACK_Retrig),a
-	jp	_rdc
-		
-_CHIPcmd8_RE_macro_offset:	
-	set	B_TRGCMD,d
-	ld	(ix+TRACK_Timer),2
-	ld	(ix+TRACK_Retrig),a
-	jp	_rdc			
-
-_CHIPcmd9_RE_env_shape:
-;	set	B_TRGENV,d
-	ld	(ix+TRACK_Retrig),a
-	jp	_rdc	
 
 
 
