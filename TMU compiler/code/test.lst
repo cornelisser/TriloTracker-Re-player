@@ -1,4 +1,4 @@
-Sjasm Z80 Assembler v0.42b8 - www.xl2s.tk             [2020.07.29 - 21:10:23]
+Sjasm Z80 Assembler v0.42b8 - www.xl2s.tk             [2020.07.30 - 10:09:50]
 
 test.asm
 Errors: 0
@@ -14,40 +14,40 @@ Errors: 0
        9   00:0007                      
       10   00:0007                      ; [ Song order pointer list ]
       11   00:0007                      .restart:
-      12   00:0007                      	dw .track_000, .track_001, .track_002, .track_003, .track_004, .track_005, .track_006, .track_007	; Step:001 Pattern:000
-      12   00:0007  84 01 97 01 9C 01 A1 01 A3 01 A5 01 A7 01 A9 01 
-      13   00:0017                      	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:002 Pattern:001
-      13   00:0017  AB 01 BC 01 C6 01 D3 01 D5 01 D7 01 D9 01 DB 01 
-      14   00:0027                      	dw .track_016, .track_017, .track_018, .track_019, .track_020, .track_021, .track_022, .track_023	; Step:003 Pattern:002
-      14   00:0027  DD 01 EE 01 F7 01 06 02 08 02 0A 02 0C 02 0E 02 
-      15   00:0037                      	dw .track_024, .track_025, .track_026, .track_027, .track_028, .track_029, .track_030, .track_031	; Step:004 Pattern:003
-      15   00:0037  10 02 21 02 29 02 30 02 32 02 34 02 36 02 38 02 
-      16   00:0047                      	dw .track_032, .track_033, .track_034, .track_035, .track_036, .track_037, .track_038, .track_039	; Step:005 Pattern:004
-      16   00:0047  3A 02 4B 02 53 02 5D 02 5F 02 61 02 63 02 65 02 
-      17   00:0057                      	dw .track_040, .track_041, .track_042, .track_043, .track_044, .track_045, .track_046, .track_047	; Step:006 Pattern:005
-      17   00:0057  67 02 79 02 7C 02 82 02 84 02 86 02 88 02 8A 02 
-      18   00:0067                      	dw .track_048, .track_049, .track_050, .track_051, .track_052, .track_053, .track_054, .track_055	; Step:007 Pattern:006
-      18   00:0067  8C 02 9E 02 B2 02 C4 02 C6 02 C8 02 CA 02 CC 02 
-      19   00:0077                      	dw .track_056, .track_057, .track_058, .track_059, .track_060, .track_061, .track_062, .track_063	; Step:008 Pattern:007
-      19   00:0077  CE 02 E0 02 F2 02 00 03 02 03 04 03 06 03 08 03 
-      20   00:0087                      	dw .track_064, .track_065, .track_066, .track_067, .track_068, .track_069, .track_070, .track_071	; Step:009 Pattern:008
-      20   00:0087  0A 03 1C 03 2E 03 3F 03 41 03 43 03 45 03 47 03 
-      21   00:0097                      	dw .track_072, .track_073, .track_074, .track_075, .track_076, .track_077, .track_078, .track_079	; Step:010 Pattern:009
-      21   00:0097  49 03 5B 03 6D 03 7C 03 7E 03 80 03 82 03 84 03 
-      22   00:00A7                      	dw .track_080, .track_081, .track_082, .track_083, .track_084, .track_085, .track_086, .track_087	; Step:011 Pattern:010
-      22   00:00A7  86 03 98 03 AA 03 B9 03 BB 03 BD 03 BF 03 C1 03 
-      23   00:00B7                      	dw .track_088, .track_089, .track_090, .track_091, .track_092, .track_093, .track_094, .track_095	; Step:012 Pattern:011
-      23   00:00B7  C3 03 D5 03 E7 03 F7 03 F9 03 FB 03 FD 03 FF 03 
-      24   00:00C7                      	dw .track_096, .track_097, .track_098, .track_099, .track_100, .track_101, .track_102, .track_103	; Step:013 Pattern:012
-      24   00:00C7  01 04 13 04 26 04 37 04 39 04 3B 04 3D 04 3F 04 
-      25   00:00D7                      	dw .track_104, .track_105, .track_106, .track_107, .track_108, .track_109, .track_110, .track_111	; Step:014 Pattern:013
-      25   00:00D7  41 04 54 04 65 04 77 04 79 04 7B 04 7D 04 7F 04 
-      26   00:00E7                      	dw .track_112, .track_113, .track_114, .track_115, .track_116, .track_117, .track_118, .track_119	; Step:015 Pattern:014
-      26   00:00E7  81 04 84 04 87 04 8A 04 8C 04 8E 04 90 04 92 04 
-      27   00:00F7                      	dw .track_120, .track_121, .track_122, .track_123, .track_124, .track_125, .track_126, .track_127	; Step:016 Pattern:015
-      27   00:00F7  94 04 A4 04 B7 04 C6 04 C8 04 CA 04 CC 04 CE 04 
-      28   00:0107                      	dw .track_120, .track_121, .track_122, .track_123, .track_124, .track_125, .track_126, .track_127	; Step:017 Pattern:015
-      28   00:0107  94 04 A4 04 B7 04 C6 04 C8 04 CA 04 CC 04 CE 04 
+      12   00:0007                      	dw .track_000, .track_001, .track_002, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:001 Pattern:000
+      12   00:0007  84 01 97 01 9C 01 A1 01 A1 01 A1 01 A1 01 A1 01 
+      13   00:0017                      	dw .track_008, .track_009, .track_010, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:002 Pattern:001
+      13   00:0017  A3 01 B4 01 BE 01 A1 01 A1 01 A1 01 A1 01 A1 01 
+      14   00:0027                      	dw .track_008, .track_017, .track_018, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:003 Pattern:002
+      14   00:0027  A3 01 CB 01 D4 01 A1 01 A1 01 A1 01 A1 01 A1 01 
+      15   00:0037                      	dw .track_008, .track_025, .track_026, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:004 Pattern:003
+      15   00:0037  A3 01 E3 01 EB 01 A1 01 A1 01 A1 01 A1 01 A1 01 
+      16   00:0047                      	dw .track_008, .track_033, .track_034, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:005 Pattern:004
+      16   00:0047  A3 01 F2 01 FA 01 A1 01 A1 01 A1 01 A1 01 A1 01 
+      17   00:0057                      	dw .track_040, .track_041, .track_042, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:006 Pattern:005
+      17   00:0057  04 02 16 02 19 02 1F 02 1F 02 1F 02 1F 02 1F 02 
+      18   00:0067                      	dw .track_040, .track_049, .track_050, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:007 Pattern:006
+      18   00:0067  04 02 21 02 35 02 1F 02 1F 02 1F 02 1F 02 1F 02 
+      19   00:0077                      	dw .track_040, .track_057, .track_058, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:008 Pattern:007
+      19   00:0077  04 02 47 02 59 02 1F 02 1F 02 1F 02 1F 02 1F 02 
+      20   00:0087                      	dw .track_040, .track_065, .track_066, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:009 Pattern:008
+      20   00:0087  04 02 67 02 79 02 1F 02 1F 02 1F 02 1F 02 1F 02 
+      21   00:0097                      	dw .track_040, .track_073, .track_074, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:010 Pattern:009
+      21   00:0097  04 02 8A 02 9C 02 1F 02 1F 02 1F 02 1F 02 1F 02 
+      22   00:00A7                      	dw .track_040, .track_081, .track_082, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:011 Pattern:010
+      22   00:00A7  04 02 AB 02 BD 02 1F 02 1F 02 1F 02 1F 02 1F 02 
+      23   00:00B7                      	dw .track_040, .track_089, .track_090, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:012 Pattern:011
+      23   00:00B7  04 02 CC 02 DE 02 1F 02 1F 02 1F 02 1F 02 1F 02 
+      24   00:00C7                      	dw .track_040, .track_097, .track_098, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:013 Pattern:012
+      24   00:00C7  04 02 EE 02 01 03 1F 02 1F 02 1F 02 1F 02 1F 02 
+      25   00:00D7                      	dw .track_104, .track_105, .track_106, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:014 Pattern:013
+      25   00:00D7  12 03 25 03 36 03 1F 02 1F 02 1F 02 1F 02 1F 02 
+      26   00:00E7                      	dw .track_112, .track_112, .track_112, .track_115, .track_115, .track_115, .track_115, .track_115	; Step:015 Pattern:014
+      26   00:00E7  48 03 48 03 48 03 4B 03 4B 03 4B 03 4B 03 4B 03 
+      27   00:00F7                      	dw .track_120, .track_121, .track_122, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:016 Pattern:015
+      27   00:00F7  4D 03 5D 03 70 03 1F 02 1F 02 1F 02 1F 02 1F 02 
+      28   00:0107                      	dw .track_120, .track_121, .track_122, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:017 Pattern:015
+      28   00:0107  4D 03 5D 03 70 03 1F 02 1F 02 1F 02 1F 02 1F 02 
       29   00:0117  00 00 07 00         	dw 0x0000, .restart			; End of sequence delimiter + restart address.
       30   00:011B                      
       31   00:011B                      ; [ Custom FM voices ]
@@ -137,46 +137,46 @@ Errors: 0
      115   00:0184                      
      116   00:0184                      ; [ Song track data ]
      117   00:0184                      .track_000:
-     118   00:0184  37                  	db $37			;Note 55
+     118   00:0184  36                  	db $36			;Note 54
      119   00:0185  6F                  	db $6f			;Volume 13
      120   00:0186  73                  	db $73			;Instrument 1
-     121   00:0187  3E                  	db $3e			;Note 62
+     121   00:0187  3D                  	db $3d			;Note 61
      122   00:0188  C1                  	db $c1			;Wait 2
-     123   00:0189  43                  	db $43			;Note 67
+     123   00:0189  42                  	db $42			;Note 66
      124   00:018A                      					;Wait Repeat
-     125   00:018A  45                  	db $45			;Note 69
+     125   00:018A  44                  	db $44			;Note 68
      126   00:018B                      					;Wait Repeat
-     127   00:018B  3E                  	db $3e			;Note 62
+     127   00:018B  3D                  	db $3d			;Note 61
      128   00:018C                      					;Wait Repeat
-     129   00:018C  43                  	db $43			;Note 67
+     129   00:018C  42                  	db $42			;Note 66
      130   00:018D                      					;Wait Repeat
-     131   00:018D  45                  	db $45			;Note 69
+     131   00:018D  44                  	db $44			;Note 68
      132   00:018E                      					;Wait Repeat
-     133   00:018E  48                  	db $48			;Note 72
+     133   00:018E  47                  	db $47			;Note 71
      134   00:018F                      					;Wait Repeat
-     135   00:018F  3E                  	db $3e			;Note 62
+     135   00:018F  3D                  	db $3d			;Note 61
      136   00:0190                      					;Wait Repeat
-     137   00:0190  48                  	db $48			;Note 72
+     137   00:0190  47                  	db $47			;Note 71
      138   00:0191                      					;Wait Repeat
-     139   00:0191  47                  	db $47			;Note 71
+     139   00:0191  46                  	db $46			;Note 70
      140   00:0192                      					;Wait Repeat
-     141   00:0192  3E                  	db $3e			;Note 62
+     141   00:0192  3D                  	db $3d			;Note 61
      142   00:0193                      					;Wait Repeat
-     143   00:0193  47                  	db $47			;Note 71
+     143   00:0193  46                  	db $46			;Note 70
      144   00:0194                      					;Wait Repeat
-     145   00:0194  45                  	db $45			;Note 69
+     145   00:0194  44                  	db $44			;Note 68
      146   00:0195                      					;Wait Repeat
-     147   00:0195  43                  	db $43			;Note 67
+     147   00:0195  42                  	db $42			;Note 66
      148   00:0196                      					;Wait Repeat
      149   00:0196  BF                  	db $bf			;[End-Of-Track]
      150   00:0197                      .track_001:
-     151   00:0197  62                  	db $62			;Note 98
+     151   00:0197  61                  	db $61			;Sustain 97
      152   00:0198  6F                  	db $6f			;Volume 13
      153   00:0199  75                  	db $75			;Instrument 3
      154   00:019A  DC                  	db $dc			;Wait 29
      155   00:019B  BF                  	db $bf			;[End-Of-Track]
      156   00:019C                      .track_002:
-     157   00:019C  62                  	db $62			;Note 98
+     157   00:019C  61                  	db $61			;Sustain 97
      158   00:019D  6F                  	db $6f			;Volume 13
      159   00:019E  74                  	db $74			;Instrument 2
      160   00:019F  DC                  	db $dc			;Wait 29
@@ -184,1255 +184,692 @@ Errors: 0
      162   00:01A1                      .track_003:
      163   00:01A1  DD                  	db $dd			;Wait 30
      164   00:01A2  BF                  	db $bf			;[End-Of-Track]
-     165   00:01A3                      .track_004:
-     166   00:01A3  DD                  	db $dd			;Wait 30
-     167   00:01A4  BF                  	db $bf			;[End-Of-Track]
-     168   00:01A5                      .track_005:
-     169   00:01A5  DD                  	db $dd			;Wait 30
-     170   00:01A6  BF                  	db $bf			;[End-Of-Track]
-     171   00:01A7                      .track_006:
-     172   00:01A7  DD                  	db $dd			;Wait 30
-     173   00:01A8  BF                  	db $bf			;[End-Of-Track]
-     174   00:01A9                      .track_007:
-     175   00:01A9  DD                  	db $dd			;Wait 30
-     176   00:01AA  BF                  	db $bf			;[End-Of-Track]
-     177   00:01AB                      .track_008:
-     178   00:01AB  37                  	db $37			;Note 55
-     179   00:01AC  3E                  	db $3e			;Note 62
-     180   00:01AD  C1                  	db $c1			;Wait 2
-     181   00:01AE  43                  	db $43			;Note 67
-     182   00:01AF                      					;Wait Repeat
-     183   00:01AF  45                  	db $45			;Note 69
-     184   00:01B0                      					;Wait Repeat
-     185   00:01B0  3E                  	db $3e			;Note 62
-     186   00:01B1                      					;Wait Repeat
-     187   00:01B1  43                  	db $43			;Note 67
-     188   00:01B2                      					;Wait Repeat
-     189   00:01B2  45                  	db $45			;Note 69
-     190   00:01B3                      					;Wait Repeat
-     191   00:01B3  48                  	db $48			;Note 72
-     192   00:01B4                      					;Wait Repeat
-     193   00:01B4  3E                  	db $3e			;Note 62
-     194   00:01B5                      					;Wait Repeat
-     195   00:01B5  48                  	db $48			;Note 72
-     196   00:01B6                      					;Wait Repeat
-     197   00:01B6  47                  	db $47			;Note 71
-     198   00:01B7                      					;Wait Repeat
-     199   00:01B7  3E                  	db $3e			;Note 62
-     200   00:01B8                      					;Wait Repeat
-     201   00:01B8  47                  	db $47			;Note 71
-     202   00:01B9                      					;Wait Repeat
-     203   00:01B9  45                  	db $45			;Note 69
-     204   00:01BA                      					;Wait Repeat
-     205   00:01BA  43                  	db $43			;Note 67
-     206   00:01BB                      					;Wait Repeat
-     207   00:01BB  BF                  	db $bf			;[End-Of-Track]
-     208   00:01BC                      .track_009:
-     209   00:01BC  2B                  	db $2b			;Note 43
-     210   00:01BD  6F                  	db $6f			;Volume 13
-     211   00:01BE  75                  	db $75			;Instrument 3
-     212   00:01BF  C4                  	db $c4			;Wait 5
-     213   00:01C0  32                  	db $32			;Note 50
-     214   00:01C1  C5                  	db $c5			;Wait 6
-     215   00:01C2  37                  	db $37			;Note 55
-     216   00:01C3  D0                  	db $d0			;Wait 17
-     217   00:01C4  61                  	db $61			;Note 97
-     218   00:01C5  BF                  	db $bf			;[End-Of-Track]
-     219   00:01C6                      .track_010:
-     220   00:01C6  26                  	db $26			;Note 38
-     221   00:01C7  6F                  	db $6f			;Volume 13
-     222   00:01C8  74                  	db $74			;Instrument 2
-     223   00:01C9  C5                  	db $c5			;Wait 6
-     224   00:01CA  94 85               	db $94,$85			;CMD Vibrato
-     225   00:01CC  CA                  	db $ca			;Wait 11
-     226   00:01CD  2B                  	db $2b			;Note 43
-     227   00:01CE  9A                  	db $9a			;CMD End 
-     228   00:01CF  C3                  	db $c3			;Wait 4
-     229   00:01D0  2D                  	db $2d			;Note 45
-     230   00:01D1                      					;Wait Repeat
-     231   00:01D1  30                  	db $30			;Note 48
-     232   00:01D2                      					;Wait Repeat
-     233   00:01D2  BF                  	db $bf			;[End-Of-Track]
-     234   00:01D3                      .track_011:
-     235   00:01D3  DD                  	db $dd			;Wait 30
-     236   00:01D4  BF                  	db $bf			;[End-Of-Track]
-     237   00:01D5                      .track_012:
-     238   00:01D5  DD                  	db $dd			;Wait 30
-     239   00:01D6  BF                  	db $bf			;[End-Of-Track]
-     240   00:01D7                      .track_013:
-     241   00:01D7  DD                  	db $dd			;Wait 30
-     242   00:01D8  BF                  	db $bf			;[End-Of-Track]
-     243   00:01D9                      .track_014:
-     244   00:01D9  DD                  	db $dd			;Wait 30
-     245   00:01DA  BF                  	db $bf			;[End-Of-Track]
-     246   00:01DB                      .track_015:
-     247   00:01DB  DD                  	db $dd			;Wait 30
-     248   00:01DC  BF                  	db $bf			;[End-Of-Track]
-     249   00:01DD                      .track_016:
-     250   00:01DD  37                  	db $37			;Note 55
-     251   00:01DE  3E                  	db $3e			;Note 62
-     252   00:01DF  C1                  	db $c1			;Wait 2
-     253   00:01E0  43                  	db $43			;Note 67
-     254   00:01E1                      					;Wait Repeat
-     255   00:01E1  45                  	db $45			;Note 69
-     256   00:01E2                      					;Wait Repeat
-     257   00:01E2  3E                  	db $3e			;Note 62
-     258   00:01E3                      					;Wait Repeat
-     259   00:01E3  43                  	db $43			;Note 67
-     260   00:01E4                      					;Wait Repeat
-     261   00:01E4  45                  	db $45			;Note 69
-     262   00:01E5                      					;Wait Repeat
-     263   00:01E5  48                  	db $48			;Note 72
-     264   00:01E6                      					;Wait Repeat
-     265   00:01E6  3E                  	db $3e			;Note 62
-     266   00:01E7                      					;Wait Repeat
-     267   00:01E7  48                  	db $48			;Note 72
-     268   00:01E8                      					;Wait Repeat
-     269   00:01E8  47                  	db $47			;Note 71
-     270   00:01E9                      					;Wait Repeat
-     271   00:01E9  3E                  	db $3e			;Note 62
-     272   00:01EA                      					;Wait Repeat
-     273   00:01EA  47                  	db $47			;Note 71
-     274   00:01EB                      					;Wait Repeat
-     275   00:01EB  45                  	db $45			;Note 69
-     276   00:01EC                      					;Wait Repeat
-     277   00:01EC  43                  	db $43			;Note 67
-     278   00:01ED                      					;Wait Repeat
-     279   00:01ED  BF                  	db $bf			;[End-Of-Track]
-     280   00:01EE                      .track_017:
-     281   00:01EE  29                  	db $29			;Note 41
-     282   00:01EF  75                  	db $75			;Instrument 3
-     283   00:01F0  C4                  	db $c4			;Wait 5
-     284   00:01F1  30                  	db $30			;Note 48
-     285   00:01F2  C5                  	db $c5			;Wait 6
-     286   00:01F3  35                  	db $35			;Note 53
-     287   00:01F4  D0                  	db $d0			;Wait 17
-     288   00:01F5  61                  	db $61			;Note 97
-     289   00:01F6  BF                  	db $bf			;[End-Of-Track]
-     290   00:01F7                      .track_018:
-     291   00:01F7  30                  	db $30			;Note 48
-     292   00:01F8  74                  	db $74			;Instrument 2
-     293   00:01F9  C4                  	db $c4			;Wait 5
-     294   00:01FA  2F                  	db $2f			;Note 47
-     295   00:01FB  C1                  	db $c1			;Wait 2
-     296   00:01FC  2F                  	db $2f			;Note 47
-     297   00:01FD  C4                  	db $c4			;Wait 5
-     298   00:01FE  94 85               	db $94,$85			;CMD Vibrato
-     299   00:0200  C8                  	db $c8			;Wait 9
-     300   00:0201  2D                  	db $2d			;Note 45
-     301   00:0202  9A                  	db $9a			;CMD End 
-     302   00:0203  C3                  	db $c3			;Wait 4
-     303   00:0204  2B                  	db $2b			;Note 43
-     304   00:0205                      					;Wait Repeat
-     305   00:0205  BF                  	db $bf			;[End-Of-Track]
-     306   00:0206                      .track_019:
-     307   00:0206  DD                  	db $dd			;Wait 30
-     308   00:0207  BF                  	db $bf			;[End-Of-Track]
-     309   00:0208                      .track_020:
-     310   00:0208  DD                  	db $dd			;Wait 30
-     311   00:0209  BF                  	db $bf			;[End-Of-Track]
-     312   00:020A                      .track_021:
-     313   00:020A  DD                  	db $dd			;Wait 30
-     314   00:020B  BF                  	db $bf			;[End-Of-Track]
-     315   00:020C                      .track_022:
-     316   00:020C  DD                  	db $dd			;Wait 30
-     317   00:020D  BF                  	db $bf			;[End-Of-Track]
-     318   00:020E                      .track_023:
-     319   00:020E  DD                  	db $dd			;Wait 30
-     320   00:020F  BF                  	db $bf			;[End-Of-Track]
-     321   00:0210                      .track_024:
-     322   00:0210  37                  	db $37			;Note 55
-     323   00:0211  3E                  	db $3e			;Note 62
-     324   00:0212  C1                  	db $c1			;Wait 2
-     325   00:0213  43                  	db $43			;Note 67
-     326   00:0214                      					;Wait Repeat
-     327   00:0214  45                  	db $45			;Note 69
-     328   00:0215                      					;Wait Repeat
-     329   00:0215  3E                  	db $3e			;Note 62
-     330   00:0216                      					;Wait Repeat
-     331   00:0216  43                  	db $43			;Note 67
-     332   00:0217                      					;Wait Repeat
-     333   00:0217  45                  	db $45			;Note 69
-     334   00:0218                      					;Wait Repeat
-     335   00:0218  48                  	db $48			;Note 72
-     336   00:0219                      					;Wait Repeat
-     337   00:0219  3E                  	db $3e			;Note 62
-     338   00:021A                      					;Wait Repeat
-     339   00:021A  48                  	db $48			;Note 72
-     340   00:021B                      					;Wait Repeat
-     341   00:021B  47                  	db $47			;Note 71
-     342   00:021C                      					;Wait Repeat
-     343   00:021C  3E                  	db $3e			;Note 62
-     344   00:021D                      					;Wait Repeat
-     345   00:021D  47                  	db $47			;Note 71
-     346   00:021E                      					;Wait Repeat
-     347   00:021E  45                  	db $45			;Note 69
-     348   00:021F                      					;Wait Repeat
-     349   00:021F  43                  	db $43			;Note 67
-     350   00:0220                      					;Wait Repeat
-     351   00:0220  BF                  	db $bf			;[End-Of-Track]
-     352   00:0221                      .track_025:
-     353   00:0221  28                  	db $28			;Note 40
-     354   00:0222  C4                  	db $c4			;Wait 5
-     355   00:0223  2F                  	db $2f			;Note 47
-     356   00:0224  C5                  	db $c5			;Wait 6
-     357   00:0225  34                  	db $34			;Note 52
-     358   00:0226  D0                  	db $d0			;Wait 17
-     359   00:0227  61                  	db $61			;Note 97
-     360   00:0228  BF                  	db $bf			;[End-Of-Track]
-     361   00:0229                      .track_026:
-     362   00:0229  32                  	db $32			;Note 50
-     363   00:022A  CA                  	db $ca			;Wait 11
-     364   00:022B  2B                  	db $2b			;Note 43
-     365   00:022C  CB                  	db $cb			;Wait 12
-     366   00:022D  37                  	db $37			;Note 55
-     367   00:022E  C5                  	db $c5			;Wait 6
-     368   00:022F  BF                  	db $bf			;[End-Of-Track]
-     369   00:0230                      .track_027:
-     370   00:0230  DD                  	db $dd			;Wait 30
-     371   00:0231  BF                  	db $bf			;[End-Of-Track]
-     372   00:0232                      .track_028:
-     373   00:0232  DD                  	db $dd			;Wait 30
-     374   00:0233  BF                  	db $bf			;[End-Of-Track]
-     375   00:0234                      .track_029:
-     376   00:0234  DD                  	db $dd			;Wait 30
-     377   00:0235  BF                  	db $bf			;[End-Of-Track]
-     378   00:0236                      .track_030:
-     379   00:0236  DD                  	db $dd			;Wait 30
-     380   00:0237  BF                  	db $bf			;[End-Of-Track]
-     381   00:0238                      .track_031:
-     382   00:0238  DD                  	db $dd			;Wait 30
-     383   00:0239  BF                  	db $bf			;[End-Of-Track]
-     384   00:023A                      .track_032:
-     385   00:023A  37                  	db $37			;Note 55
-     386   00:023B  3E                  	db $3e			;Note 62
-     387   00:023C  C1                  	db $c1			;Wait 2
-     388   00:023D  43                  	db $43			;Note 67
-     389   00:023E                      					;Wait Repeat
-     390   00:023E  45                  	db $45			;Note 69
-     391   00:023F                      					;Wait Repeat
-     392   00:023F  3E                  	db $3e			;Note 62
-     393   00:0240                      					;Wait Repeat
-     394   00:0240  43                  	db $43			;Note 67
-     395   00:0241                      					;Wait Repeat
-     396   00:0241  45                  	db $45			;Note 69
-     397   00:0242                      					;Wait Repeat
-     398   00:0242  48                  	db $48			;Note 72
-     399   00:0243                      					;Wait Repeat
-     400   00:0243  3E                  	db $3e			;Note 62
-     401   00:0244                      					;Wait Repeat
-     402   00:0244  48                  	db $48			;Note 72
-     403   00:0245                      					;Wait Repeat
-     404   00:0245  47                  	db $47			;Note 71
-     405   00:0246                      					;Wait Repeat
-     406   00:0246  3E                  	db $3e			;Note 62
-     407   00:0247                      					;Wait Repeat
-     408   00:0247  47                  	db $47			;Note 71
-     409   00:0248                      					;Wait Repeat
-     410   00:0248  45                  	db $45			;Note 69
-     411   00:0249                      					;Wait Repeat
-     412   00:0249  43                  	db $43			;Note 67
-     413   00:024A                      					;Wait Repeat
-     414   00:024A  BF                  	db $bf			;[End-Of-Track]
-     415   00:024B                      .track_033:
-     416   00:024B  27                  	db $27			;Note 39
-     417   00:024C  C4                  	db $c4			;Wait 5
-     418   00:024D  2E                  	db $2e			;Note 46
-     419   00:024E  C5                  	db $c5			;Wait 6
-     420   00:024F  33                  	db $33			;Note 51
-     421   00:0250  D0                  	db $d0			;Wait 17
-     422   00:0251  61                  	db $61			;Note 97
-     423   00:0252  BF                  	db $bf			;[End-Of-Track]
-     424   00:0253                      .track_034:
-     425   00:0253  C6                  	db $c6			;Wait 7
-     426   00:0254  94 84               	db $94,$84			;CMD Vibrato
-     427   00:0256  D0                  	db $d0			;Wait 17
-     428   00:0257  39                  	db $39			;Note 57
-     429   00:0258  9A                  	db $9a			;CMD End 
-     430   00:0259  C3                  	db $c3			;Wait 4
-     431   00:025A  37                  	db $37			;Note 55
-     432   00:025B  C1                  	db $c1			;Wait 2
-     433   00:025C  BF                  	db $bf			;[End-Of-Track]
-     434   00:025D                      .track_035:
-     435   00:025D  DD                  	db $dd			;Wait 30
-     436   00:025E  BF                  	db $bf			;[End-Of-Track]
-     437   00:025F                      .track_036:
-     438   00:025F  DD                  	db $dd			;Wait 30
-     439   00:0260  BF                  	db $bf			;[End-Of-Track]
-     440   00:0261                      .track_037:
-     441   00:0261  DD                  	db $dd			;Wait 30
-     442   00:0262  BF                  	db $bf			;[End-Of-Track]
-     443   00:0263                      .track_038:
-     444   00:0263  DD                  	db $dd			;Wait 30
-     445   00:0264  BF                  	db $bf			;[End-Of-Track]
-     446   00:0265                      .track_039:
-     447   00:0265  DD                  	db $dd			;Wait 30
-     448   00:0266  BF                  	db $bf			;[End-Of-Track]
-     449   00:0267                      .track_040:
-     450   00:0267  37                  	db $37			;Note 55
-     451   00:0268  3E                  	db $3e			;Note 62
-     452   00:0269  C1                  	db $c1			;Wait 2
-     453   00:026A  43                  	db $43			;Note 67
-     454   00:026B                      					;Wait Repeat
-     455   00:026B  45                  	db $45			;Note 69
-     456   00:026C                      					;Wait Repeat
-     457   00:026C  3E                  	db $3e			;Note 62
-     458   00:026D                      					;Wait Repeat
-     459   00:026D  43                  	db $43			;Note 67
-     460   00:026E                      					;Wait Repeat
-     461   00:026E  45                  	db $45			;Note 69
-     462   00:026F                      					;Wait Repeat
-     463   00:026F  3E                  	db $3e			;Note 62
-     464   00:0270                      					;Wait Repeat
-     465   00:0270  48                  	db $48			;Note 72
-     466   00:0271                      					;Wait Repeat
-     467   00:0271  3E                  	db $3e			;Note 62
-     468   00:0272                      					;Wait Repeat
-     469   00:0272  48                  	db $48			;Note 72
-     470   00:0273                      					;Wait Repeat
-     471   00:0273  47                  	db $47			;Note 71
-     472   00:0274                      					;Wait Repeat
-     473   00:0274  3E                  	db $3e			;Note 62
-     474   00:0275                      					;Wait Repeat
-     475   00:0275  47                  	db $47			;Note 71
-     476   00:0276                      					;Wait Repeat
-     477   00:0276  45                  	db $45			;Note 69
-     478   00:0277                      					;Wait Repeat
-     479   00:0277  43                  	db $43			;Note 67
-     480   00:0278                      					;Wait Repeat
-     481   00:0278  BF                  	db $bf			;[End-Of-Track]
-     482   00:0279                      .track_041:
-     483   00:0279  37                  	db $37			;Note 55
-     484   00:027A  DE                  	db $de			;Wait 31
-     485   00:027B  BF                  	db $bf			;[End-Of-Track]
-     486   00:027C                      .track_042:
-     487   00:027C  3E                  	db $3e			;Note 62
-     488   00:027D  CC                  	db $cc			;Wait 13
-     489   00:027E  94 82               	db $94,$82			;CMD Vibrato
-     490   00:0280  D1                  	db $d1			;Wait 18
-     491   00:0281  BF                  	db $bf			;[End-Of-Track]
-     492   00:0282                      .track_043:
-     493   00:0282  DF                  	db $df			;Wait 32
-     494   00:0283  BF                  	db $bf			;[End-Of-Track]
-     495   00:0284                      .track_044:
-     496   00:0284  DF                  	db $df			;Wait 32
-     497   00:0285  BF                  	db $bf			;[End-Of-Track]
-     498   00:0286                      .track_045:
-     499   00:0286  DF                  	db $df			;Wait 32
-     500   00:0287  BF                  	db $bf			;[End-Of-Track]
-     501   00:0288                      .track_046:
-     502   00:0288  DF                  	db $df			;Wait 32
-     503   00:0289  BF                  	db $bf			;[End-Of-Track]
-     504   00:028A                      .track_047:
-     505   00:028A  DF                  	db $df			;Wait 32
-     506   00:028B  BF                  	db $bf			;[End-Of-Track]
-     507   00:028C                      .track_048:
-     508   00:028C  37                  	db $37			;Note 55
-     509   00:028D  3E                  	db $3e			;Note 62
-     510   00:028E  C1                  	db $c1			;Wait 2
-     511   00:028F  43                  	db $43			;Note 67
-     512   00:0290                      					;Wait Repeat
-     513   00:0290  45                  	db $45			;Note 69
-     514   00:0291                      					;Wait Repeat
-     515   00:0291  3E                  	db $3e			;Note 62
-     516   00:0292                      					;Wait Repeat
-     517   00:0292  43                  	db $43			;Note 67
-     518   00:0293                      					;Wait Repeat
-     519   00:0293  45                  	db $45			;Note 69
-     520   00:0294                      					;Wait Repeat
-     521   00:0294  3E                  	db $3e			;Note 62
-     522   00:0295                      					;Wait Repeat
-     523   00:0295  48                  	db $48			;Note 72
-     524   00:0296                      					;Wait Repeat
-     525   00:0296  3E                  	db $3e			;Note 62
-     526   00:0297                      					;Wait Repeat
-     527   00:0297  48                  	db $48			;Note 72
-     528   00:0298                      					;Wait Repeat
-     529   00:0298  47                  	db $47			;Note 71
-     530   00:0299                      					;Wait Repeat
-     531   00:0299  3E                  	db $3e			;Note 62
-     532   00:029A                      					;Wait Repeat
-     533   00:029A  47                  	db $47			;Note 71
-     534   00:029B                      					;Wait Repeat
-     535   00:029B  45                  	db $45			;Note 69
-     536   00:029C                      					;Wait Repeat
-     537   00:029C  43                  	db $43			;Note 67
-     538   00:029D                      					;Wait Repeat
-     539   00:029D  BF                  	db $bf			;[End-Of-Track]
-     540   00:029E                      .track_049:
-     541   00:029E  1F                  	db $1f			;Note 31
-     542   00:029F  6F                  	db $6f			;Volume 13
-     543   00:02A0  78                  	db $78			;Instrument 6
-     544   00:02A1  1F                  	db $1f			;Note 31
-     545   00:02A2  C1                  	db $c1			;Wait 2
-     546   00:02A3  1F                  	db $1f			;Note 31
-     547   00:02A4                      					;Wait Repeat
-     548   00:02A4  1F                  	db $1f			;Note 31
-     549   00:02A5                      					;Wait Repeat
-     550   00:02A5  1F                  	db $1f			;Note 31
-     551   00:02A6                      					;Wait Repeat
-     552   00:02A6  1F                  	db $1f			;Note 31
-     553   00:02A7                      					;Wait Repeat
-     554   00:02A7  1F                  	db $1f			;Note 31
-     555   00:02A8                      					;Wait Repeat
-     556   00:02A8  1F                  	db $1f			;Note 31
-     557   00:02A9                      					;Wait Repeat
-     558   00:02A9  1E                  	db $1e			;Note 30
-     559   00:02AA                      					;Wait Repeat
-     560   00:02AA  1E                  	db $1e			;Note 30
-     561   00:02AB                      					;Wait Repeat
-     562   00:02AB  1E                  	db $1e			;Note 30
-     563   00:02AC                      					;Wait Repeat
-     564   00:02AC  1E                  	db $1e			;Note 30
-     565   00:02AD                      					;Wait Repeat
-     566   00:02AD  1E                  	db $1e			;Note 30
-     567   00:02AE                      					;Wait Repeat
-     568   00:02AE  1E                  	db $1e			;Note 30
-     569   00:02AF                      					;Wait Repeat
-     570   00:02AF  1E                  	db $1e			;Note 30
-     571   00:02B0                      					;Wait Repeat
-     572   00:02B0  1E                  	db $1e			;Note 30
-     573   00:02B1                      					;Wait Repeat
-     574   00:02B1  BF                  	db $bf			;[End-Of-Track]
-     575   00:02B2                      .track_050:
-     576   00:02B2  61                  	db $61			;Note 97
-     577   00:02B3  71                  	db $71			;Volume 15
-     578   00:02B4  76                  	db $76			;Instrument 4
-     579   00:02B5  9A                  	db $9a			;CMD End 
-     580   00:02B6  C6                  	db $c6			;Wait 7
-     581   00:02B7  23                  	db $23			;Note 35
-     582   00:02B8  C1                  	db $c1			;Wait 2
-     583   00:02B9  24                  	db $24			;Note 36
-     584   00:02BA                      					;Wait Repeat
-     585   00:02BA  26                  	db $26			;Note 38
-     586   00:02BB  78                  	db $78			;Instrument 6
-     587   00:02BC                      					;Wait Repeat
-     588   00:02BC  26                  	db $26			;Note 38
-     589   00:02BD  76                  	db $76			;Instrument 4
-     590   00:02BE  C5                  	db $c5			;Wait 6
-     591   00:02BF  2B                  	db $2b			;Note 43
-     592   00:02C0  C3                  	db $c3			;Wait 4
-     593   00:02C1  2A                  	db $2a			;Note 42
-     594   00:02C2                      					;Wait Repeat
-     595   00:02C2  2B                  	db $2b			;Note 43
-     596   00:02C3                      					;Wait Repeat
-     597   00:02C3  BF                  	db $bf			;[End-Of-Track]
-     598   00:02C4                      .track_051:
-     599   00:02C4  DF                  	db $df			;Wait 32
-     600   00:02C5  BF                  	db $bf			;[End-Of-Track]
-     601   00:02C6                      .track_052:
-     602   00:02C6  DF                  	db $df			;Wait 32
-     603   00:02C7  BF                  	db $bf			;[End-Of-Track]
-     604   00:02C8                      .track_053:
-     605   00:02C8  DF                  	db $df			;Wait 32
-     606   00:02C9  BF                  	db $bf			;[End-Of-Track]
-     607   00:02CA                      .track_054:
-     608   00:02CA  DF                  	db $df			;Wait 32
-     609   00:02CB  BF                  	db $bf			;[End-Of-Track]
-     610   00:02CC                      .track_055:
-     611   00:02CC  DF                  	db $df			;Wait 32
-     612   00:02CD  BF                  	db $bf			;[End-Of-Track]
-     613   00:02CE                      .track_056:
-     614   00:02CE  37                  	db $37			;Note 55
-     615   00:02CF  3E                  	db $3e			;Note 62
-     616   00:02D0  C1                  	db $c1			;Wait 2
-     617   00:02D1  43                  	db $43			;Note 67
-     618   00:02D2                      					;Wait Repeat
-     619   00:02D2  45                  	db $45			;Note 69
-     620   00:02D3                      					;Wait Repeat
-     621   00:02D3  3E                  	db $3e			;Note 62
-     622   00:02D4                      					;Wait Repeat
-     623   00:02D4  43                  	db $43			;Note 67
-     624   00:02D5                      					;Wait Repeat
-     625   00:02D5  45                  	db $45			;Note 69
-     626   00:02D6                      					;Wait Repeat
-     627   00:02D6  3E                  	db $3e			;Note 62
-     628   00:02D7                      					;Wait Repeat
-     629   00:02D7  48                  	db $48			;Note 72
-     630   00:02D8                      					;Wait Repeat
-     631   00:02D8  3E                  	db $3e			;Note 62
-     632   00:02D9                      					;Wait Repeat
-     633   00:02D9  48                  	db $48			;Note 72
-     634   00:02DA                      					;Wait Repeat
-     635   00:02DA  47                  	db $47			;Note 71
-     636   00:02DB                      					;Wait Repeat
-     637   00:02DB  3E                  	db $3e			;Note 62
-     638   00:02DC                      					;Wait Repeat
-     639   00:02DC  47                  	db $47			;Note 71
-     640   00:02DD                      					;Wait Repeat
-     641   00:02DD  45                  	db $45			;Note 69
-     642   00:02DE                      					;Wait Repeat
-     643   00:02DE  43                  	db $43			;Note 67
-     644   00:02DF                      					;Wait Repeat
-     645   00:02DF  BF                  	db $bf			;[End-Of-Track]
-     646   00:02E0                      .track_057:
-     647   00:02E0  1C                  	db $1c			;Note 28
-     648   00:02E1  1C                  	db $1c			;Note 28
-     649   00:02E2  C1                  	db $c1			;Wait 2
-     650   00:02E3  1C                  	db $1c			;Note 28
-     651   00:02E4                      					;Wait Repeat
-     652   00:02E4  1C                  	db $1c			;Note 28
-     653   00:02E5                      					;Wait Repeat
-     654   00:02E5  1C                  	db $1c			;Note 28
-     655   00:02E6                      					;Wait Repeat
-     656   00:02E6  1C                  	db $1c			;Note 28
-     657   00:02E7                      					;Wait Repeat
-     658   00:02E7  1C                  	db $1c			;Note 28
-     659   00:02E8                      					;Wait Repeat
-     660   00:02E8  1C                  	db $1c			;Note 28
-     661   00:02E9                      					;Wait Repeat
-     662   00:02E9  1A                  	db $1a			;Note 26
-     663   00:02EA                      					;Wait Repeat
-     664   00:02EA  1A                  	db $1a			;Note 26
-     665   00:02EB                      					;Wait Repeat
-     666   00:02EB  1A                  	db $1a			;Note 26
-     667   00:02EC                      					;Wait Repeat
-     668   00:02EC  1A                  	db $1a			;Note 26
-     669   00:02ED                      					;Wait Repeat
-     670   00:02ED  1A                  	db $1a			;Note 26
-     671   00:02EE                      					;Wait Repeat
-     672   00:02EE  1A                  	db $1a			;Note 26
-     673   00:02EF                      					;Wait Repeat
-     674   00:02EF  1A                  	db $1a			;Note 26
-     675   00:02F0                      					;Wait Repeat
-     676   00:02F0  1A                  	db $1a			;Note 26
-     677   00:02F1                      					;Wait Repeat
-     678   00:02F1  BF                  	db $bf			;[End-Of-Track]
-     679   00:02F2                      .track_058:
-     680   00:02F2  2D                  	db $2d			;Note 45
-     681   00:02F3  C2                  	db $c2			;Wait 3
-     682   00:02F4  2F                  	db $2f			;Note 47
-     683   00:02F5  C1                  	db $c1			;Wait 2
-     684   00:02F6  2B                  	db $2b			;Note 43
-     685   00:02F7  C9                  	db $c9			;Wait 10
-     686   00:02F8  94 85               	db $94,$85			;CMD Vibrato
-     687   00:02FA  CB                  	db $cb			;Wait 12
-     688   00:02FB  2A                  	db $2a			;Note 42
-     689   00:02FC  9A                  	db $9a			;CMD End 
-     690   00:02FD  C1                  	db $c1			;Wait 2
-     691   00:02FE  2B                  	db $2b			;Note 43
-     692   00:02FF                      					;Wait Repeat
-     693   00:02FF  BF                  	db $bf			;[End-Of-Track]
-     694   00:0300                      .track_059:
-     695   00:0300  DF                  	db $df			;Wait 32
-     696   00:0301  BF                  	db $bf			;[End-Of-Track]
-     697   00:0302                      .track_060:
-     698   00:0302  DF                  	db $df			;Wait 32
-     699   00:0303  BF                  	db $bf			;[End-Of-Track]
-     700   00:0304                      .track_061:
-     701   00:0304  DF                  	db $df			;Wait 32
-     702   00:0305  BF                  	db $bf			;[End-Of-Track]
-     703   00:0306                      .track_062:
-     704   00:0306  DF                  	db $df			;Wait 32
-     705   00:0307  BF                  	db $bf			;[End-Of-Track]
-     706   00:0308                      .track_063:
-     707   00:0308  DF                  	db $df			;Wait 32
-     708   00:0309  BF                  	db $bf			;[End-Of-Track]
-     709   00:030A                      .track_064:
-     710   00:030A  37                  	db $37			;Note 55
-     711   00:030B  3E                  	db $3e			;Note 62
-     712   00:030C  C1                  	db $c1			;Wait 2
-     713   00:030D  43                  	db $43			;Note 67
-     714   00:030E                      					;Wait Repeat
-     715   00:030E  45                  	db $45			;Note 69
-     716   00:030F                      					;Wait Repeat
-     717   00:030F  3E                  	db $3e			;Note 62
-     718   00:0310                      					;Wait Repeat
-     719   00:0310  43                  	db $43			;Note 67
-     720   00:0311                      					;Wait Repeat
-     721   00:0311  45                  	db $45			;Note 69
-     722   00:0312                      					;Wait Repeat
-     723   00:0312  3E                  	db $3e			;Note 62
-     724   00:0313                      					;Wait Repeat
-     725   00:0313  48                  	db $48			;Note 72
-     726   00:0314                      					;Wait Repeat
-     727   00:0314  3E                  	db $3e			;Note 62
-     728   00:0315                      					;Wait Repeat
-     729   00:0315  48                  	db $48			;Note 72
-     730   00:0316                      					;Wait Repeat
-     731   00:0316  47                  	db $47			;Note 71
-     732   00:0317                      					;Wait Repeat
-     733   00:0317  3E                  	db $3e			;Note 62
-     734   00:0318                      					;Wait Repeat
-     735   00:0318  47                  	db $47			;Note 71
-     736   00:0319                      					;Wait Repeat
-     737   00:0319  45                  	db $45			;Note 69
-     738   00:031A                      					;Wait Repeat
-     739   00:031A  43                  	db $43			;Note 67
-     740   00:031B                      					;Wait Repeat
-     741   00:031B  BF                  	db $bf			;[End-Of-Track]
-     742   00:031C                      .track_065:
-     743   00:031C  24                  	db $24			;Note 36
-     744   00:031D  24                  	db $24			;Note 36
-     745   00:031E  C1                  	db $c1			;Wait 2
-     746   00:031F  24                  	db $24			;Note 36
-     747   00:0320                      					;Wait Repeat
-     748   00:0320  24                  	db $24			;Note 36
-     749   00:0321                      					;Wait Repeat
-     750   00:0321  24                  	db $24			;Note 36
-     751   00:0322                      					;Wait Repeat
-     752   00:0322  24                  	db $24			;Note 36
-     753   00:0323                      					;Wait Repeat
-     754   00:0323  24                  	db $24			;Note 36
-     755   00:0324                      					;Wait Repeat
-     756   00:0324  24                  	db $24			;Note 36
-     757   00:0325                      					;Wait Repeat
-     758   00:0325  25                  	db $25			;Note 37
-     759   00:0326                      					;Wait Repeat
-     760   00:0326  25                  	db $25			;Note 37
-     761   00:0327                      					;Wait Repeat
-     762   00:0327  25                  	db $25			;Note 37
-     763   00:0328                      					;Wait Repeat
-     764   00:0328  25                  	db $25			;Note 37
-     765   00:0329                      					;Wait Repeat
-     766   00:0329  25                  	db $25			;Note 37
-     767   00:032A                      					;Wait Repeat
-     768   00:032A  25                  	db $25			;Note 37
-     769   00:032B                      					;Wait Repeat
-     770   00:032B  25                  	db $25			;Note 37
-     771   00:032C                      					;Wait Repeat
-     772   00:032C  25                  	db $25			;Note 37
-     773   00:032D                      					;Wait Repeat
-     774   00:032D  BF                  	db $bf			;[End-Of-Track]
-     775   00:032E                      .track_066:
-     776   00:032E  32                  	db $32			;Note 50
-     777   00:032F  76                  	db $76			;Instrument 4
-     778   00:0330  C4                  	db $c4			;Wait 5
-     779   00:0331  2B                  	db $2b			;Note 43
-     780   00:0332  78                  	db $78			;Instrument 6
-     781   00:0333  C1                  	db $c1			;Wait 2
-     782   00:0334  2B                  	db $2b			;Note 43
-     783   00:0335  76                  	db $76			;Instrument 4
-     784   00:0336  C7                  	db $c7			;Wait 8
-     785   00:0337  94 85               	db $94,$85			;CMD Vibrato
-     786   00:0339  CB                  	db $cb			;Wait 12
-     787   00:033A  2B                  	db $2b			;Note 43
-     788   00:033B  78                  	db $78			;Instrument 6
-     789   00:033C  C1                  	db $c1			;Wait 2
-     790   00:033D  2B                  	db $2b			;Note 43
-     791   00:033E                      					;Wait Repeat
-     792   00:033E  BF                  	db $bf			;[End-Of-Track]
-     793   00:033F                      .track_067:
-     794   00:033F  DF                  	db $df			;Wait 32
-     795   00:0340  BF                  	db $bf			;[End-Of-Track]
-     796   00:0341                      .track_068:
-     797   00:0341  DF                  	db $df			;Wait 32
-     798   00:0342  BF                  	db $bf			;[End-Of-Track]
-     799   00:0343                      .track_069:
-     800   00:0343  DF                  	db $df			;Wait 32
-     801   00:0344  BF                  	db $bf			;[End-Of-Track]
-     802   00:0345                      .track_070:
-     803   00:0345  DF                  	db $df			;Wait 32
-     804   00:0346  BF                  	db $bf			;[End-Of-Track]
-     805   00:0347                      .track_071:
-     806   00:0347  DF                  	db $df			;Wait 32
-     807   00:0348  BF                  	db $bf			;[End-Of-Track]
-     808   00:0349                      .track_072:
-     809   00:0349  37                  	db $37			;Note 55
-     810   00:034A  3E                  	db $3e			;Note 62
-     811   00:034B  C1                  	db $c1			;Wait 2
-     812   00:034C  43                  	db $43			;Note 67
-     813   00:034D                      					;Wait Repeat
-     814   00:034D  45                  	db $45			;Note 69
-     815   00:034E                      					;Wait Repeat
-     816   00:034E  3E                  	db $3e			;Note 62
-     817   00:034F                      					;Wait Repeat
-     818   00:034F  43                  	db $43			;Note 67
-     819   00:0350                      					;Wait Repeat
-     820   00:0350  45                  	db $45			;Note 69
-     821   00:0351                      					;Wait Repeat
-     822   00:0351  3E                  	db $3e			;Note 62
-     823   00:0352                      					;Wait Repeat
-     824   00:0352  48                  	db $48			;Note 72
-     825   00:0353                      					;Wait Repeat
-     826   00:0353  3E                  	db $3e			;Note 62
-     827   00:0354                      					;Wait Repeat
-     828   00:0354  48                  	db $48			;Note 72
-     829   00:0355                      					;Wait Repeat
-     830   00:0355  47                  	db $47			;Note 71
-     831   00:0356                      					;Wait Repeat
-     832   00:0356  3E                  	db $3e			;Note 62
-     833   00:0357                      					;Wait Repeat
-     834   00:0357  47                  	db $47			;Note 71
-     835   00:0358                      					;Wait Repeat
-     836   00:0358  45                  	db $45			;Note 69
-     837   00:0359                      					;Wait Repeat
-     838   00:0359  43                  	db $43			;Note 67
-     839   00:035A                      					;Wait Repeat
-     840   00:035A  BF                  	db $bf			;[End-Of-Track]
-     841   00:035B                      .track_073:
-     842   00:035B  1A                  	db $1a			;Note 26
-     843   00:035C  1A                  	db $1a			;Note 26
-     844   00:035D  C1                  	db $c1			;Wait 2
-     845   00:035E  1A                  	db $1a			;Note 26
-     846   00:035F                      					;Wait Repeat
-     847   00:035F  1A                  	db $1a			;Note 26
-     848   00:0360                      					;Wait Repeat
-     849   00:0360  1A                  	db $1a			;Note 26
-     850   00:0361                      					;Wait Repeat
-     851   00:0361  1A                  	db $1a			;Note 26
-     852   00:0362                      					;Wait Repeat
-     853   00:0362  1A                  	db $1a			;Note 26
-     854   00:0363                      					;Wait Repeat
-     855   00:0363  1A                  	db $1a			;Note 26
-     856   00:0364                      					;Wait Repeat
-     857   00:0364  1A                  	db $1a			;Note 26
-     858   00:0365                      					;Wait Repeat
-     859   00:0365  1A                  	db $1a			;Note 26
-     860   00:0366                      					;Wait Repeat
-     861   00:0366  1A                  	db $1a			;Note 26
-     862   00:0367                      					;Wait Repeat
-     863   00:0367  1A                  	db $1a			;Note 26
-     864   00:0368                      					;Wait Repeat
-     865   00:0368  1A                  	db $1a			;Note 26
-     866   00:0369                      					;Wait Repeat
-     867   00:0369  1A                  	db $1a			;Note 26
-     868   00:036A                      					;Wait Repeat
-     869   00:036A  1A                  	db $1a			;Note 26
-     870   00:036B                      					;Wait Repeat
-     871   00:036B  1A                  	db $1a			;Note 26
-     872   00:036C                      					;Wait Repeat
-     873   00:036C  BF                  	db $bf			;[End-Of-Track]
-     874   00:036D                      .track_074:
-     875   00:036D  2B                  	db $2b			;Note 43
-     876   00:036E  76                  	db $76			;Instrument 4
-     877   00:036F  C6                  	db $c6			;Wait 7
-     878   00:0370  61                  	db $61			;Note 97
-     879   00:0371  C1                  	db $c1			;Wait 2
-     880   00:0372  2D                  	db $2d			;Note 45
-     881   00:0373                      					;Wait Repeat
-     882   00:0373  2B                  	db $2b			;Note 43
-     883   00:0374                      					;Wait Repeat
-     884   00:0374  2A                  	db $2a			;Note 42
-     885   00:0375  C7                  	db $c7			;Wait 8
-     886   00:0376  94 85               	db $94,$85			;CMD Vibrato
-     887   00:0378  C8                  	db $c8			;Wait 9
-     888   00:0379  61                  	db $61			;Note 97
-     889   00:037A  9A                  	db $9a			;CMD End 
-     890   00:037B  BF                  	db $bf			;[End-Of-Track]
-     891   00:037C                      .track_075:
-     892   00:037C  DF                  	db $df			;Wait 32
-     893   00:037D  BF                  	db $bf			;[End-Of-Track]
-     894   00:037E                      .track_076:
-     895   00:037E  DF                  	db $df			;Wait 32
-     896   00:037F  BF                  	db $bf			;[End-Of-Track]
-     897   00:0380                      .track_077:
-     898   00:0380  DF                  	db $df			;Wait 32
-     899   00:0381  BF                  	db $bf			;[End-Of-Track]
-     900   00:0382                      .track_078:
-     901   00:0382  DF                  	db $df			;Wait 32
-     902   00:0383  BF                  	db $bf			;[End-Of-Track]
-     903   00:0384                      .track_079:
-     904   00:0384  DF                  	db $df			;Wait 32
-     905   00:0385  BF                  	db $bf			;[End-Of-Track]
-     906   00:0386                      .track_080:
-     907   00:0386  37                  	db $37			;Note 55
-     908   00:0387  3E                  	db $3e			;Note 62
-     909   00:0388  C1                  	db $c1			;Wait 2
-     910   00:0389  43                  	db $43			;Note 67
-     911   00:038A                      					;Wait Repeat
-     912   00:038A  45                  	db $45			;Note 69
-     913   00:038B                      					;Wait Repeat
-     914   00:038B  3E                  	db $3e			;Note 62
-     915   00:038C                      					;Wait Repeat
-     916   00:038C  43                  	db $43			;Note 67
-     917   00:038D                      					;Wait Repeat
-     918   00:038D  45                  	db $45			;Note 69
-     919   00:038E                      					;Wait Repeat
-     920   00:038E  3E                  	db $3e			;Note 62
-     921   00:038F                      					;Wait Repeat
-     922   00:038F  48                  	db $48			;Note 72
-     923   00:0390                      					;Wait Repeat
-     924   00:0390  3E                  	db $3e			;Note 62
-     925   00:0391                      					;Wait Repeat
-     926   00:0391  48                  	db $48			;Note 72
-     927   00:0392                      					;Wait Repeat
-     928   00:0392  47                  	db $47			;Note 71
-     929   00:0393                      					;Wait Repeat
-     930   00:0393  3E                  	db $3e			;Note 62
-     931   00:0394                      					;Wait Repeat
-     932   00:0394  47                  	db $47			;Note 71
-     933   00:0395                      					;Wait Repeat
-     934   00:0395  45                  	db $45			;Note 69
-     935   00:0396                      					;Wait Repeat
-     936   00:0396  43                  	db $43			;Note 67
-     937   00:0397                      					;Wait Repeat
-     938   00:0397  BF                  	db $bf			;[End-Of-Track]
-     939   00:0398                      .track_081:
-     940   00:0398  1F                  	db $1f			;Note 31
-     941   00:0399  1F                  	db $1f			;Note 31
-     942   00:039A  C1                  	db $c1			;Wait 2
-     943   00:039B  1F                  	db $1f			;Note 31
-     944   00:039C                      					;Wait Repeat
-     945   00:039C  1F                  	db $1f			;Note 31
-     946   00:039D                      					;Wait Repeat
-     947   00:039D  1F                  	db $1f			;Note 31
-     948   00:039E                      					;Wait Repeat
-     949   00:039E  1F                  	db $1f			;Note 31
-     950   00:039F                      					;Wait Repeat
-     951   00:039F  1F                  	db $1f			;Note 31
-     952   00:03A0                      					;Wait Repeat
-     953   00:03A0  1F                  	db $1f			;Note 31
-     954   00:03A1                      					;Wait Repeat
-     955   00:03A1  1D                  	db $1d			;Note 29
-     956   00:03A2                      					;Wait Repeat
-     957   00:03A2  1D                  	db $1d			;Note 29
-     958   00:03A3                      					;Wait Repeat
-     959   00:03A3  1D                  	db $1d			;Note 29
-     960   00:03A4                      					;Wait Repeat
-     961   00:03A4  1D                  	db $1d			;Note 29
-     962   00:03A5                      					;Wait Repeat
-     963   00:03A5  1D                  	db $1d			;Note 29
-     964   00:03A6                      					;Wait Repeat
-     965   00:03A6  1D                  	db $1d			;Note 29
-     966   00:03A7                      					;Wait Repeat
-     967   00:03A7  1D                  	db $1d			;Note 29
-     968   00:03A8                      					;Wait Repeat
-     969   00:03A8  1D                  	db $1d			;Note 29
-     970   00:03A9                      					;Wait Repeat
-     971   00:03A9  BF                  	db $bf			;[End-Of-Track]
-     972   00:03AA                      .track_082:
-     973   00:03AA  23                  	db $23			;Note 35
-     974   00:03AB  76                  	db $76			;Instrument 4
-     975   00:03AC  C6                  	db $c6			;Wait 7
-     976   00:03AD  61                  	db $61			;Note 97
-     977   00:03AE  C1                  	db $c1			;Wait 2
-     978   00:03AF  21                  	db $21			;Note 33
-     979   00:03B0                      					;Wait Repeat
-     980   00:03B0  1F                  	db $1f			;Note 31
-     981   00:03B1                      					;Wait Repeat
-     982   00:03B1  26                  	db $26			;Note 38
-     983   00:03B2  C7                  	db $c7			;Wait 8
-     984   00:03B3  61                  	db $61			;Note 97
-     985   00:03B4  C1                  	db $c1			;Wait 2
-     986   00:03B5  2B                  	db $2b			;Note 43
-     987   00:03B6  C3                  	db $c3			;Wait 4
-     988   00:03B7  2D                  	db $2d			;Note 45
-     989   00:03B8                      					;Wait Repeat
-     990   00:03B8  BF                  	db $bf			;[End-Of-Track]
-     991   00:03B9                      .track_083:
-     992   00:03B9  DF                  	db $df			;Wait 32
-     993   00:03BA  BF                  	db $bf			;[End-Of-Track]
-     994   00:03BB                      .track_084:
-     995   00:03BB  DF                  	db $df			;Wait 32
-     996   00:03BC  BF                  	db $bf			;[End-Of-Track]
-     997   00:03BD                      .track_085:
-     998   00:03BD  DF                  	db $df			;Wait 32
-     999   00:03BE  BF                  	db $bf			;[End-Of-Track]
-    1000   00:03BF                      .track_086:
-    1001   00:03BF  DF                  	db $df			;Wait 32
-    1002   00:03C0  BF                  	db $bf			;[End-Of-Track]
-    1003   00:03C1                      .track_087:
-    1004   00:03C1  DF                  	db $df			;Wait 32
-    1005   00:03C2  BF                  	db $bf			;[End-Of-Track]
-    1006   00:03C3                      .track_088:
-    1007   00:03C3  37                  	db $37			;Note 55
-    1008   00:03C4  3E                  	db $3e			;Note 62
-    1009   00:03C5  C1                  	db $c1			;Wait 2
-    1010   00:03C6  43                  	db $43			;Note 67
-    1011   00:03C7                      					;Wait Repeat
-    1012   00:03C7  45                  	db $45			;Note 69
-    1013   00:03C8                      					;Wait Repeat
-    1014   00:03C8  3E                  	db $3e			;Note 62
-    1015   00:03C9                      					;Wait Repeat
-    1016   00:03C9  43                  	db $43			;Note 67
-    1017   00:03CA                      					;Wait Repeat
-    1018   00:03CA  45                  	db $45			;Note 69
-    1019   00:03CB                      					;Wait Repeat
-    1020   00:03CB  3E                  	db $3e			;Note 62
-    1021   00:03CC                      					;Wait Repeat
-    1022   00:03CC  48                  	db $48			;Note 72
-    1023   00:03CD                      					;Wait Repeat
-    1024   00:03CD  3E                  	db $3e			;Note 62
-    1025   00:03CE                      					;Wait Repeat
-    1026   00:03CE  48                  	db $48			;Note 72
-    1027   00:03CF                      					;Wait Repeat
-    1028   00:03CF  47                  	db $47			;Note 71
-    1029   00:03D0                      					;Wait Repeat
-    1030   00:03D0  3E                  	db $3e			;Note 62
-    1031   00:03D1                      					;Wait Repeat
-    1032   00:03D1  47                  	db $47			;Note 71
-    1033   00:03D2                      					;Wait Repeat
-    1034   00:03D2  45                  	db $45			;Note 69
-    1035   00:03D3                      					;Wait Repeat
-    1036   00:03D3  43                  	db $43			;Note 67
-    1037   00:03D4                      					;Wait Repeat
-    1038   00:03D4  BF                  	db $bf			;[End-Of-Track]
-    1039   00:03D5                      .track_089:
-    1040   00:03D5  1C                  	db $1c			;Note 28
-    1041   00:03D6  1C                  	db $1c			;Note 28
-    1042   00:03D7  C1                  	db $c1			;Wait 2
-    1043   00:03D8  1C                  	db $1c			;Note 28
-    1044   00:03D9                      					;Wait Repeat
-    1045   00:03D9  1C                  	db $1c			;Note 28
-    1046   00:03DA                      					;Wait Repeat
-    1047   00:03DA  1C                  	db $1c			;Note 28
-    1048   00:03DB                      					;Wait Repeat
-    1049   00:03DB  1C                  	db $1c			;Note 28
-    1050   00:03DC                      					;Wait Repeat
-    1051   00:03DC  1C                  	db $1c			;Note 28
-    1052   00:03DD                      					;Wait Repeat
-    1053   00:03DD  1C                  	db $1c			;Note 28
-    1054   00:03DE                      					;Wait Repeat
-    1055   00:03DE  1B                  	db $1b			;Note 27
-    1056   00:03DF                      					;Wait Repeat
-    1057   00:03DF  1B                  	db $1b			;Note 27
-    1058   00:03E0                      					;Wait Repeat
-    1059   00:03E0  1B                  	db $1b			;Note 27
-    1060   00:03E1                      					;Wait Repeat
-    1061   00:03E1  1B                  	db $1b			;Note 27
-    1062   00:03E2                      					;Wait Repeat
-    1063   00:03E2  1B                  	db $1b			;Note 27
-    1064   00:03E3                      					;Wait Repeat
-    1065   00:03E3  1B                  	db $1b			;Note 27
-    1066   00:03E4                      					;Wait Repeat
-    1067   00:03E4  1B                  	db $1b			;Note 27
-    1068   00:03E5                      					;Wait Repeat
-    1069   00:03E5  1B                  	db $1b			;Note 27
-    1070   00:03E6                      					;Wait Repeat
-    1071   00:03E6  BF                  	db $bf			;[End-Of-Track]
-    1072   00:03E7                      .track_090:
-    1073   00:03E7  30                  	db $30			;Note 48
-    1074   00:03E8  76                  	db $76			;Instrument 4
-    1075   00:03E9  C4                  	db $c4			;Wait 5
-    1076   00:03EA  2F                  	db $2f			;Note 47
-    1077   00:03EB  78                  	db $78			;Instrument 6
-    1078   00:03EC  C1                  	db $c1			;Wait 2
-    1079   00:03ED  2F                  	db $2f			;Note 47
-    1080   00:03EE  76                  	db $76			;Instrument 4
-    1081   00:03EF  C7                  	db $c7			;Wait 8
-    1082   00:03F0  94 85               	db $94,$85			;CMD Vibrato
-    1083   00:03F2                      					;Wait Repeat
-    1084   00:03F2  32                  	db $32			;Note 50
-    1085   00:03F3  9A                  	db $9a			;CMD End 
-    1086   00:03F4  C3                  	db $c3			;Wait 4
-    1087   00:03F5  30                  	db $30			;Note 48
-    1088   00:03F6                      					;Wait Repeat
-    1089   00:03F6  BF                  	db $bf			;[End-Of-Track]
-    1090   00:03F7                      .track_091:
-    1091   00:03F7  DF                  	db $df			;Wait 32
-    1092   00:03F8  BF                  	db $bf			;[End-Of-Track]
-    1093   00:03F9                      .track_092:
-    1094   00:03F9  DF                  	db $df			;Wait 32
-    1095   00:03FA  BF                  	db $bf			;[End-Of-Track]
-    1096   00:03FB                      .track_093:
-    1097   00:03FB  DF                  	db $df			;Wait 32
-    1098   00:03FC  BF                  	db $bf			;[End-Of-Track]
-    1099   00:03FD                      .track_094:
-    1100   00:03FD  DF                  	db $df			;Wait 32
-    1101   00:03FE  BF                  	db $bf			;[End-Of-Track]
-    1102   00:03FF                      .track_095:
-    1103   00:03FF  DF                  	db $df			;Wait 32
-    1104   00:0400  BF                  	db $bf			;[End-Of-Track]
-    1105   00:0401                      .track_096:
-    1106   00:0401  37                  	db $37			;Note 55
-    1107   00:0402  3E                  	db $3e			;Note 62
-    1108   00:0403  C1                  	db $c1			;Wait 2
-    1109   00:0404  43                  	db $43			;Note 67
-    1110   00:0405                      					;Wait Repeat
-    1111   00:0405  45                  	db $45			;Note 69
-    1112   00:0406                      					;Wait Repeat
-    1113   00:0406  3E                  	db $3e			;Note 62
-    1114   00:0407                      					;Wait Repeat
-    1115   00:0407  43                  	db $43			;Note 67
-    1116   00:0408                      					;Wait Repeat
-    1117   00:0408  45                  	db $45			;Note 69
-    1118   00:0409                      					;Wait Repeat
-    1119   00:0409  3E                  	db $3e			;Note 62
-    1120   00:040A                      					;Wait Repeat
-    1121   00:040A  48                  	db $48			;Note 72
-    1122   00:040B                      					;Wait Repeat
-    1123   00:040B  3E                  	db $3e			;Note 62
-    1124   00:040C                      					;Wait Repeat
-    1125   00:040C  48                  	db $48			;Note 72
-    1126   00:040D                      					;Wait Repeat
-    1127   00:040D  47                  	db $47			;Note 71
-    1128   00:040E                      					;Wait Repeat
-    1129   00:040E  3E                  	db $3e			;Note 62
-    1130   00:040F                      					;Wait Repeat
-    1131   00:040F  47                  	db $47			;Note 71
-    1132   00:0410                      					;Wait Repeat
-    1133   00:0410  45                  	db $45			;Note 69
-    1134   00:0411                      					;Wait Repeat
-    1135   00:0411  43                  	db $43			;Note 67
-    1136   00:0412                      					;Wait Repeat
-    1137   00:0412  BF                  	db $bf			;[End-Of-Track]
-    1138   00:0413                      .track_097:
-    1139   00:0413  26                  	db $26			;Note 38
-    1140   00:0414  78                  	db $78			;Instrument 6
-    1141   00:0415  26                  	db $26			;Note 38
-    1142   00:0416  C1                  	db $c1			;Wait 2
-    1143   00:0417  26                  	db $26			;Note 38
-    1144   00:0418                      					;Wait Repeat
-    1145   00:0418  26                  	db $26			;Note 38
-    1146   00:0419                      					;Wait Repeat
-    1147   00:0419  26                  	db $26			;Note 38
-    1148   00:041A                      					;Wait Repeat
-    1149   00:041A  26                  	db $26			;Note 38
-    1150   00:041B                      					;Wait Repeat
-    1151   00:041B  26                  	db $26			;Note 38
-    1152   00:041C                      					;Wait Repeat
-    1153   00:041C  26                  	db $26			;Note 38
-    1154   00:041D                      					;Wait Repeat
-    1155   00:041D  25                  	db $25			;Note 37
-    1156   00:041E                      					;Wait Repeat
-    1157   00:041E  25                  	db $25			;Note 37
-    1158   00:041F                      					;Wait Repeat
-    1159   00:041F  25                  	db $25			;Note 37
-    1160   00:0420                      					;Wait Repeat
-    1161   00:0420  25                  	db $25			;Note 37
-    1162   00:0421                      					;Wait Repeat
-    1163   00:0421  26                  	db $26			;Note 38
-    1164   00:0422                      					;Wait Repeat
-    1165   00:0422  26                  	db $26			;Note 38
-    1166   00:0423                      					;Wait Repeat
-    1167   00:0423  26                  	db $26			;Note 38
-    1168   00:0424                      					;Wait Repeat
-    1169   00:0424  26                  	db $26			;Note 38
-    1170   00:0425                      					;Wait Repeat
-    1171   00:0425  BF                  	db $bf			;[End-Of-Track]
-    1172   00:0426                      .track_098:
-    1173   00:0426  2F                  	db $2f			;Note 47
-    1174   00:0427  76                  	db $76			;Instrument 4
-    1175   00:0428  30                  	db $30			;Note 48
-    1176   00:0429  C1                  	db $c1			;Wait 2
-    1177   00:042A  2F                  	db $2f			;Note 47
-    1178   00:042B                      					;Wait Repeat
-    1179   00:042B  2B                  	db $2b			;Note 43
-    1180   00:042C  C3                  	db $c3			;Wait 4
-    1181   00:042D  26                  	db $26			;Note 38
-    1182   00:042E  C7                  	db $c7			;Wait 8
-    1183   00:042F  2D                  	db $2d			;Note 45
-    1184   00:0430  C1                  	db $c1			;Wait 2
-    1185   00:0431  2B                  	db $2b			;Note 43
-    1186   00:0432                      					;Wait Repeat
-    1187   00:0432  2A                  	db $2a			;Note 42
-    1188   00:0433                      					;Wait Repeat
-    1189   00:0433  28                  	db $28			;Note 40
-    1190   00:0434                      					;Wait Repeat
-    1191   00:0434  2A                  	db $2a			;Note 42
-    1192   00:0435  C5                  	db $c5			;Wait 6
-    1193   00:0436  BF                  	db $bf			;[End-Of-Track]
-    1194   00:0437                      .track_099:
-    1195   00:0437  DF                  	db $df			;Wait 32
-    1196   00:0438  BF                  	db $bf			;[End-Of-Track]
-    1197   00:0439                      .track_100:
-    1198   00:0439  DF                  	db $df			;Wait 32
-    1199   00:043A  BF                  	db $bf			;[End-Of-Track]
-    1200   00:043B                      .track_101:
-    1201   00:043B  DF                  	db $df			;Wait 32
-    1202   00:043C  BF                  	db $bf			;[End-Of-Track]
-    1203   00:043D                      .track_102:
-    1204   00:043D  DF                  	db $df			;Wait 32
-    1205   00:043E  BF                  	db $bf			;[End-Of-Track]
-    1206   00:043F                      .track_103:
-    1207   00:043F  DF                  	db $df			;Wait 32
-    1208   00:0440  BF                  	db $bf			;[End-Of-Track]
-    1209   00:0441                      .track_104:
-    1210   00:0441  43                  	db $43			;Note 67
-    1211   00:0442  73                  	db $73			;Instrument 1
-    1212   00:0443  3A                  	db $3a			;Note 58
-    1213   00:0444  C1                  	db $c1			;Wait 2
-    1214   00:0445  3F                  	db $3f			;Note 63
-    1215   00:0446                      					;Wait Repeat
-    1216   00:0446  45                  	db $45			;Note 69
-    1217   00:0447                      					;Wait Repeat
-    1218   00:0447  3C                  	db $3c			;Note 60
-    1219   00:0448                      					;Wait Repeat
-    1220   00:0448  45                  	db $45			;Note 69
-    1221   00:0449                      					;Wait Repeat
-    1222   00:0449  48                  	db $48			;Note 72
-    1223   00:044A                      					;Wait Repeat
-    1224   00:044A  47                  	db $47			;Note 71
-    1225   00:044B                      					;Wait Repeat
-    1226   00:044B  43                  	db $43			;Note 67
-    1227   00:044C                      					;Wait Repeat
-    1228   00:044C  3E                  	db $3e			;Note 62
-    1229   00:044D                      					;Wait Repeat
-    1230   00:044D  3C                  	db $3c			;Note 60
-    1231   00:044E                      					;Wait Repeat
-    1232   00:044E  3B                  	db $3b			;Note 59
-    1233   00:044F                      					;Wait Repeat
-    1234   00:044F  37                  	db $37			;Note 55
-    1235   00:0450                      					;Wait Repeat
-    1236   00:0450  32                  	db $32			;Note 50
-    1237   00:0451                      					;Wait Repeat
-    1238   00:0451  30                  	db $30			;Note 48
-    1239   00:0452                      					;Wait Repeat
-    1240   00:0452  2F                  	db $2f			;Note 47
-    1241   00:0453                      					;Wait Repeat
-    1242   00:0453  BF                  	db $bf			;[End-Of-Track]
-    1243   00:0454                      .track_105:
-    1244   00:0454  27                  	db $27			;Note 39
-    1245   00:0455  78                  	db $78			;Instrument 6
-    1246   00:0456  C4                  	db $c4			;Wait 5
-    1247   00:0457  29                  	db $29			;Note 41
-    1248   00:0458  C5                  	db $c5			;Wait 6
-    1249   00:0459  2B                  	db $2b			;Note 43
-    1250   00:045A  74                  	db $74			;Instrument 2
-    1251   00:045B                      					;Wait Repeat
-    1252   00:045B  1F                  	db $1f			;Note 31
-    1253   00:045C  78                  	db $78			;Instrument 6
-    1254   00:045D  C1                  	db $c1			;Wait 2
-    1255   00:045E  1F                  	db $1f			;Note 31
-    1256   00:045F                      					;Wait Repeat
-    1257   00:045F  1F                  	db $1f			;Note 31
-    1258   00:0460                      					;Wait Repeat
-    1259   00:0460  1F                  	db $1f			;Note 31
-    1260   00:0461                      					;Wait Repeat
-    1261   00:0461  1F                  	db $1f			;Note 31
-    1262   00:0462                      					;Wait Repeat
-    1263   00:0462  1F                  	db $1f			;Note 31
-    1264   00:0463                      					;Wait Repeat
-    1265   00:0463  1F                  	db $1f			;Note 31
-    1266   00:0464                      					;Wait Repeat
-    1267   00:0464  BF                  	db $bf			;[End-Of-Track]
-    1268   00:0465                      .track_106:
-    1269   00:0465  2B                  	db $2b			;Note 43
-    1270   00:0466  76                  	db $76			;Instrument 4
-    1271   00:0467  61                  	db $61			;Note 97
-    1272   00:0468  C3                  	db $c3			;Wait 4
-    1273   00:0469  2B                  	db $2b			;Note 43
-    1274   00:046A  C1                  	db $c1			;Wait 2
-    1275   00:046B  61                  	db $61			;Note 97
-    1276   00:046C  C3                  	db $c3			;Wait 4
-    1277   00:046D  2B                  	db $2b			;Note 43
-    1278   00:046E                      					;Wait Repeat
-    1279   00:046E  61                  	db $61			;Note 97
-    1280   00:046F  C1                  	db $c1			;Wait 2
-    1281   00:0470  38                  	db $38			;Note 56
-    1282   00:0471  77                  	db $77			;Instrument 5
-    1283   00:0472  92 02               	db $92,$02			;CMD Portamento down
-    1284   00:0474  CC                  	db $cc			;Wait 13
-    1285   00:0475  9A                  	db $9a			;CMD End 
-    1286   00:0476  BF                  	db $bf			;[End-Of-Track]
-    1287   00:0477                      .track_107:
-    1288   00:0477  DF                  	db $df			;Wait 32
-    1289   00:0478  BF                  	db $bf			;[End-Of-Track]
-    1290   00:0479                      .track_108:
-    1291   00:0479  DF                  	db $df			;Wait 32
-    1292   00:047A  BF                  	db $bf			;[End-Of-Track]
-    1293   00:047B                      .track_109:
-    1294   00:047B  DF                  	db $df			;Wait 32
-    1295   00:047C  BF                  	db $bf			;[End-Of-Track]
-    1296   00:047D                      .track_110:
-    1297   00:047D  DF                  	db $df			;Wait 32
-    1298   00:047E  BF                  	db $bf			;[End-Of-Track]
-    1299   00:047F                      .track_111:
-    1300   00:047F  DF                  	db $df			;Wait 32
-    1301   00:0480  BF                  	db $bf			;[End-Of-Track]
-    1302   00:0481                      .track_112:
-    1303   00:0481  61                  	db $61			;Note 97
-    1304   00:0482  FE                  	db $fe			;Wait 63
-    1305   00:0483  BF                  	db $bf			;[End-Of-Track]
-    1306   00:0484                      .track_113:
-    1307   00:0484  61                  	db $61			;Note 97
-    1308   00:0485  FE                  	db $fe			;Wait 63
-    1309   00:0486  BF                  	db $bf			;[End-Of-Track]
-    1310   00:0487                      .track_114:
-    1311   00:0487  61                  	db $61			;Note 97
-    1312   00:0488  FE                  	db $fe			;Wait 63
-    1313   00:0489  BF                  	db $bf			;[End-Of-Track]
-    1314   00:048A                      .track_115:
-    1315   00:048A  FF                  	db $ff			;Wait 64
-    1316   00:048B  BF                  	db $bf			;[End-Of-Track]
-    1317   00:048C                      .track_116:
-    1318   00:048C  FF                  	db $ff			;Wait 64
-    1319   00:048D  BF                  	db $bf			;[End-Of-Track]
-    1320   00:048E                      .track_117:
-    1321   00:048E  FF                  	db $ff			;Wait 64
-    1322   00:048F  BF                  	db $bf			;[End-Of-Track]
-    1323   00:0490                      .track_118:
-    1324   00:0490  FF                  	db $ff			;Wait 64
-    1325   00:0491  BF                  	db $bf			;[End-Of-Track]
-    1326   00:0492                      .track_119:
-    1327   00:0492  FF                  	db $ff			;Wait 64
-    1328   00:0493  BF                  	db $bf			;[End-Of-Track]
-    1329   00:0494                      .track_120:
-    1330   00:0494  1B                  	db $1b			;Note 27
-    1331   00:0495  6A                  	db $6a			;Volume 8
-    1332   00:0496  76                  	db $76			;Instrument 4
-    1333   00:0497  C2                  	db $c2			;Wait 3
-    1334   00:0498  1B                  	db $1b			;Note 27
-    1335   00:0499  78                  	db $78			;Instrument 6
-    1336   00:049A  C1                  	db $c1			;Wait 2
-    1337   00:049B  1B                  	db $1b			;Note 27
-    1338   00:049C  C3                  	db $c3			;Wait 4
-    1339   00:049D  1B                  	db $1b			;Note 27
-    1340   00:049E                      					;Wait Repeat
-    1341   00:049E  1E                  	db $1e			;Note 30
-    1342   00:049F  76                  	db $76			;Instrument 4
-    1343   00:04A0  CF                  	db $cf			;Wait 16
-    1344   00:04A1  61                  	db $61			;Note 97
-    1345   00:04A2  C1                  	db $c1			;Wait 2
-    1346   00:04A3  BF                  	db $bf			;[End-Of-Track]
-    1347   00:04A4                      .track_121:
-    1348   00:04A4  24                  	db $24			;Note 36
-    1349   00:04A5  78                  	db $78			;Instrument 6
-    1350   00:04A6  24                  	db $24			;Note 36
-    1351   00:04A7  C1                  	db $c1			;Wait 2
-    1352   00:04A8  24                  	db $24			;Note 36
-    1353   00:04A9                      					;Wait Repeat
-    1354   00:04A9  24                  	db $24			;Note 36
-    1355   00:04AA                      					;Wait Repeat
-    1356   00:04AA  24                  	db $24			;Note 36
-    1357   00:04AB                      					;Wait Repeat
-    1358   00:04AB  24                  	db $24			;Note 36
-    1359   00:04AC                      					;Wait Repeat
-    1360   00:04AC  24                  	db $24			;Note 36
-    1361   00:04AD                      					;Wait Repeat
-    1362   00:04AD  24                  	db $24			;Note 36
-    1363   00:04AE                      					;Wait Repeat
-    1364   00:04AE  26                  	db $26			;Note 38
-    1365   00:04AF                      					;Wait Repeat
-    1366   00:04AF  26                  	db $26			;Note 38
-    1367   00:04B0                      					;Wait Repeat
-    1368   00:04B0  26                  	db $26			;Note 38
-    1369   00:04B1                      					;Wait Repeat
-    1370   00:04B1  26                  	db $26			;Note 38
-    1371   00:04B2                      					;Wait Repeat
-    1372   00:04B2  26                  	db $26			;Note 38
-    1373   00:04B3                      					;Wait Repeat
-    1374   00:04B3  26                  	db $26			;Note 38
-    1375   00:04B4                      					;Wait Repeat
-    1376   00:04B4  26                  	db $26			;Note 38
-    1377   00:04B5                      					;Wait Repeat
-    1378   00:04B5  26                  	db $26			;Note 38
-    1379   00:04B6                      					;Wait Repeat
-    1380   00:04B6  BF                  	db $bf			;[End-Of-Track]
-    1381   00:04B7                      .track_122:
-    1382   00:04B7  24                  	db $24			;Note 36
-    1383   00:04B8  76                  	db $76			;Instrument 4
-    1384   00:04B9  C2                  	db $c2			;Wait 3
-    1385   00:04BA  22                  	db $22			;Note 34
-    1386   00:04BB  78                  	db $78			;Instrument 6
-    1387   00:04BC  C1                  	db $c1			;Wait 2
-    1388   00:04BD  24                  	db $24			;Note 36
-    1389   00:04BE  C3                  	db $c3			;Wait 4
-    1390   00:04BF  22                  	db $22			;Note 34
-    1391   00:04C0                      					;Wait Repeat
-    1392   00:04C0  26                  	db $26			;Note 38
-    1393   00:04C1  76                  	db $76			;Instrument 4
-    1394   00:04C2  CF                  	db $cf			;Wait 16
-    1395   00:04C3  61                  	db $61			;Note 97
-    1396   00:04C4  C1                  	db $c1			;Wait 2
-    1397   00:04C5  BF                  	db $bf			;[End-Of-Track]
-    1398   00:04C6                      .track_123:
-    1399   00:04C6  DF                  	db $df			;Wait 32
-    1400   00:04C7  BF                  	db $bf			;[End-Of-Track]
-    1401   00:04C8                      .track_124:
-    1402   00:04C8  DF                  	db $df			;Wait 32
-    1403   00:04C9  BF                  	db $bf			;[End-Of-Track]
-    1404   00:04CA                      .track_125:
-    1405   00:04CA  DF                  	db $df			;Wait 32
-    1406   00:04CB  BF                  	db $bf			;[End-Of-Track]
-    1407   00:04CC                      .track_126:
-    1408   00:04CC  DF                  	db $df			;Wait 32
-    1409   00:04CD  BF                  	db $bf			;[End-Of-Track]
-    1410   00:04CE                      .track_127:
-    1411   00:04CE  DF                  	db $df			;Wait 32
-    1412   00:04CF  BF                  	db $bf			;[End-Of-Track]
-    1413   00:04D0                      
+     165   00:01A3                      .track_008:
+     166   00:01A3  36                  	db $36			;Note 54
+     167   00:01A4  3D                  	db $3d			;Note 61
+     168   00:01A5  C1                  	db $c1			;Wait 2
+     169   00:01A6  42                  	db $42			;Note 66
+     170   00:01A7                      					;Wait Repeat
+     171   00:01A7  44                  	db $44			;Note 68
+     172   00:01A8                      					;Wait Repeat
+     173   00:01A8  3D                  	db $3d			;Note 61
+     174   00:01A9                      					;Wait Repeat
+     175   00:01A9  42                  	db $42			;Note 66
+     176   00:01AA                      					;Wait Repeat
+     177   00:01AA  44                  	db $44			;Note 68
+     178   00:01AB                      					;Wait Repeat
+     179   00:01AB  47                  	db $47			;Note 71
+     180   00:01AC                      					;Wait Repeat
+     181   00:01AC  3D                  	db $3d			;Note 61
+     182   00:01AD                      					;Wait Repeat
+     183   00:01AD  47                  	db $47			;Note 71
+     184   00:01AE                      					;Wait Repeat
+     185   00:01AE  46                  	db $46			;Note 70
+     186   00:01AF                      					;Wait Repeat
+     187   00:01AF  3D                  	db $3d			;Note 61
+     188   00:01B0                      					;Wait Repeat
+     189   00:01B0  46                  	db $46			;Note 70
+     190   00:01B1                      					;Wait Repeat
+     191   00:01B1  44                  	db $44			;Note 68
+     192   00:01B2                      					;Wait Repeat
+     193   00:01B2  42                  	db $42			;Note 66
+     194   00:01B3                      					;Wait Repeat
+     195   00:01B3  BF                  	db $bf			;[End-Of-Track]
+     196   00:01B4                      .track_009:
+     197   00:01B4  2A                  	db $2a			;Note 42
+     198   00:01B5  6F                  	db $6f			;Volume 13
+     199   00:01B6  75                  	db $75			;Instrument 3
+     200   00:01B7  C4                  	db $c4			;Wait 5
+     201   00:01B8  31                  	db $31			;Note 49
+     202   00:01B9  C5                  	db $c5			;Wait 6
+     203   00:01BA  36                  	db $36			;Note 54
+     204   00:01BB  D0                  	db $d0			;Wait 17
+     205   00:01BC  60                  	db $60			;Release 96
+     206   00:01BD  BF                  	db $bf			;[End-Of-Track]
+     207   00:01BE                      .track_010:
+     208   00:01BE  25                  	db $25			;Note 37
+     209   00:01BF  6F                  	db $6f			;Volume 13
+     210   00:01C0  74                  	db $74			;Instrument 2
+     211   00:01C1  C5                  	db $c5			;Wait 6
+     212   00:01C2  94 85               	db $94,$85			;CMD Vibrato
+     213   00:01C4  CA                  	db $ca			;Wait 11
+     214   00:01C5  2A                  	db $2a			;Note 42
+     215   00:01C6  9A                  	db $9a			;CMD End 
+     216   00:01C7  C3                  	db $c3			;Wait 4
+     217   00:01C8  2C                  	db $2c			;Note 44
+     218   00:01C9                      					;Wait Repeat
+     219   00:01C9  2F                  	db $2f			;Note 47
+     220   00:01CA                      					;Wait Repeat
+     221   00:01CA  BF                  	db $bf			;[End-Of-Track]
+     222   00:01CB                      .track_017:
+     223   00:01CB  28                  	db $28			;Note 40
+     224   00:01CC  75                  	db $75			;Instrument 3
+     225   00:01CD  C4                  	db $c4			;Wait 5
+     226   00:01CE  2F                  	db $2f			;Note 47
+     227   00:01CF  C5                  	db $c5			;Wait 6
+     228   00:01D0  34                  	db $34			;Note 52
+     229   00:01D1  D0                  	db $d0			;Wait 17
+     230   00:01D2  60                  	db $60			;Release 96
+     231   00:01D3  BF                  	db $bf			;[End-Of-Track]
+     232   00:01D4                      .track_018:
+     233   00:01D4  2F                  	db $2f			;Note 47
+     234   00:01D5  74                  	db $74			;Instrument 2
+     235   00:01D6  C4                  	db $c4			;Wait 5
+     236   00:01D7  2E                  	db $2e			;Note 46
+     237   00:01D8  C1                  	db $c1			;Wait 2
+     238   00:01D9  2E                  	db $2e			;Note 46
+     239   00:01DA  C4                  	db $c4			;Wait 5
+     240   00:01DB  94 85               	db $94,$85			;CMD Vibrato
+     241   00:01DD  C8                  	db $c8			;Wait 9
+     242   00:01DE  2C                  	db $2c			;Note 44
+     243   00:01DF  9A                  	db $9a			;CMD End 
+     244   00:01E0  C3                  	db $c3			;Wait 4
+     245   00:01E1  2A                  	db $2a			;Note 42
+     246   00:01E2                      					;Wait Repeat
+     247   00:01E2  BF                  	db $bf			;[End-Of-Track]
+     248   00:01E3                      .track_025:
+     249   00:01E3  27                  	db $27			;Note 39
+     250   00:01E4  C4                  	db $c4			;Wait 5
+     251   00:01E5  2E                  	db $2e			;Note 46
+     252   00:01E6  C5                  	db $c5			;Wait 6
+     253   00:01E7  33                  	db $33			;Note 51
+     254   00:01E8  D0                  	db $d0			;Wait 17
+     255   00:01E9  60                  	db $60			;Release 96
+     256   00:01EA  BF                  	db $bf			;[End-Of-Track]
+     257   00:01EB                      .track_026:
+     258   00:01EB  31                  	db $31			;Note 49
+     259   00:01EC  CA                  	db $ca			;Wait 11
+     260   00:01ED  2A                  	db $2a			;Note 42
+     261   00:01EE  CB                  	db $cb			;Wait 12
+     262   00:01EF  36                  	db $36			;Note 54
+     263   00:01F0  C5                  	db $c5			;Wait 6
+     264   00:01F1  BF                  	db $bf			;[End-Of-Track]
+     265   00:01F2                      .track_033:
+     266   00:01F2  26                  	db $26			;Note 38
+     267   00:01F3  C4                  	db $c4			;Wait 5
+     268   00:01F4  2D                  	db $2d			;Note 45
+     269   00:01F5  C5                  	db $c5			;Wait 6
+     270   00:01F6  32                  	db $32			;Note 50
+     271   00:01F7  D0                  	db $d0			;Wait 17
+     272   00:01F8  60                  	db $60			;Release 96
+     273   00:01F9  BF                  	db $bf			;[End-Of-Track]
+     274   00:01FA                      .track_034:
+     275   00:01FA  C6                  	db $c6			;Wait 7
+     276   00:01FB  94 84               	db $94,$84			;CMD Vibrato
+     277   00:01FD  D0                  	db $d0			;Wait 17
+     278   00:01FE  38                  	db $38			;Note 56
+     279   00:01FF  9A                  	db $9a			;CMD End 
+     280   00:0200  C3                  	db $c3			;Wait 4
+     281   00:0201  36                  	db $36			;Note 54
+     282   00:0202  C1                  	db $c1			;Wait 2
+     283   00:0203  BF                  	db $bf			;[End-Of-Track]
+     284   00:0204                      .track_040:
+     285   00:0204  36                  	db $36			;Note 54
+     286   00:0205  3D                  	db $3d			;Note 61
+     287   00:0206  C1                  	db $c1			;Wait 2
+     288   00:0207  42                  	db $42			;Note 66
+     289   00:0208                      					;Wait Repeat
+     290   00:0208  44                  	db $44			;Note 68
+     291   00:0209                      					;Wait Repeat
+     292   00:0209  3D                  	db $3d			;Note 61
+     293   00:020A                      					;Wait Repeat
+     294   00:020A  42                  	db $42			;Note 66
+     295   00:020B                      					;Wait Repeat
+     296   00:020B  44                  	db $44			;Note 68
+     297   00:020C                      					;Wait Repeat
+     298   00:020C  3D                  	db $3d			;Note 61
+     299   00:020D                      					;Wait Repeat
+     300   00:020D  47                  	db $47			;Note 71
+     301   00:020E                      					;Wait Repeat
+     302   00:020E  3D                  	db $3d			;Note 61
+     303   00:020F                      					;Wait Repeat
+     304   00:020F  47                  	db $47			;Note 71
+     305   00:0210                      					;Wait Repeat
+     306   00:0210  46                  	db $46			;Note 70
+     307   00:0211                      					;Wait Repeat
+     308   00:0211  3D                  	db $3d			;Note 61
+     309   00:0212                      					;Wait Repeat
+     310   00:0212  46                  	db $46			;Note 70
+     311   00:0213                      					;Wait Repeat
+     312   00:0213  44                  	db $44			;Note 68
+     313   00:0214                      					;Wait Repeat
+     314   00:0214  42                  	db $42			;Note 66
+     315   00:0215                      					;Wait Repeat
+     316   00:0215  BF                  	db $bf			;[End-Of-Track]
+     317   00:0216                      .track_041:
+     318   00:0216  36                  	db $36			;Note 54
+     319   00:0217  DE                  	db $de			;Wait 31
+     320   00:0218  BF                  	db $bf			;[End-Of-Track]
+     321   00:0219                      .track_042:
+     322   00:0219  3D                  	db $3d			;Note 61
+     323   00:021A  CC                  	db $cc			;Wait 13
+     324   00:021B  94 82               	db $94,$82			;CMD Vibrato
+     325   00:021D  D1                  	db $d1			;Wait 18
+     326   00:021E  BF                  	db $bf			;[End-Of-Track]
+     327   00:021F                      .track_043:
+     328   00:021F  DF                  	db $df			;Wait 32
+     329   00:0220  BF                  	db $bf			;[End-Of-Track]
+     330   00:0221                      .track_049:
+     331   00:0221  1E                  	db $1e			;Note 30
+     332   00:0222  6F                  	db $6f			;Volume 13
+     333   00:0223  78                  	db $78			;Instrument 6
+     334   00:0224  1E                  	db $1e			;Note 30
+     335   00:0225  C1                  	db $c1			;Wait 2
+     336   00:0226  1E                  	db $1e			;Note 30
+     337   00:0227                      					;Wait Repeat
+     338   00:0227  1E                  	db $1e			;Note 30
+     339   00:0228                      					;Wait Repeat
+     340   00:0228  1E                  	db $1e			;Note 30
+     341   00:0229                      					;Wait Repeat
+     342   00:0229  1E                  	db $1e			;Note 30
+     343   00:022A                      					;Wait Repeat
+     344   00:022A  1E                  	db $1e			;Note 30
+     345   00:022B                      					;Wait Repeat
+     346   00:022B  1E                  	db $1e			;Note 30
+     347   00:022C                      					;Wait Repeat
+     348   00:022C  1D                  	db $1d			;Note 29
+     349   00:022D                      					;Wait Repeat
+     350   00:022D  1D                  	db $1d			;Note 29
+     351   00:022E                      					;Wait Repeat
+     352   00:022E  1D                  	db $1d			;Note 29
+     353   00:022F                      					;Wait Repeat
+     354   00:022F  1D                  	db $1d			;Note 29
+     355   00:0230                      					;Wait Repeat
+     356   00:0230  1D                  	db $1d			;Note 29
+     357   00:0231                      					;Wait Repeat
+     358   00:0231  1D                  	db $1d			;Note 29
+     359   00:0232                      					;Wait Repeat
+     360   00:0232  1D                  	db $1d			;Note 29
+     361   00:0233                      					;Wait Repeat
+     362   00:0233  1D                  	db $1d			;Note 29
+     363   00:0234                      					;Wait Repeat
+     364   00:0234  BF                  	db $bf			;[End-Of-Track]
+     365   00:0235                      .track_050:
+     366   00:0235  60                  	db $60			;Release 96
+     367   00:0236  71                  	db $71			;Volume 15
+     368   00:0237  76                  	db $76			;Instrument 4
+     369   00:0238  9A                  	db $9a			;CMD End 
+     370   00:0239  C6                  	db $c6			;Wait 7
+     371   00:023A  22                  	db $22			;Note 34
+     372   00:023B  C1                  	db $c1			;Wait 2
+     373   00:023C  23                  	db $23			;Note 35
+     374   00:023D                      					;Wait Repeat
+     375   00:023D  25                  	db $25			;Note 37
+     376   00:023E  78                  	db $78			;Instrument 6
+     377   00:023F                      					;Wait Repeat
+     378   00:023F  25                  	db $25			;Note 37
+     379   00:0240  76                  	db $76			;Instrument 4
+     380   00:0241  C5                  	db $c5			;Wait 6
+     381   00:0242  2A                  	db $2a			;Note 42
+     382   00:0243  C3                  	db $c3			;Wait 4
+     383   00:0244  29                  	db $29			;Note 41
+     384   00:0245                      					;Wait Repeat
+     385   00:0245  2A                  	db $2a			;Note 42
+     386   00:0246                      					;Wait Repeat
+     387   00:0246  BF                  	db $bf			;[End-Of-Track]
+     388   00:0247                      .track_057:
+     389   00:0247  1B                  	db $1b			;Note 27
+     390   00:0248  1B                  	db $1b			;Note 27
+     391   00:0249  C1                  	db $c1			;Wait 2
+     392   00:024A  1B                  	db $1b			;Note 27
+     393   00:024B                      					;Wait Repeat
+     394   00:024B  1B                  	db $1b			;Note 27
+     395   00:024C                      					;Wait Repeat
+     396   00:024C  1B                  	db $1b			;Note 27
+     397   00:024D                      					;Wait Repeat
+     398   00:024D  1B                  	db $1b			;Note 27
+     399   00:024E                      					;Wait Repeat
+     400   00:024E  1B                  	db $1b			;Note 27
+     401   00:024F                      					;Wait Repeat
+     402   00:024F  1B                  	db $1b			;Note 27
+     403   00:0250                      					;Wait Repeat
+     404   00:0250  19                  	db $19			;Note 25
+     405   00:0251                      					;Wait Repeat
+     406   00:0251  19                  	db $19			;Note 25
+     407   00:0252                      					;Wait Repeat
+     408   00:0252  19                  	db $19			;Note 25
+     409   00:0253                      					;Wait Repeat
+     410   00:0253  19                  	db $19			;Note 25
+     411   00:0254                      					;Wait Repeat
+     412   00:0254  19                  	db $19			;Note 25
+     413   00:0255                      					;Wait Repeat
+     414   00:0255  19                  	db $19			;Note 25
+     415   00:0256                      					;Wait Repeat
+     416   00:0256  19                  	db $19			;Note 25
+     417   00:0257                      					;Wait Repeat
+     418   00:0257  19                  	db $19			;Note 25
+     419   00:0258                      					;Wait Repeat
+     420   00:0258  BF                  	db $bf			;[End-Of-Track]
+     421   00:0259                      .track_058:
+     422   00:0259  2C                  	db $2c			;Note 44
+     423   00:025A  C2                  	db $c2			;Wait 3
+     424   00:025B  2E                  	db $2e			;Note 46
+     425   00:025C  C1                  	db $c1			;Wait 2
+     426   00:025D  2A                  	db $2a			;Note 42
+     427   00:025E  C9                  	db $c9			;Wait 10
+     428   00:025F  94 85               	db $94,$85			;CMD Vibrato
+     429   00:0261  CB                  	db $cb			;Wait 12
+     430   00:0262  29                  	db $29			;Note 41
+     431   00:0263  9A                  	db $9a			;CMD End 
+     432   00:0264  C1                  	db $c1			;Wait 2
+     433   00:0265  2A                  	db $2a			;Note 42
+     434   00:0266                      					;Wait Repeat
+     435   00:0266  BF                  	db $bf			;[End-Of-Track]
+     436   00:0267                      .track_065:
+     437   00:0267  23                  	db $23			;Note 35
+     438   00:0268  23                  	db $23			;Note 35
+     439   00:0269  C1                  	db $c1			;Wait 2
+     440   00:026A  23                  	db $23			;Note 35
+     441   00:026B                      					;Wait Repeat
+     442   00:026B  23                  	db $23			;Note 35
+     443   00:026C                      					;Wait Repeat
+     444   00:026C  23                  	db $23			;Note 35
+     445   00:026D                      					;Wait Repeat
+     446   00:026D  23                  	db $23			;Note 35
+     447   00:026E                      					;Wait Repeat
+     448   00:026E  23                  	db $23			;Note 35
+     449   00:026F                      					;Wait Repeat
+     450   00:026F  23                  	db $23			;Note 35
+     451   00:0270                      					;Wait Repeat
+     452   00:0270  24                  	db $24			;Note 36
+     453   00:0271                      					;Wait Repeat
+     454   00:0271  24                  	db $24			;Note 36
+     455   00:0272                      					;Wait Repeat
+     456   00:0272  24                  	db $24			;Note 36
+     457   00:0273                      					;Wait Repeat
+     458   00:0273  24                  	db $24			;Note 36
+     459   00:0274                      					;Wait Repeat
+     460   00:0274  24                  	db $24			;Note 36
+     461   00:0275                      					;Wait Repeat
+     462   00:0275  24                  	db $24			;Note 36
+     463   00:0276                      					;Wait Repeat
+     464   00:0276  24                  	db $24			;Note 36
+     465   00:0277                      					;Wait Repeat
+     466   00:0277  24                  	db $24			;Note 36
+     467   00:0278                      					;Wait Repeat
+     468   00:0278  BF                  	db $bf			;[End-Of-Track]
+     469   00:0279                      .track_066:
+     470   00:0279  31                  	db $31			;Note 49
+     471   00:027A  76                  	db $76			;Instrument 4
+     472   00:027B  C4                  	db $c4			;Wait 5
+     473   00:027C  2A                  	db $2a			;Note 42
+     474   00:027D  78                  	db $78			;Instrument 6
+     475   00:027E  C1                  	db $c1			;Wait 2
+     476   00:027F  2A                  	db $2a			;Note 42
+     477   00:0280  76                  	db $76			;Instrument 4
+     478   00:0281  C7                  	db $c7			;Wait 8
+     479   00:0282  94 85               	db $94,$85			;CMD Vibrato
+     480   00:0284  CB                  	db $cb			;Wait 12
+     481   00:0285  2A                  	db $2a			;Note 42
+     482   00:0286  78                  	db $78			;Instrument 6
+     483   00:0287  C1                  	db $c1			;Wait 2
+     484   00:0288  2A                  	db $2a			;Note 42
+     485   00:0289                      					;Wait Repeat
+     486   00:0289  BF                  	db $bf			;[End-Of-Track]
+     487   00:028A                      .track_073:
+     488   00:028A  19                  	db $19			;Note 25
+     489   00:028B  19                  	db $19			;Note 25
+     490   00:028C  C1                  	db $c1			;Wait 2
+     491   00:028D  19                  	db $19			;Note 25
+     492   00:028E                      					;Wait Repeat
+     493   00:028E  19                  	db $19			;Note 25
+     494   00:028F                      					;Wait Repeat
+     495   00:028F  19                  	db $19			;Note 25
+     496   00:0290                      					;Wait Repeat
+     497   00:0290  19                  	db $19			;Note 25
+     498   00:0291                      					;Wait Repeat
+     499   00:0291  19                  	db $19			;Note 25
+     500   00:0292                      					;Wait Repeat
+     501   00:0292  19                  	db $19			;Note 25
+     502   00:0293                      					;Wait Repeat
+     503   00:0293  19                  	db $19			;Note 25
+     504   00:0294                      					;Wait Repeat
+     505   00:0294  19                  	db $19			;Note 25
+     506   00:0295                      					;Wait Repeat
+     507   00:0295  19                  	db $19			;Note 25
+     508   00:0296                      					;Wait Repeat
+     509   00:0296  19                  	db $19			;Note 25
+     510   00:0297                      					;Wait Repeat
+     511   00:0297  19                  	db $19			;Note 25
+     512   00:0298                      					;Wait Repeat
+     513   00:0298  19                  	db $19			;Note 25
+     514   00:0299                      					;Wait Repeat
+     515   00:0299  19                  	db $19			;Note 25
+     516   00:029A                      					;Wait Repeat
+     517   00:029A  19                  	db $19			;Note 25
+     518   00:029B                      					;Wait Repeat
+     519   00:029B  BF                  	db $bf			;[End-Of-Track]
+     520   00:029C                      .track_074:
+     521   00:029C  2A                  	db $2a			;Note 42
+     522   00:029D  76                  	db $76			;Instrument 4
+     523   00:029E  C6                  	db $c6			;Wait 7
+     524   00:029F  60                  	db $60			;Release 96
+     525   00:02A0  C1                  	db $c1			;Wait 2
+     526   00:02A1  2C                  	db $2c			;Note 44
+     527   00:02A2                      					;Wait Repeat
+     528   00:02A2  2A                  	db $2a			;Note 42
+     529   00:02A3                      					;Wait Repeat
+     530   00:02A3  29                  	db $29			;Note 41
+     531   00:02A4  C7                  	db $c7			;Wait 8
+     532   00:02A5  94 85               	db $94,$85			;CMD Vibrato
+     533   00:02A7  C8                  	db $c8			;Wait 9
+     534   00:02A8  60                  	db $60			;Release 96
+     535   00:02A9  9A                  	db $9a			;CMD End 
+     536   00:02AA  BF                  	db $bf			;[End-Of-Track]
+     537   00:02AB                      .track_081:
+     538   00:02AB  1E                  	db $1e			;Note 30
+     539   00:02AC  1E                  	db $1e			;Note 30
+     540   00:02AD  C1                  	db $c1			;Wait 2
+     541   00:02AE  1E                  	db $1e			;Note 30
+     542   00:02AF                      					;Wait Repeat
+     543   00:02AF  1E                  	db $1e			;Note 30
+     544   00:02B0                      					;Wait Repeat
+     545   00:02B0  1E                  	db $1e			;Note 30
+     546   00:02B1                      					;Wait Repeat
+     547   00:02B1  1E                  	db $1e			;Note 30
+     548   00:02B2                      					;Wait Repeat
+     549   00:02B2  1E                  	db $1e			;Note 30
+     550   00:02B3                      					;Wait Repeat
+     551   00:02B3  1E                  	db $1e			;Note 30
+     552   00:02B4                      					;Wait Repeat
+     553   00:02B4  1C                  	db $1c			;Note 28
+     554   00:02B5                      					;Wait Repeat
+     555   00:02B5  1C                  	db $1c			;Note 28
+     556   00:02B6                      					;Wait Repeat
+     557   00:02B6  1C                  	db $1c			;Note 28
+     558   00:02B7                      					;Wait Repeat
+     559   00:02B7  1C                  	db $1c			;Note 28
+     560   00:02B8                      					;Wait Repeat
+     561   00:02B8  1C                  	db $1c			;Note 28
+     562   00:02B9                      					;Wait Repeat
+     563   00:02B9  1C                  	db $1c			;Note 28
+     564   00:02BA                      					;Wait Repeat
+     565   00:02BA  1C                  	db $1c			;Note 28
+     566   00:02BB                      					;Wait Repeat
+     567   00:02BB  1C                  	db $1c			;Note 28
+     568   00:02BC                      					;Wait Repeat
+     569   00:02BC  BF                  	db $bf			;[End-Of-Track]
+     570   00:02BD                      .track_082:
+     571   00:02BD  22                  	db $22			;Note 34
+     572   00:02BE  76                  	db $76			;Instrument 4
+     573   00:02BF  C6                  	db $c6			;Wait 7
+     574   00:02C0  60                  	db $60			;Release 96
+     575   00:02C1  C1                  	db $c1			;Wait 2
+     576   00:02C2  20                  	db $20			;Note 32
+     577   00:02C3                      					;Wait Repeat
+     578   00:02C3  1E                  	db $1e			;Note 30
+     579   00:02C4                      					;Wait Repeat
+     580   00:02C4  25                  	db $25			;Note 37
+     581   00:02C5  C7                  	db $c7			;Wait 8
+     582   00:02C6  60                  	db $60			;Release 96
+     583   00:02C7  C1                  	db $c1			;Wait 2
+     584   00:02C8  2A                  	db $2a			;Note 42
+     585   00:02C9  C3                  	db $c3			;Wait 4
+     586   00:02CA  2C                  	db $2c			;Note 44
+     587   00:02CB                      					;Wait Repeat
+     588   00:02CB  BF                  	db $bf			;[End-Of-Track]
+     589   00:02CC                      .track_089:
+     590   00:02CC  1B                  	db $1b			;Note 27
+     591   00:02CD  1B                  	db $1b			;Note 27
+     592   00:02CE  C1                  	db $c1			;Wait 2
+     593   00:02CF  1B                  	db $1b			;Note 27
+     594   00:02D0                      					;Wait Repeat
+     595   00:02D0  1B                  	db $1b			;Note 27
+     596   00:02D1                      					;Wait Repeat
+     597   00:02D1  1B                  	db $1b			;Note 27
+     598   00:02D2                      					;Wait Repeat
+     599   00:02D2  1B                  	db $1b			;Note 27
+     600   00:02D3                      					;Wait Repeat
+     601   00:02D3  1B                  	db $1b			;Note 27
+     602   00:02D4                      					;Wait Repeat
+     603   00:02D4  1B                  	db $1b			;Note 27
+     604   00:02D5                      					;Wait Repeat
+     605   00:02D5  1A                  	db $1a			;Note 26
+     606   00:02D6                      					;Wait Repeat
+     607   00:02D6  1A                  	db $1a			;Note 26
+     608   00:02D7                      					;Wait Repeat
+     609   00:02D7  1A                  	db $1a			;Note 26
+     610   00:02D8                      					;Wait Repeat
+     611   00:02D8  1A                  	db $1a			;Note 26
+     612   00:02D9                      					;Wait Repeat
+     613   00:02D9  1A                  	db $1a			;Note 26
+     614   00:02DA                      					;Wait Repeat
+     615   00:02DA  1A                  	db $1a			;Note 26
+     616   00:02DB                      					;Wait Repeat
+     617   00:02DB  1A                  	db $1a			;Note 26
+     618   00:02DC                      					;Wait Repeat
+     619   00:02DC  1A                  	db $1a			;Note 26
+     620   00:02DD                      					;Wait Repeat
+     621   00:02DD  BF                  	db $bf			;[End-Of-Track]
+     622   00:02DE                      .track_090:
+     623   00:02DE  2F                  	db $2f			;Note 47
+     624   00:02DF  76                  	db $76			;Instrument 4
+     625   00:02E0  C4                  	db $c4			;Wait 5
+     626   00:02E1  2E                  	db $2e			;Note 46
+     627   00:02E2  78                  	db $78			;Instrument 6
+     628   00:02E3  C1                  	db $c1			;Wait 2
+     629   00:02E4  2E                  	db $2e			;Note 46
+     630   00:02E5  76                  	db $76			;Instrument 4
+     631   00:02E6  C7                  	db $c7			;Wait 8
+     632   00:02E7  94 85               	db $94,$85			;CMD Vibrato
+     633   00:02E9                      					;Wait Repeat
+     634   00:02E9  31                  	db $31			;Note 49
+     635   00:02EA  9A                  	db $9a			;CMD End 
+     636   00:02EB  C3                  	db $c3			;Wait 4
+     637   00:02EC  2F                  	db $2f			;Note 47
+     638   00:02ED                      					;Wait Repeat
+     639   00:02ED  BF                  	db $bf			;[End-Of-Track]
+     640   00:02EE                      .track_097:
+     641   00:02EE  25                  	db $25			;Note 37
+     642   00:02EF  78                  	db $78			;Instrument 6
+     643   00:02F0  25                  	db $25			;Note 37
+     644   00:02F1  C1                  	db $c1			;Wait 2
+     645   00:02F2  25                  	db $25			;Note 37
+     646   00:02F3                      					;Wait Repeat
+     647   00:02F3  25                  	db $25			;Note 37
+     648   00:02F4                      					;Wait Repeat
+     649   00:02F4  25                  	db $25			;Note 37
+     650   00:02F5                      					;Wait Repeat
+     651   00:02F5  25                  	db $25			;Note 37
+     652   00:02F6                      					;Wait Repeat
+     653   00:02F6  25                  	db $25			;Note 37
+     654   00:02F7                      					;Wait Repeat
+     655   00:02F7  25                  	db $25			;Note 37
+     656   00:02F8                      					;Wait Repeat
+     657   00:02F8  24                  	db $24			;Note 36
+     658   00:02F9                      					;Wait Repeat
+     659   00:02F9  24                  	db $24			;Note 36
+     660   00:02FA                      					;Wait Repeat
+     661   00:02FA  24                  	db $24			;Note 36
+     662   00:02FB                      					;Wait Repeat
+     663   00:02FB  24                  	db $24			;Note 36
+     664   00:02FC                      					;Wait Repeat
+     665   00:02FC  25                  	db $25			;Note 37
+     666   00:02FD                      					;Wait Repeat
+     667   00:02FD  25                  	db $25			;Note 37
+     668   00:02FE                      					;Wait Repeat
+     669   00:02FE  25                  	db $25			;Note 37
+     670   00:02FF                      					;Wait Repeat
+     671   00:02FF  25                  	db $25			;Note 37
+     672   00:0300                      					;Wait Repeat
+     673   00:0300  BF                  	db $bf			;[End-Of-Track]
+     674   00:0301                      .track_098:
+     675   00:0301  2E                  	db $2e			;Note 46
+     676   00:0302  76                  	db $76			;Instrument 4
+     677   00:0303  2F                  	db $2f			;Note 47
+     678   00:0304  C1                  	db $c1			;Wait 2
+     679   00:0305  2E                  	db $2e			;Note 46
+     680   00:0306                      					;Wait Repeat
+     681   00:0306  2A                  	db $2a			;Note 42
+     682   00:0307  C3                  	db $c3			;Wait 4
+     683   00:0308  25                  	db $25			;Note 37
+     684   00:0309  C7                  	db $c7			;Wait 8
+     685   00:030A  2C                  	db $2c			;Note 44
+     686   00:030B  C1                  	db $c1			;Wait 2
+     687   00:030C  2A                  	db $2a			;Note 42
+     688   00:030D                      					;Wait Repeat
+     689   00:030D  29                  	db $29			;Note 41
+     690   00:030E                      					;Wait Repeat
+     691   00:030E  27                  	db $27			;Note 39
+     692   00:030F                      					;Wait Repeat
+     693   00:030F  29                  	db $29			;Note 41
+     694   00:0310  C5                  	db $c5			;Wait 6
+     695   00:0311  BF                  	db $bf			;[End-Of-Track]
+     696   00:0312                      .track_104:
+     697   00:0312  42                  	db $42			;Note 66
+     698   00:0313  73                  	db $73			;Instrument 1
+     699   00:0314  39                  	db $39			;Note 57
+     700   00:0315  C1                  	db $c1			;Wait 2
+     701   00:0316  3E                  	db $3e			;Note 62
+     702   00:0317                      					;Wait Repeat
+     703   00:0317  44                  	db $44			;Note 68
+     704   00:0318                      					;Wait Repeat
+     705   00:0318  3B                  	db $3b			;Note 59
+     706   00:0319                      					;Wait Repeat
+     707   00:0319  44                  	db $44			;Note 68
+     708   00:031A                      					;Wait Repeat
+     709   00:031A  47                  	db $47			;Note 71
+     710   00:031B                      					;Wait Repeat
+     711   00:031B  46                  	db $46			;Note 70
+     712   00:031C                      					;Wait Repeat
+     713   00:031C  42                  	db $42			;Note 66
+     714   00:031D                      					;Wait Repeat
+     715   00:031D  3D                  	db $3d			;Note 61
+     716   00:031E                      					;Wait Repeat
+     717   00:031E  3B                  	db $3b			;Note 59
+     718   00:031F                      					;Wait Repeat
+     719   00:031F  3A                  	db $3a			;Note 58
+     720   00:0320                      					;Wait Repeat
+     721   00:0320  36                  	db $36			;Note 54
+     722   00:0321                      					;Wait Repeat
+     723   00:0321  31                  	db $31			;Note 49
+     724   00:0322                      					;Wait Repeat
+     725   00:0322  2F                  	db $2f			;Note 47
+     726   00:0323                      					;Wait Repeat
+     727   00:0323  2E                  	db $2e			;Note 46
+     728   00:0324                      					;Wait Repeat
+     729   00:0324  BF                  	db $bf			;[End-Of-Track]
+     730   00:0325                      .track_105:
+     731   00:0325  26                  	db $26			;Note 38
+     732   00:0326  78                  	db $78			;Instrument 6
+     733   00:0327  C4                  	db $c4			;Wait 5
+     734   00:0328  28                  	db $28			;Note 40
+     735   00:0329  C5                  	db $c5			;Wait 6
+     736   00:032A  2A                  	db $2a			;Note 42
+     737   00:032B  74                  	db $74			;Instrument 2
+     738   00:032C                      					;Wait Repeat
+     739   00:032C  1E                  	db $1e			;Note 30
+     740   00:032D  78                  	db $78			;Instrument 6
+     741   00:032E  C1                  	db $c1			;Wait 2
+     742   00:032F  1E                  	db $1e			;Note 30
+     743   00:0330                      					;Wait Repeat
+     744   00:0330  1E                  	db $1e			;Note 30
+     745   00:0331                      					;Wait Repeat
+     746   00:0331  1E                  	db $1e			;Note 30
+     747   00:0332                      					;Wait Repeat
+     748   00:0332  1E                  	db $1e			;Note 30
+     749   00:0333                      					;Wait Repeat
+     750   00:0333  1E                  	db $1e			;Note 30
+     751   00:0334                      					;Wait Repeat
+     752   00:0334  1E                  	db $1e			;Note 30
+     753   00:0335                      					;Wait Repeat
+     754   00:0335  BF                  	db $bf			;[End-Of-Track]
+     755   00:0336                      .track_106:
+     756   00:0336  2A                  	db $2a			;Note 42
+     757   00:0337  76                  	db $76			;Instrument 4
+     758   00:0338  60                  	db $60			;Release 96
+     759   00:0339  C3                  	db $c3			;Wait 4
+     760   00:033A  2A                  	db $2a			;Note 42
+     761   00:033B  C1                  	db $c1			;Wait 2
+     762   00:033C  60                  	db $60			;Release 96
+     763   00:033D  C3                  	db $c3			;Wait 4
+     764   00:033E  2A                  	db $2a			;Note 42
+     765   00:033F                      					;Wait Repeat
+     766   00:033F  60                  	db $60			;Release 96
+     767   00:0340  C1                  	db $c1			;Wait 2
+     768   00:0341  37                  	db $37			;Note 55
+     769   00:0342  77                  	db $77			;Instrument 5
+     770   00:0343  92 02               	db $92,$02			;CMD Portamento down
+     771   00:0345  CC                  	db $cc			;Wait 13
+     772   00:0346  9A                  	db $9a			;CMD End 
+     773   00:0347  BF                  	db $bf			;[End-Of-Track]
+     774   00:0348                      .track_112:
+     775   00:0348  60                  	db $60			;Release 96
+     776   00:0349  FE                  	db $fe			;Wait 63
+     777   00:034A  BF                  	db $bf			;[End-Of-Track]
+     778   00:034B                      .track_115:
+     779   00:034B  FF                  	db $ff			;Wait 64
+     780   00:034C  BF                  	db $bf			;[End-Of-Track]
+     781   00:034D                      .track_120:
+     782   00:034D  1A                  	db $1a			;Note 26
+     783   00:034E  6A                  	db $6a			;Volume 8
+     784   00:034F  76                  	db $76			;Instrument 4
+     785   00:0350  C2                  	db $c2			;Wait 3
+     786   00:0351  1A                  	db $1a			;Note 26
+     787   00:0352  78                  	db $78			;Instrument 6
+     788   00:0353  C1                  	db $c1			;Wait 2
+     789   00:0354  1A                  	db $1a			;Note 26
+     790   00:0355  C3                  	db $c3			;Wait 4
+     791   00:0356  1A                  	db $1a			;Note 26
+     792   00:0357                      					;Wait Repeat
+     793   00:0357  1D                  	db $1d			;Note 29
+     794   00:0358  76                  	db $76			;Instrument 4
+     795   00:0359  CF                  	db $cf			;Wait 16
+     796   00:035A  60                  	db $60			;Release 96
+     797   00:035B  C1                  	db $c1			;Wait 2
+     798   00:035C  BF                  	db $bf			;[End-Of-Track]
+     799   00:035D                      .track_121:
+     800   00:035D  23                  	db $23			;Note 35
+     801   00:035E  78                  	db $78			;Instrument 6
+     802   00:035F  23                  	db $23			;Note 35
+     803   00:0360  C1                  	db $c1			;Wait 2
+     804   00:0361  23                  	db $23			;Note 35
+     805   00:0362                      					;Wait Repeat
+     806   00:0362  23                  	db $23			;Note 35
+     807   00:0363                      					;Wait Repeat
+     808   00:0363  23                  	db $23			;Note 35
+     809   00:0364                      					;Wait Repeat
+     810   00:0364  23                  	db $23			;Note 35
+     811   00:0365                      					;Wait Repeat
+     812   00:0365  23                  	db $23			;Note 35
+     813   00:0366                      					;Wait Repeat
+     814   00:0366  23                  	db $23			;Note 35
+     815   00:0367                      					;Wait Repeat
+     816   00:0367  25                  	db $25			;Note 37
+     817   00:0368                      					;Wait Repeat
+     818   00:0368  25                  	db $25			;Note 37
+     819   00:0369                      					;Wait Repeat
+     820   00:0369  25                  	db $25			;Note 37
+     821   00:036A                      					;Wait Repeat
+     822   00:036A  25                  	db $25			;Note 37
+     823   00:036B                      					;Wait Repeat
+     824   00:036B  25                  	db $25			;Note 37
+     825   00:036C                      					;Wait Repeat
+     826   00:036C  25                  	db $25			;Note 37
+     827   00:036D                      					;Wait Repeat
+     828   00:036D  25                  	db $25			;Note 37
+     829   00:036E                      					;Wait Repeat
+     830   00:036E  25                  	db $25			;Note 37
+     831   00:036F                      					;Wait Repeat
+     832   00:036F  BF                  	db $bf			;[End-Of-Track]
+     833   00:0370                      .track_122:
+     834   00:0370  23                  	db $23			;Note 35
+     835   00:0371  76                  	db $76			;Instrument 4
+     836   00:0372  C2                  	db $c2			;Wait 3
+     837   00:0373  21                  	db $21			;Note 33
+     838   00:0374  78                  	db $78			;Instrument 6
+     839   00:0375  C1                  	db $c1			;Wait 2
+     840   00:0376  23                  	db $23			;Note 35
+     841   00:0377  C3                  	db $c3			;Wait 4
+     842   00:0378  21                  	db $21			;Note 33
+     843   00:0379                      					;Wait Repeat
+     844   00:0379  25                  	db $25			;Note 37
+     845   00:037A  76                  	db $76			;Instrument 4
+     846   00:037B  CF                  	db $cf			;Wait 16
+     847   00:037C  60                  	db $60			;Release 96
+     848   00:037D  C1                  	db $c1			;Wait 2
+     849   00:037E  BF                  	db $bf			;[End-Of-Track]
+     850   00:037F                      
 
     LABELS
 -------------------------------------------------
@@ -1457,137 +894,48 @@ Errors: 0
 00:00000197   _.track_001
 00:0000019C   _.track_002
 00:000001A1   _.track_003
-00:000001A3   _.track_004
-00:000001A5   _.track_005
-00:000001A7   _.track_006
-00:000001A9   _.track_007
-00:000001AB   _.track_008
-00:000001BC   _.track_009
-00:000001C6   _.track_010
-00:000001D3   _.track_011
-00:000001D5   _.track_012
-00:000001D7   _.track_013
-00:000001D9   _.track_014
-00:000001DB   _.track_015
-00:000001DD   _.track_016
-00:000001EE   _.track_017
-00:000001F7   _.track_018
-00:00000206   _.track_019
-00:00000208   _.track_020
-00:0000020A   _.track_021
-00:0000020C   _.track_022
-00:0000020E   _.track_023
-00:00000210   _.track_024
-00:00000221   _.track_025
-00:00000229   _.track_026
-00:00000230   _.track_027
-00:00000232   _.track_028
-00:00000234   _.track_029
-00:00000236   _.track_030
-00:00000238   _.track_031
-00:0000023A   _.track_032
-00:0000024B   _.track_033
-00:00000253   _.track_034
-00:0000025D   _.track_035
-00:0000025F   _.track_036
-00:00000261   _.track_037
-00:00000263   _.track_038
-00:00000265   _.track_039
-00:00000267   _.track_040
-00:00000279   _.track_041
-00:0000027C   _.track_042
-00:00000282   _.track_043
-00:00000284   _.track_044
-00:00000286   _.track_045
-00:00000288   _.track_046
-00:0000028A   _.track_047
-00:0000028C   _.track_048
-00:0000029E   _.track_049
-00:000002B2   _.track_050
-00:000002C4   _.track_051
-00:000002C6   _.track_052
-00:000002C8   _.track_053
-00:000002CA   _.track_054
-00:000002CC   _.track_055
-00:000002CE   _.track_056
-00:000002E0   _.track_057
-00:000002F2   _.track_058
-00:00000300   _.track_059
-00:00000302   _.track_060
-00:00000304   _.track_061
-00:00000306   _.track_062
-00:00000308   _.track_063
-00:0000030A   _.track_064
-00:0000031C   _.track_065
-00:0000032E   _.track_066
-00:0000033F   _.track_067
-00:00000341   _.track_068
-00:00000343   _.track_069
-00:00000345   _.track_070
-00:00000347   _.track_071
-00:00000349   _.track_072
-00:0000035B   _.track_073
-00:0000036D   _.track_074
-00:0000037C   _.track_075
-00:0000037E   _.track_076
-00:00000380   _.track_077
-00:00000382   _.track_078
-00:00000384   _.track_079
-00:00000386   _.track_080
-00:00000398   _.track_081
-00:000003AA   _.track_082
-00:000003B9   _.track_083
-00:000003BB   _.track_084
-00:000003BD   _.track_085
-00:000003BF   _.track_086
-00:000003C1   _.track_087
-00:000003C3   _.track_088
-00:000003D5   _.track_089
-00:000003E7   _.track_090
-00:000003F7   _.track_091
-00:000003F9   _.track_092
-00:000003FB   _.track_093
-00:000003FD   _.track_094
-00:000003FF   _.track_095
-00:00000401   _.track_096
-00:00000413   _.track_097
-00:00000426   _.track_098
-00:00000437   _.track_099
-00:00000439   _.track_100
-00:0000043B   _.track_101
-00:0000043D   _.track_102
-00:0000043F   _.track_103
-00:00000441   _.track_104
-00:00000454   _.track_105
-00:00000465   _.track_106
-00:00000477   _.track_107
-00:00000479   _.track_108
-00:0000047B   _.track_109
-00:0000047D   _.track_110
-00:0000047F   _.track_111
-00:00000481   _.track_112
-00:00000484   _.track_113
-00:00000487   _.track_114
-00:0000048A   _.track_115
-00:0000048C   _.track_116
-00:0000048E   _.track_117
-00:00000490   _.track_118
-00:00000492   _.track_119
-00:00000494   _.track_120
-00:000004A4   _.track_121
-00:000004B7   _.track_122
-00:000004C6   _.track_123
-00:000004C8   _.track_124
-00:000004CA   _.track_125
-00:000004CC   _.track_126
-00:000004CE   _.track_127
+00:000001A3   _.track_008
+00:000001B4   _.track_009
+00:000001BE   _.track_010
+00:000001CB   _.track_017
+00:000001D4   _.track_018
+00:000001E3   _.track_025
+00:000001EB   _.track_026
+00:000001F2   _.track_033
+00:000001FA   _.track_034
+00:00000204   _.track_040
+00:00000216   _.track_041
+00:00000219   _.track_042
+00:0000021F   _.track_043
+00:00000221   _.track_049
+00:00000235   _.track_050
+00:00000247   _.track_057
+00:00000259   _.track_058
+00:00000267   _.track_065
+00:00000279   _.track_066
+00:0000028A   _.track_073
+00:0000029C   _.track_074
+00:000002AB   _.track_081
+00:000002BD   _.track_082
+00:000002CC   _.track_089
+00:000002DE   _.track_090
+00:000002EE   _.track_097
+00:00000301   _.track_098
+00:00000312   _.track_104
+00:00000325   _.track_105
+00:00000336   _.track_106
+00:00000348   _.track_112
+00:0000034B   _.track_115
+00:0000034D   _.track_120
+00:0000035D   _.track_121
+00:00000370   _.track_122
 
 
  Output: test.out
 -------------------------------------------------
 
  Page: 00
-  Org: 00000000  Size: *  Used: 000004D0
+  Org: 00000000  Size: *  Used: 0000037F
 
    Address   Length Align   Label
-   00000000    1232         _.restart
+   00000000     895         _.restart

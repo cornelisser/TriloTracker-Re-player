@@ -231,14 +231,14 @@ def export_asm(outfile,song):
 			step+=1
 			pat = song.get_pattern(val)
 			file.write(f"{_DW}")
-			file.write(f" {_CHILD}track_{pat.tracks[0]:03},")
-			file.write(f" {_CHILD}track_{pat.tracks[1]:03},")
-			file.write(f" {_CHILD}track_{pat.tracks[2]:03},")
-			file.write(f" {_CHILD}track_{pat.tracks[3]:03},")			
-			file.write(f" {_CHILD}track_{pat.tracks[4]:03},")
-			file.write(f" {_CHILD}track_{pat.tracks[5]:03},")			
-			file.write(f" {_CHILD}track_{pat.tracks[6]:03},")
-			file.write(f" {_CHILD}track_{pat.tracks[7]:03}\t; Step:{step:03} Pattern:{pat.number:03}\n")		
+			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[0]].export_number:03},")
+			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[1]].export_number:03},")
+			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[2]].export_number:03},")
+			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[3]].export_number:03},")			
+			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[4]].export_number:03},")
+			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[5]].export_number:03},")			
+			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[6]].export_number:03},")
+			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[7]].export_number:03}\t; Step:{step:03} Pattern:{pat.number:03}\n")		
 		file.write(f"{_DW} 0x0000, {_CHILD}restart\t\t\t; End of sequence delimiter + restart address.\n\n")
 
 
@@ -631,6 +631,8 @@ song.debug()
 
 
 export_asm(outfile,song)
+
+
 
 
 

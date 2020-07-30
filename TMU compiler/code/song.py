@@ -337,7 +337,23 @@ class Song:
 								elif x == 0x20:
 									x = 0x10
 									row[4] = x | y
-								
+			
+
+		# ====================================
+		# Detect tracks duplicates
+		# ====================================
+		for tracka in self.tracks:
+			if tracka.used:
+				for t in range(tracka.number+1,len(self.tracks)):
+					trackb = self.tracks[t]
+
+					if trackb.used:
+						if tracka.rows == trackb.rows:
+							print (f"Duplicate {tracka.number} -> {trackb.number}")
+							trackb.used = False
+							trackb.export_number = tracka.number
+
+			
 					
 		for instrument in self.ins:
 			if instrument.used == True:
