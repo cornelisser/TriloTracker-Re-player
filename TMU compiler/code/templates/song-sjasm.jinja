@@ -1,0 +1,164 @@
+; Song: {{ song.name }}
+; By:   {{ song.by }}
+
+; [ Song start data ]
+    db {{ "${:02x}".format(song.speed) }}                      ; Initial song speed
+    db .customvoice_start       ; Start of the custom voices data.
+    db .drummacro_start         ; Start of the drum macro data.
+    db .instrument_start        ; Start of the instrument data.
+
+; [ Song order pointer list ]
+{% for val in song.order_list %}
+    {% set step = loop.index0 %}
+    {% if step == song.restart %}
+.restart:
+    {% endif %}
+    {% set step = step + 1 %}
+    {% set pat = song.get_pattern(val) %}
+    {{ "db " }}
+    {{- ".track_{:03}, ".format(pat.tracks[0]) }}
+    {{- ".track_{:03}, ".format(pat.tracks[1]) }}
+    {{- ".track_{:03}, ".format(pat.tracks[2]) }}
+    {{- ".track_{:03}, ".format(pat.tracks[3]) }}
+    {{- ".track_{:03}, ".format(pat.tracks[4]) }}
+    {{- ".track_{:03}, ".format(pat.tracks[5]) }}
+    {{- ".track_{:03}, ".format(pat.tracks[6]) }}
+    {{- ".track_{:03}".format(pat.tracks[7]) }}
+    {{- "    ; Step: {:03}".format(loop.index) }} {{- " Pattern: {:03}".format(pat.number) }}
+{% endfor %}
+    dw 0x0000, .restart         ; End of sequence delimiter + restart address.
+
+; [ Custom FM voices ]
+.customvoice_start:
+
+; [ SCC Waveforms ]
+.waveform_start:
+{% for waveform in song.waveform %}
+    {% if waveform.used == true %}
+    {{ "db " }}
+        {% for x in range(0, 31) %}
+            {{- "{:02x},".format(waveform.data[x])}}
+        {% endfor %}
+        {{- "{:02X}".format(waveform.data[31])}} {{- "        ; Waveform:{:0}".format(waveform.number) }}
+    {% endif %}
+{% endfor %}
+
+; [ FM Drum macros ]
+.drummacro_start:
+{% for drum in song.drums %}
+    {% if drum.used == true %}
+    {{ "dw .drum_{:02}".format(drum.number) }}
+    {% endif %}
+{% endfor %}
+{% for drum in song.drums %}
+    {% if drum.used == true %}
+    {{ ".drum_{:02}:".format(drum.number) }}
+    {% endif %}
+{% endfor %}
+
+; [ Instruments ]
+.instrument_start:
+{% for instrument in song.ins %}
+    {% if instrument.used == true %}
+    {{ "dw .instrument_{:02}".format(instrument.number) }}
+    {% endif %}
+{% endfor %}
+
+{% for instrument in song.ins %}
+    {% if instrument.used == true %}
+{{ ".instrument_{:02}:".format(instrument.number) }}
+        {% if song.type == "SCC" %}
+            {% set waveform = song.get_waveform(instrument.waveform) %}
+    {{ "db ${:02x}        ; Waveform".format(waveform.export_number)}} {{ waveform.number }}
+        {% elif song.type == "FM" or song.type == "SMS" %}
+            {% set voice = song.get_voice(instrument.waveform) %}
+    {{ "db ${:02x}        ; FM Voice".format(voice.export_number)}} {{ voice.number }}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{% macro export_trackrows(song, rows) -%}
+    {% set ns = namespace(wait = 0) %}
+    {% for row in rows %}
+        {% set note = row[0] %}
+        {% set instrument = row[1] %}
+        {% set volume = row[2] %}
+        {% set command = row[3] %}
+        {% set parameters = row[4] %}
+        {% if note == 0 and instrument == 0 and volume == 0 and command == 0 and parameters == 0 %}
+            {% set ns.wait = ns.wait + 1 %}
+        {% else %}
+            {% if ns.wait > 0 %}
+    {{ "db ${:02x}            ;Wait".format(192 + ns.wait) }} {{ ns.wait }}
+            {% endif %}
+            {% if note != 0 %}
+    {{ "db ${:02x}            ;Note".format(note) }} {{ note }}
+            {% endif %}
+            {% if volume != 0 %}
+    {{ "db ${:02x}            ;Volume".format(volume) }} {{ volume }}
+            {% endif %}
+            {% if instrument != 0 %}
+                {% set temp = song.ins[instrument].export_number %}
+    {{ "db ${:02x}            ;Instrument".format(temp) }} {{ instrument }}
+            {% endif %}
+            {% if command == 0 and parameters == 0 %}
+            {% elif command == 0 %}
+                {{- "            ;CMD Arpeggio"}}
+            {% elif command == 1 %}
+                {{- "            ;CMD Portamento up"}}
+            {% elif command == 2 %}
+                {{- "            ;CMD Portamento down"}}
+            {% elif command == 3 %}
+                {{- "            ;CMD Portamento tone"}}
+            {% elif command == 4 %}
+                {{- "            ;CMD Vibrato"}}
+            {% elif command == 5 %}
+                {{- "            ;CMD Portamento tone + Volume slide"}}
+            {% elif command == 6 %}
+                {{- "            ;CMD Vibrato + Volume slide"}}
+            {% elif command == 7 %}
+                {{- "            ;CMD Unused"}}
+            {% elif command == 8 %}
+                {% if song.type == 'SMS'%}
+                    {{- "            ;CMD Unused"}}
+                {% else %}
+                    {{- "            ;CMD Envelope multiplier"}}
+                {% endif %}
+            {% elif command == 9 %}
+                {{- "            ;CMD Unused up"}}
+            {% elif command == 10 %}
+                {{- "            ;CMD Volume slide up"}}
+            {% elif command == 11 %}
+                {% if song.type == 'SCC'%}
+                    {{- "            ;CMD SCC up"}}
+                {% else %}
+                    {{- "            ;CMD Channel setup"}}
+                {% endif %}
+            {% elif command == 12 %}
+                {% if song.type == 'SCC'%}
+                    {{- "            ;CMD SCC up"}}
+                {% else %}
+                    {{- "            ;CMD Drum"}}
+                {% endif %}
+            {% elif command == 13 %}
+            {% elif command == 14 %}
+                {{- "            ;CMD Extended"}}
+            {% elif command == 15 %}
+                {{- "            ;CMD Speed"}}
+            {% endif %}
+            {% set ns.wait = 0 %}
+        {% endif %}
+    {% endfor %}
+    {% if ns.wait > 0 %}
+    {{ "db ${:02x}".format(191 + ns.wait) }} {{- "            ;Wait "}} {{- ns.wait }}
+    {% endif %}
+    {{ "db $bf            ;[End-Of-Track]"}}
+{%- endmacro %}
+
+; [ Song track data ]
+{% for track in song.tracks %}
+    {% if track.used == true %}
+{{ ".track_{:03}:".format(track.number) }}
+{{ export_trackrows(song, track.rows) }}
+    {% endif %}
+{% endfor %}

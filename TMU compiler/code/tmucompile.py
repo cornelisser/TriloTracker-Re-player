@@ -6,12 +6,14 @@ from track import Track
 from voice import Voice
 from waveform import Waveform
 
+import argparse
 import sys
 
 USAGE = f"Usage: {sys.argv[0]} [--options] infile [outfile]"
 
 infile = ''
 outfile = ''
+template_filename = None
 
 _DB = "\tdb"
 _DW = "\tdw"
@@ -208,7 +210,6 @@ def decompress_pattern(data):
 #	
 #===================================================================
 def export_asm(outfile,song):
-
 	index = 0 
 
 	with open(outfile,"w+") as file:
@@ -369,7 +370,6 @@ def export_trackrow(file,row,wait):
 		elif c == 0x0f:				# Speed
 			file.write(f"\t\t\t;CMD Speed\n")			
 
-	
 	return 0
 
 
@@ -390,36 +390,22 @@ def process_commandline_parameters():
 	'''
 	global infile
 	global outfile
+	global template_filename
 
-	args = sys.argv[1:]					# Get all the arguments.
-	if not args:
-		raise SystemExit(USAGE)			# Error is no arguments.
+	parser = argparse.ArgumentParser()
+	parser.add_argument( "infile", help="Input .TMU file to convert")
+	parser.add_argument( "outfile", nargs='?', default=None, help="Optional output file (otherwise assumes <infile>.ASM)")
+	parser.add_argument( "-t", "--template", help="Optional Jinja2 template file for formatting output.")
+	args = parser.parse_args()
 
-	file_args = [arg for arg in args if arg[0] != '-']
-	option_args = [arg for arg in args if arg[0] == '-']
+	# If no outfile specified, use the input filename as a base.
+	if args.outfile is None:
+		args.outfile = args.infile.split('.')[0]+'.asm'
 
-	if not file_args:
-		print ('Input file is missing!')
-		raise SystemExit(USAGE)			# Error is no file arguments.
-	else:
-		infile = file_args[0]
-
-	if len(file_args) > 1:
-		outfile = file_args[1]
-	else:
-		outfile = file_args[0].split('.')[0]+'.asm'		#rename to asm ext
-		
-	for option in option_args:
-		process_commandline_parameter_option(option)
-	
-def process_commandline_parameter_option(option):
-	'''
-	Process all the options here
-	'''
-	pass	
-
-
-
+	# Assign globals from args.
+	infile = args.infile
+	outfile = args.outfile
+	template_filename = args.template
 
 
 #==========================================
@@ -431,14 +417,34 @@ load_tmu(infile,song)
 
 song.cleanup()
 
-export_asm(outfile,song)
+if template_filename is None:
+	# Use the explicit export.
+	export_asm(outfile,song)
+else:
+	# Only require Jinja to be installed if the user specified a template.
+	from jinja2 import Environment, PackageLoader, TemplateNotFound
+
+	# Load the Jinja environment, specifying directory and module.
+	jinja_env = Environment(
+		loader=PackageLoader('tmucompile', '.')	
+		, trim_blocks=True
+		, lstrip_blocks=True
+		)
+	try:
+		template = jinja_env.get_template(template_filename)
+		render = template.render(song=song)
+
+		with open(outfile,"w+") as file:
+			file.write(render)
+			file.close()
+	except TemplateNotFound:
+		print(f"\tERROR:  Unable to find Jinja2 template '{template_filename}'.")
+		sys.exit()
 
 # Debug info
 print (f"Input file: {infile}")
 print (f"Output file: {outfile}")
 song.debug()
-
-
 
 
 

@@ -24,3 +24,5 @@ TMU compiler/boy.tmu
 TMU compiler/boymsx.tmu
 
 *.pyc
+
+TMU compiler/code/.venv
