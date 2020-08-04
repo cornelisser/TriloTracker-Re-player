@@ -405,7 +405,7 @@ def export_instrument_row_asm(ins,r):
 
 def export_track(file,track):
 	wait = -1
-	wait_prev = 0
+	wait_prev = 255
 	
 	vol_offset = 98
 	ins_offset = 113	
@@ -413,8 +413,10 @@ def export_track(file,track):
 	special_offset = 184
 	wait_offset = 192
 	
+	notes = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"]
+	
 	cmd = {
-			# lasting effects
+			# primary effects
 			"0":	cmd_offset+0,	#arp
 			"1": 	cmd_offset+1,	#p up
 			"2":	cmd_offset+2,	#p down
@@ -426,7 +428,7 @@ def export_track(file,track):
 			"EC":	cmd_offset+8,	#note cut				
 			"ED":	cmd_offset+9,	#note delay				
 			
-			# set only effects
+			# secondary effects
 			"END":	cmd_offset+10,	# end all lasting effects
 			"C":	cmd_offset+11,	#SCC Morph/FM Drum			
 			"E0":	cmd_offset+12,	#arp speed
@@ -436,11 +438,11 @@ def export_track(file,track):
 			"E6":	cmd_offset+16,	#track detune
 			"EF":	cmd_offset+17,	#trigger	
 			"F":	cmd_offset+18,	#speed
-			#SMS
+			#SN7
 			"E8":	cmd_offset+19,	#tone panning			
 			"E9":	cmd_offset+20,	#noise panning	
 			"B":	cmd_offset+21,	#FM+SG Chan setup	
-			#FM+SCC
+			#AY3
 			"EE":	cmd_offset+19,	#envelope	
 			"8":	cmd_offset+20,	#PSG ENV				
 			# SCC
@@ -459,16 +461,23 @@ def export_track(file,track):
 		c = row[3]		# command
 		p = row[4]		# parameters
 		
-		if (n + i + v + c + p == 0):
-			wait += 1
-		elif wait > 0:
-			if wait == wait_prev:
-				file.write(f"\t\t\t\t\t;Wait Repeat\n")
+		
+		# Handle wait timer/repeat.
+		if (n + i + v + c + p == 0):		# If empty row then add 1 wait
+			wait += 1				
+		elif wait > 0:						# Action and there are waits then add wait
+			if wait == wait_prev:			# If previous wait is same then just repeat
+				file.write(f"\t\t\t\t\t;Wait Repeat {wait_prev+1}\n")
 				wait = 0
-			else:
+			else:							# Add the new wait.
 				file.write(f"{_DB} ${wait_offset+wait:02x}\t\t\t;Wait {wait+1}\n")
 				wait_prev = wait
 				wait = 0
+		else:
+			wait += 1
+			
+			
+			
 		if n != 0:
 			n -= 1			#note 1 -> 0
 			if n == 96:
@@ -476,7 +485,7 @@ def export_track(file,track):
 			elif n == 97:
 				file.write(f"{_DB} ${n:02x}\t\t\t;Sustain {n}\n")
 			else:
-				file.write(f"{_DB} ${n:02x}\t\t\t;Note {n}\n")
+				file.write(f"{_DB} ${n:02x}\t\t\t;Note {notes[(n%12)]}{int(n/12)+1}\n")
 		if v != 0:
 			file.write(f"{_DB} ${vol_offset+v:02x}\t\t\t;Volume {v}\n")
 		if i != 0:
@@ -606,10 +615,15 @@ def process_commandline_parameters():
 		process_commandline_parameter_option(option)
 	
 def process_commandline_parameter_option(option):
-	'''
-	Process all the options here
-	'''
-	pass	
+	if option == "-wladx":
+		global _DB 
+		global _DW 
+		global _CHILD
+
+		_DB = "\t.db"
+		_DW = "\t.dw"
+		_CHILD = "@"
+
 
 
 
