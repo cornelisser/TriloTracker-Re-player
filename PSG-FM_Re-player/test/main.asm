@@ -19,8 +19,8 @@
 		
 initmain:
 
-	ei
-	halt
+;	ei
+;	halt
 	di
 		
 ;; set pages and subslot
@@ -378,7 +378,7 @@ REG_list:
 	dw	AY_regToneB,AY_regVOLB
 	dw	AY_regToneC,AY_regVOLC
 	dw	AY_regNOISE,AY_regMIXER
-	dw	AY_regEnvL,AY_regEnvShape 	
+	dw	0,0;AY_regEnvL,AY_regEnvShape 	
 	dw	FM_regToneA,FM_regVOLA 
 	dw	FM_regToneB,FM_regVOLB 
 	dw	FM_regToneC,FM_regVOLC 
@@ -542,13 +542,13 @@ init_vdp:
 
 	ret		
 	include	".\screen.asm"
-	include	"..\code\ttreplay.asm"
-	include	"..\code\ttreplayDAT.asm"
+	include	"..\code\ttreplaySMS.asm"
+	include	"..\code\ttreplaySMSDAT.asm"
 ;	include	"..\ttsfxplay\ttsfxplay.asm"
 
 	
 demo_song:
-	include	".\valk.asm"
+	include	".\test.asm"
 	
 TEXT_Title:
 	db	"TriloTracker FM Re-player Debug info",0	
@@ -599,7 +599,7 @@ font_data:
 	
 	
 	map	0xc000
-	include	"..\code\ttreplayRAM.asm"
+	include	"..\code\ttreplaySMSRAM.asm"
 	
 
 debug_pointer1:	#2

@@ -13,7 +13,7 @@ _REL:		equ	96	; = release
 _SUS:		equ	97	; = sustain
 _VOL:		equ	98	; = volume 1
 _INS:		equ	113	; = instrument 1
-_CMD:		equ	114	; = effect 0
+_CMD:		equ	144	; = effect 0
 _SPC:		equ	184	; = special commands
 _EOT:		equ 	191	; = end of track
 _WAIT:	equ	192	; = wait 1
@@ -55,7 +55,7 @@ _r_pause_enable:
 	ld	(replay_mode),a
 	ret
 	
-r_pause_disable:
+_r_pause_disable:
 	;-- stop decoding and processing music data
 	xor	a
 	ld	(replay_mode),a	
@@ -172,11 +172,11 @@ replay_loadsong:
 	ld	(AY_regVOLC),a
 	ld	(AY_regNOISE),a
 
-	;--- Set the tone table base
-	ld	hl,TRACK_ToneTable_PSG
-	ld	(replay_tonetable_PSG),hl
-	ld	hl,TRACK_ToneTable_FM
-	ld	(replay_tonetable_FM),hl
+;	;--- Set the tone table base
+;	ld	hl,TRACK_ToneTable_PSG
+;	ld	(replay_tonetable_PSG),hl
+;	ld	hl,TRACK_ToneTable_FM
+;	ld	(replay_tonetable_FM),hl
 
 	ld	a,1
 	ld	(replay_speed_timer),a
@@ -260,7 +260,7 @@ replay_play:
 	ld	(hl),a						
  	ld	(equalization_flag),a		
 
-	call	replay_decodedata_NO	
+	call	process_data	
 	xor	a
 	ld	(equalization_flag),a
 	ret
@@ -288,11 +288,11 @@ replay_play:
 ; ---	replay_decodedata
 ; Process the pattern data 
 ;===========================================================
-replay_decodedata:
+decode_data:
 	;--- process the channels (tracks)
 	
-	ld	hl,CHIP_ToneTable				; Set the PSG note table
-	ld	(replay_Tonetable),hl	
+	ld	hl,TRACK_ToneTable_PSG			; Set the PSG note table
+	ld	(replay_tonetable),hl	
 	
 .decode1:	
 	ld 	hl,TRACK_Chan1+17+TRACK_Delay
@@ -304,7 +304,7 @@ replay_decodedata:
 	ld	a,(TRACK_Chan1+17+TRACK_Note)	
 	ld	ix,TRACK_Chan1+17
 	ld	bc,(TRACK_pointer1)
-	call	replay_decode_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer1),bc
 	ld	a,d
 	ld	(TRACK_Chan1+17+TRACK_Flags),a	
@@ -319,14 +319,14 @@ replay_decodedata:
 	ld	a,(TRACK_Chan2+17+TRACK_Note)	
 	ld	ix,TRACK_Chan2+17
 	ld	bc,(TRACK_pointer2)
-	call	replay_decode_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer2),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan2+17+TRACK_Flags),a	
 
 	;--- Set FM Tone table
-	ld	hl,CHIP_FM_ToneTable
-	ld	(replay_Tonetable),hl
+	ld	hl,TRACK_ToneTable_FM
+	ld	(replay_tonetable),hl
 
 
 .decode3:
@@ -339,7 +339,7 @@ replay_decodedata:
 	ld	a,(TRACK_Chan3+17+TRACK_Note)	
 	ld	ix,TRACK_Chan3+17
 	ld	bc,(TRACK_pointer3)
-	call	replay_decode_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer3),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
@@ -354,7 +354,7 @@ replay_decodedata:
 	ld	a,(TRACK_Chan4+17+TRACK_Note)	
 	ld	ix,TRACK_Chan4+17
 	ld	bc,(TRACK_pointer4)
-	call	replay_decode_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer4),bc
 	ld	a,d			;'
 	ld	(TRACK_Chan4+17+TRACK_Flags),a	
@@ -369,7 +369,7 @@ replay_decodedata:
 	ld	a,(TRACK_Chan5+17+TRACK_Note)	
 	ld	ix,TRACK_Chan5+17
 	ld	bc,(TRACK_pointer5)
-	call	replay_decode_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer5),bc
 	ld	a,d			;'
 	ld	(TRACK_Chan5+17+TRACK_Flags),a	
@@ -384,7 +384,7 @@ replay_decodedata:
 	ld	a,(TRACK_Chan6+17+TRACK_Note)	
 	ld	ix,TRACK_Chan6+17
 	ld	bc,(TRACK_pointer6)
-	call	replay_decode_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer6),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan6+17+TRACK_Flags),a	
@@ -399,7 +399,7 @@ replay_decodedata:
 	ld	a,(TRACK_Chan7+17+TRACK_Note)	
 	ld	ix,TRACK_Chan7+17
 	ld	bc,(TRACK_pointer7)
-	call	replay_decode_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer7),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan7+17+TRACK_Flags),a	
@@ -414,7 +414,7 @@ replay_decodedata:
 	ld	a,(TRACK_Chan8+17+TRACK_Note)	
 	ld	ix,TRACK_Chan8+17
 	ld	bc,(TRACK_pointer8)
-	call	replay_decode_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer8),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan8+17+TRACK_Flags),a
@@ -427,9 +427,10 @@ replay_decodedata:
 ; 
 ; 
 ;===========================================================
-replay_decodedata_NO:
+process_data:
+
 	; Set tone table
-	ld	hl,(replay_tonetable_PSG)
+	ld	hl,TRACK_ToneTable_PSG
 	ld	(replay_tonetable),hl
 
 	;--- Initialize PSG Mixer and volume
@@ -450,7 +451,7 @@ replay_decodedata_NO:
 	ld	ix,TRACK_Chan1+17
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	ld	d,a
-	call	replay_process_chan_AY
+	call	process_data_chan
 	ld	(AY_regToneA),hl
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLA),a	
@@ -461,7 +462,7 @@ replay_decodedata_NO:
 	ld	ix,TRACK_Chan2+17
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
 	ld	d,a
-	call	replay_process_chan_AY
+	call	process_data_chan
 	ld	(AY_regToneB),hl
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLB),a	
@@ -477,7 +478,7 @@ _rdd_3psg_5fm:
 	ld	ix,TRACK_Chan3+17
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
-	call	replay_process_chan_AY
+	call	process_data_chan
 	ld	(AY_regToneC),hl
 	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLC),a
@@ -490,7 +491,7 @@ _rdd_3psg_5fm:
 	ld	(AY_regMIXER),a
 
 	; Set tone table
-	ld	hl,(replay_tonetable_FM)
+	ld	hl,TRACK_ToneTable_FM
 	ld	(replay_tonetable),hl
 	;--- set SCC balance
 	ld	hl,(replay_mainSCCvol)
@@ -509,7 +510,7 @@ _rdd_2psg_6fm:
 	ld	(AY_regMIXER),a
 
 	; Set tone table
-	ld	hl,(replay_tonetable_FM)
+	ld	hl,TRACK_ToneTable_FM
 	ld	(replay_tonetable),hl
 	;--- set SCC balance
 	ld	hl,(replay_mainSCCvol)
@@ -521,7 +522,7 @@ _rdd_2psg_6fm:
 	ld	ix,TRACK_Chan3+17
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
-	call	replay_process_chan_AY
+	call	process_data_chan
 	ld	(FM_regToneA),hl
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLA),a	
@@ -534,7 +535,7 @@ _rdd_cont:
 	ld	ix,TRACK_Chan4+17
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld	d,a
-	call	replay_process_chan_AY
+	call	process_data_chan
 	ld	(FM_regToneB),hl
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLB),a	
@@ -545,7 +546,7 @@ _rdd_cont:
 	ld	ix,TRACK_Chan5+17
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a
-	call	replay_process_chan_AY
+	call	process_data_chan
 	ld	(FM_regToneC),hl
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLC),a	
@@ -557,7 +558,7 @@ _rdd_cont:
 	ld	ix,TRACK_Chan6+17
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a
-	call	replay_process_chan_AY
+	call	process_data_chan
 	ld	(FM_regToneD),hl
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLD),a	
@@ -568,7 +569,7 @@ _rdd_cont:
 	ld	ix,TRACK_Chan7+17
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a
-	call	replay_process_chan_AY
+	call	process_data_chan
 	ld	(FM_regToneE),hl
 ;	ld	a,d
 ;	ld	(TRACK_Chan7+17+TRACK_Flags),a	
@@ -581,7 +582,7 @@ _rdd_cont:
 	ld	ix,TRACK_Chan8+17
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
-	call	replay_process_chan_AY
+	call	process_data_chan
 	ld	(FM_regToneF),hl
 	
 
@@ -638,14 +639,14 @@ _rdd_cont:
 _replay_check_patternend:
 	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
 	dec	a
-	jp	nz,replay_decodedata_NO
+	jp	nz,process_data
 	
 	ld	hl,(TRACK_pointer1)
 	ld	a,(hl)
 	
 	;--- check for end of pattern
 	cp	191	
-	jp	nz,replay_decodedata_NO
+	jp	nz,process_data
 
 	;--- Set track pointers to start
 	ld	hl,(replay_orderpointer)
@@ -669,7 +670,7 @@ _replay_check_patternend:
 	ldir
 	ld	(replay_orderpointer),hl		; store pointer for next set
 								; of strack pointers
-	jp	replay_decodedata_NO
+	jp	process_data
 
 
 
@@ -683,12 +684,13 @@ _replay_check_patternend:
 
 
 ;===========================================================
-; ---	replay_decode_chan
+; ---	decode_data_chan
 ; Process the channel data
 ; 
 ; in BC is the pointer to the	data
+;    D contains flags.
 ;===========================================================	
-replay_decode_chan:
+decode_data_chan:
 	;--- initialize data
 	ld	a,(ix+TRACK_Note)
 	ld	(replay_previous_note),a
@@ -701,7 +703,7 @@ replay_decode_chan:
 	jp	c,_replay_decode_note
 	cp	_SUS
 	jp	c,_replay_decode_release
-	jp	z,_replay_decode_sutain
+	jp	z,_replay_decode_sustain
 _rdn2:cp	_INS
 	jp	c,_replay_decode_vol
 _rdv2:cp	_CMD
@@ -727,6 +729,7 @@ _rdv:
 	jp	_rdv2
 _rdc:
 	inc	bc
+_rdc_noinc:	
 	ld	a,(bc)
 	cp	_EOT
 	jp	c,_rd_delay
@@ -851,6 +854,15 @@ _replay_decode_delay:
 
 _replaydecode_cmd:
 	sub	_CMD
+	
+	;[Debug]
+	cp	22
+	jp	c,99f
+	di
+	halt
+99:
+	;[Debug end]
+	
 	ld	e,a				; store command for later
 	ld	hl,DECODE_CMDLIST
 	add	a,a
@@ -870,32 +882,32 @@ _replaydecode_cmd:
 
 
 DECODE_CMDLIST:
-	dw	decode_cmd0_arpeggio		;
-	dw	decode_cmd1_port_up			;17
-	dw	decode_cmd2_port_down		;16
-	dw	decode_cmd3_port_tone		;18
-	dw	decode_cmd4_vibrato			;19
-	dw	decode_cmd5_vibrato_port_tone	;1a
-	dw	decode_cmd6_vibrato_vol		;1b
-	dw	decode_cmd7_vol_slide		;1c
-	dw	decode_cmd19_note_delay		;13
-	dw	decode_cmdXX_note_cut		;14
-	dw	0					; command effect end
-	dw	decode_cmdCd_drum			;3	FM DRUM
-	dw	decode_cmd13_short_arp		; arp speed
-	dw	decode_cmd14_fine_up		;11
-	dw	decode_cmd15_fine_down		;12
-	dw	decode_cmd1C_notelink		;b	
-	dw	decode_cmd17_track_detune		;7
-	dw	decode_cmd1A_trigger		;9
-	dw	decode_cmd1B_speed			;a	
-	dw	0					; tone paning
-	dw	0					; noise panning
-	dw	0					; chan setup
+	; Primary
+	dw	decode_cmd0_arpeggio
+	dw	decode_cmd1_port_up
+	dw	decode_cmd2_port_down
+	dw	decode_cmd3_port_tone
+	dw	decode_cmd4_vibrato
+	dw	decode_cmd5_vibrato_port_tone
+	dw	decode_cmd6_vibrato_vol	
+	dw	decode_cmd7_vol_slide
+	dw	decode_cmd8_note_cut
+	dw	decode_cmd9_note_delay
+	; Secondary
+	dw	decode_cmd10_command_end
+	dw	decode_cmd11_drum
+	dw	decode_cmd12_short_arp
+	dw	decode_cmd13_fine_up
+	dw	decode_cmd14_fine_down
+	dw	decode_cmd15_notelink
+	dw	decode_cmd16_track_detune
+	dw	decode_cmd17_trigger
+	dw	decode_cmd18_speed
+	; SoundChip Specific
+	dw	decode_cmd19_tone_panning
+	dw	decode_cmd20_noise_panning
+	dw	decode_cmd21_chan_setup	
 	
-	
-
-
 
 decode_cmd0_arpeggio:
 	; in:	[A] contains the paramvalue
@@ -941,7 +953,7 @@ decode_cmd3_port_tone:
 	;--------------------------------------------------
 	ld	(ix+TRACK_Command),e
 	set	B_TRGCMD,d
-	set	B_NOTACT,d
+	set	B_ACTNOT,d
 	
 	ld	(ix+TRACK_cmd_3),a
 	ld	(ix+TRACK_Timer),2
@@ -955,24 +967,22 @@ decode_cmd3_port_tone:
 	res 	B_TRGNOT,d
 
 _decode_newNote:
-
-
-
-
 	;-- get the	previous note freq
 	ld	a,(replay_previous_note)
 	add	a
 
 	exx
-	bit	B_PSGFM,d
-	jp	nz,_cmd3_fm
-_cmd3_psg:
-	ld	hl,(replay_tonetable_PSG)	;TRACK_ToneTable
-	jp	99f
-_cmd3_fm:
-	ld	hl,(replay_tonetable_FM)	;TRACK_ToneTable
-
-99:
+;	bit	B_PSGFM,d
+;	jp	nz,_cmd3_fm
+;_cmd3_psg:
+;	ld	hl,(replay_tonetable_PSG)	;TRACK_ToneTable
+;	jp	99f
+;_cmd3_fm:
+;	ld	hl,(replay_tonetable_FM)	;TRACK_ToneTable
+;
+;99:
+	ld	hl,(replay_tonetable)
+	
 	push	hl			; store address for later
 	add	a,l
 	ld	l,a
@@ -981,7 +991,7 @@ _cmd3_fm:
 .skip:
 	ld	e,(hl)
 	inc	hl
-	ld	d,(hl)		<<<< flags get lost here!
+	ld	d,(hl)
 
 	; add	the toneadd
 	ld	l,(ix+TRACK_cmd_ToneSlideAdd)
@@ -1042,7 +1052,6 @@ decode_cmd4_vibrato:
 	ld	(ix+TRACK_Step),a
 	
 	set	B_TRGCMD,d
-	ld	(ix+TRACK_Retrig),1
 	jp	_rdc	
 
 
@@ -1069,14 +1078,41 @@ decode_cmd7_vol_slide:
 	
 	ld	(ix+TRACK_cmd_A),a
 	set	B_TRGCMD,d
-	ld	(ix+TRACK_Timer),1
-	ld	(ix+TRACK_Retrig),1
 	jp	_rdc
 
+decode_cmd8_note_cut:
+	set	B_TRGCMD,d
+	inc	a
+	ld	(ix+TRACK_Timer),a		; set	the timer to param y
+	jp 	_rdc
 
+
+decode_cmd9_note_delay:
+	bit	B_TRGNOT,d		; is there a note	in this eventstep?
+	jp	z,_rdc
+
+	set	B_TRGCMD,d					; command active
+	inc	a
+	ld	(ix+TRACK_Timer),a			; set	the timer to param y
+	ld	a,(ix+TRACK_Note)
+	ld	(ix+TRACK_cmd_E),a			; store the	new note
+	ld	a,(replay_previous_note)
+	ld	(ix+TRACK_Note),a				; restore the old	note
+	res	B_TRGNOT,(ix+TRACK_Flags)		; reset any	triggernote
+
+	jp	_rdc	
+
+
+decode_cmd10_command_end:
+	; in:	[A] contains the paramvalue
+	; 
+	; ! do not change	[BC] this is the data pointer
+	;--------------------------------------------------
+	res	B_TRGCMD,d
+	jp	_rdc_noinc
 	
 
-decode_cmdCd_drum:
+decode_cmd11_drum:
 	and 	a		; drum reset not supported
 	jr 	z,0f
 	
@@ -1110,27 +1146,28 @@ decode_cmdCd_drum:
 	jp	_rdc		
 	
 
-decode_cmd13_short_arp:
+decode_cmd12_short_arp:
 	ld	(ix+TRACK_cmd_E),a		; store the halve not to add
 	ld	(ix+TRACK_Timer),0
 
 	set	B_TRGCMD,d		; command active
-	ld	(ix+TRACK_Retrig),1
 	jp	_rdc	
 	
 	
-decode_cmd14_fine_up:
-decode_cmd15_fine_down:
+decode_cmd13_fine_up:
+decode_cmd14_fine_down:
 	ld	(ix+TRACK_cmd_E),a
 	ld	(ix+TRACK_Timer),2
 	set	B_TRGCMD,d		; command active
-	ld	(ix+TRACK_Retrig),1
 	jp	_rdc	
 
+decode_cmd15_notelink:
+	res	B_TRGNOT,d
+	set 	B_KEYON,d
+	dec 	bc
+	jp	_rdc	
 
-
-
-decode_cmd17_track_detune:
+decode_cmd16_track_detune:
 	; This command sets the	detune of the track.
 	ld	e,a
 	and	0x07		; low	4 bits is value
@@ -1151,39 +1188,12 @@ decode_cmd17_track_detune:
 
 
 
-
-decode_cmdXX_note_cut:
-	set	B_TRGCMD,d
-	ld	(ix+TRACK_Retrig),1
-	inc	a
-	ld	(ix+TRACK_Timer),a		; set	the timer to param y
-	jp 	_rdc
-
-
-decode_cmd19_note_delay:
-	bit	B_TRGNOT,d		; is there a note	in this eventstep?
-	jp	z,_rdc
-
-	set	B_TRGCMD,d					; command active
-	ld	(ix+TRACK_Retrig),1
-	inc	a
-	ld	(ix+TRACK_Timer),a			; set	the timer to param y
-	ld	a,(ix+TRACK_Note)
-	ld	(ix+TRACK_cmd_E),a			; store the	new note
-	ld	a,(replay_previous_note)
-	ld	(ix+TRACK_Note),a				; restore the old	note
-	res	B_TRGNOT,(ix+TRACK_Flags)		; reset any	triggernote
-
-	jp	_rdc	
-
-
-
-decode_cmd1A_trigger:
+decode_cmd17_trigger:
 	ld	(replay_trigger),a
 	jp	_rdc		
 
 
-decode_cmd1B_speed:
+decode_cmd18_speed:
 	ld	(replay_speed),a
 	;--- Reset Timer == 0
 	srl	a				; divide speed with 2
@@ -1196,13 +1206,14 @@ decode_cmd1B_speed:
 
 	jp	_rdc	
 	
-decode_cmd1C_notelink:
-	res	B_TRGNOT,d
-	set 	B_KEYON,d
-	dec 	bc
+decode_cmd19_tone_panning:
 	jp	_rdc	
 
+decode_cmd20_noise_panning:
+	jp	_rdc
 
+decode_cmd21_chan_setup:
+	jp	_rdc
 
 
 
@@ -1213,7 +1224,7 @@ decode_cmd1C_notelink:
 ; in HL is the current tone freq
 ; in D is TRACK_FLAGS  
 ;===========================================================
-replay_process_chan_AY:
+process_data_chan:
 
 	;-- set the	mixer	right
 	ld	hl,FM_regMIXER   
@@ -1224,36 +1235,26 @@ replay_process_chan_AY:
 	;=====
 	ld	a,(equalization_flag)			; check for speed equalization
 	and	a
-	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
+	jp	nz,process_noNoteTrigger		; Only process instruments macro
 	
 	
 	;=====
 	; COMMAND
 	;=====
+	ld	(ix+TRACK_cmd_NoteAdd),0			; Always reset note add
+	
 	bit	B_TRGCMD,d	;(ix+TRACK_Flags)
-	jp	z,_pcAY_noCommand
-	
-	ld	a,$f6 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-;	out	(0x99),a
-;	ld	a,7+128
-;	out	(0x99),a	
+	jp	z,process_note
 
-	
-	
-	ld	hl,_pcAY_cmdlist-26
+	ld	hl,process_cmd_list
 	ld	a,(ix+TRACK_Command)
 ;[DEBUG]	
-	cp	15
-	jp	nc,99f
+	cp	10
+	jp	c,99f
 	di
 1:	halt
 	jp	1b
-99:	
-	cp	27+15
-	jp	c,99f
-	di
-	halt	
-	jp	1b
+
 99:
 ;[/DEBUG]
 	add	a
@@ -1267,25 +1268,20 @@ replay_process_chan_AY:
 	ld	h,(hl)
 	ld	l,a	
 	jp	(hl)
-	
-	
-_pcAY_commandEND:
 
 
-_pcAY_noCommand:
-	ld	a,$fe ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-;	out	(0x99),a
-;	ld	a,7+128
-;	out	(0x99),a	
+process_commandEND:
+process_note:
+
 	;=====
 	; NOTE
 	;=====
 	;--- Check if we need to trigger a new note
 	bit	B_TRGNOT,d	;(ix+TRACK_Flags)
-	jp	z,_pcAY_noNoteTrigger
+	jp	z,process_noNoteTrigger
 	
 
-_pcAY_triggerNote:	
+process_triggerNote:	
 	;--- get new Note
 	res	B_TRGNOT,d		;(ix+TRACK_Flags)		; reset trigger note flag
 	set	B_ACTNOT,d		;(ix+TRACK_Flags)		; set	note active	flag
@@ -1318,20 +1314,18 @@ _pcAY_triggerNote:
 ;	ld	(ix+TRACK_cmd_ToneSlideAdd),0
 ;	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0
 
-_pcAY_noNoteTrigger:
+process_noNoteTrigger:
 	;Get note freq
 	ld	a,(ix+TRACK_Note)
 	add	a,(ix+TRACK_cmd_NoteAdd)
 	add	a
 	ex	af,af'			;'store the	note offset
-	ld	(ix+TRACK_cmd_NoteAdd),0	
-	
 
 	;==============
 	; Macro instrument
 	;==============
-	bit	B_ACTNOT,d			;(ix+TRACK_Flags)
-	jp	z,_pcAY_noNoteActive
+	bit	B_ACTNOT,d			
+	jp	z,process_noNoteActive
 	
 	;--- Get the macro len and loop
 	ld	l,(ix+TRACK_MacroPointer)
@@ -1474,18 +1468,18 @@ _noLink
 	;
 	;-------------------------------
 	bit	4,e		; do we have tone?
-	jp	z,_pcAY_noTone
+	jp	z,process_noTone
 
 	;-- enable tone output
 	ld	a,(FM_regMIXER)
 	or	16
 	ld	(FM_regMIXER),a
-_pcAY_noTone:
+process_noTone:
 	ld	b,(ix+TRACK_ToneAdd)	; get	the current	deviation	
 	ld	c,(ix+TRACK_ToneAdd+1)
 
 	bit	2,e
-	jp	z,_pcAY_noToneAdd
+	jp	z,process_noToneAdd
 	ld	a,(hl)
 	inc	hl
 	add	c
@@ -1499,7 +1493,7 @@ _pcAY_noTone:
 	add	b
 	ld	b,a
 	ld	(ix+TRACK_ToneAdd),b
-_pcAY_noToneAdd:	
+process_noToneAdd:	
 	;---- check for macro end
 	bit	3,e		
 	jp	z,.noend
@@ -1606,7 +1600,7 @@ _wrap_lowcheck:
 	ret
 
 	
-_pcAY_noNoteActive:
+process_noNoteActive:
 	xor	a
 	ld	(FM_regVOLE),a
 	ld	(ix+TRACK_Flags),d
@@ -1620,39 +1614,21 @@ _pcAY_noNoteActive:
 ;PROCESS_CMDLIST:	
 ;[13]	dw 	stop_debug
 
-_pcAY_cmdlist:
-	dw	0					;d
-	dw	0					;e
-	dw	0					;f
-	dw	_pcAY_cmd13_short_arp		;10
-	dw	_pcAY_cmd14_fine_up		;11
-	dw	_pcAY_cmd15_fine_down		;12
-	dw	_pcAY_cmd19_note_delay		;13
-	dw	_pcAY_cmdXX_note_cut		;14
-	
-	dw	_pcAY_cmd0_arpeggio		;15
-	dw	_pcAY_cmd1_port_up		;17
-	dw	_pcAY_cmd2_port_down		;16
-	dw	_pcAY_cmd3_port_tone		;18
-	dw	_pcAY_cmd4_vibrato		;19
-	dw	_pcAY_cmd5_vibrato_port_tone	;1a
-	dw	_pcAY_cmd6_vibrato_vol		;1b
-	dw	_pcAY_cmd7_vol_slide		;1c
-	dw	_pcAY_cmd8_macro_offset		;1d
-	dw	0	;env shape
-
-	dw	_pcAY_cmd0_arpeggio		;1e
-	dw	_pcAY_cmd1_port_up		;20
-	dw	_pcAY_cmd2_port_down		;1f
-	dw	_pcAY_cmd3_port_tone		;21
-	dw	_pcAY_cmd4_vibrato
-	dw	_pcAY_cmd5_vibrato_port_tone
-	dw	_pcAY_cmd6_vibrato_vol
-	dw	_pcAY_cmd7_vol_slide
-	dw	_pcAY_cmd8_macro_offset
+process_cmd_list:
+	; This list only contains the primary commands.
+	dw	process_cmd0_arpeggio		
+	dw	process_cmd1_port_up		
+	dw	process_cmd2_port_down		
+	dw	process_cmd3_port_tone		
+	dw	process_cmd4_vibrato		
+	dw	process_cmd5_vibrato_port_tone	
+	dw	process_cmd6_vibrato_vol		
+	dw	process_cmd7_vol_slide		
+	dw	process_cmd8_note_cut		
+	dw	process_cmd9_note_delay		
 
 			
-_pcAY_cmd0_arpeggio:
+process_cmd0_arpeggio:
 	ld	a,(ix+TRACK_Timer)
 	bit	0,a
 	jp	z,.step2
@@ -1667,7 +1643,7 @@ _pcAY_cmd0_arpeggio:
 	rra
 	rra
 	ld	(ix+TRACK_cmd_NoteAdd),a		
-	jp	_pcAY_commandEND
+	jp	process_commandEND
 
 	
 .step2:
@@ -1679,76 +1655,77 @@ _pcAY_cmd0_arpeggio:
 	ld	a,(ix+TRACK_cmd_0)
 	and	0x0f
 	ld	(ix+TRACK_cmd_NoteAdd),a		
-	jp	_pcAY_commandEND
+	jp	process_commandEND
 	
 .step3:
 	;--- set none
 	ld	(ix+TRACK_Timer),1
-	jp	_pcAY_commandEND
+	jp	process_commandEND
 	
+
 	
-_pcAY_cmd2_port_down:	
-	ld	a,(ix+TRACK_cmd_2)
-	ld	b,a
-	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
-	sub	b
-	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND
-	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
-	jp	_pcAY_commandEND
-	
-	
-_pcAY_cmd1_port_up:
+process_cmd1_port_up:
 	ld	a,(ix+TRACK_cmd_1)	
 
 	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	add	b
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND
+	jp	nc,process_commandEND
 	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
-	jp	_pcAY_commandEND
+	jp	process_commandEND
 
+	
+process_cmd2_port_down:	
+	ld	a,(ix+TRACK_cmd_2)
+	ld	b,a
+	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
+	sub	b
+	ld	(ix+TRACK_cmd_ToneSlideAdd),a
+	jp	nc,process_commandEND
+	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
+	jp	process_commandEND
+	
 
-_pcAY_cmd3_port_tone:
+process_cmd3_port_tone:
 	ld	a,(ix+TRACK_cmd_3)
 	ld	l,(ix+TRACK_cmd_ToneSlideAdd)
 	ld	h,(ix+TRACK_cmd_ToneSlideAdd+1)
 	bit	7,h
-	jp	z,_pcAY_cmd3_sub
-_pcAY_cmd3_add:
+	jp	z,process_cmd3_sub
+process_cmd3_add:
 	;pos slide
 	add	a,l
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND
+	jp	nc,process_commandEND
 	inc	h					
 	bit	7,h
-	jp	z,_pcAY_cmd3_stop			; delta turned pos ?
+	jp	z,process_cmd3_stop			; delta turned pos ?
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
-	jp	_pcAY_commandEND
-_pcAY_cmd3_sub:
+	jp	process_commandEND
+process_cmd3_sub:
 	;negative slide	
 	ld	c,a
 	xor	a
 	ld	b,a
 	sbc	hl,bc
 	bit	7,h
-	jp	nz,_pcAY_cmd3_stop			; delta turned neg ?
+	jp	nz,process_cmd3_stop			; delta turned neg ?
 	ld	(ix+TRACK_cmd_ToneSlideAdd),l
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
-	jp	_pcAY_commandEND
-_pcAY_cmd3_stop:	
+	jp	process_commandEND
+process_cmd3_stop:	
 	res	B_TRGCMD,d		;(ix+TRACK_Flags)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),0
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0	
-	jp	_pcAY_commandEND
+	jp	process_commandEND
 
 	;=================================
 	;
 	; Vibrato	
 	;
 	;=================================
-_pcAY_cmd4_vibrato:
+process_cmd4_vibrato:
 	ld	hl,TRACK_Vibrato_sine
 	;--- Get next step
 	ld	a,(IX+TRACK_Step)
@@ -1772,7 +1749,7 @@ _pcAY_cmd4_vibrato:
 	jp	z,.zero			; $ff00 gives strange result ;)	
 	ld	(ix+TRACK_cmd_ToneAdd),a
 	ld	(ix+TRACK_cmd_ToneAdd+1),0xff
-	jp	_pcAY_commandEND	
+	jp	process_commandEND	
 
 .pos:
 	add	a,(ix+TRACK_cmd_4_depth)
@@ -1785,7 +1762,7 @@ _pcAY_cmd4_vibrato:
 .zero:	
 	ld	(ix+TRACK_cmd_ToneAdd),a
 	ld	(ix+TRACK_cmd_ToneAdd+1),0
-	jp	_pcAY_commandEND	
+	jp	process_commandEND	
 
 
 ;	ld	hl,(replay_vib_table)
@@ -1796,7 +1773,7 @@ _pcAY_cmd4_vibrato:
 ;	ld	(ix+TRACK_Step),a
 ;	
 ;	bit	5,a			; step 32-63 the neg	
-;	jp	z,_pcAY_cmd4pos
+;	jp	z,process_cmd4pos
 ;
 ;; neg	
 ;	and	$1f
@@ -1814,12 +1791,12 @@ _pcAY_cmd4_vibrato:
 ;;	and	$0f
 ;
 ;	neg
-;	jp	z,_pcAY_cmd4_zero			; $ff00 gives strange result ;)	
+;	jp	z,process_cmd4_zero			; $ff00 gives strange result ;)	
 ;	ld	(ix+TRACK_cmd_ToneAdd),a
 ;	ld	(ix+TRACK_cmd_ToneAdd+1),0xff
-;	jp	_pcAY_commandEND
+;	jp	process_commandEND
 ;
-;_pcAY_cmd4pos:	
+;process_cmd4pos:	
 ;;	and	$1f
 ;	add	a,l
 ;	ld	l,a
@@ -1832,26 +1809,27 @@ _pcAY_cmd4_vibrato:
 ;.loop:
 ;	srl	a
 ;	djnz	.loop
-;_pcAY_cmd4_zero:
+;process_cmd4_zero:
 ;	ld	(ix+TRACK_cmd_ToneAdd),a
 ;	ld	(ix+TRACK_cmd_ToneAdd+1),0
-;	jp	_pcAY_commandEND
+;	jp	process_commandEND
 		
 	
 
-_pcAY_cmd5_vibrato_port_tone:
-	call	_pcAY_cmdasub
-	jp	_pcAY_cmd3_port_tone
+process_cmd5_vibrato_port_tone:
+	call	process_cmdasub
+	jp	process_cmd3_port_tone
 	
-_pcAY_cmd6_vibrato_vol:
-	call	_pcAY_cmdasub
-	jp	_pcAY_cmd4_vibrato	
+process_cmd6_vibrato_vol:
+	call	process_cmdasub
+	jp	process_cmd4_vibrato	
 
-_pcAY_cmd7_vol_slide:
-	call	_pcAY_cmdasub
-	jp	_pcAY_commandEND
+process_cmd7_vol_slide:
+	call	process_cmdasub
+	jp	process_commandEND
 
-_pcAY_cmdasub:
+
+process_cmdasub:
 	dec	(ix+TRACK_Timer)
 	ret	nz
 		
@@ -1863,73 +1841,34 @@ _pcAY_cmdasub:
 
 	ld	a,(IX+TRACK_cmd_VolumeAdd)
 	bit	7,c
-	jp	z,_pcAY_cmda_inc
-_pcAY_cmda_dec:
+	jp	z,process_cmda_inc
+process_cmda_dec:
 	cp	0x88
 	ret	z
 	sub	8
 	ld	(ix+TRACK_cmd_VolumeAdd),a
 	ret
-_pcAY_cmda_inc:
+process_cmda_inc:
 	cp	0x78
 	ret	z
 	add	8	
 	ld	(ix+TRACK_cmd_VolumeAdd),a
 	ret
-	
-_pcAY_cmd8_macro_offset:
+
+
+process_cmd8_note_cut:
 	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
-	res	B_TRGCMD,d			;(ix+TRACK_Flags)
-	jp	_pcAY_commandEND
-
-
-_pcAY_cmd13_short_arp:
-	dec	(ix+TRACK_Timer)
-	bit	B_TRGNOT,d		;(ix+TRACK_Timer)
-	jp	z,_pcAY_commandEND
-	ld	a,(ix+TRACK_cmd_E)
-	ld	(ix+TRACK_cmd_NoteAdd),a		
-	jp	_pcAY_commandEND
-
-_pcAY_cmd14_fine_up:
-	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
-
-	res	B_TRGCMD,d			;(ix+TRACK_Flags)
-	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
-	add	(ix+TRACK_cmd_E)
-	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND	
-	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
-	jp	_pcAY_commandEND	
-
-_pcAY_cmd15_fine_down:
-	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
-
-	res	B_TRGCMD,d		;(ix+TRACK_Flags)
-	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
-	sub	(ix+TRACK_cmd_E)
-	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND	
-	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
-	jp	_pcAY_commandEND	
-
-
-_pcAY_cmdXX_note_cut:
-	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
+	jp	nz,process_commandEND
 	
 	; stop note
 	res	B_TRGCMD,d	; set	note bit to	0
 	res	B_TRGNOT,d
-	jp	_pcAY_commandEND		
+	jp	process_commandEND		
 	
-_pcAY_cmd19_note_delay:
+process_cmd9_note_delay:
 	; note delay
 	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND	; no delay yet
+	jp	nz,process_commandEND	; no delay yet
 
 	; trigger note
 	ld	a,(ix+TRACK_cmd_E)		
@@ -1937,7 +1876,7 @@ _pcAY_cmd19_note_delay:
 	set	B_TRGNOT,d	;(ix+TRACK_Flags)		; set	trigger note flag
 	res	B_TRGCMD,d	;(ix+TRACK_Flags)		; reset tiggger cmd flag
 	
-	jp	_pcAY_commandEND	
+	jp	process_commandEND	
 
 
 
@@ -2094,7 +2033,7 @@ _tt_route_fmvol:
 	
 
 	;--- write tone register
-	ld	hl,FM_registers
+	ld	hl,FM_Registers
 	ld	de,TRACK_Chan3+17+TRACK_Flags
 	ld	b,6		; 5 tracks
 	ld	a,$10

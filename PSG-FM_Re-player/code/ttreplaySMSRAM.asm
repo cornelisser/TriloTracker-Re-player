@@ -97,6 +97,7 @@ replay_mode 		#1			; Replayer status
 ; mode 0  = no sound output
 ; mode 1  = replay song 
 replay_chan_setup		#1			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
+replay_arp_speed		#1			; arpeggio speed ( 0 = fast, $f = slowest)
 replay_fade			#1			; Fade active (value = fade speed)
 replay_fade_timer		#1			; Timer for fade
 replay_fade_vol		#1			; fade volume to lower the channel volume.
@@ -105,8 +106,8 @@ replay_previous_note	#1			; previous note played
 replay_mainvol		#2			; the volume correction.
 
 replay_vib_table		#2			; pointer to the vibrato table
-replay_tonetable_PSG	#2			; ToneTable (affected by transpose);
-replay_tonetable_FM	#2			; ToneTable (affected by transpose);
+;replay_tonetable_PSG	#2			; ToneTable (affected by transpose);
+;replay_tonetable_FM	#2			; ToneTable (affected by transpose);
 replay_tonetable		#2			; Current tonetable to read from
 
 equalization_freq:	#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
@@ -139,18 +140,19 @@ AY_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
 AY_regVOLA 			#1	; Chan A volume
 AY_regVOLB 			#1	; Chan B volume
 AY_regVOLC  		#1	; Chan C volume
-AY_regEnvL 			#1	; Volume Env Freq low (8bit)	
-AY_regEnvH 			#1	; Volume Env Freq high (4bit)
-AY_regEnvShape 		#1	; Volume Env Shape (4bit)
+SN_regVOLN
+;AY_regEnvL 			#1	; Volume Env Freq low (8bit)	
+;AY_regEnvH 			#1	; Volume Env Freq high (4bit)
+;AY_regEnvShape 		#1	; Volume Env Shape (4bit)
 
 ;--- SCC SPECIFIC
+;
+;_0x9800:	#32			; Waveform data
+;_0x9820:	#32
+;_0x9840:	#32
+;_0x9860:	#32
 
-_0x9800:	#32			; Waveform data
-_0x9820:	#32
-_0x9840:	#32
-_0x9860:	#32
-
-FM_registers 		#0
+FM_Registers:
 FM_regToneA 		#2	; Tone A freq low (8bit)
 					; Tone A freq high (4bit)
 FM_regToneB 		#2	; Tone B freq low
