@@ -293,7 +293,7 @@ def export_asm(outfile,song):
 						file.write(f"{_CHILD}rst_i{instrument.export_number:02}:\n")
 						# Compile row
 						#===========================================
-					file.write(export_instrument_row_asm(instrument,r))
+					file.write(export_instrument_row_asm(instrument,r,song))
 				file.write("\n")		
 		
 		file.write("\n; [ Song track data ]\n")							
@@ -306,7 +306,214 @@ def export_asm(outfile,song):
 
 
 
-def export_instrument_row_asm(ins,r):
+def export_instrument_row_asm(ins,r,song):
+	
+	if song.type == "SMS":
+		return export_instrument_row_asm_sms(ins,r)
+	elif song.type == "SCC":
+		return export_instrument_row_asm_scc(ins,r)
+	else:
+		return export_instrument_row_asm_fm(ins,r)
+		
+		
+		
+
+def export_instrument_row_asm_sms(ins,r):
+	row = ins.rows[r]
+	out = ""
+	bit0 = 1
+	bit1 = 2
+	bit2 = 4
+	bit3 = 8
+	bit4 = 16
+	bit5 = 32
+	bit6 = 64
+	bit7 = 128
+
+	byte1 = row[0]			# [N |          | Voice 4bit ] if Vl = 1
+							# [N |Noise 3bit|NoiVol 4bit ]
+	byte2 = row[1]			# [T |Td|Vd |Vd |Volume 4bit ]
+	byte3 = row[2]			# [      Tone low 8 bit      ]
+	byte4 = row[3]			# [ Vl |    Tone high 7 bit  ]
+
+							# Output format:
+							# [Nup|Nvol|  T | Tv | Vv | Vd | Vl |End]
+							#	7    6    5    4    3    2    1    0
+
+	# Calculate the end of instrument bit
+	if r == (ins.length -1):		# set the end of instrument bit
+		e = bit0
+	else:
+		e = 0
+	result_info = e	
+
+
+
+	# calculate volume
+	result_vol = byte2 & 0x0f							# volume value
+	if ((byte2 & 0x20) == 0x00):
+		#base volume
+		result_info = result_info + bit3
+		out = out+ f"{_DB} ${result_vol:02x}\t\t\t; Volume _\n"
+	elif (byte2 & 0x30) == 0x20 and (result_vol > 0):
+		# add volume
+		result_info = result_info + bit3 + bit2
+		out = out+ f"{_DB} ${result_vol:02x}\t\t\t; Volume +\n"
+	elif (result_vol > 0):
+		#min volume
+		result_info = result_info + bit3 + bit2
+		result_vol = (255-result_vol)+1
+		out = out+ f"{_DB} ${result_vol:02x}\t\t\t; Volume -\n"
+
+
+
+	# calculate noise value
+	result_noise = (byte1 >> 4) & 0x07					# noise value	
+	if (byte1 & bit7 > 0):
+		result_info = result_info + bit7
+		out = out+ f"{_DB} ${result_noise:02x}\t\t\t; Noise\n"		
+
+
+
+	# calculate noise volume
+	result_noisevol = (byte1 & 0x0f) 					# noise volume
+	if (byte1 & bit7) > 0:								# set noise volume to 0 if no noise is active
+		result_info = result_info + bit6
+		out = out+ f"{_DB} ${result_noisevol:02x}\t\t\t; Noise volume\n"	
+
+
+
+	# calculate voice link value
+	if (byte4 & bit7 > 0):								# voice link bit	
+		result_voice = (byte1 & 0x0f) 					# voice
+		result_info = result_info + bit1
+		out = out+ f"{_DB} ${result_voice:02x}\t\t\t; FM Voice\n"
+	
+
+	
+	# calculate tone
+	result_toneL = byte3
+	result_toneH = byte4 & 0x7f							# tone without voicelink bit	
+	if (result_toneL + result_toneH > 0):
+		if ((byte2 & 0x40) == 0x40):
+			# min
+			result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
+			result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
+		result_info = result_info + bit4
+		out = out+ f"{_DW} ${result_toneL:02x}{result_toneH:02x}\t\t\t\t; Tone\n"
+	
+	
+	
+	# Calculate the Tone bit
+	if (byte2 & bit7 > 0):
+		result_info = result_info + bit5
+
+
+	
+	# calculate output
+	out = f"{_DB} ${result_info:02x}\t\t\t; Info byte: {result_info:08b}\n"+out
+	return out
+
+
+
+
+
+def export_instrument_row_asm_fm(ins,r):
+	row = ins.rows[r]
+
+	byte1 = row[0]	
+	byte2 = row[1]
+	byte3 = row[2]
+	byte4 = row[3]
+
+	if r == ins.length:			# set the end of instrument bit
+		e = 0x08
+	else:
+		e = 0
+
+	result_info = byte1 & 0x80						# Set the noise active bit
+	result_info = result_info + ((byte2 >>3 ) & 0x10)	# Set the tone active bit
+	result_info = result_info + e						# Set the END macro bit
+
+	result_vol = byte2 & 0x0f						# volume value
+	result_noise= 0;								#byte1 And $1f	; noise value / voicelink
+	result_nvol = 0
+
+	result_toneL = byte3
+	result_toneH = byte4 & 0x7f						# tone without voicelink bit
+	
+	result_link = byte4 & 0x80					# voicelink bit
+
+	# Calculate noise
+	if (byte1 & 0x80 > 0):
+		result_noise= byte1 & 0x1f					#; noise value
+		if ((byte1 & 0x40) == 0):		
+			# base noise
+			result_info = result_info + 0x20
+		elif (result_noise> 0):
+			if ((byte1 & 0x60) == 0x40):
+				# add noise
+				result_info = result_info + 0x60
+			elif ((byte1 & 0x60) == 0x60):
+				# min noise
+				#result_info = result_info + $40		Be aware changed this as only an add is needed as value is negative
+				result_info = result_info + 0x60
+				result_noise= (255-result_noise)+1
+	
+	if (result_link > 0):
+		result_noise= byte1 & 0x0f					#; voice value
+		result_info = result_info + 0x40	
+
+	# calculate volume
+	if ((byte2 & 0x20) == 0x00):
+		#base volume
+		result_info = result_info + 0x01
+	elif (byte2 & 0x30) == 0x20 and (result_vol > 0):
+		# add volume
+		result_info = result_info + 0x03
+	elif (result_vol > 0):
+		#min volume
+		result_info = result_info + 0x03
+		result_vol = (255-result_vol)+1
+	
+	# calculate tone	
+	if (result_toneL + result_toneH > 0):
+		if ((byte2 & 0x40) == 0x40):
+			# min
+			result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
+			result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
+		result_info = result_info + 0x04
+
+	
+	# calculate output
+	out = f"{_DB} ${result_info:02x}"
+	if ((result_info & 0x03) > 0):
+		out = out + f",${result_vol:02x}"
+	else: 
+		out = out + "    "
+
+	if (result_noise> 0):
+		if (result_link > 0):
+			out = out + "    "
+			out = out +f",${result_link:02x}"
+		else:
+			out = out +f",${result_noise:02x}"
+			out = out + "    "
+	else:
+		out = out + "        "
+	if ((result_info & 0x04) > 0):
+		out = out + f",${result_toneL:02x}"
+		out = out + f",${result_toneH:02x}"
+	else: 
+		out = out + "        "	
+		
+	out = out + f"\t\t; {result_info:08b}\n"
+	return out
+
+
+
+
+def export_instrument_row_asm_scc(ins,r):
 	row = ins.rows[r]
 
 	byte1 = row[0]
@@ -319,82 +526,82 @@ def export_instrument_row_asm(ins,r):
 	else:
 		e = 0
 
-	result1 = byte1 & 0x80						# Set the noise active bit
-	result1 = result1 + ((byte2 >>3 ) & 0x10)	# Set the tone active bit
-	result1 = result1 + e						# Set the END macro bit
+	result_info = byte1 & 0x80						# Set the noise active bit
+	result_info = result_info + ((byte2 >>3 ) & 0x10)	# Set the tone active bit
+	result_info = result_info + e						# Set the END macro bit
 
-	result2 = byte2 & 0x0f						# volume value
-	result3 = 0;								#byte1 And $1f			; noise value / voicelink
+	result_vol = byte2 & 0x0f						# volume value
+	result_noise= 0;								#byte1 And $1f			; noise value / voicelink
 
-	result4 = byte3
-	result5 = byte4 & 0x7f						# tone without voicelink bit
+	result_toneL = byte3
+	result_toneH = byte4 & 0x7f						# tone without voicelink bit
 	
-	voicelink = byte4 & 0x80					# voicelink bit
+	result_link = byte4 & 0x80					# voicelink bit
 
 	# Calculate noise
 	if (byte1 & 0x80 > 0):
-		result3 = byte1 & 0x1f					#; noise value
+		result_noise= byte1 & 0x1f					#; noise value
 		if ((byte1 & 0x40) == 0):		
 			# base noise
-			result1 = result1 + 0x20
-		elif (result3 > 0):
+			result_info = result_info + 0x20
+		elif (result_noise> 0):
 			if ((byte1 & 0x60) == 0x40):
 				# add noise
-				result1 = result1 + 0x60
+				result_info = result_info + 0x60
 			elif ((byte1 & 0x60) == 0x60):
 				# min noise
-				#result1 = result1 + $40		Be aware changed this as only an add is needed as value is negative
-				result1 = result1 + 0x60
-				result3 = (255-result3)+1
+				#result_info = result_info + $40		Be aware changed this as only an add is needed as value is negative
+				result_info = result_info + 0x60
+				result_noise= (255-result_noise)+1
 	
-	if (voicelink > 0):
-		result3 = byte1 & 0x0f					#; voice value
-		result1 = result1 + 0x40	
+	if (result_link > 0):
+		result_noise= byte1 & 0x0f					#; voice value
+		result_info = result_info + 0x40	
 
 	# calculate volume
 	if ((byte2 & 0x20) == 0x00):
 		#base volume
-		result1 = result1 + 0x01
-	elif (byte2 & 0x30) == 0x20 and (result2 > 0):
+		result_info = result_info + 0x01
+	elif (byte2 & 0x30) == 0x20 and (result_vol > 0):
 		# add volume
-		result1 = result1 + 0x03
-	elif (result2 > 0):
+		result_info = result_info + 0x03
+	elif (result_vol > 0):
 		#min volume
-		result1 = result1 + 0x03
-		result2 = (255-result2)+1
+		result_info = result_info + 0x03
+		result_vol = (255-result_vol)+1
 	
 	# calculate tone	
-	if (result4 + result5 > 0):
+	if (result_toneL + result_toneH > 0):
 		if ((byte2 & 0x40) == 0x40):
 			# min
-			result4 = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
-			result5 = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
-		result1 = result1 + 0x04
+			result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
+			result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
+		result_info = result_info + 0x04
 
 	
 	# calculate output
-	out = f"{_DB} ${result1:02x}"
-	if ((result1 & 0x03) > 0):
-		out = out + f",${result2:02x}"
+	out = f"{_DB} ${result_info:02x}"
+	if ((result_info & 0x03) > 0):
+		out = out + f",${result_vol:02x}"
 	else: 
 		out = out + "    "
 
-	if (result3 > 0):
-		if (voicelink > 0):
+	if (result_noise> 0):
+		if (result_link > 0):
 			out = out + "    "
-			out = out +f",${result:02x}"
+			out = out +f",${result_link:02x}"
 		else:
-			out = out +f",${result3:02x}"
+			out = out +f",${result_noise:02x}"
 			out = out + "    "
 	else:
 		out = out + "        "
-	if ((result1 & 0x04) > 0):
-		out = out + f",${result4:02x}"
-		out = out + f",${result5:02x}"
+	if ((result_info & 0x04) > 0):
+		out = out + f",${result_toneL:02x}"
+		out = out + f",${result_toneH:02x}"
 	else: 
 		out = out + "        "	
 		
-	out = out + f"\t\t; {result1:08b}\n"
+	out = out + f"\t\t; {result_info:08b}\n"
 	return out
 
 

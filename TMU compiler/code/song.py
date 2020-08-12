@@ -349,7 +349,7 @@ class Song:
 
 					if trackb.used:
 						if tracka.rows == trackb.rows:
-							print (f"Duplicate {tracka.number} -> {trackb.number}")
+						#	print (f"Duplicate {tracka.number} -> {trackb.number}")
 							trackb.used = False
 							trackb.export_number = tracka.number
 
