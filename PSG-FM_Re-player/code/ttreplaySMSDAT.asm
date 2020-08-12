@@ -1,3 +1,5 @@
+
+
 	; Balance setting space volume max - 8
 	ds 8*16, $0F
 _VOLUME_TABLE

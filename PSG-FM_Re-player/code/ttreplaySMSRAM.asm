@@ -25,7 +25,7 @@ TRACK_Flags			equ 10-17
 TRACK_empty			equ 11-17		; needed for pushing 0 at note start
 TRACK_ToneAdd		equ 12-17		; reset after note set
 TRACK_VolumeAdd		equ 14-17		; reset after note set
-TRACK_Noise			equ 15-17		; reset after note set
+TRACK_Noise			equ 15-17	;[OBSOLETE]	; reset after note set
 TRACK_cmd_VolumeAdd	equ 16-17		; reset after note set
 TRACK_cmd_ToneSlideAdd	equ 17-17		; reset after note set
 TRACK_cmd_ToneAdd		equ 19-17		; reset after note set
@@ -128,22 +128,24 @@ TRACK_Chan8			#TRACK_REC_SIZE
 
 
 ;--- AY SPECIFIC
-AY_registers		#0 
-AY_regToneA 		#2	; Tone A freq low (8bit)
+PSG_registers		#0 
+PSG_regToneA 		#2	; Tone A freq low (8bit)
 					; Tone A freq high (4bit)
-AY_regToneB 		#2	; Tone B freq low
+PSG_regToneB 		#2	; Tone B freq low
 					; Tone B freq high
-AY_regToneC 		#2	; Tone C freq low
+PSG_regToneC 		#2	; Tone C freq low
 					; Tone C freq high
-AY_regNOISE 		#1	; Noise freq (5bit)
-AY_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
-AY_regVOLA 			#1	; Chan A volume
-AY_regVOLB 			#1	; Chan B volume
-AY_regVOLC  		#1	; Chan C volume
-SN_regVOLN
-;AY_regEnvL 			#1	; Volume Env Freq low (8bit)	
-;AY_regEnvH 			#1	; Volume Env Freq high (4bit)
-;AY_regEnvShape 		#1	; Volume Env Shape (4bit)
+PSG_regNOISE 		#1	; Noise freq (5bit)
+PSG_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
+PSG_regVOLA 			#1	; Chan A volume
+PSG_regVOLB 			#1	; Chan B volume
+PSG_regVOLC  		#1	; Chan C volume
+PSG_regVOLN			#1
+PSG_regNOISEold		#1
+GG_panning			#1
+;PSG_regEnvL 			#1	; Volume Env Freq low (8bit)	
+;PSG_regEnvH 			#1	; Volume Env Freq high (4bit)
+;PSG_regEnvShape 		#1	; Volume Env Shape (4bit)
 
 ;--- SCC SPECIFIC
 ;

@@ -73,6 +73,9 @@ initmain:
 	
 	;--- Init screen
 	call 	init_vdp
+	ei
+	halt
+	di
 	call	init_font		; set the new font
 	
 	;--- initialise replayer
@@ -129,10 +132,10 @@ infinite:
 ;	call	register_debug
 
 	
-	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a	
+;	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+;	out	(0x99),a
+;	ld	a,7+128
+;	out	(0x99),a	
 
 
 	
@@ -183,9 +186,20 @@ infinite:
 isr:
 	in	a,(0x99)
 	call	write_debug
-	call	replay_route		; first outout data	
+	ld	a,$fc ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
+	call	replay_route		; first outout data
+	ld	a,$f4 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a		
 	call	replay_play			; calculate next output
-
+	ld	a,$f0 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
 ;	call	ttsfx_play
 
 
@@ -374,11 +388,11 @@ register_debug_loop:
 	ret
 
 REG_list:
-	dw	AY_regToneA,AY_regVOLA
-	dw	AY_regToneB,AY_regVOLB
-	dw	AY_regToneC,AY_regVOLC
-	dw	AY_regNOISE,AY_regMIXER
-	dw	0,0;AY_regEnvL,AY_regEnvShape 	
+	dw	PSG_regToneA,PSG_regVOLA
+	dw	PSG_regToneB,PSG_regVOLB
+	dw	PSG_regToneC,PSG_regVOLC
+	dw	PSG_regNOISE,PSG_regMIXER
+	dw	0,0;PSG_regEnvL,PSG_regEnvShape 	
 	dw	FM_regToneA,FM_regVOLA 
 	dw	FM_regToneB,FM_regVOLB 
 	dw	FM_regToneC,FM_regVOLC 

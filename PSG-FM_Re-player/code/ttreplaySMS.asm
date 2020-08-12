@@ -26,15 +26,17 @@ _WAIT:	equ	192	; = wait 1
 ; Input: none
 ;===========================================================
 replay_init:
-;	ld	a,8
-;	call	replay_set_FM
-;	call	replay_set_SN7_balance
+	ld	a,7
+	call	replay_set_FM_balance
+	ld	a,7
+	call	replay_set_PSG_balance
 
 	xor	a
 	ld	(replay_mode),a	
 	ld	(equalization_cnt),a
 	ld	(equalization_flag),a	
 	ld	(equalization_freq),a
+	inc	a
 	ld	(replay_chan_setup),a	
 	
 	ret
@@ -61,10 +63,10 @@ _r_pause_disable:
 	ld	(replay_mode),a	
 	ld	(FM_DRUM),a
 	;--- Silence the SN7 PSG
-	ld	(AY_regVOLA),a
-	ld	(AY_regVOLB),a
-	ld	(AY_regVOLC),a
-	ld	(SN_regVOLN),a
+	ld	(PSG_regVOLA),a
+	ld	(PSG_regVOLB),a
+	ld	(PSG_regVOLC),a
+	ld	(PSG_regVOLN),a
 	; release key on all FM channels
 	ld	b,9
 	ld	hl,FM_Registers+1
@@ -101,10 +103,10 @@ replay_fade_out:
 ;
 ; in: [A] master volume (0-7) 0=halve volume, 7=full volume. 
 ;===========================================================	
-;replay_set_balance:
-;	call	_getnewbalancebase
-;	ld	(replay_mainSCCvol),hl	
-;	ret
+replay_set_FM_balance:
+	call	_getnewbalancebase
+	ld	(replay_mainSCCvol),hl	
+	ret
 	
 ;===========================================================
 ; ---	replay_set_PSG_balance
@@ -114,23 +116,23 @@ replay_fade_out:
 ;
 ; in: [A] master volume (0-7) 0=halve volume, 7=full volume. 
 ;===========================================================	
-;replay_set_PSG_balance:
-;	call	_getnewbalancebase
-;	ld	(replay_mainPSGvol),hl	
-;	ret
-;	
-;_getnewbalancebase:
-;	rlca
-;	rlca
-;	rlca
-;	rlca
-;	ld	hl,_VOLUME_TABLE-128
-;	and	$f0
-;	add	a,l
-;	ld	l,a
-;	ret 	nc
-;	inc	h
-;	ret
+replay_set_PSG_balance:
+	call	_getnewbalancebase
+	ld	(replay_mainPSGvol),hl	
+	ret
+	
+_getnewbalancebase:
+	rlca
+	rlca
+	rlca
+	rlca
+	ld	hl,_VOLUME_TABLE-128
+	and	$f0
+	add	a,l
+	ld	l,a
+	ret 	nc
+	inc	h
+	ret
 	
 	
 	
@@ -167,10 +169,10 @@ replay_loadsong:
 	ld	(FM_DRUM_LEN),a
 	ld	(FM_DRUM),a	
 	
-	ld	(AY_regVOLA),a
-	ld	(AY_regVOLB),a	
-	ld	(AY_regVOLC),a
-	ld	(AY_regNOISE),a
+	ld	(PSG_regVOLA),a
+	ld	(PSG_regVOLB),a	
+	ld	(PSG_regVOLC),a
+	ld	(PSG_regNOISE),a
 
 ;	;--- Set the tone table base
 ;	ld	hl,TRACK_ToneTable_PSG
@@ -219,7 +221,7 @@ replay_loadsong:
 	;--- Check if there are 3 psg chans.
 	ld	a,(replay_chan_setup)
 	and	a
-	jp	nz,99f
+	jp	z,99f
 	xor 	a
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 99:	
@@ -436,10 +438,10 @@ process_data:
 	;--- Initialize PSG Mixer and volume
 	xor	a
 	ld	(FM_regMIXER),a
-	ld	(SN_regVOLN),a
-	ld	(AY_regVOLA),a
-	ld	(AY_regVOLB),a
-	ld	(AY_regVOLC),a
+	ld	(PSG_regVOLN),a
+	ld	(PSG_regVOLA),a
+	ld	(PSG_regVOLB),a
+	ld	(PSG_regVOLC),a
 	
 	;--- PSG balance
 	ld	hl,(replay_mainPSGvol)
@@ -452,9 +454,9 @@ process_data:
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	ld	(AY_regToneA),hl
+	ld	(PSG_regToneA),hl
 	ld	a,(FM_regVOLF)
-	ld	(AY_regVOLA),a	
+	ld	(PSG_regVOLA),a	
 
 	;--------------------
 	;--- Process track 2
@@ -463,9 +465,9 @@ process_data:
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	ld	(AY_regToneB),hl
+	ld	(PSG_regToneB),hl
 	ld	a,(FM_regVOLF)
-	ld	(AY_regVOLB),a	
+	ld	(PSG_regVOLB),a	
 
 	ld	a,(replay_chan_setup)
 	and	a
@@ -479,16 +481,16 @@ _rdd_3psg_5fm:
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	ld	(AY_regToneC),hl
+	ld	(PSG_regToneC),hl
 	ld	a,(FM_regVOLF)
-	ld	(AY_regVOLC),a
+	ld	(PSG_regVOLC),a
 
 	;-- Convert mixer to AY
 	ld	a,(FM_regMIXER)		
 	srl	a
 	srl	a
 	xor	0x3f
-	ld	(AY_regMIXER),a
+	ld	(PSG_regMIXER),a
 
 	; Set tone table
 	ld	hl,TRACK_ToneTable_FM
@@ -507,7 +509,7 @@ _rdd_2psg_6fm:
 	srl	a
 	srl	a
 	xor	0x3f
-	ld	(AY_regMIXER),a
+	ld	(PSG_regMIXER),a
 
 	; Set tone table
 	ld	hl,TRACK_ToneTable_FM
@@ -614,7 +616,7 @@ _rdd_cont:
 	ld	a,(replay_fade_vol)
 	ld	c,a
 	ld	b,3
-	ld	hl,AY_regVOLA
+	ld	hl,PSG_regVOLA
 	call	.calc_vol
 	ld	b,6
 	ld	hl,FM_regVOLA
@@ -1333,17 +1335,17 @@ process_noNoteTrigger:
 
 	ld	e,(hl)				; info byte
 	inc	hl
-	bit	0,e					; Volume change
+	bit	3,e					; Volume change
 	jp	nz,_vol_change
 	ld	a,(ix+TRACK_VolumeAdd)
-	jp	_noEnv
+	jp	_noVolumeChange
 	
 	;--- Volume change
 _vol_change:
 	ld	a,(hl)
 	inc	hl
 	
-	bit	1,e
+	bit	2,e
 	jp	z,_vol_base
 _vol_rel:
 	add	 (ix+TRACK_VolumeAdd)
@@ -1363,12 +1365,12 @@ _vol_base:
 	; is done here to be able to continue
 	; macro volume values.
 ;	bit	B_TRGENV,d		;'(IX+TRACK_Flags)
-	jp	z,_noEnv		; if not set then normal volume calculation
-	ld	a,16			; set volume to 16 == envelope
-	ld	(FM_regVOLF),a
-	jp	_noVolume	
+;	jp	z,_noEnv		; if not set then normal volume calculation
+;	ld	a,16			; set volume to 16 == envelope
+;	ld	(FM_regVOLF),a
+;	jp	_noVolume	
 	
-_noEnv:
+_noVolumeChange:
 	or	(ix+TRACK_Volume)
 	ld	c,a			; store volume add
 
@@ -1421,65 +1423,92 @@ _noVolume:
 	; NOISE
 	;
 	;-------------------------------
-	bit 	7,e			; test if noise
+	bit 	7,e			; test if noise value
 	jp	z,_noNoise
-	
+
 	;--- prevent FM and noise
+	ld	a,(hl)		; get the value	
+	inc	hl	
+	
 	bit	B_PSGFM,d		;(ix+TRACK_Flags)
-	jp	nz,_noLink		; Noise and Link not at the same time
-
+	jp	nz,_noNoise		; Noise and Link not at the same time
+	
 	;--- Set the mixer for noise
-	ld	a,(FM_regMIXER)
-	or	128
-	ld	(FM_regMIXER),a
+;	ld	a,(FM_regMIXER)
+;	or	128
+;	ld	(FM_regMIXER),a
 
-	bit	5,e
-	jp	z,_noLink
-	ld	a,(hl)	; get the deviation	
-	inc	hl
-	bit	6,e
-	jp	z,.skip
-	add	(ix+TRACK_Noise)
-.skip:	
-	ld	(ix+TRACK_Noise),a
-	ld	(AY_regNOISE),a
-	jp	_noLink
+;	bit	5,e
+;	jp	z,_noLink
+;	ld	a,(hl)	; get the deviation	
+;	inc	hl
+;	bit	6,e
+;	jp	z,.skip
+;	add	(ix+TRACK_Noise)
+;.skip:	
+	ld	(PSG_regNOISE),a
+	
 	
 _noNoise:
+	;-------------------------------
+	;
+	; NOISE volume
+	;
+	;-------------------------------
+	bit 	6,e			; test if noise volume
+	jp	z,_noNoiseVol
+	
+	;--- prevent FM and noise
+	ld	a,(hl)		; get the volume	
+	inc	hl
+	
+	bit	B_PSGFM,d		;(ix+TRACK_Flags)
+	jp	nz,_noLink		; Noise and Link not at the same time
+	
+	or	(ix+TRACK_Volume)
+	;--- apply main volume balance
+	ld	bc,(replay_mainvol)
+	add	a,c
+	ld	c,a
+	jp	nc,.skip
+	inc	b
+.skip:
+	ld	a,(bc)
+	ld	(PSG_regVOLN),a
+	jp	_noLink
+
+
+_noNoiseVol
 	;-------------------------------
 	;
 	; VoiceLink
 	;
 	;-------------------------------
-	ld	a,$60		; Mask only the noise bits
-	and	e
-	cp	$40		; 0100 000 is link value
-	jp	nz,_noLink
+	bit 	1,e
+	jp	z,_noLink
 
-	ld	a,(hl)				; get the new hw voice	
-	inc	hl	
+	ld	a,(hl)					; get the new hw voice	
+	inc	hl
+	
 	set 	B_TRGVOI,(ix+TRACK_Flags)
 	ld	(ix+TRACK_Voice),a			; set new voice to be loaded
+
+
 
 _noLink
 	;-------------------------------
 	;
-	; TONE
+	; TONE 
 	;
 	;-------------------------------
-	bit	4,e		; do we have tone?
-	jp	z,process_noTone
 
-	;-- enable tone output
-	ld	a,(FM_regMIXER)
-	or	16
-	ld	(FM_regMIXER),a
-process_noTone:
+
 	ld	b,(ix+TRACK_ToneAdd)	; get	the current	deviation	
 	ld	c,(ix+TRACK_ToneAdd+1)
 
-	bit	2,e
+	bit 	4,e
 	jp	z,process_noToneAdd
+	
 	ld	a,(hl)
 	inc	hl
 	add	c
@@ -1493,18 +1522,29 @@ process_noTone:
 	add	b
 	ld	b,a
 	ld	(ix+TRACK_ToneAdd),b
+	
+	
 process_noToneAdd:	
 	;---- check for macro end
-	bit	3,e		
+	bit	0,e		
 	jp	z,.noend
 	
 	ld	a,(hl)
 	inc	hl
 	ld	h,(hl)
 	ld	l,a
-	
 
 .noend:
+	;--- Set the mixer bit (T)
+	bit	5,e		; do we have tone?
+	jp	z,process_noToneBit
+
+	;-- enable tone output
+	ld	a,(FM_regMIXER)
+	or	16
+	ld	(FM_regMIXER),a
+	
+process_noToneBit:	
 	ld	(ix+TRACK_MacroPointer),l	;--- store pointer for next time
 	ld	(ix+TRACK_MacroPointer+1),h	
 
@@ -1535,9 +1575,6 @@ process_noToneAdd:
 	add	hl,bc
 	ld	sp,(_SP_Storage)
 
-
-
-
 	;-----------------
 	; FM Octave wrapper
 	; enable slides over multiple octaves.
@@ -1550,59 +1587,90 @@ process_noToneAdd:
 	jp	z,_wrap_lowcheck
 _wrap_highcheck:
 	ld	a,l
-	cp	$60				; $46 is the strict limit
-	ret	c				; stop if smaller	
+	cp	$5a				; $5a is the strict limit
+	jp	c,_wrap_skip		; stop if smaller	
 	
 	push	hl
-	;--- Set 12 notes (1 octave) higher
-	ld	a,(ix+TRACK_Note)
-	add	12
-	cp	96
-	jr.	c,99f
-	add	160		; wrap notes
+	push	de
+	
+	;--- Set new tone value for same note 1 octave lower
+	srl	a
+	bit 	0,h		; test 9th bit
+	jp	z,99f
+	add	128
 99:
-	ld	(ix+TRACK_Note),a
-	;--- Set new ToneSlide Add
-	rr	h
-	rr	l			
-	ld	h,0
-	xor	a
-	;--- shuffle regs
+	ld	e,a
+;	ld	d,0
+	;--- set octave higher
+	ld	a,h
+	and	$fe
+	add	$02
+;	add	d		; merge with tone value
+	ld	d,a
+	;--- get difference between now and new
 	ex	de,hl
-	sbc	hl,de				; subtract new wraped base tone - note tone to get delta slide add.
+	xor	a		; reset carry flag
+	sbc	hl,de
+	;--- add difference to current slide
+	pop	de		; restore slide
+	add	hl,de
 	ld	(ix+TRACK_cmd_ToneSlideAdd),l
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
 	pop	hl	
-	;-- restore flags
-	ret
+	jr.	_wrap_skip
 	
 _wrap_lowcheck:
 	ld	a,l
-	cp	$90				; $ad is the strict limit
-	ret	nc				; stop if smaller	
+	cp	$3b		; $ad is the strict limit
+	jr.	nc,_wrap_skip		; stop if smaller
 
-	push	hl
-	;--- Set 12 notes (1 octave) lower
-	ld	a,(ix+TRACK_Note)
-	sub	12
-	cp	96
-	jr.	c,99f
-	sub	160				; wrap notes
+
+	push 	hl		; store freq
+	push	de		; store slide
+	;--- set new tone value for same note (but octave lower)
+	add	a,a		; multiply by 2 in de 
+	ld	e,a
+	ld	d,0
+	jp	nc,99f
+	inc	d	
 99:
-	ld	(ix+TRACK_Note),a
-	;--- Set new ToneSlide Add	
-	ld	h,0
+	;--- set octave higher
+	ld	a,h
+	and	$fe
+	sub	$02
+	add	d		; merge with tone value
+	ld	d,a
+	;--- get difference between now and new
+	ex	de,hl
+	xor	a		; reset carry flag
+	sbc	hl,de
+	;--- add difference to current slide
+	pop	de		; restore slide
 	add	hl,de	
 	
 	ld	(ix+TRACK_cmd_ToneSlideAdd),l
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
 	pop	hl	
+	
+_wrap_skip:
+	; replace the last pushed value on stack
+	pop	de
+	ex	de,hl
+	ld	(hl),e
+	inc	hl
+	ld	a,d	; reset key on and sustain
+	and	$0f
+	ld	d,a
+	ld	a,(ix+TRACK_Flags)	; Add the sustain and key bits.
+	and	16+32	
+	or	d
+	ld	(hl),a
 	ret
-
+	
 	
 process_noNoteActive:
 	xor	a
-	ld	(FM_regVOLE),a
+	ld	(FM_regVOLF),a
 	ld	(ix+TRACK_Flags),d
 	ret	
 
@@ -1890,50 +1958,172 @@ replay_route:
 ;---------------
 ; P S	G 
 ;---------------
-	;--- Push values to AY HW
-	ld	b,0
-	ld	c,0xa0
-	ld	hl,AY_registers
-_comp_loop:	
-	out	(c),b
-	ld	a,(hl)
-	add	1
-	out	(0xa1),a
-	inc	hl
-	ld	a,(hl)
-	adc	a,0
-	inc	b
-	out	(c),b	
-	inc	hl
-	out	(0xa1),a	
-	inc	b
-	ld	a,6
-	cp	b
-	jp	nz,_comp_loop
-	
-	ld	a,b	
-	
-	
-_ptAY_loop:
-	out	(c),a
-	inc	c
-	outi
-	dec	c
+route_SN:
+;	ld	a,(_CONFIG_PSGPORT)
+	ld	c,$3f
+99:	
+	; vol chan 1
+	ld	a,(PSG_regVOLA)
 	inc	a
-	cp	13
-	jr	nz,_ptAY_loop
+	neg
+	and	$0f
+	or	10010000b
+	out	(c),a	
+	
+	; vol chan 2
+	ld	a,(PSG_regVOLB)
+	inc	a
+	neg
+	and	$0f
+	or	10110000b
+	out	(c),a		
+		
+;	;-- check if we need 3rd psg
+;	ld	a,10110000b
+;	cp	b
+;	jp	z,99f
+		
+	; vol chan 3
+	ld	a,(PSG_regVOLC)
+	inc	a
+	neg
+	and	$0f
+	or	11010000b 
+	out	(c),a			
 
-	ld	b,a
-	ld	a,(hl)
-	and	a
-	jp	z,_ptAY_noEnv
-	out	(c),b
-	inc	c
-	out 	(c),a
-	ld	(hl),0	;reset the envwrite
+;99:	
+	;--- next reg
+	; vol noise
+	ld	a,(PSG_regVOLN)
+	inc	a
+	neg
+	and	$0f
+	or	11110000b
+
+	out	(c),a	
+
+	; noise chan 
+	ld	hl,PSG_regNOISEold
+	ld	a,(PSG_regNOISE)
+	cp	(hl)
+	jp	z,0f
+	ld	(hl),a
+	or	11100000b
+	out	($3f),a
+0:
+	; tone chan a
+	ld	bc,(PSG_regToneA)
+	ld	a,c
+	and	$0f
+	or	10000000b
+	out	($3f),a	
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	ld	a,00111111b
+	and	b
+	out	($3f),a		
 	
 	
-_ptAY_noEnv:
+	; tone chan b
+	ld	bc,(PSG_regToneB)
+	ld	a,c
+	and	$0f
+	or	10100000b
+	out	($3f),a	
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	ld	a,00111111b
+	and	b
+	out	($3f),a	
+	
+	; tone chan c
+	ld	bc,(PSG_regToneC)
+	ld	a,c
+	and	$0f
+	or	11000000b
+	out	($3f),a	
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	ld	a,00111111b
+	and	b
+	out	($3f),a	
+
+route_gg:
+	;==== output the GG stereo panning
+	ld	a,(GG_panning)
+	out	($06),a
+
+
+
+
+
+
+;	;--- Push values to AY HW
+;	ld	b,0
+;	ld	c,0xa0
+;	ld	hl,PSG_registers
+;_comp_loop:	
+;	out	(c),b
+;	ld	a,(hl)
+;	add	1
+;	out	(0xa1),a
+;	inc	hl
+;	ld	a,(hl)
+;	adc	a,0
+;	inc	b
+;	out	(c),b	
+;	inc	hl
+;	out	(0xa1),a	
+;	inc	b
+;	ld	a,6
+;	cp	b
+;	jp	nz,_comp_loop
+;	
+;	ld	a,b	
+;	
+;	
+;_ptPSG_loop:
+;	out	(c),a
+;	inc	c
+;	outi
+;	dec	c
+;	inc	a
+;	cp	13
+;	jr	nz,_ptPSG_loop
+;
+;	ld	b,a
+;	ld	a,(hl)
+;	and	a
+;	jp	z,_ptPSG_noEnv
+;	out	(c),b
+;	inc	c
+;	out 	(c),a
+;	ld	(hl),0	;reset the envwrite
+;	
+;	
+;_ptPSG_noEnv:
+
+
+
+
 ;---------------
 ; F M
 ;---------------
@@ -2049,9 +2239,9 @@ _tt_route_fmtone:
 	ld	c,a
 	and	48			; preserve key and sustain
 
-	;--- check for new note (keyon is off '0')
+	;--- check for new note (key on is off '0')
 	bit	4,a
-	jp	nz,99f		; skip if no keyoff
+	jp	nz,99f		; skip if no key off
 
 	or	(hl)
 	ex	af,af'		;'

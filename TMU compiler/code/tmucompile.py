@@ -274,12 +274,12 @@ def export_asm(outfile,song):
 		file.write(f"{_CHILD}instrument_start:\n")
 		for instrument in song.ins:
 			if instrument.used == True:
-				file.write(f"{_DW} {_CHILD}instrument_{instrument.number:02}\t\t\t\t; {instrument.name}\n")
+				file.write(f"{_DW} {_CHILD}instrument_{instrument.export_number:02}\t\t\t\t; {instrument.name}\n")
 		file.write("\n")	
 
 		for instrument in song.ins:
 			if instrument.used == True:
-				file.write(f"{_CHILD}instrument_{instrument.number:02}:\t\t\t\t\t; {instrument.name}\n")
+				file.write(f"{_CHILD}instrument_{instrument.export_number:02}:\t\t\t\t\t; {instrument.name}\n")
 				if song.type == "SCC":
 					waveform = song.get_waveform(instrument.waveform)
 					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\; Waveform {waveform.number}\n")
@@ -294,7 +294,7 @@ def export_asm(outfile,song):
 						# Compile row
 						#===========================================
 					file.write(export_instrument_row_asm(instrument,r,song))
-				file.write("\n")		
+				file.write(f"{_DW} {_CHILD}rst_i{instrument.export_number:02}\t\t\t; Loop address\n")		
 		
 		file.write("\n; [ Song track data ]\n")							
 		for track in song.tracks:
@@ -400,7 +400,7 @@ def export_instrument_row_asm_sms(ins,r):
 			result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
 			result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
 		result_info = result_info + bit4
-		out = out+ f"{_DW} ${result_toneL:02x}{result_toneH:02x}\t\t\t\t; Tone\n"
+		out = out+ f"{_DW} ${result_toneH:02x}{result_toneL:02x}\t\t\t; Tone\n"
 	
 	
 	
