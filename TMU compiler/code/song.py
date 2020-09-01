@@ -354,9 +354,12 @@ class Song:
 							trackb.export_number = tracka.number
 
 			
-					
+		number = 0			
 		for instrument in self.ins:
 			if instrument.used == True:
+				instrument.export_number = number
+				print(f"{instrument.number} + {instrument.export_number} + {number}")
+				number+=1
 				if self.type != "SCC":
 					self.voices[instrument.voice].used = True		# Set used voices
 				else:

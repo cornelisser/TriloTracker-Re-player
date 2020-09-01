@@ -7,7 +7,7 @@ class Instrument:
 	
 	def __init__(self,number):
 		self.number 	= number
-		self.export_number = number
+		self.export_number = number-1
 		self.used 		= False
 		self.length 	= 0
 		self.restart	= 0

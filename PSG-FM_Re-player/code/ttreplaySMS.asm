@@ -824,7 +824,7 @@ _replay_decode_ins:
 
 
 _replay_decode_vol:
-	sub	_VOL
+	sub	_VOL-1
 	add	a
 	add	a
 	add	a

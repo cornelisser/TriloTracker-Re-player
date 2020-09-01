@@ -347,8 +347,6 @@ def export_instrument_row_asm_sms(ins,r):
 		e = 0
 	result_info = e	
 
-
-
 	# calculate volume
 	result_vol = byte2 & 0x0f							# volume value
 	if ((byte2 & 0x20) == 0x00):
@@ -434,6 +432,9 @@ def export_instrument_row_asm_fm(ins,r):
 	result_info = byte1 & 0x80						# Set the noise active bit
 	result_info = result_info + ((byte2 >>3 ) & 0x10)	# Set the tone active bit
 	result_info = result_info + e						# Set the END macro bit
+
+	
+
 
 	result_vol = byte2 & 0x0f						# volume value
 	result_noise= 0;								#byte1 And $1f	; noise value / voicelink
@@ -694,9 +695,10 @@ def export_track(file,track):
 			else:
 				file.write(f"{_DB} ${n:02x}\t\t\t;Note {notes[(n%12)]}{int(n/12)+1}\n")
 		if v != 0:
-			file.write(f"{_DB} ${vol_offset+v:02x}\t\t\t;Volume {v}\n")
+			file.write(f"{_DB} ${vol_offset+v-1:02x}\t\t\t;Volume {v}\n")
 		if i != 0:
-			tmp = song.ins[i].export_number
+			tmp = song.ins[i-1].export_number
+			print(f"{song.ins[i-1].number} + {song.ins[i-1].export_number}")
 			file.write(f"{_DB} ${ins_offset+tmp:02x}\t\t\t;Instrument {i}\n")
 	
 		if c == 0 and p == 0:
