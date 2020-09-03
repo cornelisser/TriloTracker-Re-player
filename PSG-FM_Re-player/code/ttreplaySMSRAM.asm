@@ -36,14 +36,14 @@ TRACK_cmd_1			equ 23-17
 TRACK_cmd_2			equ 24-17
 TRACK_cmd_3			equ 25-17
 TRACK_cmd_4_depth		equ 26-17
-TRACK_cmd_4_step		equ 27-17
-TRACK_cmd_NoteAdd		equ 28-17		;x reset after note set
-TRACK_cmd_A			equ 29-17		
-TRACK_cmd_B			equ 30-17		
-TRACK_cmd_E			equ 31-17
-TRACK_Timer			equ 32-17		; used for timing by all cmd's
-TRACK_Step			equ 33-17		; only for VIBRATO???
-TRACK_Delay			equ 34-17		; rows to wait till next data
+TRACK_cmd_4_step		equ 28-17
+TRACK_cmd_NoteAdd		equ 29-17		;x reset after note set
+TRACK_cmd_A			equ 30-17		
+TRACK_cmd_B			equ 31-17		
+TRACK_cmd_E			equ 32-17
+TRACK_Timer			equ 33-17		; used for timing by all cmd's
+TRACK_Step			equ 34-17		; only for VIBRATO???
+TRACK_Delay			equ 35-17		; rows to wait till next data
 ;TRACK_Retrig		equ 35-17		; rows to retrigger command
 TRACK_prevDelay		equ 36-17
 TRACK_cmd_A_add		equ 37-17		;<< Still in use???

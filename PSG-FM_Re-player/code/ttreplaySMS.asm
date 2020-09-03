@@ -430,6 +430,12 @@ decode_data:
 ; 
 ;===========================================================
 process_data:
+	ld	a,$fa ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
+
+
 
 	; Set tone table
 	ld	hl,TRACK_ToneTable_PSG
@@ -1042,17 +1048,37 @@ decode_cmd4_vibrato:
 	; high 3 bits is depth (0-7) (direct offset in sinetable)
 	; low 5 bits is the speed. 1-16
 	;--- Init values
+	ld	(ix+TRACK_Command),e
 	ld	e,a
-	and	$e0
-
-	ld	(ix+TRACK_cmd_4_depth),a
-	ld	a,e
-	and	$1f
-	inc	a
-	ld	(ix+TRACK_cmd_4_step),a
-	neg	
-	ld	(ix+TRACK_Step),a
 	
+	;--- Set the speed
+	and	$0f
+	jp	z,.depth
+	ld	(ix+TRACK_cmd_4_step),a	
+	neg	
+	ld	(ix+TRACK_Step),a	
+	
+.depth:
+	;-- set the depth
+	ld	a,e
+	and	$f0
+	jp	z,.end		; set depth when 0 only when command was not active.
+
+	sub	16
+	ld	hl,TRACK_Vibrato_sine
+	add	a,a
+	jp	nc,99f
+	inc	h
+99:	
+	add	a,l
+	ld 	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	(ix+TRACK_cmd_4_depth),l
+	ld	(ix+TRACK_cmd_4_depth+1),h
+	
+.end:	
 	set	B_TRGCMD,d
 	jp	_rdc	
 
@@ -1794,7 +1820,9 @@ process_cmd3_stop:
 	;
 	;=================================
 process_cmd4_vibrato:
-	ld	hl,TRACK_Vibrato_sine
+	ld	l,(ix+TRACK_cmd_4_depth)
+	ld	h,(ix+TRACK_cmd_4_depth+1)
+
 	;--- Get next step
 	ld	a,(IX+TRACK_Step)
 	add	(ix+TRACK_cmd_4_step)
@@ -1806,7 +1834,6 @@ process_cmd4_vibrato:
 	
 .neg:
 	and	$1f	; make it 32 steps again
-	add	a,(ix+TRACK_cmd_4_depth)
 	add	a,l
 	ld	l,a
 	jp	nc,99f
@@ -1820,7 +1847,6 @@ process_cmd4_vibrato:
 	jp	process_commandEND	
 
 .pos:
-	add	a,(ix+TRACK_cmd_4_depth)
 	add	a,l
 	ld	l,a
 	jp	nc,99f
@@ -2008,7 +2034,8 @@ route_SN:
 	cp	(hl)
 	jp	z,0f
 	ld	(hl),a
-	or	11100000b
+	ld	a,11100000b
+	;or	11100000b
 	out	($3f),a
 0:
 	; tone chan a
@@ -2069,7 +2096,7 @@ route_SN:
 route_gg:
 	;==== output the GG stereo panning
 	ld	a,(GG_panning)
-	out	($06),a
+;	out	($06),a
 
 
 

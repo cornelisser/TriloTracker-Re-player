@@ -716,7 +716,10 @@ def export_track(file,track):
 			elif c == 3:					# portamento tone
 				file.write(f"{_DB} ${cmd['3']:02x},${p:02x}\t\t\t;CMD Portamento tone\n")	
 			elif c == 4:					# vibrato
-				file.write(f"{_DB} ${cmd['4']:02x},${p:02x}\t\t\t;CMD Vibrato\n")			
+				depth = (p & 0xf0) >> 4
+				speed = (p & 0x0f) << 4
+				par = depth+speed			
+				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")			
 			elif c == 5:					# portamento tone + volume slide
 				file.write(f"{_DB} ${cmd['5']:02x},${p:02x}\t\t\t;CMD Portamento tone + Volume slide\n")
 			elif c == 6:					# vibrato + volume slide
