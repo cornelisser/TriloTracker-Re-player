@@ -22,20 +22,6 @@ _VOLUME_TABLE
 	db	 $0F, $1E, $2D, $3C, $4B, $5A, $69, $78, $87, $96, $A5, $B4, $C3, $D2, $E1, $F0
 	
 
-;Konami values found in	Nemesis 2 replayer.
-C_PER		equ	$6a*32	
-C1_PER	equ	$64*32
-D_PER		equ	$5e*32
-D1_PER	equ	$59*32
-E_PER		equ	$54*32
-F_PER		equ	$4f*32
-F1_PER	equ	$4a*32
-G_PER		equ	$46*32
-G1_PER	equ	$42*32
-A_PER		equ	$3f*32
-A1_PER	equ	$3b*32
-B_PER		equ	$38*32
-
 TRACK_ToneTable_PSG:	
 	dw $0001	     ; C1			
 	dw $0001	     ; C#1			

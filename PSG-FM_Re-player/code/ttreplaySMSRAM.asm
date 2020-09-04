@@ -153,28 +153,45 @@ GG_panning			#1
 ;_0x9840:	#32
 ;_0x9860:	#32
 
-FM_Registers:
-FM_regToneA 		#2	; Tone A freq low (8bit)
-					; Tone A freq high (4bit)
-FM_regToneB 		#2	; Tone B freq low
-					; Tone B freq high
-FM_regToneC 		#2	; Tone C freq low
-					; Tone C freq high
-FM_regToneD 		#2	; Tone D freq low
-					; Tone D freq high
-FM_regToneE 		#2	; Tone E freq low
-					; Tone E freq high
-FM_regToneF 		#2	; Tone F freq low
-					; Tone F freq high					
-FM_regVOLA 			#1	; Chan A volume
-FM_regVOLB 			#1	; Chan B volume
-FM_regVOLC  		#1	; Chan C volume
-FM_regVOLD 			#1	; Chan D volume
-FM_regVOLE  		#1	; Chan E volume
-FM_regVOLF  		#1	; Chan F volume
+FM_Registers: 	#0	; contains the registers values to write and value previously written
+FM_regToneA 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+FM_regToneAb 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+FM_regVOLA		#1	; Chan A volume
+FM_regVOLAb		#1	; Chan A volume
+FM_regToneB 	#2	; Tone B freq low					; Tone B freq high
+FM_regToneBb 	#2	; Tone B freq low					; Tone B freq high
+FM_regVOLB		#1	; Chan B volume
+FM_regVOLBb		#1	; Chan B volume
+FM_regToneC 	#2	; Tone C freq low					; Tone C freq high
+FM_regToneCb 	#2	; Tone C freq low					; Tone C freq high
+FM_regVOLC	 	#1	; Chan C volume
+FM_regVOLCb	 	#1	; Chan C volume
+FM_regToneD 	#2	; Tone D freq low					; Tone D freq high
+FM_regToneDb 	#2	; Tone D freq low					; Tone D freq high
+FM_regVOLD		#1	; Chan D volume
+FM_regVOLDb		#1	; Chan D volume
+FM_regToneE 	#2	; Tone E freq low					; Tone E freq high
+FM_regToneEb 	#2	; Tone E freq low					; Tone E freq high
+FM_regVOLE	  	#1	; Chan E volume
+FM_regVOLEb	  	#1	; Chan E volume
+FM_regToneF 	#2	; Tone E freq low					; Tone F freq high
+FM_regToneFb 	#2	; Tone E freq low					; Tone F freq high
+FM_regVOLF	  	#1	; Chan F volume
+FM_regVOLFb	  	#1	; Chan F volume
 
-
-FM_DRUM			#1	; Percussion bits
+DRUM_regToneBD	#2
+DRUM_regToneBDb	#2
+DRUM_regVolBD	#1
+DRUM_regVolBDb	#1
+DRUM_regToneSH	#2
+DRUM_regToneSHb	#2
+DRUM_regVolSH	#1
+DRUM_regVolSHb	#1
+DRUM_regToneCT	#2
+DRUM_regToneCTb	#2
+DRUM_regVolCT	#1
+DRUM_regVolCTb	#1
+FM_DRUM		#1	; Percussion bits
 FM_DRUM_Flags		#1	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update
 FM_freqreg1			#2	; Base drum
 FM_volreg1			#1	; Drum (low)

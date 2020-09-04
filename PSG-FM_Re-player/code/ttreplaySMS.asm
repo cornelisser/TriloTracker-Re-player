@@ -537,6 +537,10 @@ _rdd_2psg_6fm:
 	call	process_data_chan
 ;	ld	(FM_regToneA),hl
 	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan3+17+TRACK_Voice)
+	and	$f0
+	or	d
 	ld	(FM_regVOLA),a	
 
 
@@ -551,6 +555,10 @@ _rdd_cont:
 	call	process_data_chan
 ;	ld	(FM_regToneB),hl
 	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan4+17+TRACK_Voice)
+	and	$f0
+	or	d
 	ld	(FM_regVOLB),a	
 
 	;--------------------
@@ -563,6 +571,10 @@ _rdd_cont:
 	call	process_data_chan
 ;	ld	(FM_regToneC),hl
 	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan5+17+TRACK_Voice)
+	and	$f0
+	or	d
 	ld	(FM_regVOLC),a	
 
 	;--------------------
@@ -576,6 +588,10 @@ _rdd_cont:
 	call	process_data_chan
 ;	ld	(FM_regToneD),hl
 	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan6+17+TRACK_Voice)
+	and	$f0
+	or	d
 	ld	(FM_regVOLD),a	
 
 	;--------------------
@@ -590,6 +606,10 @@ _rdd_cont:
 ;	ld	a,d
 ;	ld	(TRACK_Chan7+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan7+17+TRACK_Voice)
+	and	$f0
+	or	d
 	ld	(FM_regVOLE),a		
 
 	;--------------------
@@ -598,8 +618,13 @@ _rdd_cont:
 	ld	ix,TRACK_Chan8+17
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
-	ld	hl,FM_regToneF
 	call	process_data_chan
+	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan3+17+TRACK_Voice)
+	and	$f0
+	or	d	
+	ld	(FM_regVOLE),a
 ;	ld	(FM_regToneF),hl
 	
 
@@ -810,25 +835,27 @@ _replay_decode_ins:
 
 	;-- get voice
 	ld	a,(hl)
-
 	inc	hl
-	;--- Store the macro start
-	ld	(ix+TRACK_MacroPointer),l
-	ld	(ix+TRACK_MacroPointer+1),h	
-	;--- Store the macro re-start
-	ld	(ix+TRACK_MacroStart),l
-	ld	(ix+TRACK_MacroStart+1),h		
+		
 	;--- Set the software voice (if needed)
-
-	cp	16
-	jp	c,.skip_soft
-	; software voice found
-	sub	16
+	and	a
+	jp	nz,.skip_soft
+	;--- software voice found
+	
+	ld	a,(hl)
+	inc	hl
 	ld 	(FM_softvoice_req),a
 	xor 	a
 	
 .skip_soft:
 	ld	(ix+TRACK_Voice),a
+
+	;--- Store the macro start
+	ld	(ix+TRACK_MacroPointer),l
+	ld	(ix+TRACK_MacroPointer+1),h	
+	;--- Store the macro re-start
+	ld	(ix+TRACK_MacroStart),l
+	ld	(ix+TRACK_MacroStart+1),h
 
 	
 .skip_ins:	
@@ -2208,168 +2235,166 @@ route_gg:
 ;---------------
 ; F M
 ;---------------
-
+route_FM:
 	; Check if we need to load a software voice
 	ld	hl,FM_softvoice_req
 	ld	a,(hl)
 	inc	hl
 	cp	(hl)
-	jp	z,_tt_route_fm_novoice
+	jp	z,.noVoice
 	
 	ld	(hl),a
 
-	ld	hl,(replay_voicebase)
-	add	a		; x2
-	add	a		; x4
-	add	a		; x8
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-	;--- copy data to FM custom voice register
-	ld	c,8
-	ld	a,$0
-_tt_voice_fmloop:
-	out	(FM_WRITE),a
-	inc	a			; 4 cycles
-	ex	af,af'		; 4 cycles	'
-	ld	a,(hl)		; 7 cycles    the low byte
-	out	(FM_DATA),a
+	;call	load_softwarevoice
 	
-	;--- delay
-	push 	ix
-	pop	ix
-	nop
-	nop	
-	
-	
-	inc	hl
-	ex	af,af'		
-	dec	c
-	jr.	nz,_tt_voice_fmloop	
+.noVoice:
+	;------------------------------------------
+	;---- Process Drum macro
+	;------------------------------------------
+	;call	_route_FM_drum_update
 	
 
+	;------------------------------------------
+	;---- Update the tone and drum registers
+	;------------------------------------------
+	ld 	hl,FM_Registers
+	ld	de,TRACK_Chan3+TRACK_Flags
+	ld	a,$10		; Register $10
+	ld	b,9		; 6(tone)+3(drum) channels to update
 
+.channel_loop:	
+	; Tone low
+	call	_route_FM_reg16_update
+	dec	hl
+	add	a,$10	; Register# $20
 
-_tt_route_fm_novoice:
-	;--- write volume register
-	ld	de,FM_regVOLA
-	ld	hl,TRACK_Chan3+17+TRACK_Voice
-	ld	b,6		; 5 tracks
-	ld	a,$30
-;	ex	af,af'	;'
-_tt_route_fmvol:
-	ex	af,af'	; '
-	ld	a,(hl)
-	rla
-	rla
-	rla
-	rla
-	and	$f0
-	ld	c,a
+	ex	af,af'
+
+	ld	a,b	;-- Only do this check for first 6 chans. Other are drum
+	cp	4
+	jp	c,0f
+
+	;-- Check if we need to toggle key to start a new note
+	ld	a,(de)
+	bit	0,a
+	jp	z,99f	; no notetrigger
 	
-	ld	a,(de)	
-	push	hl
-	ld	hl,FM_regMIXER
-
-	bit	7,(hl)
-	jr	nz,33f
-	ld	a,$0f			; silentio
-33:
-	rrc	(hl)
-	pop	hl	
-	
-	and	0x0f
-	or	c
-	ex	af,af'		;'
-	out	(FM_WRITE),a
-	inc	a			; 4 cycles
-	ex	af,af'		; 4 cycles	 '
-	inc	de			; 6 cycles
-	out	(FM_DATA),a
-
-	ld	a,TRACK_REC_SIZE
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
-99:
-	ex	af,af'		;	'
-
-
-	djnz	_tt_route_fmvol
-
-
-	
-
-	;--- write tone register
-	ld	hl,FM_Registers
-	ld	de,TRACK_Chan3+17+TRACK_Flags
-	ld	b,6		; 5 tracks
-	ld	a,$10
-;	ex	af,af'	;'
-_tt_route_fmtone:
-
-	out	(FM_WRITE),a
-	ex	af,af'		; 4 cycles 	'
-	ld	a,(hl)		; 13 cycles  	the low byte
-	out	(FM_DATA),a
-	inc	hl
-	ld	a,(de)		; the flags (bit 4 has key)
-	ld	c,a
-	and	48			; preserve key and sustain
-
-	;--- check for new note (key on is off '0')
+	res	0,a		; reset trigger
+	ld	(de),a
 	bit	4,a
-	jp	nz,99f		; skip if no key off
-
-	or	(hl)
-	ex	af,af'		;'
-	add	a,$10
-	out	(FM_WRITE),a
-	ex	af,af'		; 4 cycles '
-	out 	(FM_DATA),a
-
-	or	16			; set keyon on '1'
-	ld	(de),a		; store keyon
-	ex	af,af'		;'
-	jp 	88f	
-			
-	
-
-
+	call	nz,_route_FM_keyOff_update
 99:
-	or	(hl)			; add the tone high byte
-
-	ex	af,af'		;'
-	add	a,$10
-	
-	;--- delay to get 84 cycles at least
-;	push ix
-;	pop ix
-;	nop
-	
-	
-	
-88:	out	(FM_WRITE),a
-	ex	af,af'		; 4 cycles '
-	inc	hl			; 6 cycles 
-	out 	(FM_DATA),a
-	ld	a,16
-	or	c
-	ld	(de),a		; write key flag enabled to disable retrigger of note
 	ld	a,TRACK_REC_SIZE
 	add	a,e
 	ld	e,a
-	jr.	nc,99f
+	jp	nc,99f
 	inc	d
-99:
-	ex	af,af'		;'
-	sub	$f
-	djnz	_tt_route_fmtone
-debug:
+99:	
+0:
+	ex	af,af'
+	
+	; Tone High + key & sustain
+	call	_route_FM_reg16_update
+	inc	hl
+	add	a,$10	; Register# $30
+	
+	; Volume + voice
+	call	_route_FM_reg8_update
+	inc	hl
+	add	a,-$1F	; Register# = channel + $10
+	djnz	.channel_loop
 	ret
+
+_route_FM_drum_update:
+	ld	a,(FM_DRUM)
+	and	00011111b		; erase bit 5
+	ret	z			; no drums to play
+	
+	ld	b,a
+	ld	a,0x0e
+	;-- load the new values
+	out	(FM_WRITE),a	; Select rythm register
+	
+	ld	a,b			; 5 cycles
+	ld	a,b			; 5 cycles	; dummy code for delay
+	out	(FM_DATA),a		
+
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles
+	rld				; 20 cycles
+	rrd				; 20 cycles
+
+	or	100000b		; set the percussion bit
+	out	(FM_DATA),a
+	
+	ret
+	
+
+;------- Writes safe to the FM chip
+; in :
+;	[a]	Register# to write
+;	[HL]	point to register (previous value is next in RAM)
+;
+; out:
+;	[HL] points to previous value
+;	[A]	contains register# written
+;-----------
+_route_FM_reg8_update:
+	ex	af,af'
+	ld	a,(hl)
+	jp	_rfr_cont
+	
+	
+;------- Writes safe to the FM chip
+; in :
+;	[a]	Register# to write
+;	[HL]	point to register (previous value is next in RAM)
+;
+; out:
+;	[HL] points to previous value
+;	[A]	contains register# written
+;-----------
+_route_FM_reg16_update:
+	ex	af,af'
+	ld	a,(hl)
+	inc	hl
+_rfr_cont:
+	inc	hl
+	cp	(hl)	
+	jp	z,99f		; no change in tone low value
+	ex	af,af'	
+	out	(FM_WRITE),a
+	ex	af,af'
+	ld	(hl),a
+	out	(FM_DATA),a	
+99:	ex	af,af'
+;	dec	hl	
+	ret
+	
+;------- Writes a keyoff to the existing tone high register 
+; in :
+;	[A']	register# to write
+;	[HL]	point to register (previous value is next in RAM)
+;
+; out:
+;	[HL] points to same location
+;	[A']	contains register# written
+;-----------
+_route_FM_keyOff_update:
+	ex	af,af'
+	out	(FM_WRITE),a
+	ex	af,af'		; 4 cycles	 '
+	ld	a,(hl)
+	and	11101111b	; erase keyON bit.
+	out	(FM_DATA),a	
+	inc	hl
+	inc	hl
+	ld	(hl),a		; make sure to change old value to trigger update
+	dec	hl
+	dec	hl
+	ret
+
+
 
 	
 	

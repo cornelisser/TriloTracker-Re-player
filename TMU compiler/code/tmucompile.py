@@ -281,12 +281,15 @@ def export_asm(outfile,song):
 			if instrument.used == True:
 				file.write(f"{_CHILD}instrument_{instrument.export_number:02}:\t\t\t\t\t; {instrument.name}\n")
 				if song.type == "SCC":
-					waveform = song.get_waveform(instrument.waveform)
+					waveform = song.get_waveform(instrument.number)
 					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\; Waveform {waveform.number}\n")
 				elif song.type == "FM" or song.type == "SMS":
-					voice = song.get_voice(instrument.waveform)
-					file.write(f"{_DB} ${voice.export_number:02x}\t\t\t\t\t; FM Voice {voice.number}\n")
-			
+					voice = song.get_voice(instrument.number)
+					if voice.export_number < 16:
+						file.write(f"{_DB} ${voice.export_number << 4:02x}\t\t\t\t\t; FM Hardware Voice {voice.number}\n")
+					else:
+						file.write(f"{_DB} $0,${(voice.export_number-16)*2:02x}\t\t\t\t\t; FM Software Voice {voice.number}\n")
+					
 				#file.write("\t\t;Flg,Vol,Noi,Lnk,Tone\n")
 				for r in range(0,instrument.length):
 					if r == instrument.restart:
