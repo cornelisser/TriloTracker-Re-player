@@ -37,15 +37,103 @@ A1_PER	equ	$3b*32
 B_PER		equ	$38*32
 
 TRACK_ToneTable_PSG:	
-	dw C_PER/1	,C1_PER/1  ,D_PER/1  ,D1_PER/1  ,E_PER/1	,F_PER/1  ,F1_PER/1  ,G_PER/1	 ,G1_PER/1	,A_PER/1  ,A1_PER/1  ,B_PER/1
-	dw C_PER/2	,C1_PER/2  ,D_PER/2  ,D1_PER/2  ,E_PER/2	,F_PER/2  ,F1_PER/2  ,G_PER/2	 ,G1_PER/2	,A_PER/2  ,A1_PER/2  ,B_PER/2
-	dw C_PER/4	,C1_PER/4  ,D_PER/4  ,D1_PER/4  ,E_PER/4	,F_PER/4  ,F1_PER/4  ,G_PER/4	 ,G1_PER/4	,A_PER/4  ,A1_PER/4  ,B_PER/4
-	dw C_PER/8	,C1_PER/8  ,D_PER/8  ,D1_PER/8  ,E_PER/8	,F_PER/8  ,F1_PER/8  ,G_PER/8	 ,G1_PER/8	,A_PER/8  ,A1_PER/8  ,B_PER/8
-	dw C_PER/16	,C1_PER/16 ,D_PER/16 ,D1_PER/16 ,E_PER/16	,F_PER/16 ,F1_PER/16 ,G_PER/16 ,G1_PER/16	,A_PER/16 ,A1_PER/16 ,B_PER/16
-	dw C_PER/32	,C1_PER/32 ,D_PER/32 ,D1_PER/32 ,E_PER/32	,F_PER/32 ,F1_PER/32 ,G_PER/32 ,G1_PER/32	,A_PER/32 ,A1_PER/32 ,B_PER/32
-	dw C_PER/64	,C1_PER/64 ,D_PER/64 ,D1_PER/64 ,E_PER/64	,F_PER/64 ,F1_PER/64 ,G_PER/64 ,G1_PER/64	,A_PER/64 ,A1_PER/64 ,B_PER/64
-	dw C_PER/128,C1_PER/128,D_PER/128,D1_PER/128,E_PER/128,F_PER/128,F1_PER/128,G_PER/128,G1_PER/128,A_PER/128,A1_PER/128,B_PER/128
-
+	dw $0001	     ; C1			
+	dw $0001	     ; C#1			
+	dw $0001	     ; D1			
+	dw $0001	     ; D#1			
+	dw $0001	     ; E1			
+	dw $0001	     ; F1			
+	dw $0001	     ; F#1			
+	dw $0001	     ; G1
+	dw $0001	     ; G#1	
+	dw $0001         ; A1
+	dw $0001         ; A#1/Bb1 
+	dw $0001         ; B1	
+	dw $0001	     ; C2			
+	dw $0001	     ; C#2			
+	dw $0001	     ; D2			
+	dw $0001	     ; D#2			
+	dw $0001	     ; E2			
+	dw $0001	     ; F2			
+	dw $0001	     ; F#2			
+	dw $0001	     ; G2
+	dw $0001	     ; G#2			
+   
+	dw $03F9      ;A2
+	dw $03C0      ; A#2/Bb2 
+	dw $038A      ;B2
+	dw $0357      ;C3
+	dw $0327      ; C#3/Db3 
+	dw $02FA      ;D3
+	dw $02CF      ; D#3/Eb3 
+	dw $02A7      ;E3
+	dw $0281      ;F3
+	dw $025D      ; F#3/Gb3 
+	dw $023B      ;G3
+	dw $021B      ; G#3/Ab3 
+	dw $01FC      ;A3
+	dw $01E0      ; A#3/Bb3 
+	dw $01C5      ;B3
+	dw $01AC      ;C4
+	dw $0194      ; C#4/Db4 
+	dw $017D      ;D4
+	dw $0168      ; D#4/Eb4 
+	dw $0153      ;E4
+	dw $0140      ;F4
+	dw $012E      ; F#4/Gb4 
+	dw $011D      ;G4
+	dw $010D      ; G#4/Ab4 
+	dw $00FE      ;A4
+	dw $00F0      ; A#4/Bb4 
+	dw $00E2      ;B4
+	dw $00D6      ;C5
+	dw $00CA      ; C#5/Db5 
+	dw $00BE      ;D5
+	dw $00B4      ; D#5/Eb5 
+	dw $00AA      ;E5
+	dw $00A0      ;F5
+	dw $0097      ; F#5/Gb5 
+	dw $008F      ;G5
+	dw $0087      ; G#5/Ab5 
+	dw $007F      ;A5
+	dw $0078      ; A#5/Bb5 
+	dw $0071      ;B5
+	dw $006B      ;C6
+	dw $0065      ; C#6/Db6 
+	dw $005F      ;D6
+	dw $005A      ; D#6/Eb6 
+	dw $0055      ;E6
+	dw $0050      ;F6
+	dw $004C      ; F#6/Gb6 
+	dw $0047      ;G6
+	dw $0043      ; G#6/Ab6 
+	dw $0040      ;A6
+	dw $003C      ; A#6/Bb6 
+	dw $0039      ;B6
+	dw $0035      ;C7
+	dw $0032      ; C#7/Db7 
+	dw $0030      ;D7
+	dw $002D      ; D#7/Eb7 
+	dw $002A      ;E7
+	dw $0028      ;F7
+	dw $0026      ; F#7/Gb7 
+	dw $0024      ;G7
+	dw $0022      ; G#7/Ab7 
+	dw $0020      ;A7
+	dw $001E      ; A#7/Bb7 
+	dw $001C      ;B7
+	dw $001B      ;C8
+	dw $0019      ; C#8/Db8 
+	dw $0018      ;D8
+	dw $0016      ; D#8/Eb8 
+	dw $0015      ;E8
+	dw $0014      ;F8
+	dw $0013      ; F#8/Gb8 
+	dw $0012      ;G8
+	dw $0011      ; G#8/Ab8 
+	dw $0010      ;A8
+	dw $000F      ; A#8/Bb8 
+	dw $000E      ;B8
 TRACK_ToneTable_FM:
 ;	db   	0,0
 	db	0adh,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h
