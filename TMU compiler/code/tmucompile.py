@@ -720,7 +720,7 @@ def export_track(file,track):
 				if depth > 0x0d:				# Limit max depth
 					depth = 0x0d
 				speed = (p & 0x0f) << 4
-				par = depth+speed			
+				par = depth+speed				# in compiled date low/high nibble are switched.
 				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")			
 			elif c == 5:					# portamento tone + volume slide
 				file.write(f"{_DB} ${cmd['5']:02x},${p:02x}\t\t\t;CMD Portamento tone + Volume slide\n")

@@ -904,7 +904,7 @@ DECODE_CMDLIST:
 	; Secondary
 	dw	decode_cmd10_command_end
 	dw	decode_cmd11_drum
-	dw	decode_cmd12_short_arp
+	dw	decode_cmd12_arp_speed
 	dw	decode_cmd13_fine_up
 	dw	decode_cmd14_fine_down
 	dw	decode_cmd15_notelink
@@ -1174,11 +1174,8 @@ decode_cmd11_drum:
 	jp	_rdc		
 	
 
-decode_cmd12_short_arp:
-	ld	(ix+TRACK_cmd_E),a		; store the halve not to add
-	ld	(ix+TRACK_Timer),0
-
-	set	B_TRGCMD,d		; command active
+decode_cmd12_arp_speed:
+	ld	(replay_arp_speed),a		; store the halve not to add
 	jp	_rdc	
 	
 	
@@ -1724,37 +1721,71 @@ process_cmd_list:
 			
 process_cmd0_arpeggio:
 	ld	a,(ix+TRACK_Timer)
-	bit	0,a
-	jp	z,.step2
+	and	a
+	jp	z,.nextNote
+	
+	dec	a
+	ld	(IX+TRACK_Timer),a
+	ld	a,(ix+TRACK_Step)
+	and	a
+	jp	z,99f
+	ld	a,(IX+TRACK_cmd_0)
+	and	$0f
+	ld	(ix+TRACK_cmd_NoteAdd),a	
+	jr.	process_commandEND
+99:
+	ld	(ix+TRACK_cmd_NoteAdd),0	
+	jr.	process_commandEND
+	
+
+.nextNote:
+	; re-init the speed.
+	ld	a,(replay_arp_speed)
+	ld	(IX+TRACK_Timer),a
+	
+	ld	a,(ix+TRACK_Step)
+	and	a
+	jr.	nz,99f
 
 	;--- set x
-	ld	(ix+TRACK_Timer),2
-	xor	a
-	ld	a,(ix+TRACK_cmd_0)
-	and	0xf0
-	rra
-	rra
-	rra
-	rra
-	ld	(ix+TRACK_cmd_NoteAdd),a		
-	jp	process_commandEND
-
+		ld	(ix+TRACK_Step),1
+		ld	a,(ix+TRACK_cmd_0)
+		rlca
+		rlca
+		rlca
+		rlca		
+		ld	(ix+TRACK_cmd_0),a	
+		and	$0f
+		ld	(ix+TRACK_cmd_NoteAdd),a
+		jr.	process_commandEND
 	
-.step2:
-	bit	1,a
-	jp	z,.step3
+99:
+	dec	a
+	jr.	nz,99f
 
 	;--- set y
-	ld	(ix+TRACK_Timer),0
-	ld	a,(ix+TRACK_cmd_0)
-	and	0x0f
-	ld	(ix+TRACK_cmd_NoteAdd),a		
-	jp	process_commandEND
+		ld	(ix+TRACK_Step),2
+		ld	a,(ix+TRACK_cmd_0)
+		rlca
+		rlca
+		rlca
+		rlca		
+		ld	(ix+TRACK_cmd_0),a			
+		and	0x0f
+		jp	nz,0f
+		;--- if zero then skip this note and set step to start
+		ld	(ix+TRACK_Step),0
+0:		
+		ld	(ix+TRACK_cmd_NoteAdd),a	
+		jr.	process_commandEND
 	
-.step3:
+99:
 	;--- set none
-	ld	(ix+TRACK_Timer),1
-	jp	process_commandEND
+	ld	(ix+TRACK_Step),0
+	ld	(ix+TRACK_cmd_NoteAdd),0		
+	jr.	process_commandEND
+		
+
 	
 
 	

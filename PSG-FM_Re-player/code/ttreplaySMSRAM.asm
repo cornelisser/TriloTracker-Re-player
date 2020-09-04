@@ -28,16 +28,16 @@ TRACK_VolumeAdd		equ 14-17		; reset after note set
 TRACK_Noise			equ 15-17	;[OBSOLETE]	; reset after note set
 TRACK_cmd_VolumeAdd	equ 16-17		; reset after note set
 TRACK_cmd_ToneSlideAdd	equ 17-17		; reset after note set
-TRACK_cmd_ToneAdd		equ 19-17		; reset after note set
+TRACK_cmd_NoteAdd		equ 19-17		;x reset after note set
+TRACK_cmd_ToneAdd		equ 20-17		; reset after note set
 
-TRACK_cmd_detune		equ 21-17
-TRACK_cmd_0			equ 22-17
-TRACK_cmd_1			equ 23-17
-TRACK_cmd_2			equ 24-17
-TRACK_cmd_3			equ 25-17
-TRACK_cmd_4_depth		equ 26-17
-TRACK_cmd_4_step		equ 28-17
-TRACK_cmd_NoteAdd		equ 29-17		;x reset after note set
+TRACK_cmd_detune		equ 22-17
+TRACK_cmd_0			equ 23-17
+TRACK_cmd_1			equ 24-17
+TRACK_cmd_2			equ 25-17
+TRACK_cmd_3			equ 26-17
+TRACK_cmd_4_depth		equ 27-17
+TRACK_cmd_4_step		equ 29-17
 TRACK_cmd_A			equ 30-17		
 TRACK_cmd_B			equ 31-17		
 TRACK_cmd_E			equ 32-17
