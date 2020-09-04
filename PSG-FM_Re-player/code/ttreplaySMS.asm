@@ -459,8 +459,9 @@ process_data:
 	ld	ix,TRACK_Chan1+17
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,PSG_regToneA
 	call	process_data_chan
-	ld	(PSG_regToneA),hl
+;	ld	(PSG_regToneA),hl
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLA),a	
 
@@ -470,8 +471,9 @@ process_data:
 	ld	ix,TRACK_Chan2+17
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,PSG_regToneB
 	call	process_data_chan
-	ld	(PSG_regToneB),hl
+;	ld	(PSG_regToneB),hl
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLB),a	
 
@@ -486,8 +488,9 @@ _rdd_3psg_5fm:
 	ld	ix,TRACK_Chan3+17
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,PSG_regToneC
 	call	process_data_chan
-	ld	(PSG_regToneC),hl
+;	ld	(PSG_regToneC),hl
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLC),a
 
@@ -530,8 +533,9 @@ _rdd_2psg_6fm:
 	ld	ix,TRACK_Chan3+17
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,FM_regToneA
 	call	process_data_chan
-	ld	(FM_regToneA),hl
+;	ld	(FM_regToneA),hl
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLA),a	
 
@@ -543,8 +547,9 @@ _rdd_cont:
 	ld	ix,TRACK_Chan4+17
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,FM_regToneB
 	call	process_data_chan
-	ld	(FM_regToneB),hl
+;	ld	(FM_regToneB),hl
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLB),a	
 
@@ -554,8 +559,9 @@ _rdd_cont:
 	ld	ix,TRACK_Chan5+17
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,FM_regToneC
 	call	process_data_chan
-	ld	(FM_regToneC),hl
+;	ld	(FM_regToneC),hl
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLC),a	
 
@@ -566,8 +572,9 @@ _rdd_cont:
 	ld	ix,TRACK_Chan6+17
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,FM_regToneD
 	call	process_data_chan
-	ld	(FM_regToneD),hl
+;	ld	(FM_regToneD),hl
 	ld	a,(FM_regVOLF)
 	ld	(FM_regVOLD),a	
 
@@ -577,8 +584,9 @@ _rdd_cont:
 	ld	ix,TRACK_Chan7+17
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,FM_regToneE
 	call	process_data_chan
-	ld	(FM_regToneE),hl
+;	ld	(FM_regToneE),hl
 ;	ld	a,d
 ;	ld	(TRACK_Chan7+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
@@ -590,8 +598,9 @@ _rdd_cont:
 	ld	ix,TRACK_Chan8+17
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,FM_regToneF
 	call	process_data_chan
-	ld	(FM_regToneF),hl
+;	ld	(FM_regToneF),hl
 	
 
 	;--------------------
@@ -1243,13 +1252,14 @@ decode_cmd21_chan_setup:
 
 
 ;===========================================================
-; ---replay_route
-; Output the data	to the CHIP	registers
+; ---process_data_chan
+; Process the cmd/instrument/note and vol data 
 ; 
 ; in HL is the current tone freq
 ; in D is TRACK_FLAGS  
 ;===========================================================
 process_data_chan:
+	push	hl
 
 	;-- set the	mixer	right
 	ld	hl,FM_regMIXER   
@@ -1604,7 +1614,7 @@ process_noToneBit:
 	; [DE] still contains tone slide add.
 	;-----------------
 	bit	B_PSGFM,a			;(ix+TRACK_Flags)
-	ret	z				; skip wrapper for PSG
+	jp	z,_wrap_skip		; skip wrapper for PSG
 
 	bit	0,h
 	jp	z,_wrap_lowcheck
@@ -1689,9 +1699,22 @@ _wrap_skip:
 	or	d
 	ld	(hl),a
 	ret
-	
+
 	
 process_noNoteActive:
+	pop	hl
+	
+	;-- for FM add key and sustain bits to tone
+	inc	hl
+	ld	a,d
+	and	16+32	; keep key and sustain flags
+	ld	b,a
+	ld	a,(hl)
+	and 	$0f
+	or 	b
+	ld	(hl),a
+	
+	;-- Silence
 	xor	a
 	ld	(FM_regVOLF),a
 	ld	(ix+TRACK_Flags),d
@@ -1794,7 +1817,7 @@ process_cmd1_port_up:
 
 	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
-	add	b
+	sub	b
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
 	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
@@ -1805,7 +1828,7 @@ process_cmd2_port_down:
 	ld	a,(ix+TRACK_cmd_2)
 	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
-	sub	b
+	add	b
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
 	dec	(ix+TRACK_cmd_ToneSlideAdd+1)

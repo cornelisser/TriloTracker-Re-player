@@ -673,7 +673,7 @@ def export_track(file,track):
 		# Handle wait timer/repeat.
 		if (n + i + v + c + p == 0):		# If empty row then add 1 wait
 			wait += 1				
-		elif wait > 0:						# Action and there are waits then add wait
+		elif wait >= 0:						# Action and there are waits then add wait
 			if wait == wait_prev:			# If previous wait is same then just repeat
 				file.write(f"\t\t\t\t\t;Wait Repeat {wait_prev+1}\n")
 				wait = 0

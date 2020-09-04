@@ -28,27 +28,26 @@ TRACK_VolumeAdd		equ 14-17		; reset after note set
 TRACK_Noise			equ 15-17	;[OBSOLETE]	; reset after note set
 TRACK_cmd_VolumeAdd	equ 16-17		; reset after note set
 TRACK_cmd_ToneSlideAdd	equ 17-17		; reset after note set
-TRACK_cmd_NoteAdd		equ 19-17		;x reset after note set
-TRACK_cmd_ToneAdd		equ 20-17		; reset after note set
-
-TRACK_cmd_detune		equ 22-17
+TRACK_cmd_ToneAdd		equ 19-17		; reset after note set
+TRACK_cmd_detune		equ 21-17
 TRACK_cmd_0			equ 23-17
 TRACK_cmd_1			equ 24-17
 TRACK_cmd_2			equ 25-17
 TRACK_cmd_3			equ 26-17
 TRACK_cmd_4_depth		equ 27-17
 TRACK_cmd_4_step		equ 29-17
-TRACK_cmd_A			equ 30-17		
-TRACK_cmd_B			equ 31-17		
-TRACK_cmd_E			equ 32-17
-TRACK_Timer			equ 33-17		; used for timing by all cmd's
-TRACK_Step			equ 34-17		; only for VIBRATO???
-TRACK_Delay			equ 35-17		; rows to wait till next data
+TRACK_cmd_NoteAdd		equ 30-17		;x reset after note set
+TRACK_cmd_A			equ 31-17		
+TRACK_cmd_B			equ 32-17		
+TRACK_cmd_E			equ 33-17
+TRACK_Timer			equ 34-17		; used for timing by all cmd's
+TRACK_Step			equ 35-17		; only for VIBRATO???
+TRACK_Delay			equ 36-17		; rows to wait till next data
 ;TRACK_Retrig		equ 35-17		; rows to retrigger command
-TRACK_prevDelay		equ 36-17
-TRACK_cmd_A_add		equ 37-17		;<< Still in use???
+TRACK_prevDelay		equ 37-17
+TRACK_cmd_A_add		equ 38-17		;<< Still in use???
 
-TRACK_REC_SIZE		equ 38
+TRACK_REC_SIZE		equ 39
 
 
 B_TRGNOT			equ 0			; note trigger
