@@ -307,7 +307,12 @@ class Song:
 					i = row[1]
 					v = row[2]
 					c = row[3]							
-					p = row[4]					
+					p = row[4]	
+
+					isPSG = True
+					if ((track.number) % 8) > 2: 			# replace 2 with the channel setup
+						isPSG = False
+						
 					if i != 0:
 						if prev_i == i:
 							row[1] = 0						# remove redundant instruments
@@ -320,10 +325,10 @@ class Song:
 						else:
 							prev_i = i
 							
-					if self.type != "SCC":
+					if self.type == "FM" or self.type == "SMS":	
 						if c == 0x0c and p != 0:			# set used drums
 							self.drums[p-1].used = True
-						if (track.number and 0x07) > 2:	 
+						if (isPSG == False):	 
 							if c == 0x01:					# for FM channels reverse cmd 1 and 2
 								row[3] = 0x02
 							elif c == 0x02:
@@ -358,7 +363,7 @@ class Song:
 		for instrument in self.ins:
 			if instrument.used == True:
 				instrument.export_number = number
-				print(f"{instrument.number} + {instrument.export_number} + {number}")
+			#	print(f"{instrument.number} + {instrument.export_number} + {number}")
 				number+=1
 				if self.type != "SCC":
 					self.voices[instrument.voice].used = True		# Set used voices

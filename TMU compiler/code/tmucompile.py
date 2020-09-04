@@ -698,8 +698,8 @@ def export_track(file,track):
 			file.write(f"{_DB} ${vol_offset+v-1:02x}\t\t\t;Volume {v}\n")
 		if i != 0:
 			tmp = song.ins[i-1].export_number
-			print(f"{song.ins[i-1].number} + {song.ins[i-1].export_number}")
-			file.write(f"{_DB} ${ins_offset+tmp:02x}\t\t\t;Instrument {i}\n")
+#			print(f"{song.ins[i-1].number} + {song.ins[i-1].export_number}")
+			file.write(f"{_DB} ${ins_offset+tmp:02x}\t\t\t;Instrument {i-1}\n")
 	
 		if c == 0 and p == 0:
 			pass	
@@ -717,6 +717,8 @@ def export_track(file,track):
 				file.write(f"{_DB} ${cmd['3']:02x},${p:02x}\t\t\t;CMD Portamento tone\n")	
 			elif c == 4:					# vibrato
 				depth = (p & 0xf0) >> 4
+				if depth > 0x0d:				# Limit max depth
+					depth = 0x0d
 				speed = (p & 0x0f) << 4
 				par = depth+speed			
 				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")			
