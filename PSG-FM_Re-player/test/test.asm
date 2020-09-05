@@ -9,7 +9,7 @@
 
 ; [ Song order pointer list ]
 .restart:
-	dw .track_040, .track_041, .track_041, .track_043, .track_041, .track_041, .track_041, .track_041	; Step:001 Pattern:005
+	dw .track_048, .track_049, .track_049, .track_051, .track_049, .track_049, .track_049, .track_049	; Step:001 Pattern:006
 	dw 0x0000, .restart			; End of sequence delimiter + restart address.
 
 ; [ Custom FM voices ]
@@ -33,47 +33,50 @@
 	dw .rst_i00			; Loop address
 
 ; [ Song track data ]
-.track_040:
+.track_048:
 	db $24			;Note C-4
 	db $6e			;Volume 13
 	db $71			;Instrument 0
-	db $c0			;Wait 1
-	db $90,$0f			;CMD Portamento tone
-					;Wait Repeat 1
-	db $30			;Note C-5
-	db $c2			;Wait 3
-	db $24			;Note C-4
-					;Wait Repeat 3
-	db $27			;Note D#4
+	db $94,$4f			;CMD Vibrato
 	db $c1			;Wait 2
-	db $91,$8f			;CMD Portamento tone + Volume slide
-	db $c2			;Wait 3
+	db $24			;Note C-4
+	db $96,$8e			;CMD Vibrato + Volume slide
+	db $c4			;Wait 5
+	db $29			;Note F-4
+	db $c0			;Wait 1
+	db $2b			;Note G-4
+	db $96,$0c			;CMD Vibrato + Volume slide
+					;Wait Repeat 1
+	db $2d			;Note A-4
+	db $c1			;Wait 2
+	db $94,$0f			;CMD Vibrato
+	db $c5			;Wait 6
 	db $60			;Release 96
-	db $d4			;Wait 21
+	db $dc			;Wait 29
 	db $bf			;[End-Of-Track]
-.track_041:
-	db $e1			;Wait 34
+.track_049:
+	db $ed			;Wait 46
 	db $bf			;[End-Of-Track]
-.track_043:
-	db $cf			;Wait 16
+.track_051:
+	db $d7			;Wait 24
 	db $24			;Note C-4
 	db $70			;Volume 15
 	db $71			;Instrument 0
+	db $94,$4f			;CMD Vibrato
+	db $c1			;Wait 2
+	db $96,$8c			;CMD Vibrato + Volume slide
+	db $c4			;Wait 5
+	db $29			;Note F-4
 	db $c0			;Wait 1
-	db $90,$0f			;CMD Portamento tone
+	db $2b			;Note G-4
 					;Wait Repeat 1
-	db $30			;Note C-5
-	db $91,$81			;CMD Portamento tone + Volume slide
-					;Wait Repeat 1
-	db $91,$8c			;CMD Portamento tone + Volume slide
+	db $2d			;Note A-4
 	db $c1			;Wait 2
-	db $24			;Note C-4
-	db $c2			;Wait 3
-	db $27			;Note D#4
-	db $c1			;Wait 2
+	db $94,$0f			;CMD Vibrato
+					;Wait Repeat 2
 	db $9a			;CMD End 
 	db $c2			;Wait 3
 	db $60			;Release 96
-	db $c4			;Wait 5
+	db $c5			;Wait 6
 	db $bf			;[End-Of-Track]
 

@@ -726,14 +726,11 @@ def export_track(file,track):
 				par = depth+speed				# in compiled date low/high nibble are switched.
 				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")			
 			elif c == 5:					# portamento tone + volume slide
-				val = p
-				if val > 0x0f:
-					val = 16 - (p >> 4)
-				else:
-					val = (16-val) + 128	
+				val = calculate_volslide_parameter(p)	
 				file.write(f"{_DB} ${cmd['5']:02x},${val:02x}\t\t\t;CMD Portamento tone + Volume slide\n")
 			elif c == 6:					# vibrato + volume slide
-				file.write(f"{_DB} ${cmd['6']:02x},${p:02x}\t\t\t;CMD Vibrato + Volume slide\n")
+				val = calculate_volslide_parameter(p)
+				file.write(f"{_DB} ${cmd['6']:02x},${val:02x}\t\t\t;CMD Vibrato + Volume slide\n")
 			elif c == 7:					# Unused
 				file.write(f"\t\t\t;CMD 7 Unused\n")	
 			elif c == 8:	
@@ -744,11 +741,7 @@ def export_track(file,track):
 			elif c == 9:					# Unused
 				file.write(f"\t\t\t;CMD 9 Unused up\n")
 			elif c == 0xa:				# volume slide
-				val = p
-				if val > 0x0f:
-					val = 16 - (p >> 4)
-				else:
-					val = (16-val) + 128	
+				val = calculate_volslide_parameter(p)	
 				file.write(f"{_DB} ${cmd['A']:02x},${val:02x}\t\t\t;CMD Volume slide up\n")			
 			elif c == 0xb:				
 				if song.type == "SCC":	# SCC commands
@@ -803,9 +796,13 @@ def export_track(file,track):
 
 
 
-
-
-
+def calculate_volslide_parameter(p):
+	val = p
+	if val > 0x0f:
+		val = 16 - (p >> 4)
+	else:
+		val = (16-val) + 128	
+	return val
 
 #===================================================================
 #

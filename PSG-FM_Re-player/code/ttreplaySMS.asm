@@ -1174,8 +1174,10 @@ decode_cmd7_vol_slide:
 	; slide the	volume up or down	1 step.
 	; The	x or y param  set	the delay*2	(x=up,y=down)
 	; With A00 the previous	value	is used.
-	
+	ld	(ix+TRACK_Command),e	
 	ld	(ix+TRACK_cmd_A),a
+	and  	$7f
+	ld	(ix+TRACK_Timer),a
 	set	B_TRGCMD,d
 	jp	_rdc
 
