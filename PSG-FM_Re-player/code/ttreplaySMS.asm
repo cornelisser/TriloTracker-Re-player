@@ -952,22 +952,23 @@ DECODE_CMDLIST:
 	dw	decode_cmd1_port_up
 	dw	decode_cmd6_vibrato_vol	
 	dw	decode_cmd7_vol_slide
-	dw	decode_cmd8_note_cut
-	dw	decode_cmd9_note_delay
+	dw	decode_cmd8_tremelo
+	dw	decode_cmd9_note_cut
+	dw	decode_cmd10_note_delay
 	; Secondary
-	dw	decode_cmd10_command_end
-	dw	decode_cmd11_drum
-	dw	decode_cmd12_arp_speed
-	dw	decode_cmd13_fine_up
-	dw	decode_cmd14_fine_down
-	dw	decode_cmd15_notelink
-	dw	decode_cmd16_track_detune
-	dw	decode_cmd17_trigger
-	dw	decode_cmd18_speed
+	dw	decode_cmd11_command_end
+	dw	decode_cmd12_drum
+	dw	decode_cmd13_arp_speed
+	dw	decode_cmd14_fine_up
+	dw	decode_cmd15_fine_down
+	dw	decode_cmd16_notelink
+	dw	decode_cmd17_track_detune
+	dw	decode_cmd18_trigger
+	dw	decode_cmd19_speed
 	; SoundChip Specific
-	dw	decode_cmd19_tone_panning
-	dw	decode_cmd20_noise_panning
-	dw	decode_cmd21_chan_setup	
+	dw	decode_cmd20_tone_panning
+	dw	decode_cmd21_noise_panning
+	dw	decode_cmd22_chan_setup	
 	
 
 decode_cmd0_arpeggio:
@@ -1089,8 +1090,11 @@ decode_cmd3_port_tone_new_note:
 	ret
 	
 	
-
-	
+decode_cmd8_tremelo:
+	; in:	[A] contains the paramvalue
+	; 
+	; ! do not change	[BC] this is the data pointer
+	;--------------------------------------------------
 decode_cmd4_vibrato:
 	; in:	[A] contains the paramvalue
 	; 
@@ -1119,8 +1123,8 @@ decode_cmd4_vibrato:
 	and	$f0
 	jp	z,.end		; set depth when 0 only when command was not active.
 
-	sub	16
-	ld	hl,TRACK_Vibrato_sine
+;	sub	16
+	ld	hl,TRACK_Vibrato_sine-16
 	add	a,a
 	jp	nc,99f
 	inc	h
@@ -1171,9 +1175,6 @@ decode_cmd7_vol_slide:
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	; slide the	volume up or down	1 step.
-	; The	x or y param  set	the delay*2	(x=up,y=down)
-	; With A00 the previous	value	is used.
 	ld	(ix+TRACK_Command),e	
 	ld	(ix+TRACK_cmd_A),a
 	and  	$7f
@@ -1181,14 +1182,14 @@ decode_cmd7_vol_slide:
 	set	B_TRGCMD,d
 	jp	_rdc
 
-decode_cmd8_note_cut:
+decode_cmd9_note_cut:
 	set	B_TRGCMD,d
 	inc	a
 	ld	(ix+TRACK_Timer),a		; set	the timer to param y
 	jp 	_rdc
 
 
-decode_cmd9_note_delay:
+decode_cmd10_note_delay:
 	bit	B_TRGNOT,d		; is there a note	in this eventstep?
 	jp	z,_rdc
 
@@ -1204,7 +1205,7 @@ decode_cmd9_note_delay:
 	jp	_rdc	
 
 
-decode_cmd10_command_end:
+decode_cmd11_command_end:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -1213,7 +1214,7 @@ decode_cmd10_command_end:
 	jp	_rdc_noinc
 	
 
-decode_cmd11_drum:
+decode_cmd12_drum:
 	and 	a		; drum reset not supported
 	jr 	z,0f
 	
@@ -1247,25 +1248,25 @@ decode_cmd11_drum:
 	jp	_rdc		
 	
 
-decode_cmd12_arp_speed:
+decode_cmd13_arp_speed:
 	ld	(replay_arp_speed),a		; store the halve not to add
 	jp	_rdc	
 	
 	
-decode_cmd13_fine_up:
-decode_cmd14_fine_down:
+decode_cmd14_fine_up:
+decode_cmd15_fine_down:
 	ld	(ix+TRACK_cmd_E),a
 	ld	(ix+TRACK_Timer),2
 	set	B_TRGCMD,d		; command active
 	jp	_rdc	
 
-decode_cmd15_notelink:
+decode_cmd16_notelink:
 	res	B_TRGNOT,d
 	set 	B_KEYON,d
 	dec 	bc
 	jp	_rdc	
 
-decode_cmd16_track_detune:
+decode_cmd17_track_detune:
 	; This command sets the	detune of the track.
 	ld	e,a
 	and	0x07		; low	4 bits is value
@@ -1286,12 +1287,12 @@ decode_cmd16_track_detune:
 
 
 
-decode_cmd17_trigger:
+decode_cmd18_trigger:
 	ld	(replay_trigger),a
 	jp	_rdc		
 
 
-decode_cmd18_speed:
+decode_cmd19_speed:
 	ld	(replay_speed),a
 	;--- Reset Timer == 0
 	srl	a				; divide speed with 2
@@ -1304,13 +1305,13 @@ decode_cmd18_speed:
 
 	jp	_rdc	
 	
-decode_cmd19_tone_panning:
+decode_cmd20_tone_panning:
 	jp	_rdc	
 
-decode_cmd20_noise_panning:
+decode_cmd21_noise_panning:
 	jp	_rdc
 
-decode_cmd21_chan_setup:
+decode_cmd22_chan_setup:
 	jp	_rdc
 
 
@@ -1345,7 +1346,7 @@ process_data_chan:
 	bit	B_TRGCMD,d	;(ix+TRACK_Flags)
 	jp	z,process_note
 
-	ld	hl,process_cmd_list
+	ld	hl,PROCESS_CMDLIST
 	ld	a,(ix+TRACK_Command)
 ;[DEBUG]	
 	cp	10
@@ -1472,19 +1473,19 @@ _noVolumeChange:
 	ld	c,a			; store volume add
 
 	ld 	a,(ix+TRACK_cmd_VolumeAdd)
-	rla				; shift to detect shift
-	jp 	c,.sub_Vadd		
-.add_Vadd:  
-	add	a,c
-	jp	nc,_Vadd
-	ld	a,c
-	or	0xf0
-	jp	_Vadd	
-.sub_Vadd:	
+;	rla				; shift to detect shift
+;	jp 	c,.sub_Vadd		
+;.add_Vadd:  
+;	add	a,c
+;	jp	nc,_Vadd
+;	ld	a,c
+;	or	0xf0
+;	jp	_Vadd	
+;.sub_Vadd:	
 	ld	b,a
-	xor	a
-	sub 	b
-	ld	b,a
+;	xor	a
+;	sub 	b
+;	ld	b,a
 	ld	a,c
 	sub	a,b
 	jp 	nc,.skip2
@@ -1784,15 +1785,8 @@ process_noNoteActive:
 	ld	(ix+TRACK_Flags),d
 	ret	
 
-;---- This is for debugging only	
-;stop_debug:
-;	halt
-;	jp	stop_debug	
-;	
-;PROCESS_CMDLIST:	
-;[13]	dw 	stop_debug
 
-process_cmd_list:
+PROCESS_CMDLIST:
 	; This list only contains the primary commands.
 	dw	process_cmd3_port_tone
 	dw	process_cmd5_vibrato_port_tone
@@ -1801,9 +1795,10 @@ process_cmd_list:
 	dw	process_cmd4_vibrato		
 	dw	process_cmd1_port_up	
 	dw	process_cmd6_vibrato_vol		
-	dw	process_cmd7_vol_slide		
-	dw	process_cmd8_note_cut		
-	dw	process_cmd9_note_delay		
+	dw	process_cmd7_vol_slide
+	dw	process_cmd8_tremelo
+	dw	process_cmd9_note_cut		
+	dw	process_cmd10_note_delay		
 
 			
 process_cmd0_arpeggio:
@@ -1933,6 +1928,36 @@ process_cmd3_stop:
 	ld	(ix+TRACK_cmd_ToneSlideAdd),0
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0	
 	jp	process_commandEND
+
+
+process_cmd8_tremelo:
+	;=================================
+	;
+	; Tremelo	
+	;
+	;=================================	
+	ld	l,(ix+TRACK_cmd_4_depth)
+	ld	h,(ix+TRACK_cmd_4_depth+1)
+
+	;--- Get next step
+	ld	a,(IX+TRACK_Step)
+	add	(ix+TRACK_cmd_4_step)
+	and	$1F			; max	32
+	ld	(ix+TRACK_Step),a
+
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	sla	a
+	sla	a	
+	sla	a	
+	sla	a
+	ld	(ix+TRACK_cmd_VolumeAdd),a
+	jp	process_commandEND	
+
 
 	;=================================
 	;
@@ -2071,7 +2096,7 @@ process_cmda_inc:
 	ret
 
 
-process_cmd8_note_cut:
+process_cmd9_note_cut:
 	dec	(ix+TRACK_Timer)
 	jp	nz,process_commandEND
 	
@@ -2080,7 +2105,7 @@ process_cmd8_note_cut:
 	res	B_TRGNOT,d
 	jp	process_commandEND		
 	
-process_cmd9_note_delay:
+process_cmd10_note_delay:
 	; note delay
 	dec	(ix+TRACK_Timer)
 	jp	nz,process_commandEND	; no delay yet

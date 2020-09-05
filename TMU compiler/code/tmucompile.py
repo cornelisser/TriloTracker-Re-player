@@ -635,33 +635,34 @@ def export_track(file,track):
 			"4":	cmd_offset+4,	#vib
 			"5":	cmd_offset+1,	#p tone+vib
 			"6":	cmd_offset+6,	#vib + v slide			
-			"A":	cmd_offset+7,	#v slide	
-			"EC":	cmd_offset+8,	#note cut				
-			"ED":	cmd_offset+9,	#note delay				
+			"A":	cmd_offset+7,	#v slide
+			"7":	cmd_offset+8,	# tremelo
+			"EC":	cmd_offset+9,	#note cut				
+			"ED":	cmd_offset+10,	#note delay				
 			
 			# secondary effects
-			"END":	cmd_offset+10,	# end all lasting effects
-			"C":	cmd_offset+11,	#SCC Morph/FM Drum			
-			"E0":	cmd_offset+12,	#arp speed
-			"E1":	cmd_offset+13,	#tone up
-			"E2":	cmd_offset+14,	#tone down
-			"E5":	cmd_offset+15,	#note link
-			"E6":	cmd_offset+16,	#track detune
-			"EF":	cmd_offset+17,	#trigger	
-			"F":	cmd_offset+18,	#speed
+			"END":	cmd_offset+11,	# end all lasting effects
+			"C":	cmd_offset+12,	#SCC Morph/FM Drum			
+			"E0":	cmd_offset+13,	#arp speed
+			"E1":	cmd_offset+14,	#tone up
+			"E2":	cmd_offset+15,	#tone down
+			"E5":	cmd_offset+16,	#note link
+			"E6":	cmd_offset+17,	#track detune
+			"EF":	cmd_offset+18,	#trigger	
+			"F":	cmd_offset+19,	#speed
 			#SN7
-			"E8":	cmd_offset+19,	#tone panning			
-			"E9":	cmd_offset+20,	#noise panning	
-			"B":	cmd_offset+21,	#FM+SG Chan setup	
+			"E8":	cmd_offset+20,	#tone panning			
+			"E9":	cmd_offset+21,	#noise panning	
+			"B":	cmd_offset+22,	#FM+SG Chan setup	
 			#AY3
-			"EE":	cmd_offset+19,	#envelope	
-			"8":	cmd_offset+20,	#PSG ENV				
+			"EE":	cmd_offset+20,	#envelope	
+			"8":	cmd_offset+21,	#PSG ENV				
 			# SCC
-			"B0":	cmd_offset+21,	#SCC RESET		
-			"B1":	cmd_offset+22,	#SCC Duty Cycle
-			"B2":	cmd_offset+23,	#SCC Waveform cut
-			"BB":	cmd_offset+24,	#SCC set waveform
-			"BC":	cmd_offset+25,	#SCC set waveform +16		
+			"B0":	cmd_offset+22,	#SCC RESET		
+			"B1":	cmd_offset+23,	#SCC Duty Cycle
+			"B2":	cmd_offset+24,	#SCC Waveform cut
+			"BB":	cmd_offset+25,	#SCC set waveform
+			"BC":	cmd_offset+26,	#SCC set waveform +16		
 					}
 					
 	for row in track.rows:
@@ -719,11 +720,7 @@ def export_track(file,track):
 			elif c == 3:					# portamento tone
 				file.write(f"{_DB} ${cmd['3']:02x},${p:02x}\t\t\t;CMD Portamento tone\n")	
 			elif c == 4:					# vibrato
-				speed = ((p & 0xf0) >> 4)
-				depth = ((p & 0x0f) << 4)
-				if depth > 0xc0:				# Limit max depth
-					depth = 0xc0					
-				par = depth+speed				# in compiled date low/high nibble are switched.
+				par = calculate_vibrato_parameter(p)
 				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")			
 			elif c == 5:					# portamento tone + volume slide
 				val = calculate_volslide_parameter(p)	
@@ -731,8 +728,9 @@ def export_track(file,track):
 			elif c == 6:					# vibrato + volume slide
 				val = calculate_volslide_parameter(p)
 				file.write(f"{_DB} ${cmd['6']:02x},${val:02x}\t\t\t;CMD Vibrato + Volume slide\n")
-			elif c == 7:					# Unused
-				file.write(f"\t\t\t;CMD 7 Unused\n")	
+			elif c == 7:				# Tremolo
+				par = calculate_vibrato_parameter(p)
+				file.write(f"{_DB} ${cmd['7']:02x},${par:02x}\t\t\t;CMD Tremolo\n")				
 			elif c == 8:	
 				if song.type == 'SMS': 	# unused
 					file.write(f"\t\t\t;CMD 8 Unused\n")	
@@ -803,6 +801,16 @@ def calculate_volslide_parameter(p):
 	else:
 		val = (16-val) + 128	
 	return val
+	
+def calculate_vibrato_parameter(p):
+	speed = ((p & 0xf0) >> 4)
+	depth = ((p & 0x0f) << 4)
+	if depth > 0xc0:				# Limit max depth
+		depth = 0xc0					
+	return depth+speed				# in compiled date low/high nibble are switched.
+
+	
+	
 
 #===================================================================
 #
