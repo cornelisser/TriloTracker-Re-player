@@ -1254,11 +1254,18 @@ decode_cmd13_arp_speed:
 	
 	
 decode_cmd14_fine_up:
+	ld	(ix+TRACK_cmd_ToneSlideAdd),a
+	xor	a
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),a
+	jp	_rdc
+	
 decode_cmd15_fine_down:
-	ld	(ix+TRACK_cmd_E),a
-	ld	(ix+TRACK_Timer),2
-	set	B_TRGCMD,d		; command active
-	jp	_rdc	
+	ld	(ix+TRACK_cmd_ToneSlideAdd),a
+	ld	a,$ff
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),a
+	res	B_TRGCMD,d		; command active
+	jp	_rdc
+
 
 decode_cmd16_notelink:
 	res	B_TRGNOT,d

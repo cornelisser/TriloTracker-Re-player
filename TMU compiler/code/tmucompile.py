@@ -761,6 +761,7 @@ def export_track(file,track):
 				elif x == 0x10:			# Portamento fine up
 					file.write(f"{_DB} ${cmd['E1']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
 				elif x == 0x20:			# Portamento fine down
+					y = 256-y
 					file.write(f"{_DB} ${cmd['E2']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
 				elif x == 0x50: 			# note link
 					file.write(f"{_DB} ${cmd['E5']:02x}\t\t\t;CMD Note link\n")
