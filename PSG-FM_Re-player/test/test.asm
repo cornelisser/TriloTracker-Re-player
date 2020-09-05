@@ -9,7 +9,7 @@
 
 ; [ Song order pointer list ]
 .restart:
-	dw .track_032, .track_033, .track_033, .track_035, .track_033, .track_033, .track_033, .track_033	; Step:001 Pattern:004
+	dw .track_040, .track_041, .track_041, .track_043, .track_041, .track_041, .track_041, .track_041	; Step:001 Pattern:005
 	dw 0x0000, .restart			; End of sequence delimiter + restart address.
 
 ; [ Custom FM voices ]
@@ -33,67 +33,47 @@
 	dw .rst_i00			; Loop address
 
 ; [ Song track data ]
-.track_032:
-	db $30			;Note C-5
+.track_040:
+	db $24			;Note C-4
 	db $6e			;Volume 13
 	db $71			;Instrument 0
-	db $94,$c1			;CMD Vibrato
-	db $c8			;Wait 9
-	db $94,$01			;CMD Vibrato
-	db $c4			;Wait 5
-	db $94,$c0			;CMD Vibrato
-	db $c1			;Wait 2
-	db $60			;Release 96
 	db $c0			;Wait 1
+	db $90,$0f			;CMD Portamento tone
+					;Wait Repeat 1
 	db $30			;Note C-5
 	db $c2			;Wait 3
-	db $9a			;CMD End 
-	db $c0			;Wait 1
-	db $30			;Note C-5
-					;Wait Repeat 1
-	db $60			;Release 96
-	db $c1			;Wait 2
 	db $24			;Note C-4
-	db $94,$c5			;CMD Vibrato
-	db $c0			;Wait 1
-	db $94,$c0			;CMD Vibrato
-					;Wait Repeat 1
-	db $94,$c0			;CMD Vibrato
-					;Wait Repeat 1
-	db $94,$c0			;CMD Vibrato
+					;Wait Repeat 3
+	db $27			;Note D#4
 	db $c1			;Wait 2
+	db $91,$8f			;CMD Portamento tone + Volume slide
+	db $c2			;Wait 3
 	db $60			;Release 96
-	db $e2			;Wait 35
+	db $d4			;Wait 21
 	db $bf			;[End-Of-Track]
-.track_033:
-	db $ff			;Wait 64
+.track_041:
+	db $e1			;Wait 34
 	db $bf			;[End-Of-Track]
-.track_035:
-	db $df			;Wait 32
-	db $30			;Note C-5
+.track_043:
+	db $cf			;Wait 16
+	db $24			;Note C-4
 	db $70			;Volume 15
 	db $71			;Instrument 0
-	db $94,$4f			;CMD Vibrato
-	db $c1			;Wait 2
-	db $34			;Note E-5
-					;Wait Repeat 2
-	db $2b			;Note G-4
-					;Wait Repeat 2
-	db $30			;Note C-5
-	db $c2			;Wait 3
-	db $94,$01			;CMD Vibrato
-	db $c4			;Wait 5
-	db $94,$c0			;CMD Vibrato
-	db $c1			;Wait 2
-	db $60			;Release 96
 	db $c0			;Wait 1
+	db $90,$0f			;CMD Portamento tone
+					;Wait Repeat 1
 	db $30			;Note C-5
+	db $91,$81			;CMD Portamento tone + Volume slide
+					;Wait Repeat 1
+	db $91,$8c			;CMD Portamento tone + Volume slide
+	db $c1			;Wait 2
+	db $24			;Note C-4
 	db $c2			;Wait 3
+	db $27			;Note D#4
+	db $c1			;Wait 2
 	db $9a			;CMD End 
-	db $c0			;Wait 1
-	db $30			;Note C-5
-	db $c3			;Wait 4
+	db $c2			;Wait 3
 	db $60			;Release 96
-	db $c6			;Wait 7
+	db $c4			;Wait 5
 	db $bf			;[End-Of-Track]
 

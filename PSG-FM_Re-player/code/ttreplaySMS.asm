@@ -15,8 +15,8 @@ _VOL:		equ	98	; = volume 1
 _INS:		equ	113	; = instrument 1
 _CMD:		equ	144	; = effect 0
 _SPC:		equ	184	; = special commands
-_EOT:		equ 	191	; = end of track
-_WAIT:	equ	192	; = wait 1
+_EOT:		equ 191	; = end of track
+_WAIT:		equ	192	; = wait 1
 
 	
 ;===========================================================
@@ -1145,6 +1145,22 @@ decode_cmd5_vibrato_port_tone:
 	;--------------------------------------------------
 	; portTone	+ volumeslide
 	;--- Init values
+	ld	(ix+TRACK_Command),e
+	ld	(ix+TRACK_cmd_A),a
+	set	B_TRGCMD,d
+	
+	;-- Check if new note
+	bit	B_TRGNOT,d
+	jp	z,_rdc
+	
+	;-- Set new port tone value
+	set	B_KEYON,d
+	res	B_TRGNOT,d
+	ld	a,(ix+TRACK_cmd_3)
+	jp	decode_cmd3_port_tone_new_note
+	
+	
+	
 decode_cmd6_vibrato_vol:
 	; in:	[A] contains the paramvalue
 	; 
@@ -2035,20 +2051,21 @@ process_cmdasub:
 	and	$7f
 	ld	(ix+TRACK_Timer),a
 
-	ld	a,(IX+TRACK_cmd_VolumeAdd)
+	ld	a,(ix+TRACK_Volume)
 	bit	7,c
 	jp	z,process_cmda_inc
 process_cmda_dec:
-	cp	0x88
+	and	a
 	ret	z
-	sub	8
-	ld	(ix+TRACK_cmd_VolumeAdd),a
+	sub	$10
+	ld	(ix+TRACK_Volume),a
 	ret
+	
 process_cmda_inc:
-	cp	0x78
-	ret	z
-	add	8	
-	ld	(ix+TRACK_cmd_VolumeAdd),a
+	cp	$f0
+	ret	nc
+	add	$10	
+	ld	(ix+TRACK_Volume),a
 	ret
 
 
