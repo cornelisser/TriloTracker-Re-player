@@ -628,12 +628,12 @@ def export_track(file,track):
 	
 	cmd = {
 			# primary effects
-			"0":	cmd_offset+0,	#arp
-			"1": 	cmd_offset+1,	#p up
+			"0":	cmd_offset+3,	#arp
+			"1": 	cmd_offset+5,	#p up
 			"2":	cmd_offset+2,	#p down
-			"3":	cmd_offset+3,	#p tone
+			"3":	cmd_offset+0,	#p tone
 			"4":	cmd_offset+4,	#vib
-			"5":	cmd_offset+5,	#p tone+vib
+			"5":	cmd_offset+1,	#p tone+vib
 			"6":	cmd_offset+6,	#vib + v slide			
 			"A":	cmd_offset+7,	#v slide	
 			"EC":	cmd_offset+8,	#note cut				

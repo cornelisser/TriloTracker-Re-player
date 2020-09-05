@@ -752,8 +752,8 @@ _rdv2:cp	_CMD
 	jp	c,_replay_decode_ins
 _rdi2:
 	cp	_EOT
-	jp	nc,_replay_decode_delay
 	jp	c,_replaydecode_cmd
+	jp	_replay_decode_delay
 
 _rdn:
 	cp	_SUS
@@ -781,9 +781,33 @@ _rdc_noinc:
 _rd_delay:
 	ld	a,(ix+TRACK_prevDelay)
 	ld	(ix+TRACK_Delay),a
-	ret
+	jp	_replay_decode_trigger_porttone_check
 
-
+_replay_decode_delay:
+	sub	_WAIT-1
+	jp	z,_rd_delay		; EOT found
+	ld	(ix+TRACK_Delay),a
+	ld	(ix+TRACK_prevDelay),a
+	inc	bc
+	
+_replay_decode_trigger_porttone_check:	
+	;--- Check cmd active and note trigger?
+	bit 	B_TRGNOT,d
+	ret	z
+	bit	B_TRGCMD,d
+	ret	z
+	;--- Check for cmd3 or cmd5 (value 0 or 1) to continue
+	ld	a,(ix+TRACK_Command)
+	cp	2
+	ret	nc
+	;-- trigger CMD
+	res	B_TRGNOT,d
+	ld	a,0010010b		;B_ACTNOT B_KEYON
+	or	d
+	ld 	d,a
+	ld	a,(ix+TRACK_cmd_3)
+	jp	decode_cmd3_port_tone_new_note	
+	;ret
 
 _replay_decode_note:
 	ld	(ix+TRACK_Note),a
@@ -884,14 +908,7 @@ _replay_decode_vol:
 	jp	_rdv
 
 
-_replay_decode_delay:
-	sub	_WAIT-1
-	jp	z,_rd_delay		; EOT found
-	ld	(ix+TRACK_Delay),a
-	ld	(ix+TRACK_prevDelay),a
 
-	inc	bc
-	ret
 
 
 
@@ -927,12 +944,12 @@ _replaydecode_cmd:
 
 DECODE_CMDLIST:
 	; Primary
-	dw	decode_cmd0_arpeggio
-	dw	decode_cmd1_port_up
-	dw	decode_cmd2_port_down
 	dw	decode_cmd3_port_tone
-	dw	decode_cmd4_vibrato
 	dw	decode_cmd5_vibrato_port_tone
+	dw	decode_cmd2_port_down
+	dw	decode_cmd0_arpeggio
+	dw	decode_cmd4_vibrato
+	dw	decode_cmd1_port_up
 	dw	decode_cmd6_vibrato_vol	
 	dw	decode_cmd7_vol_slide
 	dw	decode_cmd8_note_cut
@@ -1009,25 +1026,20 @@ decode_cmd3_port_tone:
 
 	set	B_KEYON,d
 	res 	B_TRGNOT,d
+	
+	call	decode_cmd3_port_tone_new_note
+	jp	_rdc
+	
+decode_cmd3_port_tone_new_note:
+	;-- remove deviation from parameter
+	and 	$7f
+	ex	af,af'		;'
+	exx
 
-_decode_newNote:
 	;-- get the	previous note freq
 	ld	a,(replay_previous_note)
 	add	a
-
-	exx
-;	bit	B_PSGFM,d
-;	jp	nz,_cmd3_fm
-;_cmd3_psg:
-;	ld	hl,(replay_tonetable_PSG)	;TRACK_ToneTable
-;	jp	99f
-;_cmd3_fm:
-;	ld	hl,(replay_tonetable_FM)	;TRACK_ToneTable
-;
-;99:
 	ld	hl,(replay_tonetable)
-	
-	push	hl			; store address for later
 	add	a,l
 	ld	l,a
 	jp	nc,.skip
@@ -1043,12 +1055,10 @@ _decode_newNote:
 
 	add	hl,de	
 	ex	de,hl				; store current freq in	[de]
-
 	;--- get the current note freq
 	ld	a,(ix+TRACK_Note)
 	add	a
-	;ld	hl,(replay_Tonetable)	;TRACK_ToneTable
-	pop 	hl
+	ld	hl,(replay_tonetable)	;TRACK_ToneTable
 	add	a,l
 	ld	l,a
 	jp	nc,.skip2
@@ -1065,11 +1075,20 @@ _decode_newNote:
 	sbc	hl,de				; results in pos/neg delta
 	
 	ld	(ix+TRACK_cmd_ToneSlideAdd),l
-	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
-	exx
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
 	
-	res	B_TRGNOT,d
-	jp	_rdc	
+	;--- re-apply deviation
+	ex	af,af'			;'
+	bit	7,h
+	jp	nz,99f
+	or 	128
+99:
+	ld 	(ix+TRACK_cmd_3),a
+	
+	exx					; restore flags in D
+	ret
+	
+	
 
 	
 decode_cmd4_vibrato:
@@ -1757,12 +1776,12 @@ process_noNoteActive:
 
 process_cmd_list:
 	; This list only contains the primary commands.
-	dw	process_cmd0_arpeggio		
-	dw	process_cmd1_port_up		
+	dw	process_cmd3_port_tone
+	dw	process_cmd5_vibrato_port_tone
 	dw	process_cmd2_port_down		
-	dw	process_cmd3_port_tone		
+	dw	process_cmd0_arpeggio			
 	dw	process_cmd4_vibrato		
-	dw	process_cmd5_vibrato_port_tone	
+	dw	process_cmd1_port_up	
 	dw	process_cmd6_vibrato_vol		
 	dw	process_cmd7_vol_slide		
 	dw	process_cmd8_note_cut		
@@ -1872,14 +1891,16 @@ process_cmd3_add:
 	;pos slide
 	add	a,l
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,process_commandEND
+	jp	nc,.skip
 	inc	h					
+.skip:
 	bit	7,h
 	jp	z,process_cmd3_stop			; delta turned pos ?
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
 	jp	process_commandEND
 process_cmd3_sub:
 	;negative slide	
+	and	$7f
 	ld	c,a
 	xor	a
 	ld	b,a
@@ -1890,7 +1911,7 @@ process_cmd3_sub:
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
 	jp	process_commandEND
 process_cmd3_stop:	
-	res	B_TRGCMD,d		;(ix+TRACK_Flags)
+;	res	B_TRGCMD,d		;(ix+TRACK_Flags)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),0
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0	
 	jp	process_commandEND
