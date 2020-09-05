@@ -772,9 +772,11 @@ def export_track(file,track):
 				elif x == 0x90 and song.type == 'SMS':
 					file.write(f"{_DB} ${cmd['E9']:02x},${y:02x}\t\t\t;CMD GG noise panning\n")
 				elif x == 0xc0:	
-					file.write(f"{_DB} ${cmd['EC']:02x},${y:02x}\t\t\t;CMD Note cut delay\n")
+					par = y + 1
+					file.write(f"{_DB} ${cmd['EC']:02x},${par:02x}\t\t\t;CMD Note cut delay\n")
 				elif x == 0xd0:				# Note delay	
-					file.write(f"{_DB} ${cmd['ED']:02x},${y:02x}\t\t\t;CMD Note delay\n")
+					par = y + 1
+					file.write(f"{_DB} ${cmd['ED']:02x},${par:02x}\t\t\t;CMD Note delay\n")
 				elif x == 0xe0 and song.type != 'SMS':
 					file.write(f"{_DB} ${cmd['EE']:02x},${y:02x}\t\t\t;CMD Envelope shape\n")
 				elif x == 0xf0:			# Trigger

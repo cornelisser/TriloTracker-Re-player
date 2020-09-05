@@ -917,7 +917,7 @@ _replaydecode_cmd:
 	sub	_CMD
 	
 	;[Debug]
-	cp	22
+	cp	23
 	jp	c,99f
 	di
 	halt
@@ -1184,7 +1184,7 @@ decode_cmd7_vol_slide:
 
 decode_cmd9_note_cut:
 	set	B_TRGCMD,d
-	inc	a
+	ld	(ix+TRACK_Command),e
 	ld	(ix+TRACK_Timer),a		; set	the timer to param y
 	jp 	_rdc
 
@@ -1194,14 +1194,14 @@ decode_cmd10_note_delay:
 	jp	z,_rdc
 
 	set	B_TRGCMD,d					; command active
-	inc	a
+	res	B_TRGNOT,d					; reset any	trigger note
+	ld	(ix+TRACK_Command),e
+	
 	ld	(ix+TRACK_Timer),a			; set	the timer to param y
 	ld	a,(ix+TRACK_Note)
 	ld	(ix+TRACK_cmd_E),a			; store the	new note
 	ld	a,(replay_previous_note)
 	ld	(ix+TRACK_Note),a				; restore the old	note
-	res	B_TRGNOT,(ix+TRACK_Flags)		; reset any	triggernote
-
 	jp	_rdc	
 
 
@@ -1356,7 +1356,7 @@ process_data_chan:
 	ld	hl,PROCESS_CMDLIST
 	ld	a,(ix+TRACK_Command)
 ;[DEBUG]	
-	cp	10
+	cp	11
 	jp	c,99f
 	di
 1:	halt
@@ -2109,7 +2109,7 @@ process_cmd9_note_cut:
 	
 	; stop note
 	res	B_TRGCMD,d	; set	note bit to	0
-	res	B_TRGNOT,d
+	res	B_ACTNOT,d
 	jp	process_commandEND		
 	
 process_cmd10_note_delay:
@@ -2121,7 +2121,7 @@ process_cmd10_note_delay:
 	ld	a,(ix+TRACK_cmd_E)		
 	ld	(ix+TRACK_Note),a		; set	the note val
 	set	B_TRGNOT,d	;(ix+TRACK_Flags)		; set	trigger note flag
-	res	B_TRGCMD,d	;(ix+TRACK_Flags)		; reset tiggger cmd flag
+	res	B_TRGCMD,d	;(ix+TRACK_Flags)		; reset trigger cmd flag
 	
 	jp	process_commandEND	
 
