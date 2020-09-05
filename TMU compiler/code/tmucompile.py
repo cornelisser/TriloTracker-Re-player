@@ -719,10 +719,11 @@ def export_track(file,track):
 			elif c == 3:					# portamento tone
 				file.write(f"{_DB} ${cmd['3']:02x},${p:02x}\t\t\t;CMD Portamento tone\n")	
 			elif c == 4:					# vibrato
-				depth = (p & 0xf0) >> 4
-				if depth > 0x0d:				# Limit max depth
-					depth = 0x0d
-				speed = (p & 0x0f) << 4
+				speed = ((p & 0xf0) >> 4)
+				depth = ((p & 0x0f) << 4)
+				print (f"hoohaa {depth:02x}")
+				if depth > 0xc0:				# Limit max depth
+					depth = 0xc0					
 				par = depth+speed				# in compiled date low/high nibble are switched.
 				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")			
 			elif c == 5:					# portamento tone + volume slide
