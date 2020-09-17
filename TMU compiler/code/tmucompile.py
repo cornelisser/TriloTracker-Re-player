@@ -245,11 +245,10 @@ def export_asm(outfile,song):
 	
 		file.write("; [ Custom FM voices ]\n")		
 		file.write(f"{_CHILD}customvoice_start:\n")
-#		for voice in song.voices:
-#			file.write(f"{_DB}")
-#			for x in range(0,7):
-#				file.write(f" ${voice.data[x]:02x},")
-#			file.write(f" ${voice.data[7]:02x}\t\t; Custom voice:{voice.number:0}\n")				
+		for voice in song.voices:
+			if voice.number > 15:
+				if voice.used == True:
+					file.write(f"{_DB} ${voice.data[0]:02x},${voice.data[1]:02x},${voice.data[2]:02x},${voice.data[3]:02x},${voice.data[4]:02x},${voice.data[5]:02x},${voice.data[6]:02x},${voice.data[7]:02x} \t\t; Custom voice:{voice.number:0}\n")				
 	
 		file.write("\n; [ SCC Waveforms ]\n")		
 		file.write(f"{_CHILD}waveform_start:\n")	
@@ -284,11 +283,11 @@ def export_asm(outfile,song):
 					waveform = song.get_waveform(instrument.number)
 					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\; Waveform {waveform.number}\n")
 				elif song.type == "FM" or song.type == "SMS":
-					voice = song.get_voice(instrument.number)
-					if voice.export_number < 16:
-						file.write(f"{_DB} ${voice.export_number << 4:02x}\t\t\t\t\t; FM Hardware Voice {voice.number}\n")
+					voice = song.get_voice(instrument.voice)
+					if instrument.voice < 16:
+						file.write(f"{_DB} ${instrument.number << 4:02x}\t\t\t\t\t; FM Hardware Voice {voice.number}\n")
 					else:
-						file.write(f"{_DB} $0,${(voice.export_number-16)*2:02x}\t\t\t\t\t; FM Software Voice {voice.number}\n")
+						file.write(f"{_DB} $00,${voice.export_number << 3:02x}\t\t\t\t\t; FM Software Voice {voice.number}\n")
 					
 				#file.write("\t\t;Flg,Vol,Noi,Lnk,Tone\n")
 				for r in range(0,instrument.length):

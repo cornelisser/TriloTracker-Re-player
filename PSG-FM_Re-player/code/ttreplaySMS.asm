@@ -866,7 +866,7 @@ _replay_decode_ins:
 	jp	nz,.skip_soft
 	;--- software voice found
 	
-	ld	a,(hl)
+	ld	a,(hl)		; value is the offset in the soft voice data (8bytes)
 	inc	hl
 	ld 	(FM_softvoice_req),a
 	xor 	a
@@ -2317,7 +2317,7 @@ route_FM:
 	
 	ld	(hl),a
 
-	;call	load_softwarevoice
+	call	load_softwarevoice
 	
 .noVoice:
 	;------------------------------------------
@@ -2468,8 +2468,29 @@ _route_FM_keyOff_update:
 
 
 
+load_softwarevoice:
+	;-- Set the software voice data address
+	ld 	hl,(replay_voicebase)
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	xor	a		; set reg# 0
+.voiceupd_loop:
+
+	out	(FM_WRITE),a
+	ex	af,af'		; 4 cycles	 '
+	ld	a,(hl)		; 4 cycles 	
+	inc	hl			; 6 cycles
+	out	(FM_DATA),a	
+
+	ex	af,af' 		; 4 cycles	'
+	inc	a			; 4 cycles
 	
-	
+	cp	8 			; 7 cycles
+	jp	c,.voiceupd_loop 	; 10 cycles
+	ret
 
 	
 
