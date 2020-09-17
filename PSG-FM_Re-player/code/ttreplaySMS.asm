@@ -2489,6 +2489,12 @@ load_softwarevoice:
 	inc	a			; 4 cycles
 	
 	cp	8 			; 7 cycles
+	;--- delay
+	push 	ix			; 15 cycles
+	pop	ix			; 14 cycles
+	push 	ix			; 15 cycles
+	pop	ix			; 14 cycles
+		
 	jp	c,.voiceupd_loop 	; 10 cycles
 	ret
 
