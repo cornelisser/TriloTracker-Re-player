@@ -756,7 +756,7 @@ _rdi2:
 	jp	_replay_decode_delay
 
 _rdn:
-	cp	_SUS
+	cp	_SUS+1		
 	jp	c,_rd_delay
 	jp	_rdn2
 

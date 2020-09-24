@@ -358,7 +358,10 @@ class Song:
 							trackb.used = False
 							trackb.export_number = tracka.number
 
-			
+		
+		# ===================================
+		# Detect used instruments
+		# ===================================
 		number = 0			
 		for instrument in self.ins:
 			if instrument.used == True:
@@ -370,7 +373,23 @@ class Song:
 				else:
 					self.waveforms[instrument.waveform].used = True		# Set used waveforms
 		
-
+		# ===================================
+		# Renumber the used software voices for FM
+		# ===================================
+		if self.type != "SCC":
+			number = 0	
+			for voice in self.voices:
+				if voice.used == True:
+					if voice.number > 15:
+						voice.export_number = number
+						print(f"softvoice: {voice.number} -> {voice.export_number}")
+						number+=1
+						
+		
+		
+		
+		
+		
 		
 		#	;--- Check volume setting on first pattern. Add volume F if none is set.
 	
