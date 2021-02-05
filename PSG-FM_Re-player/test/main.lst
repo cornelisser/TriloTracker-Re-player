@@ -1,4 +1,4 @@
-Sjasm Z80 Assembler v0.42b8 - www.xl2s.tk             [2020.09.05 - 21:54:42]
+Sjasm Z80 Assembler v0.42b8 - www.xl2s.tk             [2020.09.24 - 15:29:04]
 
 main.asm
 Errors: 0
@@ -91,7 +91,7 @@ Errors: 0
       85   00:4065  32 2F C0            	ld	(equalization_freq),a
       86   00:4068  32 30 C0            	ld	(equalization_cnt),a	
       87   00:406B                      	;--- initialise demo song
-      88   00:406B  21 0C 56            	ld	hl,demo_song
+      88   00:406B  21 30 56            	ld	hl,demo_song
       89   00:406E  CD 73 46            	call	replay_loadsong
       90   00:4071                      	
       91   00:4071                      	;--- initialise sfx pointers
@@ -103,25 +103,25 @@ Errors: 0
       97   00:4075                      	
       98   00:4075  CD F0 42            	call	clear_screen
       99   00:4078  21 56 01            	ld	hl,80*4+22
-     100   00:407B  11 9D 56            	ld	de,TEXT_Title
+     100   00:407B  11 F1 5A            	ld	de,TEXT_Title
      101   00:407E  CD 37 43            	call	draw_label
      102   00:4081  21 04 02            	ld	hl,80*6+36
-     103   00:4084  11 C2 56            	ld	de,TEXT_Step
+     103   00:4084  11 16 5B            	ld	de,TEXT_Step
      104   00:4087  CD 37 43            	call	draw_label
      105   00:408A  21 84 02            	ld	hl,80*8+4
-     106   00:408D  11 C8 56            	ld	de,TEXT_Header_Data
+     106   00:408D  11 1C 5B            	ld	de,TEXT_Header_Data
      107   00:4090  CD 37 43            	call	draw_label	
      108   00:4093                      	
      109   00:4093  21 A6 02            	ld	hl,80*8+38
-     110   00:4096  11 E0 56            	ld	de,TEXT_Register_Header
+     110   00:4096  11 34 5B            	ld	de,TEXT_Register_Header
      111   00:4099  CD 37 43            	call	draw_label		
      112   00:409C                      
      113   00:409C  21 48 04            	ld 	hl,80*13+56
-     114   00:409F  11 03 57            	ld	de,TEXT_Register_Drum
+     114   00:409F  11 57 5B            	ld	de,TEXT_Register_Drum
      115   00:40A2  CD 37 43            	call	draw_label	
      116   00:40A5                      
      117   00:40A5  21 A4 05            	ld 	hl,80*18+4
-     118   00:40A8  11 14 57            	ld	de,TEXT_Legend_Data
+     118   00:40A8  11 68 5B            	ld	de,TEXT_Legend_Data
      119   00:40AB  CD 37 43            	call	draw_label	
      120   00:40AE                      
      121   00:40AE                      
@@ -291,7 +291,7 @@ Errors: 0
      285   00:4165  01 07 00            	ld	bc,7
      286   00:4168  CD 2D 42            	call	clear_TEXT
      287   00:416B  2A 1D C0            	ld	hl,(replay_orderpointer)
-     288   00:416E  11 13 56            	ld	de,demo_song+7
+     288   00:416E  11 37 56            	ld	de,demo_song+7
      289   00:4171  AF                  	xor 	a
      290   00:4172  ED 52               	sbc	hl,de
      291   00:4174  29                  	add	hl,hl		;X2
@@ -1479,7 +1479,7 @@ Errors: 0
      915.  00:45F2  3E 08               	ld a,8		; loop 8 times
      916.  00:45F4  0E 98               	ld c,0x98
      917.  00:45F6                      
-     918.  00:45F6  21 4E 57            	ld hl,font_data
+     918.  00:45F6  21 A2 5B            	ld hl,font_data
      919.  00:45F9                      
      920.  00:45F9                      _fontloop:
      921.  00:45F9  06 FF               		ld b,255		; subloop 255 times
@@ -1618,7 +1618,7 @@ Errors: 0
      126.  00:4666  07                  	rlca
      127.  00:4667  07                  	rlca
      128.  00:4668  07                  	rlca
-     129.  00:4669  21 8C 51            	ld	hl,_VOLUME_TABLE-128
+     129.  00:4669  21 B0 51            	ld	hl,_VOLUME_TABLE-128
      130.  00:466C  E6 F0               	and	$f0
      131.  00:466E  85                  	add	a,l
      132.  00:466F  6F                  	ld	l,a
@@ -1785,7 +1785,7 @@ Errors: 0
      293.  00:4757                      decode_data:
      294.  00:4757                      	;--- process the channels (tracks)
      295.  00:4757                      	
-     296.  00:4757  21 0C 53            	ld	hl,TRACK_ToneTable_PSG			; Set the PSG note table
+     296.  00:4757  21 30 53            	ld	hl,TRACK_ToneTable_PSG			; Set the PSG note table
      297.  00:475A  22 2D C0            	ld	(replay_tonetable),hl	
      298.  00:475D                      	
      299.  00:475D                      .decode1:	
@@ -1819,7 +1819,7 @@ Errors: 0
      327.  00:479C  32 63 C0            	ld	(TRACK_Chan2+17+TRACK_Flags),a	
      328.  00:479F                      
      329.  00:479F                      	;--- Set FM Tone table
-     330.  00:479F  21 CC 53            	ld	hl,TRACK_ToneTable_FM
+     330.  00:479F  21 F0 53            	ld	hl,TRACK_ToneTable_FM
      331.  00:47A2  22 2D C0            	ld	(replay_tonetable),hl
      332.  00:47A5                      
      333.  00:47A5                      
@@ -1930,7 +1930,7 @@ Errors: 0
      438.  00:4873                      
      439.  00:4873                      
      440.  00:4873                      	; Set tone table
-     441.  00:4873  21 0C 53            	ld	hl,TRACK_ToneTable_PSG
+     441.  00:4873  21 30 53            	ld	hl,TRACK_ToneTable_PSG
      442.  00:4876  22 2D C0            	ld	(replay_tonetable),hl
      443.  00:4879                      
      444.  00:4879                      	;--- Initialize PSG Mixer and volume
@@ -1994,7 +1994,7 @@ Errors: 0
      502.  00:48DB  32 71 C1            	ld	(PSG_regMIXER),a
      503.  00:48DE                      
      504.  00:48DE                      	; Set tone table
-     505.  00:48DE  21 CC 53            	ld	hl,TRACK_ToneTable_FM
+     505.  00:48DE  21 F0 53            	ld	hl,TRACK_ToneTable_FM
      506.  00:48E1  22 2D C0            	ld	(replay_tonetable),hl
      507.  00:48E4                      	;--- set SCC balance
      508.  00:48E4  2A 05 C0            	ld	hl,(replay_mainSCCvol)
@@ -2013,7 +2013,7 @@ Errors: 0
      521.  00:48F8  32 71 C1            	ld	(PSG_regMIXER),a
      522.  00:48FB                      
      523.  00:48FB                      	; Set tone table
-     524.  00:48FB  21 CC 53            	ld	hl,TRACK_ToneTable_FM
+     524.  00:48FB  21 F0 53            	ld	hl,TRACK_ToneTable_FM
      525.  00:48FE  22 2D C0            	ld	(replay_tonetable),hl
      526.  00:4901                      	;--- set SCC balance
      527.  00:4901  2A 05 C0            	ld	hl,(replay_mainSCCvol)
@@ -2248,7 +2248,7 @@ Errors: 0
      756.  00:4A3C  C3 6A 4A            	jp	_replay_decode_delay
      757.  00:4A3F                      
      758.  00:4A3F                      _rdn:
-     759.  00:4A3F  FE 61               	cp	_SUS
+     759.  00:4A3F  FE 62               	cp	_SUS+1		
      760.  00:4A41  DA 61 4A            	jp	c,_rd_delay
      761.  00:4A44  C3 2D 4A            	jp	_rdn2
      762.  00:4A47                      
@@ -2358,7 +2358,7 @@ Errors: 0
      866.  00:4ACC  C2 D5 4A            	jp	nz,.skip_soft
      867.  00:4ACF                      	;--- software voice found
      868.  00:4ACF                      	
-     869.  00:4ACF  7E                  	ld	a,(hl)
+     869.  00:4ACF  7E                  	ld	a,(hl)		; value is the offset in the soft voice data (8bytes)
      870.  00:4AD0  23                  	inc	hl
      871.  00:4AD1  32 BC C1            	ld 	(FM_softvoice_req),a
      872.  00:4AD4  AF                  	xor 	a
@@ -2616,7 +2616,7 @@ Errors: 0
     1124.  00:4BE5  CA FC 4B            	jp	z,.end		; set depth when 0 only when command was not active.
     1125.  00:4BE8                      
     1126.  00:4BE8                      ;	sub	16
-    1127.  00:4BE8  21 7C 54            	ld	hl,TRACK_Vibrato_sine-16
+    1127.  00:4BE8  21 A0 54            	ld	hl,TRACK_Vibrato_sine-16
     1128.  00:4BEB  87                  	add	a,a
     1129.  00:4BEC  D2 F0 4B            	jp	nc,99f
     1130.  00:4BEF  24                  	inc	h
@@ -3805,825 +3805,1995 @@ Errors: 0
     2313.  00:5107  7E                  	ld	a,(hl)
     2314.  00:5108  23                  	inc	hl
     2315.  00:5109  BE                  	cp	(hl)
-    2316.  00:510A  CA 0E 51            	jp	z,.noVoice
+    2316.  00:510A  CA 11 51            	jp	z,.noVoice
     2317.  00:510D                      	
     2318.  00:510D  77                  	ld	(hl),a
     2319.  00:510E                      
-    2320.  00:510E                      	;call	load_softwarevoice
-    2321.  00:510E                      	
-    2322.  00:510E                      .noVoice:
-    2323.  00:510E                      	;------------------------------------------
-    2324.  00:510E                      	;---- Process Drum macro
-    2325.  00:510E                      	;------------------------------------------
-    2326.  00:510E                      	;call	_route_FM_drum_update
-    2327.  00:510E                      	
-    2328.  00:510E                      
-    2329.  00:510E                      	;------------------------------------------
-    2330.  00:510E                      	;---- Update the tone and drum registers
-    2331.  00:510E                      	;------------------------------------------
-    2332.  00:510E  21 78 C1            	ld 	hl,FM_Registers
-    2333.  00:5111  11 79 C0            	ld	de,TRACK_Chan3+TRACK_Flags
-    2334.  00:5114  3E 10               	ld	a,$10		; Register $10
-    2335.  00:5116  06 09               	ld	b,9		; 6(tone)+3(drum) channels to update
-    2336.  00:5118                      
-    2337.  00:5118                      .channel_loop:	
-    2338.  00:5118                      	; Tone low
-    2339.  00:5118  CD 6C 51            	call	_route_FM_reg16_update
-    2340.  00:511B  2B                  	dec	hl
-    2341.  00:511C  C6 10               	add	a,$10	; Register# $20
-    2342.  00:511E                      
-    2343.  00:511E  08                  	ex	af,af'
-    2344.  00:511F                      
-    2345.  00:511F  78                  	ld	a,b	;-- Only do this check for first 6 chans. Other are drum
-    2346.  00:5120  FE 04               	cp	4
-    2347.  00:5122  DA 3B 51            	jp	c,0f
-    2348.  00:5125                      
-    2349.  00:5125                      	;-- Check if we need to toggle key to start a new note
-    2350.  00:5125  1A                  	ld	a,(de)
-    2351.  00:5126  CB 47               	bit	0,a
-    2352.  00:5128  CA 33 51            	jp	z,99f	; no notetrigger
-    2353.  00:512B                      	
-    2354.  00:512B  CB 87               	res	0,a		; reset trigger
-    2355.  00:512D  12                  	ld	(de),a
-    2356.  00:512E  CB 67               	bit	4,a
-    2357.  00:5130  C4 7D 51            	call	nz,_route_FM_keyOff_update
-    2358.  00:5133                      99:
-    2359.  00:5133  3E 27               	ld	a,TRACK_REC_SIZE
-    2360.  00:5135  83                  	add	a,e
-    2361.  00:5136  5F                  	ld	e,a
-    2362.  00:5137  D2 3B 51            	jp	nc,99f
-    2363.  00:513A  14                  	inc	d
-    2364.  00:513B                      99:	
-    2365.  00:513B                      0:
-    2366.  00:513B  08                  	ex	af,af'
-    2367.  00:513C                      	
-    2368.  00:513C                      	; Tone High + key & sustain
-    2369.  00:513C  CD 6C 51            	call	_route_FM_reg16_update
-    2370.  00:513F  23                  	inc	hl
-    2371.  00:5140  C6 10               	add	a,$10	; Register# $30
-    2372.  00:5142                      	
-    2373.  00:5142                      	; Volume + voice
-    2374.  00:5142  CD 67 51            	call	_route_FM_reg8_update
-    2375.  00:5145  23                  	inc	hl
-    2376.  00:5146  C6 E1               	add	a,-$1F	; Register# = channel + $10
-    2377.  00:5148  10 CE               	djnz	.channel_loop
-    2378.  00:514A  C9                  	ret
-    2379.  00:514B                      
-    2380.  00:514B                      _route_FM_drum_update:
-    2381.  00:514B  3A AE C1            	ld	a,(FM_DRUM)
-    2382.  00:514E  E6 1F               	and	00011111b		; erase bit 5
-    2383.  00:5150  C8                  	ret	z			; no drums to play
-    2384.  00:5151                      	
-    2385.  00:5151  47                  	ld	b,a
-    2386.  00:5152  3E 0E               	ld	a,0x0e
-    2387.  00:5154                      	;-- load the new values
-    2388.  00:5154  D3 7C               	out	(FM_WRITE),a	; Select rythm register
-    2389.  00:5156                      	
-    2390.  00:5156  78                  	ld	a,b			; 5 cycles
-    2391.  00:5157  78                  	ld	a,b			; 5 cycles	; dummy code for delay
-    2392.  00:5158  D3 7D               	out	(FM_DATA),a		
-    2393.  00:515A                      
-    2394.  00:515A  DD E5               	push	ix			; 17 cycles	dummy code to implement delay
-    2395.  00:515C  DD E1               	pop	ix			; 17 cycles
-    2396.  00:515E  ED 6F               	rld				; 20 cycles
-    2397.  00:5160  ED 67               	rrd				; 20 cycles
-    2398.  00:5162                      
-    2399.  00:5162  F6 20               	or	100000b		; set the percussion bit
-    2400.  00:5164  D3 7D               	out	(FM_DATA),a
-    2401.  00:5166                      	
-    2402.  00:5166  C9                  	ret
-    2403.  00:5167                      	
-    2404.  00:5167                      
-    2405.  00:5167                      ;------- Writes safe to the FM chip
-    2406.  00:5167                      ; in :
-    2407.  00:5167                      ;	[a]	Register# to write
-    2408.  00:5167                      ;	[HL]	point to register (previous value is next in RAM)
-    2409.  00:5167                      ;
-    2410.  00:5167                      ; out:
-    2411.  00:5167                      ;	[HL] points to previous value
-    2412.  00:5167                      ;	[A]	contains register# written
-    2413.  00:5167                      ;-----------
-    2414.  00:5167                      _route_FM_reg8_update:
-    2415.  00:5167  08                  	ex	af,af'
-    2416.  00:5168  7E                  	ld	a,(hl)
-    2417.  00:5169  C3 6F 51            	jp	_rfr_cont
-    2418.  00:516C                      	
-    2419.  00:516C                      	
-    2420.  00:516C                      ;------- Writes safe to the FM chip
-    2421.  00:516C                      ; in :
-    2422.  00:516C                      ;	[a]	Register# to write
-    2423.  00:516C                      ;	[HL]	point to register (previous value is next in RAM)
-    2424.  00:516C                      ;
-    2425.  00:516C                      ; out:
-    2426.  00:516C                      ;	[HL] points to previous value
-    2427.  00:516C                      ;	[A]	contains register# written
-    2428.  00:516C                      ;-----------
-    2429.  00:516C                      _route_FM_reg16_update:
-    2430.  00:516C  08                  	ex	af,af'
-    2431.  00:516D  7E                  	ld	a,(hl)
-    2432.  00:516E  23                  	inc	hl
-    2433.  00:516F                      _rfr_cont:
-    2434.  00:516F  23                  	inc	hl
-    2435.  00:5170  BE                  	cp	(hl)	
-    2436.  00:5171  CA 7B 51            	jp	z,99f		; no change in tone low value
-    2437.  00:5174  08                  	ex	af,af'	
-    2438.  00:5175  D3 7C               	out	(FM_WRITE),a
-    2439.  00:5177  08                  	ex	af,af'
-    2440.  00:5178  77                  	ld	(hl),a
-    2441.  00:5179  D3 7D               	out	(FM_DATA),a	
-    2442.  00:517B  08                  99:	ex	af,af'
-    2443.  00:517C                      ;	dec	hl	
-    2444.  00:517C  C9                  	ret
-    2445.  00:517D                      	
-    2446.  00:517D                      ;------- Writes a keyoff to the existing tone high register 
-    2447.  00:517D                      ; in :
-    2448.  00:517D                      ;	[A']	register# to write
-    2449.  00:517D                      ;	[HL]	point to register (previous value is next in RAM)
-    2450.  00:517D                      ;
-    2451.  00:517D                      ; out:
-    2452.  00:517D                      ;	[HL] points to same location
-    2453.  00:517D                      ;	[A']	contains register# written
-    2454.  00:517D                      ;-----------
-    2455.  00:517D                      _route_FM_keyOff_update:
-    2456.  00:517D  08                  	ex	af,af'
-    2457.  00:517E  D3 7C               	out	(FM_WRITE),a
-    2458.  00:5180  08                  	ex	af,af'		; 4 cycles	 '
-    2459.  00:5181  7E                  	ld	a,(hl)
-    2460.  00:5182  E6 EF               	and	11101111b	; erase keyON bit.
-    2461.  00:5184  D3 7D               	out	(FM_DATA),a	
-    2462.  00:5186  23                  	inc	hl
-    2463.  00:5187  23                  	inc	hl
-    2464.  00:5188  77                  	ld	(hl),a		; make sure to change old value to trigger update
-    2465.  00:5189  2B                  	dec	hl
-    2466.  00:518A  2B                  	dec	hl
-    2467.  00:518B  C9                  	ret
-    2468.  00:518C                      
-    2469.  00:518C                      
-    2470.  00:518C                      
-    2471.  00:518C                      	
-    2472.  00:518C                      	
-    2473.  00:518C                      
-    2474.  00:518C                      	
-    2475.  00:518C                      
-    2476.  00:518C                      	
-    2477.  00:518C                      
-    2478.  00:518C                      
-     560   00:518C                      	include	"..\code\ttreplaySMSDAT.asm"
-       1.  00:518C                      
-       2.  00:518C                      
-       3.  00:518C                      	; Balance setting space volume max - 8
-       4.  00:518C  0F (128)            	ds 8*16, $0F
-       5.  00:520C                      _VOLUME_TABLE
-       6.  00:520C                      	; Combined volume table PSG/FM
-       7.  00:520C                      	db	 $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
-       7.  00:520C  0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 
-       8.  00:521C                      	db	 $0F, $0F, $0F, $0F, $0F, $0F, $0F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1E
-       8.  00:521C  0F 0F 0F 0F 0F 0F 0F 1F 1F 1F 1F 1F 1F 1F 1F 1E 
-       9.  00:522C                      	db	 $0F, $0F, $0F, $0F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $2F, $2F, $2E, $2D
-       9.  00:522C  0F 0F 0F 0F 1F 1F 1F 1F 1F 1F 1F 1F 2F 2F 2E 2D 
-      10.  00:523C                      	db	 $0F, $0F, $0F, $1F, $1F, $1F, $1F, $1F, $2F, $2F, $2F, $2F, $2F, $3E, $3D, $3C
-      10.  00:523C  0F 0F 0F 1F 1F 1F 1F 1F 2F 2F 2F 2F 2F 3E 3D 3C 
-      11.  00:524C                      	db	 $0F, $0F, $1F, $1F, $1F, $1F, $2F, $2F, $2F, $2F, $3F, $3F, $3E, $3D, $4C, $4B
-      11.  00:524C  0F 0F 1F 1F 1F 1F 2F 2F 2F 2F 3F 3F 3E 3D 4C 4B 
-      12.  00:525C                      	db	 $0F, $0F, $1F, $1F, $1F, $2F, $2F, $2F, $3F, $3F, $3F, $4E, $4D, $4C, $5B, $5A
-      12.  00:525C  0F 0F 1F 1F 1F 2F 2F 2F 3F 3F 3F 4E 4D 4C 5B 5A 
-      13.  00:526C                      	db	 $0F, $0F, $1F, $1F, $2F, $2F, $2F, $3F, $3F, $4F, $4E, $4D, $5C, $5B, $6A, $69
-      13.  00:526C  0F 0F 1F 1F 2F 2F 2F 3F 3F 4F 4E 4D 5C 5B 6A 69 
-      14.  00:527C                      	db	 $0F, $0F, $1F, $1F, $2F, $2F, $3F, $3F, $4F, $4E, $5D, $5C, $6B, $6A, $79, $78
-      14.  00:527C  0F 0F 1F 1F 2F 2F 3F 3F 4F 4E 5D 5C 6B 6A 79 78 
-      15.  00:528C                      	db	 $0F, $1F, $1F, $2F, $2F, $3F, $3F, $4F, $4E, $5D, $5C, $6B, $6A, $79, $78, $87
-      15.  00:528C  0F 1F 1F 2F 2F 3F 3F 4F 4E 5D 5C 6B 6A 79 78 87 
-      16.  00:529C                      	db	 $0F, $1F, $1F, $2F, $2F, $3F, $4F, $4E, $5D, $5C, $6B, $7A, $79, $88, $87, $96
-      16.  00:529C  0F 1F 1F 2F 2F 3F 4F 4E 5D 5C 6B 7A 79 88 87 96 
-      17.  00:52AC                      	db	 $0F, $1F, $1F, $2F, $3F, $3F, $4E, $5D, $5C, $6B, $7A, $79, $88, $97, $96, $A5
-      17.  00:52AC  0F 1F 1F 2F 3F 3F 4E 5D 5C 6B 7A 79 88 97 96 A5 
-      18.  00:52BC                      	db	 $0F, $1F, $1F, $2F, $3F, $4E, $4D, $5C, $6B, $7A, $79, $88, $97, $A6, $A5, $B4
-      18.  00:52BC  0F 1F 1F 2F 3F 4E 4D 5C 6B 7A 79 88 97 A6 A5 B4 
-      19.  00:52CC                      	db	 $0F, $1F, $2F, $2F, $3E, $4D, $5C, $6B, $6A, $79, $88, $97, $A6, $A5, $B4, $C3
-      19.  00:52CC  0F 1F 2F 2F 3E 4D 5C 6B 6A 79 88 97 A6 A5 B4 C3 
-      20.  00:52DC                      	db	 $0F, $1F, $2F, $3E, $3D, $4C, $5B, $6A, $79, $88, $97, $A6, $A5, $B4, $C3, $D2
-      20.  00:52DC  0F 1F 2F 3E 3D 4C 5B 6A 79 88 97 A6 A5 B4 C3 D2 
-      21.  00:52EC                      	db	 $0F, $1F, $2E, $3D, $4C, $5B, $6A, $79, $78, $87, $96, $A5, $B4, $C3, $D2, $E1
-      21.  00:52EC  0F 1F 2E 3D 4C 5B 6A 79 78 87 96 A5 B4 C3 D2 E1 
-      22.  00:52FC                      	db	 $0F, $1E, $2D, $3C, $4B, $5A, $69, $78, $87, $96, $A5, $B4, $C3, $D2, $E1, $F0
-      22.  00:52FC  0F 1E 2D 3C 4B 5A 69 78 87 96 A5 B4 C3 D2 E1 F0 
-      23.  00:530C                      	
-      24.  00:530C                      
-      25.  00:530C                      TRACK_ToneTable_PSG:	
-      26.  00:530C  01 00               	dw $0001	     ; C1			
-      27.  00:530E  01 00               	dw $0001	     ; C#1			
-      28.  00:5310  01 00               	dw $0001	     ; D1			
-      29.  00:5312  01 00               	dw $0001	     ; D#1			
-      30.  00:5314  01 00               	dw $0001	     ; E1			
-      31.  00:5316  01 00               	dw $0001	     ; F1			
-      32.  00:5318  01 00               	dw $0001	     ; F#1			
-      33.  00:531A  01 00               	dw $0001	     ; G1
-      34.  00:531C  01 00               	dw $0001	     ; G#1	
-      35.  00:531E  01 00               	dw $0001         ; A1
-      36.  00:5320  01 00               	dw $0001         ; A#1/Bb1 
-      37.  00:5322  01 00               	dw $0001         ; B1	
-      38.  00:5324  01 00               	dw $0001	     ; C2			
-      39.  00:5326  01 00               	dw $0001	     ; C#2			
-      40.  00:5328  01 00               	dw $0001	     ; D2			
-      41.  00:532A  01 00               	dw $0001	     ; D#2			
-      42.  00:532C  01 00               	dw $0001	     ; E2			
-      43.  00:532E  01 00               	dw $0001	     ; F2			
-      44.  00:5330  01 00               	dw $0001	     ; F#2			
-      45.  00:5332  01 00               	dw $0001	     ; G2
-      46.  00:5334  01 00               	dw $0001	     ; G#2			
-      47.  00:5336                         
-      48.  00:5336  F9 03               	dw $03F9      ;A2
-      49.  00:5338  C0 03               	dw $03C0      ; A#2/Bb2 
-      50.  00:533A  8A 03               	dw $038A      ;B2
-      51.  00:533C  57 03               	dw $0357      ;C3
-      52.  00:533E  27 03               	dw $0327      ; C#3/Db3 
-      53.  00:5340  FA 02               	dw $02FA      ;D3
-      54.  00:5342  CF 02               	dw $02CF      ; D#3/Eb3 
-      55.  00:5344  A7 02               	dw $02A7      ;E3
-      56.  00:5346  81 02               	dw $0281      ;F3
-      57.  00:5348  5D 02               	dw $025D      ; F#3/Gb3 
-      58.  00:534A  3B 02               	dw $023B      ;G3
-      59.  00:534C  1B 02               	dw $021B      ; G#3/Ab3 
-      60.  00:534E  FC 01               	dw $01FC      ;A3
-      61.  00:5350  E0 01               	dw $01E0      ; A#3/Bb3 
-      62.  00:5352  C5 01               	dw $01C5      ;B3
-      63.  00:5354  AC 01               	dw $01AC      ;C4
-      64.  00:5356  94 01               	dw $0194      ; C#4/Db4 
-      65.  00:5358  7D 01               	dw $017D      ;D4
-      66.  00:535A  68 01               	dw $0168      ; D#4/Eb4 
-      67.  00:535C  53 01               	dw $0153      ;E4
-      68.  00:535E  40 01               	dw $0140      ;F4
-      69.  00:5360  2E 01               	dw $012E      ; F#4/Gb4 
-      70.  00:5362  1D 01               	dw $011D      ;G4
-      71.  00:5364  0D 01               	dw $010D      ; G#4/Ab4 
-      72.  00:5366  FE 00               	dw $00FE      ;A4
-      73.  00:5368  F0 00               	dw $00F0      ; A#4/Bb4 
-      74.  00:536A  E2 00               	dw $00E2      ;B4
-      75.  00:536C  D6 00               	dw $00D6      ;C5
-      76.  00:536E  CA 00               	dw $00CA      ; C#5/Db5 
-      77.  00:5370  BE 00               	dw $00BE      ;D5
-      78.  00:5372  B4 00               	dw $00B4      ; D#5/Eb5 
-      79.  00:5374  AA 00               	dw $00AA      ;E5
-      80.  00:5376  A0 00               	dw $00A0      ;F5
-      81.  00:5378  97 00               	dw $0097      ; F#5/Gb5 
-      82.  00:537A  8F 00               	dw $008F      ;G5
-      83.  00:537C  87 00               	dw $0087      ; G#5/Ab5 
-      84.  00:537E  7F 00               	dw $007F      ;A5
-      85.  00:5380  78 00               	dw $0078      ; A#5/Bb5 
-      86.  00:5382  71 00               	dw $0071      ;B5
-      87.  00:5384  6B 00               	dw $006B      ;C6
-      88.  00:5386  65 00               	dw $0065      ; C#6/Db6 
-      89.  00:5388  5F 00               	dw $005F      ;D6
-      90.  00:538A  5A 00               	dw $005A      ; D#6/Eb6 
-      91.  00:538C  55 00               	dw $0055      ;E6
-      92.  00:538E  50 00               	dw $0050      ;F6
-      93.  00:5390  4C 00               	dw $004C      ; F#6/Gb6 
-      94.  00:5392  47 00               	dw $0047      ;G6
-      95.  00:5394  43 00               	dw $0043      ; G#6/Ab6 
-      96.  00:5396  40 00               	dw $0040      ;A6
-      97.  00:5398  3C 00               	dw $003C      ; A#6/Bb6 
-      98.  00:539A  39 00               	dw $0039      ;B6
-      99.  00:539C  35 00               	dw $0035      ;C7
-     100.  00:539E  32 00               	dw $0032      ; C#7/Db7 
-     101.  00:53A0  30 00               	dw $0030      ;D7
-     102.  00:53A2  2D 00               	dw $002D      ; D#7/Eb7 
-     103.  00:53A4  2A 00               	dw $002A      ;E7
-     104.  00:53A6  28 00               	dw $0028      ;F7
-     105.  00:53A8  26 00               	dw $0026      ; F#7/Gb7 
-     106.  00:53AA  24 00               	dw $0024      ;G7
-     107.  00:53AC  22 00               	dw $0022      ; G#7/Ab7 
-     108.  00:53AE  20 00               	dw $0020      ;A7
-     109.  00:53B0  1E 00               	dw $001E      ; A#7/Bb7 
-     110.  00:53B2  1C 00               	dw $001C      ;B7
-     111.  00:53B4  1B 00               	dw $001B      ;C8
-     112.  00:53B6  19 00               	dw $0019      ; C#8/Db8 
-     113.  00:53B8  18 00               	dw $0018      ;D8
-     114.  00:53BA  16 00               	dw $0016      ; D#8/Eb8 
-     115.  00:53BC  15 00               	dw $0015      ;E8
-     116.  00:53BE  14 00               	dw $0014      ;F8
-     117.  00:53C0  13 00               	dw $0013      ; F#8/Gb8 
-     118.  00:53C2  12 00               	dw $0012      ;G8
-     119.  00:53C4  11 00               	dw $0011      ; G#8/Ab8 
-     120.  00:53C6  10 00               	dw $0010      ;A8
-     121.  00:53C8  0F 00               	dw $000F      ; A#8/Bb8 
-     122.  00:53CA  0E 00               	dw $000E      ;B8
-     123.  00:53CC                      TRACK_ToneTable_FM:
-     124.  00:53CC                      ;	db   	0,0
-     125.  00:53CC                      	db	0adh,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h
-     125.  00:53CC  AD 00 B7 00 C2 00 CD 00 D9 00 E6 00 
-     126.  00:53D8                            db	0f4h,000h,003h,001h,012h,001h,022h,001h,034h,001h,046h,001h
-     126.  00:53D8  F4 00 03 01 12 01 22 01 34 01 46 01 
-     127.  00:53E4                            db    0adh,002h,0b7h,002h,0c2h,002h,0cdh,002h,0d9h,002h,0e6h,002h
-     127.  00:53E4  AD 02 B7 02 C2 02 CD 02 D9 02 E6 02 
-     128.  00:53F0                            db    0f4h,002h,003h,003h,012h,003h,022h,003h,034h,003h,046h,003h
-     128.  00:53F0  F4 02 03 03 12 03 22 03 34 03 46 03 
-     129.  00:53FC                            db    0adh,004h,0b7h,004h,0c2h,004h,0cdh,004h,0d9h,004h,0e6h,004h
-     129.  00:53FC  AD 04 B7 04 C2 04 CD 04 D9 04 E6 04 
-     130.  00:5408                            db    0f4h,004h,003h,005h,012h,005h,022h,005h,034h,005h,046h,005h
-     130.  00:5408  F4 04 03 05 12 05 22 05 34 05 46 05 
-     131.  00:5414                            db    0adh,006h,0b7h,006h,0c2h,006h,0cdh,006h,0d9h,006h,0e6h,006h
-     131.  00:5414  AD 06 B7 06 C2 06 CD 06 D9 06 E6 06 
-     132.  00:5420                            db    0f4h,006h,003h,007h,012h,007h,022h,007h,034h,007h,046h,007h
-     132.  00:5420  F4 06 03 07 12 07 22 07 34 07 46 07 
-     133.  00:542C                            db    0adh,008h,0b7h,008h,0c2h,008h,0cdh,008h,0d9h,008h,0e6h,008h
-     133.  00:542C  AD 08 B7 08 C2 08 CD 08 D9 08 E6 08 
-     134.  00:5438                            db    0f4h,008h,003h,009h,012h,009h,022h,009h,034h,009h,046h,009h
-     134.  00:5438  F4 08 03 09 12 09 22 09 34 09 46 09 
-     135.  00:5444                            db    0adh,00ah,0b7h,00ah,0c2h,00ah,0cdh,00ah,0d9h,00ah,0e6h,00ah
-     135.  00:5444  AD 0A B7 0A C2 0A CD 0A D9 0A E6 0A 
-     136.  00:5450                            db    0f4h,00ah,003h,00bh,012h,00bh,022h,00bh,034h,00bh,046h,00bh
-     136.  00:5450  F4 0A 03 0B 12 0B 22 0B 34 0B 46 0B 
-     137.  00:545C                            db    0adh,00ch,0b7h,00ch,0c2h,00ch,0cdh,00ch,0d9h,00ch,0e6h,00ch
-     137.  00:545C  AD 0C B7 0C C2 0C CD 0C D9 0C E6 0C 
-     138.  00:5468                            db    0f4h,00ch,003h,00dh,012h,00dh,022h,00dh,034h,00dh,046h,00dh
-     138.  00:5468  F4 0C 03 0D 12 0D 22 0D 34 0D 46 0D 
-     139.  00:5474                            db    0adh,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh
-     139.  00:5474  AD 0E B7 0E C2 0E CD 0E D9 0E E6 0E 
-     140.  00:5480                            db    0f4h,00eh,003h,00fh,012h,00fh,022h,00fh,034h,00fh,046h,00fh
-     140.  00:5480  F4 0E 03 0F 12 0F 22 0F 34 0F 46 0F 
-     141.  00:548C                      
-     142.  00:548C                      
-     143.  00:548C                      TRACK_Vibrato_sine:	; Sine table used for tremelo and vibrato
-     144.  00:548C                            db 	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00		      ; depth 	1
-     144.  00:548C  00 00 00 00 00 00 00 00 00 00 01 01 01 01 01 01 
-     144.  00:549C  01 01 01 01 01 01 00 00 00 00 00 00 00 00 00 00 
-     145.  00:54AC                            db 	$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00		      ; depth 	2
-     145.  00:54AC  00 00 00 00 00 00 00 01 01 01 01 01 01 02 02 02 
-     145.  00:54BC  02 02 02 01 01 01 01 01 01 00 00 00 00 00 00 00 
-     146.  00:54CC                            db 	$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$02,$02,$02,$02,$03,$03,$03,$03,$02,$02,$02,$02,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00		      ; depth 	3
-     146.  00:54CC  00 00 00 00 00 01 01 01 01 01 02 02 02 02 03 03 
-     146.  00:54DC  03 03 02 02 02 02 01 01 01 01 01 00 00 00 00 00 
-     147.  00:54EC                            db 	$00,$00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$02,$03,$03,$04,$04,$04,$04,$03,$03,$02,$02,$02,$01,$01,$01,$01,$00,$00,$00,$00,$00		      ; depth 	4
-     147.  00:54EC  00 00 00 00 00 01 01 01 01 02 02 02 03 03 04 04 
-     147.  00:54FC  04 04 03 03 02 02 02 01 01 01 01 00 00 00 00 00 
-     148.  00:550C                            db 	$00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$05,$05,$04,$04,$03,$03,$02,$02,$01,$01,$01,$01,$00,$00,$00,$00		      ; depth 	5
-     148.  00:550C  00 00 00 00 01 01 01 01 02 02 03 03 04 04 05 05 
-     148.  00:551C  05 05 04 04 03 03 02 02 01 01 01 01 00 00 00 00 
-     149.  00:552C                            db 	$00,$00,$00,$00,$01,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$05,$05,$04,$04,$03,$03,$02,$02,$01,$01,$01,$00,$00,$00,$00		      ; depth 	6
-     149.  00:552C  00 00 00 00 01 01 01 02 02 03 03 04 04 05 05 06 
-     149.  00:553C  06 05 05 04 04 03 03 02 02 01 01 01 00 00 00 00 
-     150.  00:554C                            db 	$00,$00,$00,$01,$01,$01,$02,$02,$03,$04,$04,$05,$06,$06,$07,$08,$08,$07,$06,$06,$05,$04,$04,$03,$02,$02,$01,$01,$01,$00,$00,$00		      ; depth 	7
-     150.  00:554C  00 00 00 01 01 01 02 02 03 04 04 05 06 06 07 08 
-     150.  00:555C  08 07 06 06 05 04 04 03 02 02 01 01 01 00 00 00 
-     151.  00:556C                            db 	$00,$00,$01,$01,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0C,$0D,$0D,$0C,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$01,$01,$00,$00		      ; depth 	8
-     151.  00:556C  00 00 01 01 01 02 03 04 05 06 07 08 09 0A 0C 0D 
-     151.  00:557C  0D 0C 0A 09 08 07 06 05 04 03 02 01 01 01 00 00 
-     152.  00:558C                            db 	$00,$00,$01,$02,$02,$04,$05,$06,$08,$09,$0B,$0D,$0F,$11,$13,$15,$15,$13,$11,$0F,$0D,$0B,$09,$08,$06,$05,$04,$02,$02,$01,$00,$00		      ; depth 	9
-     152.  00:558C  00 00 01 02 02 04 05 06 08 09 0B 0D 0F 11 13 15 
-     152.  00:559C  15 13 11 0F 0D 0B 09 08 06 05 04 02 02 01 00 00 
-     153.  00:55AC                            db 	$00,$01,$01,$02,$04,$05,$07,$09,$0B,$0E,$10,$13,$16,$19,$1C,$1F,$1F,$1C,$19,$16,$13,$10,$0E,$0B,$09,$07,$05,$04,$02,$01,$01,$00		      ; depth 	A
-     153.  00:55AC  00 01 01 02 04 05 07 09 0B 0E 10 13 16 19 1C 1F 
-     153.  00:55BC  1F 1C 19 16 13 10 0E 0B 09 07 05 04 02 01 01 00 
-     154.  00:55CC                            db 	$00,$01,$02,$03,$05,$08,$0B,$0E,$11,$15,$19,$1D,$21,$26,$2B,$2F,$2F,$2B,$26,$21,$1D,$19,$15,$11,$0E,$0B,$08,$05,$03,$02,$01,$00		      ; depth 	B
-     154.  00:55CC  00 01 02 03 05 08 0B 0E 11 15 19 1D 21 26 2B 2F 
-     154.  00:55DC  2F 2B 26 21 1D 19 15 11 0E 0B 08 05 03 02 01 00 
-     155.  00:55EC                            db 	$01,$01,$03,$05,$07,$0B,$0E,$12,$17,$1C,$21,$27,$2D,$33,$39,$3F,$3F,$39,$33,$2D,$27,$21,$1C,$17,$12,$0E,$0B,$07,$05,$03,$01,$01		      ; depth 	C
-     155.  00:55EC  01 01 03 05 07 0B 0E 12 17 1C 21 27 2D 33 39 3F 
-     155.  00:55FC  3F 39 33 2D 27 21 1C 17 12 0E 0B 07 05 03 01 01 
-     561   00:560C                      ;	include	"..\ttsfxplay\ttsfxplay.asm"
-     562   00:560C                      
-     563   00:560C                      	
-     564   00:560C                      demo_song:
-     565   00:560C                      	include	".\test.asm"
-       1.  00:560C                      ; Song: TriloTracker v0.10.B1 SMS PSG+FM
-       2.  00:560C                      ; By:   Richard Cornelisse      (c) 2020
-       3.  00:560C                      
-       4.  00:560C                      ; [ Song start data ]
-       5.  00:560C  0C                  	db $0c					; Initial song speed.
-       6.  00:560D  27 56               	dw .customvoice_start			; Start of the custom voices data.
-       7.  00:560F  27 56               	dw .drummacro_start			; Start of the drum macro data.
-       8.  00:5611  27 56               	dw .instrument_start			; Start of the instrument data.
-       9.  00:5613                      
-      10.  00:5613                      ; [ Song order pointer list ]
-      11.  00:5613                      .restart:
-      12.  00:5613                      	dw .track_168, .track_169, .track_170, .track_171, .track_172, .track_168, .track_168, .track_168	; Step:001 Pattern:021
-      12.  00:5613  35 56 37 56 4D 56 6D 56 82 56 35 56 35 56 35 56 
-      13.  00:5623  00 00 13 56         	dw 0x0000, .restart			; End of sequence delimiter + restart address.
-      14.  00:5627                      
-      15.  00:5627                      ; [ Custom FM voices ]
-      16.  00:5627                      .customvoice_start:
-      17.  00:5627                      
-      18.  00:5627                      ; [ SCC Waveforms ]
-      19.  00:5627                      .waveform_start:
-      20.  00:5627                      
-      21.  00:5627                      ; [ FM Drum macros]
-      22.  00:5627                      .drummacro_start:
-      23.  00:5627                      
-      24.  00:5627                      ; [ Instruments]
-      25.  00:5627                      .instrument_start:
-      26.  00:5627  2B 56               	dw .instrument_00				;                 
-      27.  00:5629  30 56               	dw .instrument_01				;                 
-      28.  00:562B                      
-      29.  00:562B                      .instrument_00:					;                 
-      30.  00:562B  10                  	db $10					; FM Hardware Voice 1
-      31.  00:562C                      .rst_i00:
-      32.  00:562C  29                  	db $29			; Info byte: 00101001
-      33.  00:562D  0F                  	db $0f			; Volume _
-      34.  00:562E  2C 56               	dw .rst_i00			; Loop address
-      35.  00:5630                      .instrument_01:					;                 
-      36.  00:5630  30                  	db $30					; FM Hardware Voice 3
-      37.  00:5631                      .rst_i01:
-      38.  00:5631  29                  	db $29			; Info byte: 00101001
-      39.  00:5632  0F                  	db $0f			; Volume _
-      40.  00:5633  31 56               	dw .rst_i01			; Loop address
-      41.  00:5635                      
-      42.  00:5635                      ; [ Song track data ]
-      43.  00:5635                      .track_168:
-      44.  00:5635  DB                  	db $db			;Wait 28
-      45.  00:5636  BF                  	db $bf			;[End-Of-Track]
-      46.  00:5637                      .track_169:
-      47.  00:5637  24                  	db $24			;Note C-4
-      48.  00:5638  6E                  	db $6e			;Volume 13
-      49.  00:5639  71                  	db $71			;Instrument 0
-      50.  00:563A  C1                  	db $c1			;Wait 2
-      51.  00:563B  60                  	db $60			;Release 96
-      52.  00:563C  C0                  	db $c0			;Wait 1
-      53.  00:563D  24                  	db $24			;Note C-4
-      54.  00:563E  6E                  	db $6e			;Volume 13
-      55.  00:563F  C1                  	db $c1			;Wait 2
-      56.  00:5640  60                  	db $60			;Release 96
-      57.  00:5641  C0                  	db $c0			;Wait 1
-      58.  00:5642  24                  	db $24			;Note C-4
-      59.  00:5643  6E                  	db $6e			;Volume 13
-      60.  00:5644  C1                  	db $c1			;Wait 2
-      61.  00:5645  60                  	db $60			;Release 96
-      62.  00:5646  C0                  	db $c0			;Wait 1
-      63.  00:5647  24                  	db $24			;Note C-4
-      64.  00:5648  6E                  	db $6e			;Volume 13
-      65.  00:5649  C1                  	db $c1			;Wait 2
-      66.  00:564A  60                  	db $60			;Release 96
-      67.  00:564B  D0                  	db $d0			;Wait 17
-      68.  00:564C  BF                  	db $bf			;[End-Of-Track]
-      69.  00:564D                      .track_170:
-      70.  00:564D  24                  	db $24			;Note C-4
-      71.  00:564E  6E                  	db $6e			;Volume 13
-      72.  00:564F  71                  	db $71			;Instrument 0
-      73.  00:5650  9A 10               	db $9a,$10			;CMD Note delay
-      74.  00:5652  C1                  	db $c1			;Wait 2
-      75.  00:5653  60                  	db $60			;Release 96
-      76.  00:5654  C0                  	db $c0			;Wait 1
-      77.  00:5655  24                  	db $24			;Note C-4
-      78.  00:5656  6E                  	db $6e			;Volume 13
-      79.  00:5657  9A 10               	db $9a,$10			;CMD Note delay
-      80.  00:5659  C1                  	db $c1			;Wait 2
-      81.  00:565A  60                  	db $60			;Release 96
-      82.  00:565B  C0                  	db $c0			;Wait 1
-      83.  00:565C  24                  	db $24			;Note C-4
-      84.  00:565D  6E                  	db $6e			;Volume 13
-      85.  00:565E  9A 10               	db $9a,$10			;CMD Note delay
-      86.  00:5660  C1                  	db $c1			;Wait 2
-      87.  00:5661  60                  	db $60			;Release 96
-      88.  00:5662  C0                  	db $c0			;Wait 1
-      89.  00:5663  24                  	db $24			;Note C-4
-      90.  00:5664  6E                  	db $6e			;Volume 13
-      91.  00:5665  9A 10               	db $9a,$10			;CMD Note delay
-      92.  00:5667  C1                  	db $c1			;Wait 2
-      93.  00:5668  60                  	db $60			;Release 96
-      94.  00:5669  C0                  	db $c0			;Wait 1
-      95.  00:566A  60                  	db $60			;Release 96
-      96.  00:566B  CF                  	db $cf			;Wait 16
-      97.  00:566C  BF                  	db $bf			;[End-Of-Track]
-      98.  00:566D                      .track_171:
-      99.  00:566D  CC                  	db $cc			;Wait 13
-     100.  00:566E  24                  	db $24			;Note C-4
-     101.  00:566F  72                  	db $72			;Instrument 2
-     102.  00:5670  C0                  	db $c0			;Wait 1
-     103.  00:5671  60                  	db $60			;Release 96
-     104.  00:5672  C1                  	db $c1			;Wait 2
-     105.  00:5673  24                  	db $24			;Note C-4
-     106.  00:5674  C0                  	db $c0			;Wait 1
-     107.  00:5675  60                  	db $60			;Release 96
-     108.  00:5676  C1                  	db $c1			;Wait 2
-     109.  00:5677  24                  	db $24			;Note C-4
-     110.  00:5678  C0                  	db $c0			;Wait 1
-     111.  00:5679  60                  	db $60			;Release 96
-     112.  00:567A  C1                  	db $c1			;Wait 2
-     113.  00:567B  24                  	db $24			;Note C-4
-     114.  00:567C  9A 03               	db $9a,$03			;CMD Note delay
-     115.  00:567E  C0                  	db $c0			;Wait 1
-     116.  00:567F  60                  	db $60			;Release 96
-     117.  00:5680  C4                  	db $c4			;Wait 5
-     118.  00:5681  BF                  	db $bf			;[End-Of-Track]
-     119.  00:5682                      .track_172:
-     120.  00:5682  CC                  	db $cc			;Wait 13
-     121.  00:5683  24                  	db $24			;Note C-4
-     122.  00:5684  72                  	db $72			;Instrument 2
-     123.  00:5685  9A 03               	db $9a,$03			;CMD Note delay
-     124.  00:5687  C0                  	db $c0			;Wait 1
-     125.  00:5688  60                  	db $60			;Release 96
-     126.  00:5689  C1                  	db $c1			;Wait 2
-     127.  00:568A  24                  	db $24			;Note C-4
-     128.  00:568B  9A 05               	db $9a,$05			;CMD Note delay
-     129.  00:568D  C0                  	db $c0			;Wait 1
-     130.  00:568E  60                  	db $60			;Release 96
-     131.  00:568F  C1                  	db $c1			;Wait 2
-     132.  00:5690  24                  	db $24			;Note C-4
-     133.  00:5691  9A 0F               	db $9a,$0f			;CMD Note delay
-     134.  00:5693  C0                  	db $c0			;Wait 1
-     135.  00:5694  60                  	db $60			;Release 96
-     136.  00:5695  C1                  	db $c1			;Wait 2
-     137.  00:5696  24                  	db $24			;Note C-4
-     138.  00:5697  9A 10               	db $9a,$10			;CMD Note delay
-     139.  00:5699  C0                  	db $c0			;Wait 1
-     140.  00:569A  60                  	db $60			;Release 96
-     141.  00:569B  C4                  	db $c4			;Wait 5
-     142.  00:569C  BF                  	db $bf			;[End-Of-Track]
-     143.  00:569D                      
-     566   00:569D                      	
-     567   00:569D                      TEXT_Title:
-     568   00:569D                      	db	"TriloTracker FM Re-player Debug info",0	
-     568   00:569D  54 72 69 6C 6F 54 72 61 63 6B 65 72 20 46 4D 20 
-     568   00:56AD  52 65 2D 70 6C 61 79 65 72 20 44 65 62 75 67 20 
-     568   00:56BD  69 6E 66 6F 00 
-     569   00:56C2                      TEXT_Step:
-     570   00:56C2  53 74 65 70 3A 00   	db	"Step:",0	
-     571   00:56C8                      TEXT_Header_Data:
-     572   00:56C8                      	db	"C# Nt In FM Vl Cm Flags",0
-     572   00:56C8  43 23 20 4E 74 20 49 6E 20 46 4D 20 56 6C 20 43 
-     572   00:56D8  6D 20 46 6C 61 67 73 00 
-     573   00:56E0                      TEXT_Register_Header:
-     574   00:56E0                      	db 	"Tone Vl  Tone Vl  Nois Mx  Env  Sh",0
-     574   00:56E0  54 6F 6E 65 20 56 6C 20 20 54 6F 6E 65 20 56 6C 
-     574   00:56F0  20 20 4E 6F 69 73 20 4D 78 20 20 45 6E 76 20 20 
-     574   00:5700  53 68 00 
-     575   00:5703                      TEXT_Register_Drum:
-     576   00:5703                      	db 	"Macr Drm Tone Vl",0	
-     576   00:5703  4D 61 63 72 20 44 72 6D 20 54 6F 6E 65 20 56 6C 
-     576   00:5713  00 
-     577   00:5714                      TEXT_Legend_Data:
-     578   00:5714                      	db	"Legend: Psg, Fm, Voice, Env, Keyon, Command, Active(note)",0
-     578   00:5714  4C 65 67 65 6E 64 3A 20 50 73 67 2C 20 46 6D 2C 
-     578   00:5724  20 56 6F 69 63 65 2C 20 45 6E 76 2C 20 4B 65 79 
-     578   00:5734  6F 6E 2C 20 43 6F 6D 6D 61 6E 64 2C 20 41 63 74 
-     578   00:5744  69 76 65 28 6E 6F 74 65 29 00 
-     579   00:574E                      
-     580   00:574E                      	
-     581   00:574E                      	
-     582   00:574E                      font_data:
-     583   00:574E  (0800)              	incbin	".\fontpat.bin"
-     584   00:5F4E                      
-     585   00:5F4E                      ;	include ".\sfx.asm"
-     586   00:5F4E                      	
-     587   00:5F4E                      ;sfx_PSG_STREAMS:
-     588   00:5F4E                      ;sfx_SCC_STREAMS:
-     589   00:5F4E                      ;	dw	sfx1
-     590   00:5F4E                      ;	dw	sfx2
-     591   00:5F4E                      ;	dw	sfx3
-     592   00:5F4E                      ;	dw	sfx4
-     593   00:5F4E                      ;	dw	sfx5
-     594   00:5F4E                      ;
-     595   00:5F4E                      ;
-     596   00:5F4E                      ;
-     597   00:5F4E                      ;sfx1:
-     598   00:5F4E                      ;	db	1,4*8
-     599   00:5F4E                      ;	incbin	"..\ttsfxplay\sfx\menu1.afx"
-     600   00:5F4E                      ;sfx2:
-     601   00:5F4E                      ;	db	1,2*8
-     602   00:5F4E                      ;	incbin	"..\ttsfxplay\sfx\menu2.afx"	
-     603   00:5F4E                      ;sfx3:
-     604   00:5F4E                      ;	db	1,3*8
-     605   00:5F4E                      ;	incbin	"..\ttsfxplay\sfx\menu3.afx"
-     606   00:5F4E                      ;sfx4:
-     607   00:5F4E                      ;	db	1,5*8
-     608   00:5F4E                      ;	incbin	"..\ttsfxplay\sfx\menu4.afx"
-     609   00:5F4E                      ;sfx5:
-     610   00:5F4E                      ;	db	1,6*8
-     611   00:5F4E                      ;	incbin	"..\ttsfxplay\sfx\menu5.afx"
-     612   00:5F4E                      ;
-     613   00:5F4E                      	
-     614   00:5F4E                      	
-     615   00:5F4E  (C000)              	map	0xc000
-     616   00:5F4E                      	include	"..\code\ttreplaySMSRAM.asm"
-       1.  00:5F4E                      ;================================
-       2.  00:5F4E                      ; The new replayer.
-       3.  00:5F4E                      ;
-       4.  00:5F4E                      ; Persistent RAM unswappable
-       5.  00:5F4E                      ;
-       6.  00:5F4E                      ;================================
-       7.  00:5F4E                      
-       8.  00:5F4E  (00:FFFFFFEF)       TRACK_Instrument		equ 0-17
-       9.  00:5F4E  (00:FFFFFFF0)       TRACK_Command		equ 1-17
-      10.  00:5F4E  (00:FFFFFFF1)       TRACK_MacroPointer	equ 2-17
-      11.  00:5F4E  (00:FFFFFFF3)       TRACK_MacroStart		equ 4-17
-      12.  00:5F4E  (00:FFFFFFF5)       TRACK_MacroRestart 	equ 6-17		; no longer needed
-      13.  00:5F4E  (00:FFFFFFF6)       TRACK_Note			equ 7-17
-      14.  00:5F4E  (00:FFFFFFF7)       TRACK_Volume		equ 8-17
-      15.  00:5F4E  (00:FFFFFFF8)       TRACK_Voice			equ 9-17
-      16.  00:5F4E  (00:FFFFFFF9)       TRACK_Flags			equ 10-17
-      17.  00:5F4E                      	; 0 = note trigger
-      18.  00:5F4E                      	; 1 = note active
-      19.  00:5F4E                      	; 4 = morph active		;-< for SCC when 1 then waveform is following morph buffer
-      20.  00:5F4E                      	; 3 = command trigger
-      21.  00:5F4E                      	; 2 = envelope trigger
-      22.  00:5F4E                      	; 5 = instrument trigger
-      23.  00:5F4E                      	; 6 = waveform trigger
-      24.  00:5F4E                      	; 7 = PSG/SCC
-      25.  00:5F4E  (00:FFFFFFFA)       TRACK_empty			equ 11-17		; needed for pushing 0 at note start
-      26.  00:5F4E  (00:FFFFFFFB)       TRACK_ToneAdd		equ 12-17		; reset after note set
-      27.  00:5F4E  (00:FFFFFFFD)       TRACK_VolumeAdd		equ 14-17		; reset after note set
-      28.  00:5F4E  (00:FFFFFFFE)       TRACK_Noise			equ 15-17	;[OBSOLETE]	; reset after note set
-      29.  00:5F4E  (00:FFFFFFFF)       TRACK_cmd_VolumeAdd	equ 16-17		; reset after note set
-      30.  00:5F4E  (00:0000)           TRACK_cmd_ToneSlideAdd	equ 17-17		; reset after note set
-      31.  00:5F4E  (00:0002)           TRACK_cmd_ToneAdd		equ 19-17		; reset after note set
-      32.  00:5F4E  (00:0004)           TRACK_cmd_detune		equ 21-17
-      33.  00:5F4E  (00:0006)           TRACK_cmd_0			equ 23-17
-      34.  00:5F4E  (00:0007)           TRACK_cmd_1			equ 24-17
-      35.  00:5F4E  (00:0008)           TRACK_cmd_2			equ 25-17
-      36.  00:5F4E  (00:0009)           TRACK_cmd_3			equ 26-17
-      37.  00:5F4E  (00:000A)           TRACK_cmd_4_depth		equ 27-17
-      38.  00:5F4E  (00:000C)           TRACK_cmd_4_step		equ 29-17
-      39.  00:5F4E  (00:000D)           TRACK_cmd_NoteAdd		equ 30-17		;x reset after note set
-      40.  00:5F4E  (00:000E)           TRACK_cmd_A			equ 31-17		
-      41.  00:5F4E  (00:000F)           TRACK_cmd_B			equ 32-17		
-      42.  00:5F4E  (00:0010)           TRACK_cmd_E			equ 33-17
-      43.  00:5F4E  (00:0011)           TRACK_Timer			equ 34-17		; used for timing by all cmd's
-      44.  00:5F4E  (00:0012)           TRACK_Step			equ 35-17		; only for VIBRATO???
-      45.  00:5F4E  (00:0013)           TRACK_Delay			equ 36-17		; rows to wait till next data
-      46.  00:5F4E                      ;TRACK_Retrig		equ 35-17		; rows to retrigger command
-      47.  00:5F4E  (00:0014)           TRACK_prevDelay		equ 37-17
-      48.  00:5F4E  (00:0015)           TRACK_cmd_A_add		equ 38-17		;<< Still in use???
-      49.  00:5F4E                      
-      50.  00:5F4E  (00:0027)           TRACK_REC_SIZE		equ 39
-      51.  00:5F4E                      
-      52.  00:5F4E                      
-      53.  00:5F4E  (00:0000)           B_TRGNOT			equ 0			; note trigger
-      54.  00:5F4E  (00:0001)           B_ACTNOT			equ 1			; note active
-      55.  00:5F4E  (00:0002)           B_TRGENV			equ 2			; envelope trigger
-      56.  00:5F4E  (00:0003)           B_TRGCMD			equ 3			; command active
-      57.  00:5F4E  (00:0004)           B_KEYON			equ 4			; for fm note trigger
-      58.  00:5F4E  (00:0005)           B_SUST			equ 5			; for fm note sustain
-      59.  00:5F4E  (00:0006)           B_TRGVOI			equ 6			; custom voice trigger	
-      60.  00:5F4E  (00:0007)           B_PSGFM			equ 7			; chip type (PSG or FM)	
-      61.  00:5F4E                      
-      62.  00:5F4E                      ;B_ACTMOR			equ 4			; morph active
-      63.  00:5F4E                      ;B_TRGINS			equ 5			; instrument trigger
-      64.  00:5F4E                      ;B_TRGWAV			equ 6			; waveform trigger
-      65.  00:5F4E                      
-      66.  00:5F4E                      
-      67.  00:5F4E  (00:C000)           _SP_Storage			#2			; to store the SP
-      68.  00:5F4E                      
-      69.  00:5F4E  (00:C002)           replay_trigger		#1			; trigger byte.
-      70.  00:5F4E  (00:C003)           replay_mainPSGvol		#2			; volume mixer for PSG SCC balance
-      71.  00:5F4E  (00:C005)           replay_mainSCCvol		#2			; volume mixer for PSG SCC balance
-      72.  00:5F4E                      ;replay_songbase:		#2			; pointer to song data
-      73.  00:5F4E                      
-      74.  00:5F4E                      ; Do not move these
-      75.  00:5F4E  (00:C007)           replay_voicebase:		#2			; pointer to custom voice data
-      76.  00:5F4E  (00:C009)           replay_drumbase:		#2			; pointer to drum macro data
-      77.  00:5F4E  (00:C00B)           replay_insbase:		#2			; pointer to instrument data
-      78.  00:5F4E  (00:C00D)           TRACK_pointer1		#2
-      79.  00:5F4E  (00:C00F)           TRACK_pointer2		#2
-      80.  00:5F4E  (00:C011)           TRACK_pointer3		#2
-      81.  00:5F4E  (00:C013)           TRACK_pointer4		#2
-      82.  00:5F4E  (00:C015)           TRACK_pointer5		#2
-      83.  00:5F4E  (00:C017)           TRACK_pointer6		#2
-      84.  00:5F4E  (00:C019)           TRACK_pointer7		#2
-      85.  00:5F4E  (00:C01B)           TRACK_pointer8		#2
-      86.  00:5F4E                      ; / Do not move above
-      87.  00:5F4E                      
-      88.  00:5F4E                      
-      89.  00:5F4E                      
-      90.  00:5F4E  (00:C01D)           replay_orderpointer:	#2			; pointer to the order track list pointers
-      91.  00:5F4E                      
-      92.  00:5F4E  (00:C01F)           replay_speed 		#1			; speed to replay (get from song)
-      93.  00:5F4E  (00:C020)           replay_speed_subtimer 	#1			; counter for finer speed
-      94.  00:5F4E  (00:C021)           replay_speed_timer 	#1 			; counter for speed
-      95.  00:5F4E  (00:C022)           replay_mode 		#1			; Replayer status
-      96.  00:5F4E                      ; mode 0  = no sound output
-      97.  00:5F4E                      ; mode 1  = replay song 
-      98.  00:5F4E  (00:C023)           replay_chan_setup		#1			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
-      99.  00:5F4E  (00:C024)           replay_arp_speed		#1			; arpeggio speed ( 0 = fast, $f = slowest)
-     100.  00:5F4E  (00:C025)           replay_fade			#1			; Fade active (value = fade speed)
-     101.  00:5F4E  (00:C026)           replay_fade_timer		#1			; Timer for fade
-     102.  00:5F4E  (00:C027)           replay_fade_vol		#1			; fade volume to lower the channel volume.
-     103.  00:5F4E                      
-     104.  00:5F4E  (00:C028)           replay_previous_note	#1			; previous note played
-     105.  00:5F4E  (00:C029)           replay_mainvol		#2			; the volume correction.
-     106.  00:5F4E                      
-     107.  00:5F4E  (00:C02B)           replay_vib_table		#2			; pointer to the vibrato table
-     108.  00:5F4E                      ;replay_tonetable_PSG	#2			; ToneTable (affected by transpose);
-     109.  00:5F4E                      ;replay_tonetable_FM	#2			; ToneTable (affected by transpose);
-     110.  00:5F4E  (00:C02D)           replay_tonetable		#2			; Current tonetable to read from
-     111.  00:5F4E                      
-     112.  00:5F4E  (00:C02F)           equalization_freq:	#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
-     113.  00:5F4E  (00:C030)           equalization_cnt:		#1	; counter for correct playback on 60hz
-     114.  00:5F4E  (00:C031)           equalization_flag:	#1	; flag indicating if only instruments need to be processed.
-     115.  00:5F4E                      
-     116.  00:5F4E                      
-     117.  00:5F4E                      
-     118.  00:5F4E  (00:C032)           TRACK_Chan1			#TRACK_REC_SIZE
-     119.  00:5F4E  (00:C059)           TRACK_Chan2			#TRACK_REC_SIZE
-     120.  00:5F4E  (00:C080)           TRACK_Chan3			#TRACK_REC_SIZE
-     121.  00:5F4E  (00:C0A7)           TRACK_Chan4			#TRACK_REC_SIZE
-     122.  00:5F4E  (00:C0CE)           TRACK_Chan5			#TRACK_REC_SIZE
-     123.  00:5F4E  (00:C0F5)           TRACK_Chan6			#TRACK_REC_SIZE
-     124.  00:5F4E  (00:C11C)           TRACK_Chan7			#TRACK_REC_SIZE
-     125.  00:5F4E  (00:C143)           TRACK_Chan8			#TRACK_REC_SIZE
-     126.  00:5F4E                      
-     127.  00:5F4E                      
-     128.  00:5F4E                      
-     129.  00:5F4E                      ;--- AY SPECIFIC
-     130.  00:5F4E  (00:C16A)           PSG_registers		#0 
-     131.  00:5F4E  (00:C16A)           PSG_regToneA 		#2	; Tone A freq low (8bit)
-     132.  00:5F4E                      					; Tone A freq high (4bit)
-     133.  00:5F4E  (00:C16C)           PSG_regToneB 		#2	; Tone B freq low
-     134.  00:5F4E                      					; Tone B freq high
-     135.  00:5F4E  (00:C16E)           PSG_regToneC 		#2	; Tone C freq low
-     136.  00:5F4E                      					; Tone C freq high
-     137.  00:5F4E  (00:C170)           PSG_regNOISE 		#1	; Noise freq (5bit)
-     138.  00:5F4E  (00:C171)           PSG_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
-     139.  00:5F4E  (00:C172)           PSG_regVOLA 			#1	; Chan A volume
-     140.  00:5F4E  (00:C173)           PSG_regVOLB 			#1	; Chan B volume
-     141.  00:5F4E  (00:C174)           PSG_regVOLC  		#1	; Chan C volume
-     142.  00:5F4E  (00:C175)           PSG_regVOLN			#1
-     143.  00:5F4E  (00:C176)           PSG_regNOISEold		#1
-     144.  00:5F4E  (00:C177)           GG_panning			#1
-     145.  00:5F4E                      ;PSG_regEnvL 			#1	; Volume Env Freq low (8bit)	
-     146.  00:5F4E                      ;PSG_regEnvH 			#1	; Volume Env Freq high (4bit)
-     147.  00:5F4E                      ;PSG_regEnvShape 		#1	; Volume Env Shape (4bit)
-     148.  00:5F4E                      
-     149.  00:5F4E                      ;--- SCC SPECIFIC
-     150.  00:5F4E                      ;
-     151.  00:5F4E                      ;_0x9800:	#32			; Waveform data
-     152.  00:5F4E                      ;_0x9820:	#32
-     153.  00:5F4E                      ;_0x9840:	#32
-     154.  00:5F4E                      ;_0x9860:	#32
-     155.  00:5F4E                      
-     156.  00:5F4E  (00:C178)           FM_Registers: 	#0	; contains the registers values to write and value previously written
-     157.  00:5F4E  (00:C178)           FM_regToneA 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
-     158.  00:5F4E  (00:C17A)           FM_regToneAb 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
-     159.  00:5F4E  (00:C17C)           FM_regVOLA		#1	; Chan A volume
-     160.  00:5F4E  (00:C17D)           FM_regVOLAb		#1	; Chan A volume
-     161.  00:5F4E  (00:C17E)           FM_regToneB 	#2	; Tone B freq low					; Tone B freq high
-     162.  00:5F4E  (00:C180)           FM_regToneBb 	#2	; Tone B freq low					; Tone B freq high
-     163.  00:5F4E  (00:C182)           FM_regVOLB		#1	; Chan B volume
-     164.  00:5F4E  (00:C183)           FM_regVOLBb		#1	; Chan B volume
-     165.  00:5F4E  (00:C184)           FM_regToneC 	#2	; Tone C freq low					; Tone C freq high
-     166.  00:5F4E  (00:C186)           FM_regToneCb 	#2	; Tone C freq low					; Tone C freq high
-     167.  00:5F4E  (00:C188)           FM_regVOLC	 	#1	; Chan C volume
-     168.  00:5F4E  (00:C189)           FM_regVOLCb	 	#1	; Chan C volume
-     169.  00:5F4E  (00:C18A)           FM_regToneD 	#2	; Tone D freq low					; Tone D freq high
-     170.  00:5F4E  (00:C18C)           FM_regToneDb 	#2	; Tone D freq low					; Tone D freq high
-     171.  00:5F4E  (00:C18E)           FM_regVOLD		#1	; Chan D volume
-     172.  00:5F4E  (00:C18F)           FM_regVOLDb		#1	; Chan D volume
-     173.  00:5F4E  (00:C190)           FM_regToneE 	#2	; Tone E freq low					; Tone E freq high
-     174.  00:5F4E  (00:C192)           FM_regToneEb 	#2	; Tone E freq low					; Tone E freq high
-     175.  00:5F4E  (00:C194)           FM_regVOLE	  	#1	; Chan E volume
-     176.  00:5F4E  (00:C195)           FM_regVOLEb	  	#1	; Chan E volume
-     177.  00:5F4E  (00:C196)           FM_regToneF 	#2	; Tone E freq low					; Tone F freq high
-     178.  00:5F4E  (00:C198)           FM_regToneFb 	#2	; Tone E freq low					; Tone F freq high
-     179.  00:5F4E  (00:C19A)           FM_regVOLF	  	#1	; Chan F volume
-     180.  00:5F4E  (00:C19B)           FM_regVOLFb	  	#1	; Chan F volume
-     181.  00:5F4E                      
-     182.  00:5F4E  (00:C19C)           DRUM_regToneBD	#2
-     183.  00:5F4E  (00:C19E)           DRUM_regToneBDb	#2
-     184.  00:5F4E  (00:C1A0)           DRUM_regVolBD	#1
-     185.  00:5F4E  (00:C1A1)           DRUM_regVolBDb	#1
-     186.  00:5F4E  (00:C1A2)           DRUM_regToneSH	#2
-     187.  00:5F4E  (00:C1A4)           DRUM_regToneSHb	#2
-     188.  00:5F4E  (00:C1A6)           DRUM_regVolSH	#1
-     189.  00:5F4E  (00:C1A7)           DRUM_regVolSHb	#1
-     190.  00:5F4E  (00:C1A8)           DRUM_regToneCT	#2
-     191.  00:5F4E  (00:C1AA)           DRUM_regToneCTb	#2
-     192.  00:5F4E  (00:C1AC)           DRUM_regVolCT	#1
-     193.  00:5F4E  (00:C1AD)           DRUM_regVolCTb	#1
-     194.  00:5F4E  (00:C1AE)           FM_DRUM		#1	; Percussion bits
-     195.  00:5F4E  (00:C1AF)           FM_DRUM_Flags		#1	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update
-     196.  00:5F4E  (00:C1B0)           FM_freqreg1			#2	; Base drum
-     197.  00:5F4E  (00:C1B2)           FM_volreg1			#1	; Drum (low)
-     198.  00:5F4E  (00:C1B3)           FM_freqreg2			#2	; Snare + HiHat
-     199.  00:5F4E  (00:C1B5)           FM_volreg2			#1	; Snare(low) Hihat(High)
-     200.  00:5F4E  (00:C1B6)           FM_freqreg3			#2	; Cymbal + TomTom
-     201.  00:5F4E  (00:C1B8)           FM_volreg3			#1	; Cymbal(low) TomTom (High)
-     202.  00:5F4E                      
-     203.  00:5F4E  (00:C1B9)           FM_DRUM_LEN			#1	; Length of drum macro
-     204.  00:5F4E  (00:C1BA)           FM_DRUM_MACRO		#2	; Pointer to drum macro data
-     205.  00:5F4E                      
-     206.  00:5F4E  (00:C1BC)           FM_softvoice_req		#1	; Software voice requested
-     207.  00:5F4E  (00:C1BD)           FM_softvoice_set 		#1	; Software voice currently loaded
-     208.  00:5F4E                      
-     209.  00:5F4E                      
-     210.  00:5F4E                      ; DEze lijkt niet meer nodig
-     211.  00:5F4E  (00:C1BE)           FM_regMIXER 		#1	; x3f	; Mixer control (1 = off, 0 = on)
-     212.  00:5F4E                      
-     213.  00:5F4E                      
-     214.  00:5F4E                      
-     215.  00:5F4E                      
-     216.  00:5F4E                      ;/// see to remove this.
-     217.  00:5F4E                      ;-- SCC registers
-     218.  00:5F4E  (00:C1BF)           oldregs:	#(32*4)+(3*5)+1		; a way to int the SCC
-     219.  00:5F4E                      
-     220.  00:5F4E                      
-     617   00:5F4E                      	
-     618   00:5F4E                      
-     619   00:5F4E  (00:C24F)           debug_pointer1:	#2
-     620   00:5F4E  (00:C251)           debug_pointer2:	#2	
-     621   00:5F4E  (00:C253)           debug_pnt:		#8*80
-     622   00:5F4E  (00:C4D3)           TEXT_Chan		#40
-     623   00:5F4E                      
-     624   00:5F4E                      	
-     625   00:5F4E                      ;	include	"..\ttsfxplay\ttsfxplay_RAM.asm"
-     626   00:5F4E  (00:C4FB)           pattern	#1
+    2320.  00:510E  CD 8F 51            	call	load_softwarevoice
+    2321.  00:5111                      	
+    2322.  00:5111                      .noVoice:
+    2323.  00:5111                      	;------------------------------------------
+    2324.  00:5111                      	;---- Process Drum macro
+    2325.  00:5111                      	;------------------------------------------
+    2326.  00:5111                      	;call	_route_FM_drum_update
+    2327.  00:5111                      	
+    2328.  00:5111                      
+    2329.  00:5111                      	;------------------------------------------
+    2330.  00:5111                      	;---- Update the tone and drum registers
+    2331.  00:5111                      	;------------------------------------------
+    2332.  00:5111  21 78 C1            	ld 	hl,FM_Registers
+    2333.  00:5114  11 79 C0            	ld	de,TRACK_Chan3+TRACK_Flags
+    2334.  00:5117  3E 10               	ld	a,$10		; Register $10
+    2335.  00:5119  06 09               	ld	b,9		; 6(tone)+3(drum) channels to update
+    2336.  00:511B                      
+    2337.  00:511B                      .channel_loop:	
+    2338.  00:511B                      	; Tone low
+    2339.  00:511B  CD 6F 51            	call	_route_FM_reg16_update
+    2340.  00:511E  2B                  	dec	hl
+    2341.  00:511F  C6 10               	add	a,$10	; Register# $20
+    2342.  00:5121                      
+    2343.  00:5121  08                  	ex	af,af'
+    2344.  00:5122                      
+    2345.  00:5122  78                  	ld	a,b	;-- Only do this check for first 6 chans. Other are drum
+    2346.  00:5123  FE 04               	cp	4
+    2347.  00:5125  DA 3E 51            	jp	c,0f
+    2348.  00:5128                      
+    2349.  00:5128                      	;-- Check if we need to toggle key to start a new note
+    2350.  00:5128  1A                  	ld	a,(de)
+    2351.  00:5129  CB 47               	bit	0,a
+    2352.  00:512B  CA 36 51            	jp	z,99f	; no notetrigger
+    2353.  00:512E                      	
+    2354.  00:512E  CB 87               	res	0,a		; reset trigger
+    2355.  00:5130  12                  	ld	(de),a
+    2356.  00:5131  CB 67               	bit	4,a
+    2357.  00:5133  C4 80 51            	call	nz,_route_FM_keyOff_update
+    2358.  00:5136                      99:
+    2359.  00:5136  3E 27               	ld	a,TRACK_REC_SIZE
+    2360.  00:5138  83                  	add	a,e
+    2361.  00:5139  5F                  	ld	e,a
+    2362.  00:513A  D2 3E 51            	jp	nc,99f
+    2363.  00:513D  14                  	inc	d
+    2364.  00:513E                      99:	
+    2365.  00:513E                      0:
+    2366.  00:513E  08                  	ex	af,af'
+    2367.  00:513F                      	
+    2368.  00:513F                      	; Tone High + key & sustain
+    2369.  00:513F  CD 6F 51            	call	_route_FM_reg16_update
+    2370.  00:5142  23                  	inc	hl
+    2371.  00:5143  C6 10               	add	a,$10	; Register# $30
+    2372.  00:5145                      	
+    2373.  00:5145                      	; Volume + voice
+    2374.  00:5145  CD 6A 51            	call	_route_FM_reg8_update
+    2375.  00:5148  23                  	inc	hl
+    2376.  00:5149  C6 E1               	add	a,-$1F	; Register# = channel + $10
+    2377.  00:514B  10 CE               	djnz	.channel_loop
+    2378.  00:514D  C9                  	ret
+    2379.  00:514E                      
+    2380.  00:514E                      _route_FM_drum_update:
+    2381.  00:514E  3A AE C1            	ld	a,(FM_DRUM)
+    2382.  00:5151  E6 1F               	and	00011111b		; erase bit 5
+    2383.  00:5153  C8                  	ret	z			; no drums to play
+    2384.  00:5154                      	
+    2385.  00:5154  47                  	ld	b,a
+    2386.  00:5155  3E 0E               	ld	a,0x0e
+    2387.  00:5157                      	;-- load the new values
+    2388.  00:5157  D3 7C               	out	(FM_WRITE),a	; Select rythm register
+    2389.  00:5159                      	
+    2390.  00:5159  78                  	ld	a,b			; 5 cycles
+    2391.  00:515A  78                  	ld	a,b			; 5 cycles	; dummy code for delay
+    2392.  00:515B  D3 7D               	out	(FM_DATA),a		
+    2393.  00:515D                      
+    2394.  00:515D  DD E5               	push	ix			; 17 cycles	dummy code to implement delay
+    2395.  00:515F  DD E1               	pop	ix			; 17 cycles
+    2396.  00:5161  ED 6F               	rld				; 20 cycles
+    2397.  00:5163  ED 67               	rrd				; 20 cycles
+    2398.  00:5165                      
+    2399.  00:5165  F6 20               	or	100000b		; set the percussion bit
+    2400.  00:5167  D3 7D               	out	(FM_DATA),a
+    2401.  00:5169                      	
+    2402.  00:5169  C9                  	ret
+    2403.  00:516A                      	
+    2404.  00:516A                      
+    2405.  00:516A                      ;------- Writes safe to the FM chip
+    2406.  00:516A                      ; in :
+    2407.  00:516A                      ;	[a]	Register# to write
+    2408.  00:516A                      ;	[HL]	point to register (previous value is next in RAM)
+    2409.  00:516A                      ;
+    2410.  00:516A                      ; out:
+    2411.  00:516A                      ;	[HL] points to previous value
+    2412.  00:516A                      ;	[A]	contains register# written
+    2413.  00:516A                      ;-----------
+    2414.  00:516A                      _route_FM_reg8_update:
+    2415.  00:516A  08                  	ex	af,af'
+    2416.  00:516B  7E                  	ld	a,(hl)
+    2417.  00:516C  C3 72 51            	jp	_rfr_cont
+    2418.  00:516F                      	
+    2419.  00:516F                      	
+    2420.  00:516F                      ;------- Writes safe to the FM chip
+    2421.  00:516F                      ; in :
+    2422.  00:516F                      ;	[a]	Register# to write
+    2423.  00:516F                      ;	[HL]	point to register (previous value is next in RAM)
+    2424.  00:516F                      ;
+    2425.  00:516F                      ; out:
+    2426.  00:516F                      ;	[HL] points to previous value
+    2427.  00:516F                      ;	[A]	contains register# written
+    2428.  00:516F                      ;-----------
+    2429.  00:516F                      _route_FM_reg16_update:
+    2430.  00:516F  08                  	ex	af,af'
+    2431.  00:5170  7E                  	ld	a,(hl)
+    2432.  00:5171  23                  	inc	hl
+    2433.  00:5172                      _rfr_cont:
+    2434.  00:5172  23                  	inc	hl
+    2435.  00:5173  BE                  	cp	(hl)	
+    2436.  00:5174  CA 7E 51            	jp	z,99f		; no change in tone low value
+    2437.  00:5177  08                  	ex	af,af'	
+    2438.  00:5178  D3 7C               	out	(FM_WRITE),a
+    2439.  00:517A  08                  	ex	af,af'
+    2440.  00:517B  77                  	ld	(hl),a
+    2441.  00:517C  D3 7D               	out	(FM_DATA),a	
+    2442.  00:517E  08                  99:	ex	af,af'
+    2443.  00:517F                      ;	dec	hl	
+    2444.  00:517F  C9                  	ret
+    2445.  00:5180                      	
+    2446.  00:5180                      ;------- Writes a keyoff to the existing tone high register 
+    2447.  00:5180                      ; in :
+    2448.  00:5180                      ;	[A']	register# to write
+    2449.  00:5180                      ;	[HL]	point to register (previous value is next in RAM)
+    2450.  00:5180                      ;
+    2451.  00:5180                      ; out:
+    2452.  00:5180                      ;	[HL] points to same location
+    2453.  00:5180                      ;	[A']	contains register# written
+    2454.  00:5180                      ;-----------
+    2455.  00:5180                      _route_FM_keyOff_update:
+    2456.  00:5180  08                  	ex	af,af'
+    2457.  00:5181  D3 7C               	out	(FM_WRITE),a
+    2458.  00:5183  08                  	ex	af,af'		; 4 cycles	 '
+    2459.  00:5184  7E                  	ld	a,(hl)
+    2460.  00:5185  E6 EF               	and	11101111b	; erase keyON bit.
+    2461.  00:5187  D3 7D               	out	(FM_DATA),a	
+    2462.  00:5189  23                  	inc	hl
+    2463.  00:518A  23                  	inc	hl
+    2464.  00:518B  77                  	ld	(hl),a		; make sure to change old value to trigger update
+    2465.  00:518C  2B                  	dec	hl
+    2466.  00:518D  2B                  	dec	hl
+    2467.  00:518E  C9                  	ret
+    2468.  00:518F                      
+    2469.  00:518F                      
+    2470.  00:518F                      
+    2471.  00:518F                      load_softwarevoice:
+    2472.  00:518F                      	;-- Set the software voice data address
+    2473.  00:518F  2A 07 C0            	ld 	hl,(replay_voicebase)
+    2474.  00:5192  85                  	add	a,l
+    2475.  00:5193  6F                  	ld	l,a
+    2476.  00:5194  D2 98 51            	jp	nc,99f
+    2477.  00:5197  24                  	inc	h
+    2478.  00:5198                      99:
+    2479.  00:5198  AF                  	xor	a		; set reg# 0
+    2480.  00:5199                      .voiceupd_loop:
+    2481.  00:5199                      
+    2482.  00:5199  D3 7C               	out	(FM_WRITE),a
+    2483.  00:519B  08                  	ex	af,af'		; 4 cycles	 '
+    2484.  00:519C  7E                  	ld	a,(hl)		; 4 cycles 	
+    2485.  00:519D  23                  	inc	hl			; 6 cycles
+    2486.  00:519E  D3 7D               	out	(FM_DATA),a	
+    2487.  00:51A0                      
+    2488.  00:51A0  08                  	ex	af,af' 		; 4 cycles	'
+    2489.  00:51A1  3C                  	inc	a			; 4 cycles
+    2490.  00:51A2                      	
+    2491.  00:51A2  FE 08               	cp	8 			; 7 cycles
+    2492.  00:51A4                      	;--- delay
+    2493.  00:51A4  DD E5               	push 	ix			; 15 cycles
+    2494.  00:51A6  DD E1               	pop	ix			; 14 cycles
+    2495.  00:51A8  DD E5               	push 	ix			; 15 cycles
+    2496.  00:51AA  DD E1               	pop	ix			; 14 cycles
+    2497.  00:51AC                      		
+    2498.  00:51AC  DA 99 51            	jp	c,.voiceupd_loop 	; 10 cycles
+    2499.  00:51AF  C9                  	ret
+    2500.  00:51B0                      
+    2501.  00:51B0                      	
+    2502.  00:51B0                      
+    2503.  00:51B0                      	
+    2504.  00:51B0                      
+    2505.  00:51B0                      
+     560   00:51B0                      	include	"..\code\ttreplaySMSDAT.asm"
+       1.  00:51B0                      
+       2.  00:51B0                      
+       3.  00:51B0                      	; Balance setting space volume max - 8
+       4.  00:51B0  0F (128)            	ds 8*16, $0F
+       5.  00:5230                      _VOLUME_TABLE
+       6.  00:5230                      	; Combined volume table PSG/FM
+       7.  00:5230                      	db	 $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
+       7.  00:5230  0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 
+       8.  00:5240                      	db	 $0F, $0F, $0F, $0F, $0F, $0F, $0F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1E
+       8.  00:5240  0F 0F 0F 0F 0F 0F 0F 1F 1F 1F 1F 1F 1F 1F 1F 1E 
+       9.  00:5250                      	db	 $0F, $0F, $0F, $0F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $2F, $2F, $2E, $2D
+       9.  00:5250  0F 0F 0F 0F 1F 1F 1F 1F 1F 1F 1F 1F 2F 2F 2E 2D 
+      10.  00:5260                      	db	 $0F, $0F, $0F, $1F, $1F, $1F, $1F, $1F, $2F, $2F, $2F, $2F, $2F, $3E, $3D, $3C
+      10.  00:5260  0F 0F 0F 1F 1F 1F 1F 1F 2F 2F 2F 2F 2F 3E 3D 3C 
+      11.  00:5270                      	db	 $0F, $0F, $1F, $1F, $1F, $1F, $2F, $2F, $2F, $2F, $3F, $3F, $3E, $3D, $4C, $4B
+      11.  00:5270  0F 0F 1F 1F 1F 1F 2F 2F 2F 2F 3F 3F 3E 3D 4C 4B 
+      12.  00:5280                      	db	 $0F, $0F, $1F, $1F, $1F, $2F, $2F, $2F, $3F, $3F, $3F, $4E, $4D, $4C, $5B, $5A
+      12.  00:5280  0F 0F 1F 1F 1F 2F 2F 2F 3F 3F 3F 4E 4D 4C 5B 5A 
+      13.  00:5290                      	db	 $0F, $0F, $1F, $1F, $2F, $2F, $2F, $3F, $3F, $4F, $4E, $4D, $5C, $5B, $6A, $69
+      13.  00:5290  0F 0F 1F 1F 2F 2F 2F 3F 3F 4F 4E 4D 5C 5B 6A 69 
+      14.  00:52A0                      	db	 $0F, $0F, $1F, $1F, $2F, $2F, $3F, $3F, $4F, $4E, $5D, $5C, $6B, $6A, $79, $78
+      14.  00:52A0  0F 0F 1F 1F 2F 2F 3F 3F 4F 4E 5D 5C 6B 6A 79 78 
+      15.  00:52B0                      	db	 $0F, $1F, $1F, $2F, $2F, $3F, $3F, $4F, $4E, $5D, $5C, $6B, $6A, $79, $78, $87
+      15.  00:52B0  0F 1F 1F 2F 2F 3F 3F 4F 4E 5D 5C 6B 6A 79 78 87 
+      16.  00:52C0                      	db	 $0F, $1F, $1F, $2F, $2F, $3F, $4F, $4E, $5D, $5C, $6B, $7A, $79, $88, $87, $96
+      16.  00:52C0  0F 1F 1F 2F 2F 3F 4F 4E 5D 5C 6B 7A 79 88 87 96 
+      17.  00:52D0                      	db	 $0F, $1F, $1F, $2F, $3F, $3F, $4E, $5D, $5C, $6B, $7A, $79, $88, $97, $96, $A5
+      17.  00:52D0  0F 1F 1F 2F 3F 3F 4E 5D 5C 6B 7A 79 88 97 96 A5 
+      18.  00:52E0                      	db	 $0F, $1F, $1F, $2F, $3F, $4E, $4D, $5C, $6B, $7A, $79, $88, $97, $A6, $A5, $B4
+      18.  00:52E0  0F 1F 1F 2F 3F 4E 4D 5C 6B 7A 79 88 97 A6 A5 B4 
+      19.  00:52F0                      	db	 $0F, $1F, $2F, $2F, $3E, $4D, $5C, $6B, $6A, $79, $88, $97, $A6, $A5, $B4, $C3
+      19.  00:52F0  0F 1F 2F 2F 3E 4D 5C 6B 6A 79 88 97 A6 A5 B4 C3 
+      20.  00:5300                      	db	 $0F, $1F, $2F, $3E, $3D, $4C, $5B, $6A, $79, $88, $97, $A6, $A5, $B4, $C3, $D2
+      20.  00:5300  0F 1F 2F 3E 3D 4C 5B 6A 79 88 97 A6 A5 B4 C3 D2 
+      21.  00:5310                      	db	 $0F, $1F, $2E, $3D, $4C, $5B, $6A, $79, $78, $87, $96, $A5, $B4, $C3, $D2, $E1
+      21.  00:5310  0F 1F 2E 3D 4C 5B 6A 79 78 87 96 A5 B4 C3 D2 E1 
+      22.  00:5320                      	db	 $0F, $1E, $2D, $3C, $4B, $5A, $69, $78, $87, $96, $A5, $B4, $C3, $D2, $E1, $F0
+      22.  00:5320  0F 1E 2D 3C 4B 5A 69 78 87 96 A5 B4 C3 D2 E1 F0 
+      23.  00:5330                      	
+      24.  00:5330                      
+      25.  00:5330                      TRACK_ToneTable_PSG:	
+      26.  00:5330  01 00               	dw $0001	     ; C1			
+      27.  00:5332  01 00               	dw $0001	     ; C#1			
+      28.  00:5334  01 00               	dw $0001	     ; D1			
+      29.  00:5336  01 00               	dw $0001	     ; D#1			
+      30.  00:5338  01 00               	dw $0001	     ; E1			
+      31.  00:533A  01 00               	dw $0001	     ; F1			
+      32.  00:533C  01 00               	dw $0001	     ; F#1			
+      33.  00:533E  01 00               	dw $0001	     ; G1
+      34.  00:5340  01 00               	dw $0001	     ; G#1	
+      35.  00:5342  01 00               	dw $0001         ; A1
+      36.  00:5344  01 00               	dw $0001         ; A#1/Bb1 
+      37.  00:5346  01 00               	dw $0001         ; B1	
+      38.  00:5348  01 00               	dw $0001	     ; C2			
+      39.  00:534A  01 00               	dw $0001	     ; C#2			
+      40.  00:534C  01 00               	dw $0001	     ; D2			
+      41.  00:534E  01 00               	dw $0001	     ; D#2			
+      42.  00:5350  01 00               	dw $0001	     ; E2			
+      43.  00:5352  01 00               	dw $0001	     ; F2			
+      44.  00:5354  01 00               	dw $0001	     ; F#2			
+      45.  00:5356  01 00               	dw $0001	     ; G2
+      46.  00:5358  01 00               	dw $0001	     ; G#2			
+      47.  00:535A                         
+      48.  00:535A  F9 03               	dw $03F9      ;A2
+      49.  00:535C  C0 03               	dw $03C0      ; A#2/Bb2 
+      50.  00:535E  8A 03               	dw $038A      ;B2
+      51.  00:5360  57 03               	dw $0357      ;C3
+      52.  00:5362  27 03               	dw $0327      ; C#3/Db3 
+      53.  00:5364  FA 02               	dw $02FA      ;D3
+      54.  00:5366  CF 02               	dw $02CF      ; D#3/Eb3 
+      55.  00:5368  A7 02               	dw $02A7      ;E3
+      56.  00:536A  81 02               	dw $0281      ;F3
+      57.  00:536C  5D 02               	dw $025D      ; F#3/Gb3 
+      58.  00:536E  3B 02               	dw $023B      ;G3
+      59.  00:5370  1B 02               	dw $021B      ; G#3/Ab3 
+      60.  00:5372  FC 01               	dw $01FC      ;A3
+      61.  00:5374  E0 01               	dw $01E0      ; A#3/Bb3 
+      62.  00:5376  C5 01               	dw $01C5      ;B3
+      63.  00:5378  AC 01               	dw $01AC      ;C4
+      64.  00:537A  94 01               	dw $0194      ; C#4/Db4 
+      65.  00:537C  7D 01               	dw $017D      ;D4
+      66.  00:537E  68 01               	dw $0168      ; D#4/Eb4 
+      67.  00:5380  53 01               	dw $0153      ;E4
+      68.  00:5382  40 01               	dw $0140      ;F4
+      69.  00:5384  2E 01               	dw $012E      ; F#4/Gb4 
+      70.  00:5386  1D 01               	dw $011D      ;G4
+      71.  00:5388  0D 01               	dw $010D      ; G#4/Ab4 
+      72.  00:538A  FE 00               	dw $00FE      ;A4
+      73.  00:538C  F0 00               	dw $00F0      ; A#4/Bb4 
+      74.  00:538E  E2 00               	dw $00E2      ;B4
+      75.  00:5390  D6 00               	dw $00D6      ;C5
+      76.  00:5392  CA 00               	dw $00CA      ; C#5/Db5 
+      77.  00:5394  BE 00               	dw $00BE      ;D5
+      78.  00:5396  B4 00               	dw $00B4      ; D#5/Eb5 
+      79.  00:5398  AA 00               	dw $00AA      ;E5
+      80.  00:539A  A0 00               	dw $00A0      ;F5
+      81.  00:539C  97 00               	dw $0097      ; F#5/Gb5 
+      82.  00:539E  8F 00               	dw $008F      ;G5
+      83.  00:53A0  87 00               	dw $0087      ; G#5/Ab5 
+      84.  00:53A2  7F 00               	dw $007F      ;A5
+      85.  00:53A4  78 00               	dw $0078      ; A#5/Bb5 
+      86.  00:53A6  71 00               	dw $0071      ;B5
+      87.  00:53A8  6B 00               	dw $006B      ;C6
+      88.  00:53AA  65 00               	dw $0065      ; C#6/Db6 
+      89.  00:53AC  5F 00               	dw $005F      ;D6
+      90.  00:53AE  5A 00               	dw $005A      ; D#6/Eb6 
+      91.  00:53B0  55 00               	dw $0055      ;E6
+      92.  00:53B2  50 00               	dw $0050      ;F6
+      93.  00:53B4  4C 00               	dw $004C      ; F#6/Gb6 
+      94.  00:53B6  47 00               	dw $0047      ;G6
+      95.  00:53B8  43 00               	dw $0043      ; G#6/Ab6 
+      96.  00:53BA  40 00               	dw $0040      ;A6
+      97.  00:53BC  3C 00               	dw $003C      ; A#6/Bb6 
+      98.  00:53BE  39 00               	dw $0039      ;B6
+      99.  00:53C0  35 00               	dw $0035      ;C7
+     100.  00:53C2  32 00               	dw $0032      ; C#7/Db7 
+     101.  00:53C4  30 00               	dw $0030      ;D7
+     102.  00:53C6  2D 00               	dw $002D      ; D#7/Eb7 
+     103.  00:53C8  2A 00               	dw $002A      ;E7
+     104.  00:53CA  28 00               	dw $0028      ;F7
+     105.  00:53CC  26 00               	dw $0026      ; F#7/Gb7 
+     106.  00:53CE  24 00               	dw $0024      ;G7
+     107.  00:53D0  22 00               	dw $0022      ; G#7/Ab7 
+     108.  00:53D2  20 00               	dw $0020      ;A7
+     109.  00:53D4  1E 00               	dw $001E      ; A#7/Bb7 
+     110.  00:53D6  1C 00               	dw $001C      ;B7
+     111.  00:53D8  1B 00               	dw $001B      ;C8
+     112.  00:53DA  19 00               	dw $0019      ; C#8/Db8 
+     113.  00:53DC  18 00               	dw $0018      ;D8
+     114.  00:53DE  16 00               	dw $0016      ; D#8/Eb8 
+     115.  00:53E0  15 00               	dw $0015      ;E8
+     116.  00:53E2  14 00               	dw $0014      ;F8
+     117.  00:53E4  13 00               	dw $0013      ; F#8/Gb8 
+     118.  00:53E6  12 00               	dw $0012      ;G8
+     119.  00:53E8  11 00               	dw $0011      ; G#8/Ab8 
+     120.  00:53EA  10 00               	dw $0010      ;A8
+     121.  00:53EC  0F 00               	dw $000F      ; A#8/Bb8 
+     122.  00:53EE  0E 00               	dw $000E      ;B8
+     123.  00:53F0                      TRACK_ToneTable_FM:
+     124.  00:53F0                      ;	db   	0,0
+     125.  00:53F0                      	db	0adh,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h
+     125.  00:53F0  AD 00 B7 00 C2 00 CD 00 D9 00 E6 00 
+     126.  00:53FC                            db	0f4h,000h,003h,001h,012h,001h,022h,001h,034h,001h,046h,001h
+     126.  00:53FC  F4 00 03 01 12 01 22 01 34 01 46 01 
+     127.  00:5408                            db    0adh,002h,0b7h,002h,0c2h,002h,0cdh,002h,0d9h,002h,0e6h,002h
+     127.  00:5408  AD 02 B7 02 C2 02 CD 02 D9 02 E6 02 
+     128.  00:5414                            db    0f4h,002h,003h,003h,012h,003h,022h,003h,034h,003h,046h,003h
+     128.  00:5414  F4 02 03 03 12 03 22 03 34 03 46 03 
+     129.  00:5420                            db    0adh,004h,0b7h,004h,0c2h,004h,0cdh,004h,0d9h,004h,0e6h,004h
+     129.  00:5420  AD 04 B7 04 C2 04 CD 04 D9 04 E6 04 
+     130.  00:542C                            db    0f4h,004h,003h,005h,012h,005h,022h,005h,034h,005h,046h,005h
+     130.  00:542C  F4 04 03 05 12 05 22 05 34 05 46 05 
+     131.  00:5438                            db    0adh,006h,0b7h,006h,0c2h,006h,0cdh,006h,0d9h,006h,0e6h,006h
+     131.  00:5438  AD 06 B7 06 C2 06 CD 06 D9 06 E6 06 
+     132.  00:5444                            db    0f4h,006h,003h,007h,012h,007h,022h,007h,034h,007h,046h,007h
+     132.  00:5444  F4 06 03 07 12 07 22 07 34 07 46 07 
+     133.  00:5450                            db    0adh,008h,0b7h,008h,0c2h,008h,0cdh,008h,0d9h,008h,0e6h,008h
+     133.  00:5450  AD 08 B7 08 C2 08 CD 08 D9 08 E6 08 
+     134.  00:545C                            db    0f4h,008h,003h,009h,012h,009h,022h,009h,034h,009h,046h,009h
+     134.  00:545C  F4 08 03 09 12 09 22 09 34 09 46 09 
+     135.  00:5468                            db    0adh,00ah,0b7h,00ah,0c2h,00ah,0cdh,00ah,0d9h,00ah,0e6h,00ah
+     135.  00:5468  AD 0A B7 0A C2 0A CD 0A D9 0A E6 0A 
+     136.  00:5474                            db    0f4h,00ah,003h,00bh,012h,00bh,022h,00bh,034h,00bh,046h,00bh
+     136.  00:5474  F4 0A 03 0B 12 0B 22 0B 34 0B 46 0B 
+     137.  00:5480                            db    0adh,00ch,0b7h,00ch,0c2h,00ch,0cdh,00ch,0d9h,00ch,0e6h,00ch
+     137.  00:5480  AD 0C B7 0C C2 0C CD 0C D9 0C E6 0C 
+     138.  00:548C                            db    0f4h,00ch,003h,00dh,012h,00dh,022h,00dh,034h,00dh,046h,00dh
+     138.  00:548C  F4 0C 03 0D 12 0D 22 0D 34 0D 46 0D 
+     139.  00:5498                            db    0adh,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh
+     139.  00:5498  AD 0E B7 0E C2 0E CD 0E D9 0E E6 0E 
+     140.  00:54A4                            db    0f4h,00eh,003h,00fh,012h,00fh,022h,00fh,034h,00fh,046h,00fh
+     140.  00:54A4  F4 0E 03 0F 12 0F 22 0F 34 0F 46 0F 
+     141.  00:54B0                      
+     142.  00:54B0                      
+     143.  00:54B0                      TRACK_Vibrato_sine:	; Sine table used for tremelo and vibrato
+     144.  00:54B0                            db 	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00		      ; depth 	1
+     144.  00:54B0  00 00 00 00 00 00 00 00 00 00 01 01 01 01 01 01 
+     144.  00:54C0  01 01 01 01 01 01 00 00 00 00 00 00 00 00 00 00 
+     145.  00:54D0                            db 	$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00		      ; depth 	2
+     145.  00:54D0  00 00 00 00 00 00 00 01 01 01 01 01 01 02 02 02 
+     145.  00:54E0  02 02 02 01 01 01 01 01 01 00 00 00 00 00 00 00 
+     146.  00:54F0                            db 	$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$02,$02,$02,$02,$03,$03,$03,$03,$02,$02,$02,$02,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00		      ; depth 	3
+     146.  00:54F0  00 00 00 00 00 01 01 01 01 01 02 02 02 02 03 03 
+     146.  00:5500  03 03 02 02 02 02 01 01 01 01 01 00 00 00 00 00 
+     147.  00:5510                            db 	$00,$00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$02,$03,$03,$04,$04,$04,$04,$03,$03,$02,$02,$02,$01,$01,$01,$01,$00,$00,$00,$00,$00		      ; depth 	4
+     147.  00:5510  00 00 00 00 00 01 01 01 01 02 02 02 03 03 04 04 
+     147.  00:5520  04 04 03 03 02 02 02 01 01 01 01 00 00 00 00 00 
+     148.  00:5530                            db 	$00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$05,$05,$04,$04,$03,$03,$02,$02,$01,$01,$01,$01,$00,$00,$00,$00		      ; depth 	5
+     148.  00:5530  00 00 00 00 01 01 01 01 02 02 03 03 04 04 05 05 
+     148.  00:5540  05 05 04 04 03 03 02 02 01 01 01 01 00 00 00 00 
+     149.  00:5550                            db 	$00,$00,$00,$00,$01,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$05,$05,$04,$04,$03,$03,$02,$02,$01,$01,$01,$00,$00,$00,$00		      ; depth 	6
+     149.  00:5550  00 00 00 00 01 01 01 02 02 03 03 04 04 05 05 06 
+     149.  00:5560  06 05 05 04 04 03 03 02 02 01 01 01 00 00 00 00 
+     150.  00:5570                            db 	$00,$00,$00,$01,$01,$01,$02,$02,$03,$04,$04,$05,$06,$06,$07,$08,$08,$07,$06,$06,$05,$04,$04,$03,$02,$02,$01,$01,$01,$00,$00,$00		      ; depth 	7
+     150.  00:5570  00 00 00 01 01 01 02 02 03 04 04 05 06 06 07 08 
+     150.  00:5580  08 07 06 06 05 04 04 03 02 02 01 01 01 00 00 00 
+     151.  00:5590                            db 	$00,$00,$01,$01,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0C,$0D,$0D,$0C,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$01,$01,$00,$00		      ; depth 	8
+     151.  00:5590  00 00 01 01 01 02 03 04 05 06 07 08 09 0A 0C 0D 
+     151.  00:55A0  0D 0C 0A 09 08 07 06 05 04 03 02 01 01 01 00 00 
+     152.  00:55B0                            db 	$00,$00,$01,$02,$02,$04,$05,$06,$08,$09,$0B,$0D,$0F,$11,$13,$15,$15,$13,$11,$0F,$0D,$0B,$09,$08,$06,$05,$04,$02,$02,$01,$00,$00		      ; depth 	9
+     152.  00:55B0  00 00 01 02 02 04 05 06 08 09 0B 0D 0F 11 13 15 
+     152.  00:55C0  15 13 11 0F 0D 0B 09 08 06 05 04 02 02 01 00 00 
+     153.  00:55D0                            db 	$00,$01,$01,$02,$04,$05,$07,$09,$0B,$0E,$10,$13,$16,$19,$1C,$1F,$1F,$1C,$19,$16,$13,$10,$0E,$0B,$09,$07,$05,$04,$02,$01,$01,$00		      ; depth 	A
+     153.  00:55D0  00 01 01 02 04 05 07 09 0B 0E 10 13 16 19 1C 1F 
+     153.  00:55E0  1F 1C 19 16 13 10 0E 0B 09 07 05 04 02 01 01 00 
+     154.  00:55F0                            db 	$00,$01,$02,$03,$05,$08,$0B,$0E,$11,$15,$19,$1D,$21,$26,$2B,$2F,$2F,$2B,$26,$21,$1D,$19,$15,$11,$0E,$0B,$08,$05,$03,$02,$01,$00		      ; depth 	B
+     154.  00:55F0  00 01 02 03 05 08 0B 0E 11 15 19 1D 21 26 2B 2F 
+     154.  00:5600  2F 2B 26 21 1D 19 15 11 0E 0B 08 05 03 02 01 00 
+     155.  00:5610                            db 	$01,$01,$03,$05,$07,$0B,$0E,$12,$17,$1C,$21,$27,$2D,$33,$39,$3F,$3F,$39,$33,$2D,$27,$21,$1C,$17,$12,$0E,$0B,$07,$05,$03,$01,$01		      ; depth 	C
+     155.  00:5610  01 01 03 05 07 0B 0E 12 17 1C 21 27 2D 33 39 3F 
+     155.  00:5620  3F 39 33 2D 27 21 1C 17 12 0E 0B 07 05 03 01 01 
+     561   00:5630                      ;	include	"..\ttsfxplay\ttsfxplay.asm"
+     562   00:5630                      
+     563   00:5630                      	
+     564   00:5630                      demo_song:
+     565   00:5630                      	include	".\test.asm"
+       1.  00:5630                      ; Song: Moontheme - Ducktales           
+       2.  00:5630                      ; By:   Org. cover by Tallboyy          
+       3.  00:5630                      
+       4.  00:5630                      ; [ Song start data ]
+       5.  00:5630  08                  	db $08					; Initial song speed.
+       6.  00:5631  6B 57               	dw .customvoice_start			; Start of the custom voices data.
+       7.  00:5633  6B 57               	dw .drummacro_start			; Start of the drum macro data.
+       8.  00:5635  6B 57               	dw .instrument_start			; Start of the instrument data.
+       9.  00:5637                      
+      10.  00:5637                      ; [ Song order pointer list ]
+      11.  00:5637                      	dw .track_000, .track_001, .track_002, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:001 Pattern:000
+      11.  00:5637  16 58 29 58 3E 58 43 58 43 58 43 58 43 58 43 58 
+      12.  00:5647                      	dw .track_008, .track_009, .track_010, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:002 Pattern:001
+      12.  00:5647  45 58 56 58 60 58 43 58 43 58 43 58 43 58 43 58 
+      13.  00:5657                      	dw .track_008, .track_017, .track_018, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:003 Pattern:002
+      13.  00:5657  45 58 6D 58 77 58 43 58 43 58 43 58 43 58 43 58 
+      14.  00:5667                      	dw .track_008, .track_025, .track_026, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:004 Pattern:003
+      14.  00:5667  45 58 86 58 8F 58 43 58 43 58 43 58 43 58 43 58 
+      15.  00:5677                      	dw .track_008, .track_033, .track_034, .track_003, .track_003, .track_003, .track_003, .track_003	; Step:005 Pattern:004
+      15.  00:5677  45 58 95 58 9E 58 43 58 43 58 43 58 43 58 43 58 
+      16.  00:5687                      	dw .track_040, .track_041, .track_042, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:006 Pattern:005
+      16.  00:5687  A8 58 BA 58 BF 58 C5 58 C5 58 C5 58 C5 58 C5 58 
+      17.  00:5697                      .restart:
+      18.  00:5697                      	dw .track_040, .track_049, .track_050, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:007 Pattern:006
+      18.  00:5697  A8 58 C7 58 DB 58 C5 58 C5 58 C5 58 C5 58 C5 58 
+      19.  00:56A7                      	dw .track_040, .track_057, .track_058, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:008 Pattern:007
+      19.  00:56A7  A8 58 ED 58 FF 58 C5 58 C5 58 C5 58 C5 58 C5 58 
+      20.  00:56B7                      	dw .track_040, .track_065, .track_066, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:009 Pattern:008
+      20.  00:56B7  A8 58 0D 59 1F 59 C5 58 C5 58 C5 58 C5 58 C5 58 
+      21.  00:56C7                      	dw .track_040, .track_073, .track_074, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:010 Pattern:009
+      21.  00:56C7  A8 58 30 59 42 59 C5 58 C5 58 C5 58 C5 58 C5 58 
+      22.  00:56D7                      	dw .track_040, .track_081, .track_082, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:011 Pattern:010
+      22.  00:56D7  A8 58 51 59 63 59 C5 58 C5 58 C5 58 C5 58 C5 58 
+      23.  00:56E7                      	dw .track_040, .track_089, .track_090, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:012 Pattern:011
+      23.  00:56E7  A8 58 72 59 84 59 C5 58 C5 58 C5 58 C5 58 C5 58 
+      24.  00:56F7                      	dw .track_040, .track_097, .track_098, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:013 Pattern:012
+      24.  00:56F7  A8 58 94 59 A7 59 C5 58 C5 58 C5 58 C5 58 C5 58 
+      25.  00:5707                      	dw .track_104, .track_105, .track_106, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:014 Pattern:013
+      25.  00:5707  B8 59 CB 59 DB 59 C5 58 C5 58 C5 58 C5 58 C5 58 
+      26.  00:5717                      	dw .track_112, .track_113, .track_114, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:015 Pattern:014
+      26.  00:5717  EE 59 04 5A 19 5A C5 58 C5 58 C5 58 C5 58 C5 58 
+      27.  00:5727                      	dw .track_120, .track_121, .track_122, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:016 Pattern:015
+      27.  00:5727  31 5A 41 5A 54 5A C5 58 C5 58 C5 58 C5 58 C5 58 
+      28.  00:5737                      	dw .track_128, .track_129, .track_130, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:017 Pattern:016
+      28.  00:5737  63 5A 77 5A 8C 5A C5 58 C5 58 C5 58 C5 58 C5 58 
+      29.  00:5747                      	dw .track_136, .track_121, .track_138, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:018 Pattern:017
+      29.  00:5747  A1 5A 41 5A B1 5A C5 58 C5 58 C5 58 C5 58 C5 58 
+      30.  00:5757                      	dw .track_144, .track_145, .track_146, .track_043, .track_043, .track_043, .track_043, .track_043	; Step:019 Pattern:018
+      30.  00:5757  C1 5A D4 5A E5 5A C5 58 C5 58 C5 58 C5 58 C5 58 
+      31.  00:5767  00 00 97 56         	dw 0x0000, .restart			; End of sequence delimiter + restart address.
+      32.  00:576B                      
+      33.  00:576B                      ; [ Custom FM voices ]
+      34.  00:576B                      .customvoice_start:
+      35.  00:576B                      
+      36.  00:576B                      ; [ SCC Waveforms ]
+      37.  00:576B                      .waveform_start:
+      38.  00:576B                      
+      39.  00:576B                      ; [ FM Drum macros]
+      40.  00:576B                      .drummacro_start:
+      41.  00:576B                      
+      42.  00:576B                      ; [ Instruments]
+      43.  00:576B                      .instrument_start:
+      44.  00:576B  7D 57               	dw .instrument_00				;                 
+      45.  00:576D  9A 57               	dw .instrument_01				;                 
+      46.  00:576F  AD 57               	dw .instrument_02				;                 
+      47.  00:5771  C5 57               	dw .instrument_03				;                 
+      48.  00:5773  DE 57               	dw .instrument_04				;                 
+      49.  00:5775  FA 57               	dw .instrument_05				;                 
+      50.  00:5777  07 58               	dw .instrument_06				;                 
+      51.  00:5779  0C 58               	dw .instrument_07				;                 
+      52.  00:577B  11 58               	dw .instrument_08				;                 
+      53.  00:577D                      
+      54.  00:577D                      .instrument_00:					;                 
+      55.  00:577D  10                  	db $10					; FM Hardware Voice 0
+      56.  00:577E  28                  	db $28			; Info byte: 00101000
+      57.  00:577F  0F                  	db $0f			; Volume _
+      58.  00:5780  28                  	db $28			; Info byte: 00101000
+      59.  00:5781  0D                  	db $0d			; Volume _
+      60.  00:5782  28                  	db $28			; Info byte: 00101000
+      61.  00:5783  0B                  	db $0b			; Volume _
+      62.  00:5784  28                  	db $28			; Info byte: 00101000
+      63.  00:5785  04                  	db $04			; Volume _
+      64.  00:5786  28                  	db $28			; Info byte: 00101000
+      65.  00:5787  04                  	db $04			; Volume _
+      66.  00:5788  28                  	db $28			; Info byte: 00101000
+      67.  00:5789  04                  	db $04			; Volume _
+      68.  00:578A  28                  	db $28			; Info byte: 00101000
+      69.  00:578B  0C                  	db $0c			; Volume _
+      70.  00:578C  28                  	db $28			; Info byte: 00101000
+      71.  00:578D  0A                  	db $0a			; Volume _
+      72.  00:578E  28                  	db $28			; Info byte: 00101000
+      73.  00:578F  02                  	db $02			; Volume _
+      74.  00:5790  28                  	db $28			; Info byte: 00101000
+      75.  00:5791  02                  	db $02			; Volume _
+      76.  00:5792  28                  	db $28			; Info byte: 00101000
+      77.  00:5793  02                  	db $02			; Volume _
+      78.  00:5794  28                  	db $28			; Info byte: 00101000
+      79.  00:5795  08                  	db $08			; Volume _
+      80.  00:5796                      .rst_i00:
+      81.  00:5796  29                  	db $29			; Info byte: 00101001
+      82.  00:5797  02                  	db $02			; Volume _
+      83.  00:5798  96 57               	dw .rst_i00			; Loop address
+      84.  00:579A                      .instrument_01:					;                 
+      85.  00:579A  20                  	db $20					; FM Hardware Voice 0
+      86.  00:579B                      .rst_i01:
+      87.  00:579B  28                  	db $28			; Info byte: 00101000
+      88.  00:579C  0F                  	db $0f			; Volume _
+      89.  00:579D  28                  	db $28			; Info byte: 00101000
+      90.  00:579E  0F                  	db $0f			; Volume _
+      91.  00:579F  28                  	db $28			; Info byte: 00101000
+      92.  00:57A0  0F                  	db $0f			; Volume _
+      93.  00:57A1  28                  	db $28			; Info byte: 00101000
+      94.  00:57A2  0F                  	db $0f			; Volume _
+      95.  00:57A3  28                  	db $28			; Info byte: 00101000
+      96.  00:57A4  0F                  	db $0f			; Volume _
+      97.  00:57A5  28                  	db $28			; Info byte: 00101000
+      98.  00:57A6  0F                  	db $0f			; Volume _
+      99.  00:57A7  28                  	db $28			; Info byte: 00101000
+     100.  00:57A8  0F                  	db $0f			; Volume _
+     101.  00:57A9  29                  	db $29			; Info byte: 00101001
+     102.  00:57AA  0E                  	db $0e			; Volume _
+     103.  00:57AB  9B 57               	dw .rst_i01			; Loop address
+     104.  00:57AD                      .instrument_02:					;                 
+     105.  00:57AD  30                  	db $30					; FM Hardware Voice 0
+     106.  00:57AE  28                  	db $28			; Info byte: 00101000
+     107.  00:57AF  0B                  	db $0b			; Volume _
+     108.  00:57B0  28                  	db $28			; Info byte: 00101000
+     109.  00:57B1  0C                  	db $0c			; Volume _
+     110.  00:57B2  28                  	db $28			; Info byte: 00101000
+     111.  00:57B3  0D                  	db $0d			; Volume _
+     112.  00:57B4                      .rst_i02:
+     113.  00:57B4  28                  	db $28			; Info byte: 00101000
+     114.  00:57B5  0E                  	db $0e			; Volume _
+     115.  00:57B6  38                  	db $38			; Info byte: 00111000
+     116.  00:57B7  0F                  	db $0f			; Volume _
+     117.  00:57B8  FF FF               	dw $ffff			; Tone
+     118.  00:57BA  20                  	db $20			; Info byte: 00100000
+     119.  00:57BB  20                  	db $20			; Info byte: 00100000
+     120.  00:57BC  20                  	db $20			; Info byte: 00100000
+     121.  00:57BD  20                  	db $20			; Info byte: 00100000
+     122.  00:57BE  20                  	db $20			; Info byte: 00100000
+     123.  00:57BF  20                  	db $20			; Info byte: 00100000
+     124.  00:57C0  31                  	db $31			; Info byte: 00110001
+     125.  00:57C1  01 00               	dw $0001			; Tone
+     126.  00:57C3  B4 57               	dw .rst_i02			; Loop address
+     127.  00:57C5                      .instrument_03:					;                 
+     128.  00:57C5  40                  	db $40					; FM Hardware Voice 0
+     129.  00:57C6  38                  	db $38			; Info byte: 00111000
+     130.  00:57C7  0F                  	db $0f			; Volume _
+     131.  00:57C8  01 00               	dw $0001			; Tone
+     132.  00:57CA  28                  	db $28			; Info byte: 00101000
+     133.  00:57CB  0E                  	db $0e			; Volume _
+     134.  00:57CC                      .rst_i03:
+     135.  00:57CC  28                  	db $28			; Info byte: 00101000
+     136.  00:57CD  0C                  	db $0c			; Volume _
+     137.  00:57CE  28                  	db $28			; Info byte: 00101000
+     138.  00:57CF  0C                  	db $0c			; Volume _
+     139.  00:57D0  38                  	db $38			; Info byte: 00111000
+     140.  00:57D1  0C                  	db $0c			; Volume _
+     141.  00:57D2  01 00               	dw $0001			; Tone
+     142.  00:57D4  28                  	db $28			; Info byte: 00101000
+     143.  00:57D5  0C                  	db $0c			; Volume _
+     144.  00:57D6  28                  	db $28			; Info byte: 00101000
+     145.  00:57D7  0C                  	db $0c			; Volume _
+     146.  00:57D8  39                  	db $39			; Info byte: 00111001
+     147.  00:57D9  0C                  	db $0c			; Volume _
+     148.  00:57DA  FF FF               	dw $ffff			; Tone
+     149.  00:57DC  CC 57               	dw .rst_i03			; Loop address
+     150.  00:57DE                      .instrument_04:					;                 
+     151.  00:57DE  50                  	db $50					; FM Hardware Voice 0
+     152.  00:57DF  C8                  	db $c8			; Info byte: 11001000
+     153.  00:57E0  00                  	db $00			; Volume _
+     154.  00:57E1  03                  	db $03			; Noise
+     155.  00:57E2  01                  	db $01			; Noise volume
+     156.  00:57E3  C0                  	db $c0			; Info byte: 11000000
+     157.  00:57E4  03                  	db $03			; Noise
+     158.  00:57E5  03                  	db $03			; Noise volume
+     159.  00:57E6  C0                  	db $c0			; Info byte: 11000000
+     160.  00:57E7  03                  	db $03			; Noise
+     161.  00:57E8  05                  	db $05			; Noise volume
+     162.  00:57E9  C0                  	db $c0			; Info byte: 11000000
+     163.  00:57EA  03                  	db $03			; Noise
+     164.  00:57EB  07                  	db $07			; Noise volume
+     165.  00:57EC  C0                  	db $c0			; Info byte: 11000000
+     166.  00:57ED  03                  	db $03			; Noise
+     167.  00:57EE  09                  	db $09			; Noise volume
+     168.  00:57EF  C0                  	db $c0			; Info byte: 11000000
+     169.  00:57F0  03                  	db $03			; Noise
+     170.  00:57F1  0B                  	db $0b			; Noise volume
+     171.  00:57F2  C0                  	db $c0			; Info byte: 11000000
+     172.  00:57F3  03                  	db $03			; Noise
+     173.  00:57F4  0D                  	db $0d			; Noise volume
+     174.  00:57F5                      .rst_i04:
+     175.  00:57F5  C1                  	db $c1			; Info byte: 11000001
+     176.  00:57F6  03                  	db $03			; Noise
+     177.  00:57F7  0F                  	db $0f			; Noise volume
+     178.  00:57F8  F5 57               	dw .rst_i04			; Loop address
+     179.  00:57FA                      .instrument_05:					;                 
+     180.  00:57FA  60                  	db $60					; FM Hardware Voice 0
+     181.  00:57FB  28                  	db $28			; Info byte: 00101000
+     182.  00:57FC  0D                  	db $0d			; Volume _
+     183.  00:57FD  28                  	db $28			; Info byte: 00101000
+     184.  00:57FE  0E                  	db $0e			; Volume _
+     185.  00:57FF  28                  	db $28			; Info byte: 00101000
+     186.  00:5800  0F                  	db $0f			; Volume _
+     187.  00:5801  28                  	db $28			; Info byte: 00101000
+     188.  00:5802  0B                  	db $0b			; Volume _
+     189.  00:5803                      .rst_i05:
+     190.  00:5803  29                  	db $29			; Info byte: 00101001
+     191.  00:5804  08                  	db $08			; Volume _
+     192.  00:5805  03 58               	dw .rst_i05			; Loop address
+     193.  00:5807                      .instrument_06:					;                 
+     194.  00:5807  70                  	db $70					; FM Hardware Voice 0
+     195.  00:5808                      .rst_i06:
+     196.  00:5808  09                  	db $09			; Info byte: 00001001
+     197.  00:5809  00                  	db $00			; Volume _
+     198.  00:580A  08 58               	dw .rst_i06			; Loop address
+     199.  00:580C                      .instrument_07:					;                 
+     200.  00:580C  80                  	db $80					; FM Hardware Voice 0
+     201.  00:580D                      .rst_i07:
+     202.  00:580D  09                  	db $09			; Info byte: 00001001
+     203.  00:580E  00                  	db $00			; Volume _
+     204.  00:580F  0D 58               	dw .rst_i07			; Loop address
+     205.  00:5811                      .instrument_08:					;                 
+     206.  00:5811  A0                  	db $a0					; FM Hardware Voice 0
+     207.  00:5812                      .rst_i08:
+     208.  00:5812  29                  	db $29			; Info byte: 00101001
+     209.  00:5813  0D                  	db $0d			; Volume _
+     210.  00:5814  12 58               	dw .rst_i08			; Loop address
+     211.  00:5816                      
+     212.  00:5816                      ; [ Song track data ]
+     213.  00:5816                      .track_000:
+     214.  00:5816  36                  	db $36			;Note F#5
+     215.  00:5817  6E                  	db $6e			;Volume 13
+     216.  00:5818  71                  	db $71			;Instrument 0
+     217.  00:5819  C1                  	db $c1			;Wait 2
+     218.  00:581A  3D                  	db $3d			;Note C#6
+     219.  00:581B                      					;Wait Repeat 2
+     220.  00:581B  42                  	db $42			;Note F#6
+     221.  00:581C                      					;Wait Repeat 2
+     222.  00:581C  44                  	db $44			;Note G#6
+     223.  00:581D                      					;Wait Repeat 2
+     224.  00:581D  3D                  	db $3d			;Note C#6
+     225.  00:581E                      					;Wait Repeat 2
+     226.  00:581E  42                  	db $42			;Note F#6
+     227.  00:581F                      					;Wait Repeat 2
+     228.  00:581F  44                  	db $44			;Note G#6
+     229.  00:5820                      					;Wait Repeat 2
+     230.  00:5820  47                  	db $47			;Note B-6
+     231.  00:5821                      					;Wait Repeat 2
+     232.  00:5821  3D                  	db $3d			;Note C#6
+     233.  00:5822                      					;Wait Repeat 2
+     234.  00:5822  47                  	db $47			;Note B-6
+     235.  00:5823                      					;Wait Repeat 2
+     236.  00:5823  46                  	db $46			;Note A#6
+     237.  00:5824                      					;Wait Repeat 2
+     238.  00:5824  3D                  	db $3d			;Note C#6
+     239.  00:5825                      					;Wait Repeat 2
+     240.  00:5825  46                  	db $46			;Note A#6
+     241.  00:5826                      					;Wait Repeat 2
+     242.  00:5826  44                  	db $44			;Note G#6
+     243.  00:5827                      					;Wait Repeat 2
+     244.  00:5827  42                  	db $42			;Note F#6
+     245.  00:5828                      					;Wait Repeat
+     246.  00:5828  BF                  	db $bf			;[End-Of-Track]
+     247.  00:5829                      .track_001:
+     248.  00:5829  61                  	db $61			;Sustain 97
+     249.  00:582A  6E                  	db $6e			;Volume 13
+     250.  00:582B  73                  	db $73			;Instrument 2
+     251.  00:582C  C1                  	db $c1			;Wait 2
+     252.  00:582D  36                  	db $36			;Note F#5
+     253.  00:582E  69                  	db $69			;Volume 8
+     254.  00:582F  71                  	db $71			;Instrument 0
+     255.  00:5830                      					;Wait Repeat 2
+     256.  00:5830  3D                  	db $3d			;Note C#6
+     257.  00:5831                      					;Wait Repeat 2
+     258.  00:5831  42                  	db $42			;Note F#6
+     259.  00:5832                      					;Wait Repeat 2
+     260.  00:5832  44                  	db $44			;Note G#6
+     261.  00:5833                      					;Wait Repeat 2
+     262.  00:5833  3D                  	db $3d			;Note C#6
+     263.  00:5834                      					;Wait Repeat 2
+     264.  00:5834  42                  	db $42			;Note F#6
+     265.  00:5835                      					;Wait Repeat 2
+     266.  00:5835  44                  	db $44			;Note G#6
+     267.  00:5836                      					;Wait Repeat 2
+     268.  00:5836  47                  	db $47			;Note B-6
+     269.  00:5837                      					;Wait Repeat 2
+     270.  00:5837  3D                  	db $3d			;Note C#6
+     271.  00:5838                      					;Wait Repeat 2
+     272.  00:5838  47                  	db $47			;Note B-6
+     273.  00:5839                      					;Wait Repeat 2
+     274.  00:5839  46                  	db $46			;Note A#6
+     275.  00:583A                      					;Wait Repeat 2
+     276.  00:583A  3D                  	db $3d			;Note C#6
+     277.  00:583B                      					;Wait Repeat 2
+     278.  00:583B  46                  	db $46			;Note A#6
+     279.  00:583C                      					;Wait Repeat 2
+     280.  00:583C  44                  	db $44			;Note G#6
+     281.  00:583D                      					;Wait Repeat
+     282.  00:583D  BF                  	db $bf			;[End-Of-Track]
+     283.  00:583E                      .track_002:
+     284.  00:583E  61                  	db $61			;Sustain 97
+     285.  00:583F  6E                  	db $6e			;Volume 13
+     286.  00:5840  72                  	db $72			;Instrument 1
+     287.  00:5841  DD                  	db $dd			;Wait 30
+     288.  00:5842  BF                  	db $bf			;[End-Of-Track]
+     289.  00:5843                      .track_003:
+     290.  00:5843  DD                  	db $dd			;Wait 30
+     291.  00:5844  BF                  	db $bf			;[End-Of-Track]
+     292.  00:5845                      .track_008:
+     293.  00:5845  36                  	db $36			;Note F#5
+     294.  00:5846  C1                  	db $c1			;Wait 2
+     295.  00:5847  3D                  	db $3d			;Note C#6
+     296.  00:5848                      					;Wait Repeat 2
+     297.  00:5848  42                  	db $42			;Note F#6
+     298.  00:5849                      					;Wait Repeat 2
+     299.  00:5849  44                  	db $44			;Note G#6
+     300.  00:584A                      					;Wait Repeat 2
+     301.  00:584A  3D                  	db $3d			;Note C#6
+     302.  00:584B                      					;Wait Repeat 2
+     303.  00:584B  42                  	db $42			;Note F#6
+     304.  00:584C                      					;Wait Repeat 2
+     305.  00:584C  44                  	db $44			;Note G#6
+     306.  00:584D                      					;Wait Repeat 2
+     307.  00:584D  47                  	db $47			;Note B-6
+     308.  00:584E                      					;Wait Repeat 2
+     309.  00:584E  3D                  	db $3d			;Note C#6
+     310.  00:584F                      					;Wait Repeat 2
+     311.  00:584F  47                  	db $47			;Note B-6
+     312.  00:5850                      					;Wait Repeat 2
+     313.  00:5850  46                  	db $46			;Note A#6
+     314.  00:5851                      					;Wait Repeat 2
+     315.  00:5851  3D                  	db $3d			;Note C#6
+     316.  00:5852                      					;Wait Repeat 2
+     317.  00:5852  46                  	db $46			;Note A#6
+     318.  00:5853                      					;Wait Repeat 2
+     319.  00:5853  44                  	db $44			;Note G#6
+     320.  00:5854                      					;Wait Repeat 2
+     321.  00:5854  42                  	db $42			;Note F#6
+     322.  00:5855                      					;Wait Repeat
+     323.  00:5855  BF                  	db $bf			;[End-Of-Track]
+     324.  00:5856                      .track_009:
+     325.  00:5856  2A                  	db $2a			;Note F#4
+     326.  00:5857  6E                  	db $6e			;Volume 13
+     327.  00:5858  73                  	db $73			;Instrument 2
+     328.  00:5859  C5                  	db $c5			;Wait 6
+     329.  00:585A  31                  	db $31			;Note C#5
+     330.  00:585B  90 20               	db $90,$20			;CMD Portamento tone
+     331.  00:585D                      					;Wait Repeat 6
+     332.  00:585D  36                  	db $36			;Note F#5
+     333.  00:585E  D1                  	db $d1			;Wait 18
+     334.  00:585F  BF                  	db $bf			;[End-Of-Track]
+     335.  00:5860                      .track_010:
+     336.  00:5860  25                  	db $25			;Note C#4
+     337.  00:5861  6E                  	db $6e			;Volume 13
+     338.  00:5862  72                  	db $72			;Instrument 1
+     339.  00:5863  C6                  	db $c6			;Wait 7
+     340.  00:5864  94 58               	db $94,$58			;CMD Vibrato
+     341.  00:5866  CA                  	db $ca			;Wait 11
+     342.  00:5867  2A                  	db $2a			;Note F#4
+     343.  00:5868  9B                  	db $9b			;CMD End 
+     344.  00:5869  C3                  	db $c3			;Wait 4
+     345.  00:586A  2C                  	db $2c			;Note G#4
+     346.  00:586B                      					;Wait Repeat 4
+     347.  00:586B  2F                  	db $2f			;Note B-4
+     348.  00:586C                      					;Wait Repeat
+     349.  00:586C  BF                  	db $bf			;[End-Of-Track]
+     350.  00:586D                      .track_017:
+     351.  00:586D  28                  	db $28			;Note E-4
+     352.  00:586E  73                  	db $73			;Instrument 2
+     353.  00:586F  9B                  	db $9b			;CMD End 
+     354.  00:5870  C5                  	db $c5			;Wait 6
+     355.  00:5871  2F                  	db $2f			;Note B-4
+     356.  00:5872  90 20               	db $90,$20			;CMD Portamento tone
+     357.  00:5874                      					;Wait Repeat 6
+     358.  00:5874  34                  	db $34			;Note E-5
+     359.  00:5875  D1                  	db $d1			;Wait 18
+     360.  00:5876  BF                  	db $bf			;[End-Of-Track]
+     361.  00:5877                      .track_018:
+     362.  00:5877  2F                  	db $2f			;Note B-4
+     363.  00:5878  72                  	db $72			;Instrument 1
+     364.  00:5879  C5                  	db $c5			;Wait 6
+     365.  00:587A  2E                  	db $2e			;Note A#4
+     366.  00:587B  C1                  	db $c1			;Wait 2
+     367.  00:587C  2E                  	db $2e			;Note A#4
+     368.  00:587D  C4                  	db $c4			;Wait 5
+     369.  00:587E  94 58               	db $94,$58			;CMD Vibrato
+     370.  00:5880  C8                  	db $c8			;Wait 9
+     371.  00:5881  2C                  	db $2c			;Note G#4
+     372.  00:5882  9B                  	db $9b			;CMD End 
+     373.  00:5883  C3                  	db $c3			;Wait 4
+     374.  00:5884  2A                  	db $2a			;Note F#4
+     375.  00:5885                      					;Wait Repeat
+     376.  00:5885  BF                  	db $bf			;[End-Of-Track]
+     377.  00:5886                      .track_025:
+     378.  00:5886  27                  	db $27			;Note D#4
+     379.  00:5887  9B                  	db $9b			;CMD End 
+     380.  00:5888  C5                  	db $c5			;Wait 6
+     381.  00:5889  2E                  	db $2e			;Note A#4
+     382.  00:588A  90 20               	db $90,$20			;CMD Portamento tone
+     383.  00:588C                      					;Wait Repeat 6
+     384.  00:588C  33                  	db $33			;Note D#5
+     385.  00:588D  D1                  	db $d1			;Wait 18
+     386.  00:588E  BF                  	db $bf			;[End-Of-Track]
+     387.  00:588F                      .track_026:
+     388.  00:588F  31                  	db $31			;Note C#5
+     389.  00:5890  CB                  	db $cb			;Wait 12
+     390.  00:5891  2A                  	db $2a			;Note F#4
+     391.  00:5892                      					;Wait Repeat 12
+     392.  00:5892  36                  	db $36			;Note F#5
+     393.  00:5893  C5                  	db $c5			;Wait 6
+     394.  00:5894  BF                  	db $bf			;[End-Of-Track]
+     395.  00:5895                      .track_033:
+     396.  00:5895  26                  	db $26			;Note D-4
+     397.  00:5896  9B                  	db $9b			;CMD End 
+     398.  00:5897  C5                  	db $c5			;Wait 6
+     399.  00:5898  2D                  	db $2d			;Note A-4
+     400.  00:5899  90 20               	db $90,$20			;CMD Portamento tone
+     401.  00:589B                      					;Wait Repeat 6
+     402.  00:589B  32                  	db $32			;Note D-5
+     403.  00:589C  D1                  	db $d1			;Wait 18
+     404.  00:589D  BF                  	db $bf			;[End-Of-Track]
+     405.  00:589E                      .track_034:
+     406.  00:589E  C6                  	db $c6			;Wait 7
+     407.  00:589F  94 48               	db $94,$48			;CMD Vibrato
+     408.  00:58A1  D0                  	db $d0			;Wait 17
+     409.  00:58A2  38                  	db $38			;Note G#5
+     410.  00:58A3  9B                  	db $9b			;CMD End 
+     411.  00:58A4  C3                  	db $c3			;Wait 4
+     412.  00:58A5  36                  	db $36			;Note F#5
+     413.  00:58A6  C1                  	db $c1			;Wait 2
+     414.  00:58A7  BF                  	db $bf			;[End-Of-Track]
+     415.  00:58A8                      .track_040:
+     416.  00:58A8  36                  	db $36			;Note F#5
+     417.  00:58A9  C1                  	db $c1			;Wait 2
+     418.  00:58AA  3D                  	db $3d			;Note C#6
+     419.  00:58AB                      					;Wait Repeat 2
+     420.  00:58AB  42                  	db $42			;Note F#6
+     421.  00:58AC                      					;Wait Repeat 2
+     422.  00:58AC  44                  	db $44			;Note G#6
+     423.  00:58AD                      					;Wait Repeat 2
+     424.  00:58AD  3D                  	db $3d			;Note C#6
+     425.  00:58AE                      					;Wait Repeat 2
+     426.  00:58AE  42                  	db $42			;Note F#6
+     427.  00:58AF                      					;Wait Repeat 2
+     428.  00:58AF  44                  	db $44			;Note G#6
+     429.  00:58B0                      					;Wait Repeat 2
+     430.  00:58B0  3D                  	db $3d			;Note C#6
+     431.  00:58B1                      					;Wait Repeat 2
+     432.  00:58B1  47                  	db $47			;Note B-6
+     433.  00:58B2                      					;Wait Repeat 2
+     434.  00:58B2  3D                  	db $3d			;Note C#6
+     435.  00:58B3                      					;Wait Repeat 2
+     436.  00:58B3  47                  	db $47			;Note B-6
+     437.  00:58B4                      					;Wait Repeat 2
+     438.  00:58B4  46                  	db $46			;Note A#6
+     439.  00:58B5                      					;Wait Repeat 2
+     440.  00:58B5  3D                  	db $3d			;Note C#6
+     441.  00:58B6                      					;Wait Repeat 2
+     442.  00:58B6  46                  	db $46			;Note A#6
+     443.  00:58B7                      					;Wait Repeat 2
+     444.  00:58B7  44                  	db $44			;Note G#6
+     445.  00:58B8                      					;Wait Repeat 2
+     446.  00:58B8  42                  	db $42			;Note F#6
+     447.  00:58B9                      					;Wait Repeat
+     448.  00:58B9  BF                  	db $bf			;[End-Of-Track]
+     449.  00:58BA                      .track_041:
+     450.  00:58BA  36                  	db $36			;Note F#5
+     451.  00:58BB  9B                  	db $9b			;CMD End 
+     452.  00:58BC  DE                  	db $de			;Wait 31
+     453.  00:58BD  9B                  	db $9b			;CMD End 
+     454.  00:58BE  BF                  	db $bf			;[End-Of-Track]
+     455.  00:58BF                      .track_042:
+     456.  00:58BF  3D                  	db $3d			;Note C#6
+     457.  00:58C0  CD                  	db $cd			;Wait 14
+     458.  00:58C1  94 28               	db $94,$28			;CMD Vibrato
+     459.  00:58C3  D1                  	db $d1			;Wait 18
+     460.  00:58C4  BF                  	db $bf			;[End-Of-Track]
+     461.  00:58C5                      .track_043:
+     462.  00:58C5  DF                  	db $df			;Wait 32
+     463.  00:58C6  BF                  	db $bf			;[End-Of-Track]
+     464.  00:58C7                      .track_049:
+     465.  00:58C7  1E                  	db $1e			;Note F#3
+     466.  00:58C8  6E                  	db $6e			;Volume 13
+     467.  00:58C9  76                  	db $76			;Instrument 5
+     468.  00:58CA  C1                  	db $c1			;Wait 2
+     469.  00:58CB  1E                  	db $1e			;Note F#3
+     470.  00:58CC                      					;Wait Repeat 2
+     471.  00:58CC  1E                  	db $1e			;Note F#3
+     472.  00:58CD                      					;Wait Repeat 2
+     473.  00:58CD  1E                  	db $1e			;Note F#3
+     474.  00:58CE                      					;Wait Repeat 2
+     475.  00:58CE  1E                  	db $1e			;Note F#3
+     476.  00:58CF                      					;Wait Repeat 2
+     477.  00:58CF  1E                  	db $1e			;Note F#3
+     478.  00:58D0                      					;Wait Repeat 2
+     479.  00:58D0  1E                  	db $1e			;Note F#3
+     480.  00:58D1                      					;Wait Repeat 2
+     481.  00:58D1  1E                  	db $1e			;Note F#3
+     482.  00:58D2                      					;Wait Repeat 2
+     483.  00:58D2  1D                  	db $1d			;Note F-3
+     484.  00:58D3                      					;Wait Repeat 2
+     485.  00:58D3  1D                  	db $1d			;Note F-3
+     486.  00:58D4                      					;Wait Repeat 2
+     487.  00:58D4  1D                  	db $1d			;Note F-3
+     488.  00:58D5                      					;Wait Repeat 2
+     489.  00:58D5  1D                  	db $1d			;Note F-3
+     490.  00:58D6                      					;Wait Repeat 2
+     491.  00:58D6  1D                  	db $1d			;Note F-3
+     492.  00:58D7                      					;Wait Repeat 2
+     493.  00:58D7  1D                  	db $1d			;Note F-3
+     494.  00:58D8                      					;Wait Repeat 2
+     495.  00:58D8  1D                  	db $1d			;Note F-3
+     496.  00:58D9                      					;Wait Repeat 2
+     497.  00:58D9  1D                  	db $1d			;Note F-3
+     498.  00:58DA                      					;Wait Repeat
+     499.  00:58DA  BF                  	db $bf			;[End-Of-Track]
+     500.  00:58DB                      .track_050:
+     501.  00:58DB  60                  	db $60			;Release 96
+     502.  00:58DC  70                  	db $70			;Volume 15
+     503.  00:58DD  74                  	db $74			;Instrument 3
+     504.  00:58DE  9B                  	db $9b			;CMD End 
+     505.  00:58DF  C7                  	db $c7			;Wait 8
+     506.  00:58E0  22                  	db $22			;Note A#3
+     507.  00:58E1  C1                  	db $c1			;Wait 2
+     508.  00:58E2  23                  	db $23			;Note B-3
+     509.  00:58E3                      					;Wait Repeat 2
+     510.  00:58E3  25                  	db $25			;Note C#4
+     511.  00:58E4  76                  	db $76			;Instrument 5
+     512.  00:58E5                      					;Wait Repeat 2
+     513.  00:58E5  25                  	db $25			;Note C#4
+     514.  00:58E6  74                  	db $74			;Instrument 3
+     515.  00:58E7  C5                  	db $c5			;Wait 6
+     516.  00:58E8  2A                  	db $2a			;Note F#4
+     517.  00:58E9  C3                  	db $c3			;Wait 4
+     518.  00:58EA  29                  	db $29			;Note F-4
+     519.  00:58EB                      					;Wait Repeat 4
+     520.  00:58EB  2A                  	db $2a			;Note F#4
+     521.  00:58EC                      					;Wait Repeat
+     522.  00:58EC  BF                  	db $bf			;[End-Of-Track]
+     523.  00:58ED                      .track_057:
+     524.  00:58ED  1B                  	db $1b			;Note D#3
+     525.  00:58EE  C1                  	db $c1			;Wait 2
+     526.  00:58EF  1B                  	db $1b			;Note D#3
+     527.  00:58F0                      					;Wait Repeat 2
+     528.  00:58F0  1B                  	db $1b			;Note D#3
+     529.  00:58F1                      					;Wait Repeat 2
+     530.  00:58F1  1B                  	db $1b			;Note D#3
+     531.  00:58F2                      					;Wait Repeat 2
+     532.  00:58F2  1B                  	db $1b			;Note D#3
+     533.  00:58F3                      					;Wait Repeat 2
+     534.  00:58F3  1B                  	db $1b			;Note D#3
+     535.  00:58F4                      					;Wait Repeat 2
+     536.  00:58F4  1B                  	db $1b			;Note D#3
+     537.  00:58F5                      					;Wait Repeat 2
+     538.  00:58F5  1B                  	db $1b			;Note D#3
+     539.  00:58F6                      					;Wait Repeat 2
+     540.  00:58F6  19                  	db $19			;Note C#3
+     541.  00:58F7                      					;Wait Repeat 2
+     542.  00:58F7  19                  	db $19			;Note C#3
+     543.  00:58F8                      					;Wait Repeat 2
+     544.  00:58F8  19                  	db $19			;Note C#3
+     545.  00:58F9                      					;Wait Repeat 2
+     546.  00:58F9  19                  	db $19			;Note C#3
+     547.  00:58FA                      					;Wait Repeat 2
+     548.  00:58FA  19                  	db $19			;Note C#3
+     549.  00:58FB                      					;Wait Repeat 2
+     550.  00:58FB  19                  	db $19			;Note C#3
+     551.  00:58FC                      					;Wait Repeat 2
+     552.  00:58FC  19                  	db $19			;Note C#3
+     553.  00:58FD                      					;Wait Repeat 2
+     554.  00:58FD  19                  	db $19			;Note C#3
+     555.  00:58FE                      					;Wait Repeat
+     556.  00:58FE  BF                  	db $bf			;[End-Of-Track]
+     557.  00:58FF                      .track_058:
+     558.  00:58FF  2C                  	db $2c			;Note G#4
+     559.  00:5900  C3                  	db $c3			;Wait 4
+     560.  00:5901  2E                  	db $2e			;Note A#4
+     561.  00:5902  C1                  	db $c1			;Wait 2
+     562.  00:5903  2A                  	db $2a			;Note F#4
+     563.  00:5904  C9                  	db $c9			;Wait 10
+     564.  00:5905  94 58               	db $94,$58			;CMD Vibrato
+     565.  00:5907  CB                  	db $cb			;Wait 12
+     566.  00:5908  29                  	db $29			;Note F-4
+     567.  00:5909  9B                  	db $9b			;CMD End 
+     568.  00:590A  C1                  	db $c1			;Wait 2
+     569.  00:590B  2A                  	db $2a			;Note F#4
+     570.  00:590C                      					;Wait Repeat
+     571.  00:590C  BF                  	db $bf			;[End-Of-Track]
+     572.  00:590D                      .track_065:
+     573.  00:590D  23                  	db $23			;Note B-3
+     574.  00:590E  C1                  	db $c1			;Wait 2
+     575.  00:590F  23                  	db $23			;Note B-3
+     576.  00:5910                      					;Wait Repeat 2
+     577.  00:5910  23                  	db $23			;Note B-3
+     578.  00:5911                      					;Wait Repeat 2
+     579.  00:5911  23                  	db $23			;Note B-3
+     580.  00:5912                      					;Wait Repeat 2
+     581.  00:5912  23                  	db $23			;Note B-3
+     582.  00:5913                      					;Wait Repeat 2
+     583.  00:5913  23                  	db $23			;Note B-3
+     584.  00:5914                      					;Wait Repeat 2
+     585.  00:5914  23                  	db $23			;Note B-3
+     586.  00:5915                      					;Wait Repeat 2
+     587.  00:5915  23                  	db $23			;Note B-3
+     588.  00:5916                      					;Wait Repeat 2
+     589.  00:5916  24                  	db $24			;Note C-4
+     590.  00:5917                      					;Wait Repeat 2
+     591.  00:5917  24                  	db $24			;Note C-4
+     592.  00:5918                      					;Wait Repeat 2
+     593.  00:5918  24                  	db $24			;Note C-4
+     594.  00:5919                      					;Wait Repeat 2
+     595.  00:5919  24                  	db $24			;Note C-4
+     596.  00:591A                      					;Wait Repeat 2
+     597.  00:591A  24                  	db $24			;Note C-4
+     598.  00:591B                      					;Wait Repeat 2
+     599.  00:591B  24                  	db $24			;Note C-4
+     600.  00:591C                      					;Wait Repeat 2
+     601.  00:591C  24                  	db $24			;Note C-4
+     602.  00:591D                      					;Wait Repeat 2
+     603.  00:591D  24                  	db $24			;Note C-4
+     604.  00:591E                      					;Wait Repeat
+     605.  00:591E  BF                  	db $bf			;[End-Of-Track]
+     606.  00:591F                      .track_066:
+     607.  00:591F  31                  	db $31			;Note C#5
+     608.  00:5920  74                  	db $74			;Instrument 3
+     609.  00:5921  C5                  	db $c5			;Wait 6
+     610.  00:5922  2A                  	db $2a			;Note F#4
+     611.  00:5923  76                  	db $76			;Instrument 5
+     612.  00:5924  C1                  	db $c1			;Wait 2
+     613.  00:5925  2A                  	db $2a			;Note F#4
+     614.  00:5926  74                  	db $74			;Instrument 3
+     615.  00:5927  C7                  	db $c7			;Wait 8
+     616.  00:5928  94 58               	db $94,$58			;CMD Vibrato
+     617.  00:592A  CB                  	db $cb			;Wait 12
+     618.  00:592B  2A                  	db $2a			;Note F#4
+     619.  00:592C  76                  	db $76			;Instrument 5
+     620.  00:592D  C1                  	db $c1			;Wait 2
+     621.  00:592E  2A                  	db $2a			;Note F#4
+     622.  00:592F                      					;Wait Repeat
+     623.  00:592F  BF                  	db $bf			;[End-Of-Track]
+     624.  00:5930                      .track_073:
+     625.  00:5930  19                  	db $19			;Note C#3
+     626.  00:5931  C1                  	db $c1			;Wait 2
+     627.  00:5932  19                  	db $19			;Note C#3
+     628.  00:5933                      					;Wait Repeat 2
+     629.  00:5933  19                  	db $19			;Note C#3
+     630.  00:5934                      					;Wait Repeat 2
+     631.  00:5934  19                  	db $19			;Note C#3
+     632.  00:5935                      					;Wait Repeat 2
+     633.  00:5935  19                  	db $19			;Note C#3
+     634.  00:5936                      					;Wait Repeat 2
+     635.  00:5936  19                  	db $19			;Note C#3
+     636.  00:5937                      					;Wait Repeat 2
+     637.  00:5937  19                  	db $19			;Note C#3
+     638.  00:5938                      					;Wait Repeat 2
+     639.  00:5938  19                  	db $19			;Note C#3
+     640.  00:5939                      					;Wait Repeat 2
+     641.  00:5939  19                  	db $19			;Note C#3
+     642.  00:593A                      					;Wait Repeat 2
+     643.  00:593A  19                  	db $19			;Note C#3
+     644.  00:593B                      					;Wait Repeat 2
+     645.  00:593B  19                  	db $19			;Note C#3
+     646.  00:593C                      					;Wait Repeat 2
+     647.  00:593C  19                  	db $19			;Note C#3
+     648.  00:593D                      					;Wait Repeat 2
+     649.  00:593D  19                  	db $19			;Note C#3
+     650.  00:593E                      					;Wait Repeat 2
+     651.  00:593E  19                  	db $19			;Note C#3
+     652.  00:593F                      					;Wait Repeat 2
+     653.  00:593F  19                  	db $19			;Note C#3
+     654.  00:5940                      					;Wait Repeat 2
+     655.  00:5940  19                  	db $19			;Note C#3
+     656.  00:5941                      					;Wait Repeat
+     657.  00:5941  BF                  	db $bf			;[End-Of-Track]
+     658.  00:5942                      .track_074:
+     659.  00:5942  2A                  	db $2a			;Note F#4
+     660.  00:5943  74                  	db $74			;Instrument 3
+     661.  00:5944  C7                  	db $c7			;Wait 8
+     662.  00:5945  60                  	db $60			;Release 96
+     663.  00:5946  C1                  	db $c1			;Wait 2
+     664.  00:5947  2C                  	db $2c			;Note G#4
+     665.  00:5948                      					;Wait Repeat 2
+     666.  00:5948  2A                  	db $2a			;Note F#4
+     667.  00:5949                      					;Wait Repeat 2
+     668.  00:5949  29                  	db $29			;Note F-4
+     669.  00:594A  C7                  	db $c7			;Wait 8
+     670.  00:594B  94 58               	db $94,$58			;CMD Vibrato
+     671.  00:594D  C8                  	db $c8			;Wait 9
+     672.  00:594E  60                  	db $60			;Release 96
+     673.  00:594F  9B                  	db $9b			;CMD End 
+     674.  00:5950  BF                  	db $bf			;[End-Of-Track]
+     675.  00:5951                      .track_081:
+     676.  00:5951  1E                  	db $1e			;Note F#3
+     677.  00:5952  C1                  	db $c1			;Wait 2
+     678.  00:5953  1E                  	db $1e			;Note F#3
+     679.  00:5954                      					;Wait Repeat 2
+     680.  00:5954  1E                  	db $1e			;Note F#3
+     681.  00:5955                      					;Wait Repeat 2
+     682.  00:5955  1E                  	db $1e			;Note F#3
+     683.  00:5956                      					;Wait Repeat 2
+     684.  00:5956  1E                  	db $1e			;Note F#3
+     685.  00:5957                      					;Wait Repeat 2
+     686.  00:5957  1E                  	db $1e			;Note F#3
+     687.  00:5958                      					;Wait Repeat 2
+     688.  00:5958  1E                  	db $1e			;Note F#3
+     689.  00:5959                      					;Wait Repeat 2
+     690.  00:5959  1E                  	db $1e			;Note F#3
+     691.  00:595A                      					;Wait Repeat 2
+     692.  00:595A  1C                  	db $1c			;Note E-3
+     693.  00:595B                      					;Wait Repeat 2
+     694.  00:595B  1C                  	db $1c			;Note E-3
+     695.  00:595C                      					;Wait Repeat 2
+     696.  00:595C  1C                  	db $1c			;Note E-3
+     697.  00:595D                      					;Wait Repeat 2
+     698.  00:595D  1C                  	db $1c			;Note E-3
+     699.  00:595E                      					;Wait Repeat 2
+     700.  00:595E  1C                  	db $1c			;Note E-3
+     701.  00:595F                      					;Wait Repeat 2
+     702.  00:595F  1C                  	db $1c			;Note E-3
+     703.  00:5960                      					;Wait Repeat 2
+     704.  00:5960  1C                  	db $1c			;Note E-3
+     705.  00:5961                      					;Wait Repeat 2
+     706.  00:5961  1C                  	db $1c			;Note E-3
+     707.  00:5962                      					;Wait Repeat
+     708.  00:5962  BF                  	db $bf			;[End-Of-Track]
+     709.  00:5963                      .track_082:
+     710.  00:5963  22                  	db $22			;Note A#3
+     711.  00:5964  74                  	db $74			;Instrument 3
+     712.  00:5965  C7                  	db $c7			;Wait 8
+     713.  00:5966  60                  	db $60			;Release 96
+     714.  00:5967  C1                  	db $c1			;Wait 2
+     715.  00:5968  20                  	db $20			;Note G#3
+     716.  00:5969                      					;Wait Repeat 2
+     717.  00:5969  1E                  	db $1e			;Note F#3
+     718.  00:596A                      					;Wait Repeat 2
+     719.  00:596A  25                  	db $25			;Note C#4
+     720.  00:596B  C7                  	db $c7			;Wait 8
+     721.  00:596C  60                  	db $60			;Release 96
+     722.  00:596D  C1                  	db $c1			;Wait 2
+     723.  00:596E  2A                  	db $2a			;Note F#4
+     724.  00:596F  C3                  	db $c3			;Wait 4
+     725.  00:5970  2C                  	db $2c			;Note G#4
+     726.  00:5971                      					;Wait Repeat
+     727.  00:5971  BF                  	db $bf			;[End-Of-Track]
+     728.  00:5972                      .track_089:
+     729.  00:5972  1B                  	db $1b			;Note D#3
+     730.  00:5973  C1                  	db $c1			;Wait 2
+     731.  00:5974  1B                  	db $1b			;Note D#3
+     732.  00:5975                      					;Wait Repeat 2
+     733.  00:5975  1B                  	db $1b			;Note D#3
+     734.  00:5976                      					;Wait Repeat 2
+     735.  00:5976  1B                  	db $1b			;Note D#3
+     736.  00:5977                      					;Wait Repeat 2
+     737.  00:5977  1B                  	db $1b			;Note D#3
+     738.  00:5978                      					;Wait Repeat 2
+     739.  00:5978  1B                  	db $1b			;Note D#3
+     740.  00:5979                      					;Wait Repeat 2
+     741.  00:5979  1B                  	db $1b			;Note D#3
+     742.  00:597A                      					;Wait Repeat 2
+     743.  00:597A  1B                  	db $1b			;Note D#3
+     744.  00:597B                      					;Wait Repeat 2
+     745.  00:597B  1A                  	db $1a			;Note D-3
+     746.  00:597C                      					;Wait Repeat 2
+     747.  00:597C  1A                  	db $1a			;Note D-3
+     748.  00:597D                      					;Wait Repeat 2
+     749.  00:597D  1A                  	db $1a			;Note D-3
+     750.  00:597E                      					;Wait Repeat 2
+     751.  00:597E  1A                  	db $1a			;Note D-3
+     752.  00:597F                      					;Wait Repeat 2
+     753.  00:597F  1A                  	db $1a			;Note D-3
+     754.  00:5980                      					;Wait Repeat 2
+     755.  00:5980  1A                  	db $1a			;Note D-3
+     756.  00:5981                      					;Wait Repeat 2
+     757.  00:5981  1A                  	db $1a			;Note D-3
+     758.  00:5982                      					;Wait Repeat 2
+     759.  00:5982  1A                  	db $1a			;Note D-3
+     760.  00:5983                      					;Wait Repeat
+     761.  00:5983  BF                  	db $bf			;[End-Of-Track]
+     762.  00:5984                      .track_090:
+     763.  00:5984  2F                  	db $2f			;Note B-4
+     764.  00:5985  74                  	db $74			;Instrument 3
+     765.  00:5986  C5                  	db $c5			;Wait 6
+     766.  00:5987  2E                  	db $2e			;Note A#4
+     767.  00:5988  76                  	db $76			;Instrument 5
+     768.  00:5989  C1                  	db $c1			;Wait 2
+     769.  00:598A  2E                  	db $2e			;Note A#4
+     770.  00:598B  74                  	db $74			;Instrument 3
+     771.  00:598C  C7                  	db $c7			;Wait 8
+     772.  00:598D  94 58               	db $94,$58			;CMD Vibrato
+     773.  00:598F                      					;Wait Repeat 8
+     774.  00:598F  31                  	db $31			;Note C#5
+     775.  00:5990  9B                  	db $9b			;CMD End 
+     776.  00:5991  C3                  	db $c3			;Wait 4
+     777.  00:5992  2F                  	db $2f			;Note B-4
+     778.  00:5993                      					;Wait Repeat
+     779.  00:5993  BF                  	db $bf			;[End-Of-Track]
+     780.  00:5994                      .track_097:
+     781.  00:5994  25                  	db $25			;Note C#4
+     782.  00:5995  76                  	db $76			;Instrument 5
+     783.  00:5996  C1                  	db $c1			;Wait 2
+     784.  00:5997  25                  	db $25			;Note C#4
+     785.  00:5998                      					;Wait Repeat 2
+     786.  00:5998  25                  	db $25			;Note C#4
+     787.  00:5999                      					;Wait Repeat 2
+     788.  00:5999  25                  	db $25			;Note C#4
+     789.  00:599A                      					;Wait Repeat 2
+     790.  00:599A  25                  	db $25			;Note C#4
+     791.  00:599B                      					;Wait Repeat 2
+     792.  00:599B  25                  	db $25			;Note C#4
+     793.  00:599C                      					;Wait Repeat 2
+     794.  00:599C  25                  	db $25			;Note C#4
+     795.  00:599D                      					;Wait Repeat 2
+     796.  00:599D  25                  	db $25			;Note C#4
+     797.  00:599E                      					;Wait Repeat 2
+     798.  00:599E  24                  	db $24			;Note C-4
+     799.  00:599F                      					;Wait Repeat 2
+     800.  00:599F  24                  	db $24			;Note C-4
+     801.  00:59A0                      					;Wait Repeat 2
+     802.  00:59A0  24                  	db $24			;Note C-4
+     803.  00:59A1                      					;Wait Repeat 2
+     804.  00:59A1  24                  	db $24			;Note C-4
+     805.  00:59A2                      					;Wait Repeat 2
+     806.  00:59A2  25                  	db $25			;Note C#4
+     807.  00:59A3                      					;Wait Repeat 2
+     808.  00:59A3  25                  	db $25			;Note C#4
+     809.  00:59A4                      					;Wait Repeat 2
+     810.  00:59A4  25                  	db $25			;Note C#4
+     811.  00:59A5                      					;Wait Repeat 2
+     812.  00:59A5  25                  	db $25			;Note C#4
+     813.  00:59A6                      					;Wait Repeat
+     814.  00:59A6  BF                  	db $bf			;[End-Of-Track]
+     815.  00:59A7                      .track_098:
+     816.  00:59A7  2E                  	db $2e			;Note A#4
+     817.  00:59A8  74                  	db $74			;Instrument 3
+     818.  00:59A9  C1                  	db $c1			;Wait 2
+     819.  00:59AA  2F                  	db $2f			;Note B-4
+     820.  00:59AB                      					;Wait Repeat 2
+     821.  00:59AB  2E                  	db $2e			;Note A#4
+     822.  00:59AC                      					;Wait Repeat 2
+     823.  00:59AC  2A                  	db $2a			;Note F#4
+     824.  00:59AD  C3                  	db $c3			;Wait 4
+     825.  00:59AE  25                  	db $25			;Note C#4
+     826.  00:59AF  C7                  	db $c7			;Wait 8
+     827.  00:59B0  2C                  	db $2c			;Note G#4
+     828.  00:59B1  C1                  	db $c1			;Wait 2
+     829.  00:59B2  2A                  	db $2a			;Note F#4
+     830.  00:59B3                      					;Wait Repeat 2
+     831.  00:59B3  29                  	db $29			;Note F-4
+     832.  00:59B4                      					;Wait Repeat 2
+     833.  00:59B4  27                  	db $27			;Note D#4
+     834.  00:59B5                      					;Wait Repeat 2
+     835.  00:59B5  29                  	db $29			;Note F-4
+     836.  00:59B6  C5                  	db $c5			;Wait 6
+     837.  00:59B7  BF                  	db $bf			;[End-Of-Track]
+     838.  00:59B8                      .track_104:
+     839.  00:59B8  42                  	db $42			;Note F#6
+     840.  00:59B9  71                  	db $71			;Instrument 0
+     841.  00:59BA  C1                  	db $c1			;Wait 2
+     842.  00:59BB  39                  	db $39			;Note A-5
+     843.  00:59BC                      					;Wait Repeat 2
+     844.  00:59BC  3E                  	db $3e			;Note D-6
+     845.  00:59BD                      					;Wait Repeat 2
+     846.  00:59BD  44                  	db $44			;Note G#6
+     847.  00:59BE                      					;Wait Repeat 2
+     848.  00:59BE  3B                  	db $3b			;Note B-5
+     849.  00:59BF                      					;Wait Repeat 2
+     850.  00:59BF  44                  	db $44			;Note G#6
+     851.  00:59C0                      					;Wait Repeat 2
+     852.  00:59C0  47                  	db $47			;Note B-6
+     853.  00:59C1                      					;Wait Repeat 2
+     854.  00:59C1  46                  	db $46			;Note A#6
+     855.  00:59C2                      					;Wait Repeat 2
+     856.  00:59C2  42                  	db $42			;Note F#6
+     857.  00:59C3                      					;Wait Repeat 2
+     858.  00:59C3  3D                  	db $3d			;Note C#6
+     859.  00:59C4                      					;Wait Repeat 2
+     860.  00:59C4  3B                  	db $3b			;Note B-5
+     861.  00:59C5                      					;Wait Repeat 2
+     862.  00:59C5  3A                  	db $3a			;Note A#5
+     863.  00:59C6                      					;Wait Repeat 2
+     864.  00:59C6  36                  	db $36			;Note F#5
+     865.  00:59C7                      					;Wait Repeat 2
+     866.  00:59C7  31                  	db $31			;Note C#5
+     867.  00:59C8                      					;Wait Repeat 2
+     868.  00:59C8  2F                  	db $2f			;Note B-4
+     869.  00:59C9                      					;Wait Repeat 2
+     870.  00:59C9  2E                  	db $2e			;Note A#4
+     871.  00:59CA                      					;Wait Repeat
+     872.  00:59CA  BF                  	db $bf			;[End-Of-Track]
+     873.  00:59CB                      .track_105:
+     874.  00:59CB  26                  	db $26			;Note D-4
+     875.  00:59CC  76                  	db $76			;Instrument 5
+     876.  00:59CD  C5                  	db $c5			;Wait 6
+     877.  00:59CE  28                  	db $28			;Note E-4
+     878.  00:59CF                      					;Wait Repeat 6
+     879.  00:59CF  2A                  	db $2a			;Note F#4
+     880.  00:59D0  72                  	db $72			;Instrument 1
+     881.  00:59D1                      					;Wait Repeat 6
+     882.  00:59D1  1E                  	db $1e			;Note F#3
+     883.  00:59D2  76                  	db $76			;Instrument 5
+     884.  00:59D3  C1                  	db $c1			;Wait 2
+     885.  00:59D4  1E                  	db $1e			;Note F#3
+     886.  00:59D5                      					;Wait Repeat 2
+     887.  00:59D5  1E                  	db $1e			;Note F#3
+     888.  00:59D6                      					;Wait Repeat 2
+     889.  00:59D6  1E                  	db $1e			;Note F#3
+     890.  00:59D7                      					;Wait Repeat 2
+     891.  00:59D7  1E                  	db $1e			;Note F#3
+     892.  00:59D8                      					;Wait Repeat 2
+     893.  00:59D8  1E                  	db $1e			;Note F#3
+     894.  00:59D9                      					;Wait Repeat 2
+     895.  00:59D9  1E                  	db $1e			;Note F#3
+     896.  00:59DA                      					;Wait Repeat
+     897.  00:59DA  BF                  	db $bf			;[End-Of-Track]
+     898.  00:59DB                      .track_106:
+     899.  00:59DB  2A                  	db $2a			;Note F#4
+     900.  00:59DC  74                  	db $74			;Instrument 3
+     901.  00:59DD  C1                  	db $c1			;Wait 2
+     902.  00:59DE  60                  	db $60			;Release 96
+     903.  00:59DF  C3                  	db $c3			;Wait 4
+     904.  00:59E0  2A                  	db $2a			;Note F#4
+     905.  00:59E1  C1                  	db $c1			;Wait 2
+     906.  00:59E2  60                  	db $60			;Release 96
+     907.  00:59E3  C3                  	db $c3			;Wait 4
+     908.  00:59E4  2A                  	db $2a			;Note F#4
+     909.  00:59E5                      					;Wait Repeat 4
+     910.  00:59E5  60                  	db $60			;Release 96
+     911.  00:59E6  C1                  	db $c1			;Wait 2
+     912.  00:59E7  37                  	db $37			;Note G-5
+     913.  00:59E8  75                  	db $75			;Instrument 4
+     914.  00:59E9  95 02               	db $95,$02			;CMD Portamento up
+     915.  00:59EB  CC                  	db $cc			;Wait 13
+     916.  00:59EC  9B                  	db $9b			;CMD End 
+     917.  00:59ED  BF                  	db $bf			;[End-Of-Track]
+     918.  00:59EE                      .track_112:
+     919.  00:59EE  2A                  	db $2a			;Note F#4
+     920.  00:59EF  76                  	db $76			;Instrument 5
+     921.  00:59F0  C1                  	db $c1			;Wait 2
+     922.  00:59F1  2A                  	db $2a			;Note F#4
+     923.  00:59F2  C5                  	db $c5			;Wait 6
+     924.  00:59F3  2C                  	db $2c			;Note G#4
+     925.  00:59F4  C1                  	db $c1			;Wait 2
+     926.  00:59F5  2C                  	db $2c			;Note G#4
+     927.  00:59F6  C3                  	db $c3			;Wait 4
+     928.  00:59F7  28                  	db $28			;Note E-4
+     929.  00:59F8  74                  	db $74			;Instrument 3
+     930.  00:59F9  C7                  	db $c7			;Wait 8
+     931.  00:59FA  25                  	db $25			;Note C#4
+     932.  00:59FB  C3                  	db $c3			;Wait 4
+     933.  00:59FC  28                  	db $28			;Note E-4
+     934.  00:59FD  76                  	db $76			;Instrument 5
+     935.  00:59FE  C1                  	db $c1			;Wait 2
+     936.  00:59FF  23                  	db $23			;Note B-3
+     937.  00:5A00  78                  	db $78			;Instrument 7
+     938.  00:5A01                      					;Wait Repeat 2
+     939.  00:5A01  21                  	db $21			;Note A-3
+     940.  00:5A02  76                  	db $76			;Instrument 5
+     941.  00:5A03                      					;Wait Repeat
+     942.  00:5A03  BF                  	db $bf			;[End-Of-Track]
+     943.  00:5A04                      .track_113:
+     944.  00:5A04  23                  	db $23			;Note B-3
+     945.  00:5A05  76                  	db $76			;Instrument 5
+     946.  00:5A06  C1                  	db $c1			;Wait 2
+     947.  00:5A07  23                  	db $23			;Note B-3
+     948.  00:5A08  C5                  	db $c5			;Wait 6
+     949.  00:5A09  28                  	db $28			;Note E-4
+     950.  00:5A0A  C1                  	db $c1			;Wait 2
+     951.  00:5A0B  28                  	db $28			;Note E-4
+     952.  00:5A0C                      					;Wait Repeat 2
+     953.  00:5A0C  21                  	db $21			;Note A-3
+     954.  00:5A0D  72                  	db $72			;Instrument 1
+     955.  00:5A0E                      					;Wait Repeat 2
+     956.  00:5A0E  21                  	db $21			;Note A-3
+     957.  00:5A0F  76                  	db $76			;Instrument 5
+     958.  00:5A10                      					;Wait Repeat 2
+     959.  00:5A10  21                  	db $21			;Note A-3
+     960.  00:5A11                      					;Wait Repeat 2
+     961.  00:5A11  21                  	db $21			;Note A-3
+     962.  00:5A12                      					;Wait Repeat 2
+     963.  00:5A12  21                  	db $21			;Note A-3
+     964.  00:5A13                      					;Wait Repeat 2
+     965.  00:5A13  21                  	db $21			;Note A-3
+     966.  00:5A14                      					;Wait Repeat 2
+     967.  00:5A14  21                  	db $21			;Note A-3
+     968.  00:5A15                      					;Wait Repeat 2
+     969.  00:5A15  21                  	db $21			;Note A-3
+     970.  00:5A16                      					;Wait Repeat 2
+     971.  00:5A16  21                  	db $21			;Note A-3
+     972.  00:5A17                      					;Wait Repeat 2
+     973.  00:5A17  21                  	db $21			;Note A-3
+     974.  00:5A18                      					;Wait Repeat
+     975.  00:5A18  BF                  	db $bf			;[End-Of-Track]
+     976.  00:5A19                      .track_114:
+     977.  00:5A19  21                  	db $21			;Note A-3
+     978.  00:5A1A  76                  	db $76			;Instrument 5
+     979.  00:5A1B  C1                  	db $c1			;Wait 2
+     980.  00:5A1C  21                  	db $21			;Note A-3
+     981.  00:5A1D  C5                  	db $c5			;Wait 6
+     982.  00:5A1E  23                  	db $23			;Note B-3
+     983.  00:5A1F  C1                  	db $c1			;Wait 2
+     984.  00:5A20  23                  	db $23			;Note B-3
+     985.  00:5A21  C3                  	db $c3			;Wait 4
+     986.  00:5A22  21                  	db $21			;Note A-3
+     987.  00:5A23  74                  	db $74			;Instrument 3
+     988.  00:5A24                      					;Wait Repeat 4
+     989.  00:5A24  2C                  	db $2c			;Note G#4
+     990.  00:5A25  79                  	db $79			;Instrument 9
+     991.  00:5A26  94 2F               	db $94,$2f			;CMD Vibrato
+     992.  00:5A28  C1                  	db $c1			;Wait 2
+     993.  00:5A29  2D                  	db $2d			;Note A-4
+     994.  00:5A2A                      					;Wait Repeat 2
+     995.  00:5A2A  34                  	db $34			;Note E-5
+     996.  00:5A2B  C3                  	db $c3			;Wait 4
+     997.  00:5A2C  38                  	db $38			;Note G#5
+     998.  00:5A2D  C1                  	db $c1			;Wait 2
+     999.  00:5A2E  39                  	db $39			;Note A-5
+    1000.  00:5A2F                      					;Wait Repeat 2
+    1001.  00:5A2F  34                  	db $34			;Note E-5
+    1002.  00:5A30                      					;Wait Repeat
+    1003.  00:5A30  BF                  	db $bf			;[End-Of-Track]
+    1004.  00:5A31                      .track_120:
+    1005.  00:5A31  1A                  	db $1a			;Note D-3
+    1006.  00:5A32  69                  	db $69			;Volume 8
+    1007.  00:5A33  74                  	db $74			;Instrument 3
+    1008.  00:5A34  C3                  	db $c3			;Wait 4
+    1009.  00:5A35  1A                  	db $1a			;Note D-3
+    1010.  00:5A36  76                  	db $76			;Instrument 5
+    1011.  00:5A37  C1                  	db $c1			;Wait 2
+    1012.  00:5A38  1A                  	db $1a			;Note D-3
+    1013.  00:5A39  C3                  	db $c3			;Wait 4
+    1014.  00:5A3A  1A                  	db $1a			;Note D-3
+    1015.  00:5A3B                      					;Wait Repeat 4
+    1016.  00:5A3B  1D                  	db $1d			;Note F-3
+    1017.  00:5A3C  74                  	db $74			;Instrument 3
+    1018.  00:5A3D  CF                  	db $cf			;Wait 16
+    1019.  00:5A3E  60                  	db $60			;Release 96
+    1020.  00:5A3F  C1                  	db $c1			;Wait 2
+    1021.  00:5A40  BF                  	db $bf			;[End-Of-Track]
+    1022.  00:5A41                      .track_121:
+    1023.  00:5A41  23                  	db $23			;Note B-3
+    1024.  00:5A42  76                  	db $76			;Instrument 5
+    1025.  00:5A43  C1                  	db $c1			;Wait 2
+    1026.  00:5A44  23                  	db $23			;Note B-3
+    1027.  00:5A45                      					;Wait Repeat 2
+    1028.  00:5A45  23                  	db $23			;Note B-3
+    1029.  00:5A46                      					;Wait Repeat 2
+    1030.  00:5A46  23                  	db $23			;Note B-3
+    1031.  00:5A47                      					;Wait Repeat 2
+    1032.  00:5A47  23                  	db $23			;Note B-3
+    1033.  00:5A48                      					;Wait Repeat 2
+    1034.  00:5A48  23                  	db $23			;Note B-3
+    1035.  00:5A49                      					;Wait Repeat 2
+    1036.  00:5A49  23                  	db $23			;Note B-3
+    1037.  00:5A4A                      					;Wait Repeat 2
+    1038.  00:5A4A  23                  	db $23			;Note B-3
+    1039.  00:5A4B                      					;Wait Repeat 2
+    1040.  00:5A4B  25                  	db $25			;Note C#4
+    1041.  00:5A4C                      					;Wait Repeat 2
+    1042.  00:5A4C  25                  	db $25			;Note C#4
+    1043.  00:5A4D                      					;Wait Repeat 2
+    1044.  00:5A4D  25                  	db $25			;Note C#4
+    1045.  00:5A4E                      					;Wait Repeat 2
+    1046.  00:5A4E  25                  	db $25			;Note C#4
+    1047.  00:5A4F                      					;Wait Repeat 2
+    1048.  00:5A4F  25                  	db $25			;Note C#4
+    1049.  00:5A50                      					;Wait Repeat 2
+    1050.  00:5A50  25                  	db $25			;Note C#4
+    1051.  00:5A51                      					;Wait Repeat 2
+    1052.  00:5A51  25                  	db $25			;Note C#4
+    1053.  00:5A52                      					;Wait Repeat 2
+    1054.  00:5A52  25                  	db $25			;Note C#4
+    1055.  00:5A53                      					;Wait Repeat
+    1056.  00:5A53  BF                  	db $bf			;[End-Of-Track]
+    1057.  00:5A54                      .track_122:
+    1058.  00:5A54  23                  	db $23			;Note B-3
+    1059.  00:5A55  74                  	db $74			;Instrument 3
+    1060.  00:5A56  C3                  	db $c3			;Wait 4
+    1061.  00:5A57  21                  	db $21			;Note A-3
+    1062.  00:5A58  76                  	db $76			;Instrument 5
+    1063.  00:5A59  C1                  	db $c1			;Wait 2
+    1064.  00:5A5A  23                  	db $23			;Note B-3
+    1065.  00:5A5B  C3                  	db $c3			;Wait 4
+    1066.  00:5A5C  21                  	db $21			;Note A-3
+    1067.  00:5A5D                      					;Wait Repeat 4
+    1068.  00:5A5D  25                  	db $25			;Note C#4
+    1069.  00:5A5E  74                  	db $74			;Instrument 3
+    1070.  00:5A5F  CF                  	db $cf			;Wait 16
+    1071.  00:5A60  60                  	db $60			;Release 96
+    1072.  00:5A61  C1                  	db $c1			;Wait 2
+    1073.  00:5A62  BF                  	db $bf			;[End-Of-Track]
+    1074.  00:5A63                      .track_128:
+    1075.  00:5A63  26                  	db $26			;Note D-4
+    1076.  00:5A64  76                  	db $76			;Instrument 5
+    1077.  00:5A65  C1                  	db $c1			;Wait 2
+    1078.  00:5A66  26                  	db $26			;Note D-4
+    1079.  00:5A67  C5                  	db $c5			;Wait 6
+    1080.  00:5A68  23                  	db $23			;Note B-3
+    1081.  00:5A69  C1                  	db $c1			;Wait 2
+    1082.  00:5A6A  23                  	db $23			;Note B-3
+    1083.  00:5A6B  C3                  	db $c3			;Wait 4
+    1084.  00:5A6C  25                  	db $25			;Note C#4
+    1085.  00:5A6D  77                  	db $77			;Instrument 6
+    1086.  00:5A6E                      					;Wait Repeat 4
+    1087.  00:5A6E  25                  	db $25			;Note C#4
+    1088.  00:5A6F                      					;Wait Repeat 4
+    1089.  00:5A6F  25                  	db $25			;Note C#4
+    1090.  00:5A70                      					;Wait Repeat 4
+    1091.  00:5A70  25                  	db $25			;Note C#4
+    1092.  00:5A71  76                  	db $76			;Instrument 5
+    1093.  00:5A72  C1                  	db $c1			;Wait 2
+    1094.  00:5A73  28                  	db $28			;Note E-4
+    1095.  00:5A74                      					;Wait Repeat 2
+    1096.  00:5A74  2A                  	db $2a			;Note F#4
+    1097.  00:5A75  74                  	db $74			;Instrument 3
+    1098.  00:5A76                      					;Wait Repeat
+    1099.  00:5A76  BF                  	db $bf			;[End-Of-Track]
+    1100.  00:5A77                      .track_129:
+    1101.  00:5A77  23                  	db $23			;Note B-3
+    1102.  00:5A78  76                  	db $76			;Instrument 5
+    1103.  00:5A79  C1                  	db $c1			;Wait 2
+    1104.  00:5A7A  23                  	db $23			;Note B-3
+    1105.  00:5A7B  C5                  	db $c5			;Wait 6
+    1106.  00:5A7C  28                  	db $28			;Note E-4
+    1107.  00:5A7D  C1                  	db $c1			;Wait 2
+    1108.  00:5A7E  28                  	db $28			;Note E-4
+    1109.  00:5A7F  C3                  	db $c3			;Wait 4
+    1110.  00:5A80  21                  	db $21			;Note A-3
+    1111.  00:5A81  72                  	db $72			;Instrument 1
+    1112.  00:5A82                      					;Wait Repeat 4
+    1113.  00:5A82  21                  	db $21			;Note A-3
+    1114.  00:5A83  76                  	db $76			;Instrument 5
+    1115.  00:5A84  C1                  	db $c1			;Wait 2
+    1116.  00:5A85  21                  	db $21			;Note A-3
+    1117.  00:5A86                      					;Wait Repeat 2
+    1118.  00:5A86  21                  	db $21			;Note A-3
+    1119.  00:5A87                      					;Wait Repeat 2
+    1120.  00:5A87  21                  	db $21			;Note A-3
+    1121.  00:5A88                      					;Wait Repeat 2
+    1122.  00:5A88  21                  	db $21			;Note A-3
+    1123.  00:5A89                      					;Wait Repeat 2
+    1124.  00:5A89  21                  	db $21			;Note A-3
+    1125.  00:5A8A                      					;Wait Repeat 2
+    1126.  00:5A8A  21                  	db $21			;Note A-3
+    1127.  00:5A8B                      					;Wait Repeat
+    1128.  00:5A8B  BF                  	db $bf			;[End-Of-Track]
+    1129.  00:5A8C                      .track_130:
+    1130.  00:5A8C  2A                  	db $2a			;Note F#4
+    1131.  00:5A8D  76                  	db $76			;Instrument 5
+    1132.  00:5A8E  C1                  	db $c1			;Wait 2
+    1133.  00:5A8F  2A                  	db $2a			;Note F#4
+    1134.  00:5A90  C5                  	db $c5			;Wait 6
+    1135.  00:5A91  2C                  	db $2c			;Note G#4
+    1136.  00:5A92  C1                  	db $c1			;Wait 2
+    1137.  00:5A93  2C                  	db $2c			;Note G#4
+    1138.  00:5A94  C3                  	db $c3			;Wait 4
+    1139.  00:5A95  2D                  	db $2d			;Note A-4
+    1140.  00:5A96  74                  	db $74			;Instrument 3
+    1141.  00:5A97                      					;Wait Repeat 4
+    1142.  00:5A97  28                  	db $28			;Note E-4
+    1143.  00:5A98  77                  	db $77			;Instrument 6
+    1144.  00:5A99                      					;Wait Repeat 4
+    1145.  00:5A99  28                  	db $28			;Note E-4
+    1146.  00:5A9A                      					;Wait Repeat 4
+    1147.  00:5A9A  28                  	db $28			;Note E-4
+    1148.  00:5A9B  76                  	db $76			;Instrument 5
+    1149.  00:5A9C  C1                  	db $c1			;Wait 2
+    1150.  00:5A9D  2D                  	db $2d			;Note A-4
+    1151.  00:5A9E                      					;Wait Repeat 2
+    1152.  00:5A9E  2F                  	db $2f			;Note B-4
+    1153.  00:5A9F  74                  	db $74			;Instrument 3
+    1154.  00:5AA0                      					;Wait Repeat
+    1155.  00:5AA0  BF                  	db $bf			;[End-Of-Track]
+    1156.  00:5AA1                      .track_136:
+    1157.  00:5AA1  CB                  	db $cb			;Wait 12
+    1158.  00:5AA2  2A                  	db $2a			;Note F#4
+    1159.  00:5AA3  76                  	db $76			;Instrument 5
+    1160.  00:5AA4  C1                  	db $c1			;Wait 2
+    1161.  00:5AA5  29                  	db $29			;Note F-4
+    1162.  00:5AA6  74                  	db $74			;Instrument 3
+    1163.  00:5AA7  CA                  	db $ca			;Wait 11
+    1164.  00:5AA8  60                  	db $60			;Release 96
+    1165.  00:5AA9  C0                  	db $c0			;Wait 1
+    1166.  00:5AAA  29                  	db $29			;Note F-4
+    1167.  00:5AAB  76                  	db $76			;Instrument 5
+    1168.  00:5AAC  C1                  	db $c1			;Wait 2
+    1169.  00:5AAD  29                  	db $29			;Note F-4
+    1170.  00:5AAE                      					;Wait Repeat 2
+    1171.  00:5AAE  2A                  	db $2a			;Note F#4
+    1172.  00:5AAF  74                  	db $74			;Instrument 3
+    1173.  00:5AB0                      					;Wait Repeat
+    1174.  00:5AB0  BF                  	db $bf			;[End-Of-Track]
+    1175.  00:5AB1                      .track_138:
+    1176.  00:5AB1  CB                  	db $cb			;Wait 12
+    1177.  00:5AB2  2D                  	db $2d			;Note A-4
+    1178.  00:5AB3  76                  	db $76			;Instrument 5
+    1179.  00:5AB4  C1                  	db $c1			;Wait 2
+    1180.  00:5AB5  31                  	db $31			;Note C#5
+    1181.  00:5AB6  74                  	db $74			;Instrument 3
+    1182.  00:5AB7  CA                  	db $ca			;Wait 11
+    1183.  00:5AB8  60                  	db $60			;Release 96
+    1184.  00:5AB9  C0                  	db $c0			;Wait 1
+    1185.  00:5ABA  29                  	db $29			;Note F-4
+    1186.  00:5ABB  76                  	db $76			;Instrument 5
+    1187.  00:5ABC  C1                  	db $c1			;Wait 2
+    1188.  00:5ABD  29                  	db $29			;Note F-4
+    1189.  00:5ABE                      					;Wait Repeat 2
+    1190.  00:5ABE  2A                  	db $2a			;Note F#4
+    1191.  00:5ABF  74                  	db $74			;Instrument 3
+    1192.  00:5AC0                      					;Wait Repeat
+    1193.  00:5AC0  BF                  	db $bf			;[End-Of-Track]
+    1194.  00:5AC1                      .track_144:
+    1195.  00:5AC1  36                  	db $36			;Note F#5
+    1196.  00:5AC2  71                  	db $71			;Instrument 0
+    1197.  00:5AC3  C1                  	db $c1			;Wait 2
+    1198.  00:5AC4  3D                  	db $3d			;Note C#6
+    1199.  00:5AC5                      					;Wait Repeat 2
+    1200.  00:5AC5  42                  	db $42			;Note F#6
+    1201.  00:5AC6                      					;Wait Repeat 2
+    1202.  00:5AC6  44                  	db $44			;Note G#6
+    1203.  00:5AC7                      					;Wait Repeat 2
+    1204.  00:5AC7  3D                  	db $3d			;Note C#6
+    1205.  00:5AC8                      					;Wait Repeat 2
+    1206.  00:5AC8  42                  	db $42			;Note F#6
+    1207.  00:5AC9                      					;Wait Repeat 2
+    1208.  00:5AC9  44                  	db $44			;Note G#6
+    1209.  00:5ACA                      					;Wait Repeat 2
+    1210.  00:5ACA  3D                  	db $3d			;Note C#6
+    1211.  00:5ACB                      					;Wait Repeat 2
+    1212.  00:5ACB  47                  	db $47			;Note B-6
+    1213.  00:5ACC                      					;Wait Repeat 2
+    1214.  00:5ACC  3D                  	db $3d			;Note C#6
+    1215.  00:5ACD                      					;Wait Repeat 2
+    1216.  00:5ACD  47                  	db $47			;Note B-6
+    1217.  00:5ACE                      					;Wait Repeat 2
+    1218.  00:5ACE  46                  	db $46			;Note A#6
+    1219.  00:5ACF                      					;Wait Repeat 2
+    1220.  00:5ACF  3D                  	db $3d			;Note C#6
+    1221.  00:5AD0                      					;Wait Repeat 2
+    1222.  00:5AD0  46                  	db $46			;Note A#6
+    1223.  00:5AD1                      					;Wait Repeat 2
+    1224.  00:5AD1  44                  	db $44			;Note G#6
+    1225.  00:5AD2                      					;Wait Repeat 2
+    1226.  00:5AD2  42                  	db $42			;Note F#6
+    1227.  00:5AD3                      					;Wait Repeat
+    1228.  00:5AD3  BF                  	db $bf			;[End-Of-Track]
+    1229.  00:5AD4                      .track_145:
+    1230.  00:5AD4  26                  	db $26			;Note D-4
+    1231.  00:5AD5  76                  	db $76			;Instrument 5
+    1232.  00:5AD6  C1                  	db $c1			;Wait 2
+    1233.  00:5AD7  26                  	db $26			;Note D-4
+    1234.  00:5AD8                      					;Wait Repeat 2
+    1235.  00:5AD8  26                  	db $26			;Note D-4
+    1236.  00:5AD9                      					;Wait Repeat 2
+    1237.  00:5AD9  26                  	db $26			;Note D-4
+    1238.  00:5ADA                      					;Wait Repeat 2
+    1239.  00:5ADA  26                  	db $26			;Note D-4
+    1240.  00:5ADB                      					;Wait Repeat 2
+    1241.  00:5ADB  26                  	db $26			;Note D-4
+    1242.  00:5ADC                      					;Wait Repeat 2
+    1243.  00:5ADC  26                  	db $26			;Note D-4
+    1244.  00:5ADD                      					;Wait Repeat 2
+    1245.  00:5ADD  26                  	db $26			;Note D-4
+    1246.  00:5ADE                      					;Wait Repeat 2
+    1247.  00:5ADE  26                  	db $26			;Note D-4
+    1248.  00:5ADF  C7                  	db $c7			;Wait 8
+    1249.  00:5AE0  26                  	db $26			;Note D-4
+    1250.  00:5AE1  72                  	db $72			;Instrument 1
+    1251.  00:5AE2  C3                  	db $c3			;Wait 4
+    1252.  00:5AE3  28                  	db $28			;Note E-4
+    1253.  00:5AE4                      					;Wait Repeat
+    1254.  00:5AE4  BF                  	db $bf			;[End-Of-Track]
+    1255.  00:5AE5                      .track_146:
+    1256.  00:5AE5  C7                  	db $c7			;Wait 8
+    1257.  00:5AE6  94 58               	db $94,$58			;CMD Vibrato
+    1258.  00:5AE8  CE                  	db $ce			;Wait 15
+    1259.  00:5AE9  60                  	db $60			;Release 96
+    1260.  00:5AEA  9B                  	db $9b			;CMD End 
+    1261.  00:5AEB  C0                  	db $c0			;Wait 1
+    1262.  00:5AEC  1A                  	db $1a			;Note D-3
+    1263.  00:5AED  74                  	db $74			;Instrument 3
+    1264.  00:5AEE  C3                  	db $c3			;Wait 4
+    1265.  00:5AEF  1C                  	db $1c			;Note E-3
+    1266.  00:5AF0                      					;Wait Repeat
+    1267.  00:5AF0  BF                  	db $bf			;[End-Of-Track]
+    1268.  00:5AF1                      
+     566   00:5AF1                      	
+     567   00:5AF1                      TEXT_Title:
+     568   00:5AF1                      	db	"TriloTracker FM Re-player Debug info",0	
+     568   00:5AF1  54 72 69 6C 6F 54 72 61 63 6B 65 72 20 46 4D 20 
+     568   00:5B01  52 65 2D 70 6C 61 79 65 72 20 44 65 62 75 67 20 
+     568   00:5B11  69 6E 66 6F 00 
+     569   00:5B16                      TEXT_Step:
+     570   00:5B16  53 74 65 70 3A 00   	db	"Step:",0	
+     571   00:5B1C                      TEXT_Header_Data:
+     572   00:5B1C                      	db	"C# Nt In FM Vl Cm Flags",0
+     572   00:5B1C  43 23 20 4E 74 20 49 6E 20 46 4D 20 56 6C 20 43 
+     572   00:5B2C  6D 20 46 6C 61 67 73 00 
+     573   00:5B34                      TEXT_Register_Header:
+     574   00:5B34                      	db 	"Tone Vl  Tone Vl  Nois Mx  Env  Sh",0
+     574   00:5B34  54 6F 6E 65 20 56 6C 20 20 54 6F 6E 65 20 56 6C 
+     574   00:5B44  20 20 4E 6F 69 73 20 4D 78 20 20 45 6E 76 20 20 
+     574   00:5B54  53 68 00 
+     575   00:5B57                      TEXT_Register_Drum:
+     576   00:5B57                      	db 	"Macr Drm Tone Vl",0	
+     576   00:5B57  4D 61 63 72 20 44 72 6D 20 54 6F 6E 65 20 56 6C 
+     576   00:5B67  00 
+     577   00:5B68                      TEXT_Legend_Data:
+     578   00:5B68                      	db	"Legend: Psg, Fm, Voice, Env, Keyon, Command, Active(note)",0
+     578   00:5B68  4C 65 67 65 6E 64 3A 20 50 73 67 2C 20 46 6D 2C 
+     578   00:5B78  20 56 6F 69 63 65 2C 20 45 6E 76 2C 20 4B 65 79 
+     578   00:5B88  6F 6E 2C 20 43 6F 6D 6D 61 6E 64 2C 20 41 63 74 
+     578   00:5B98  69 76 65 28 6E 6F 74 65 29 00 
+     579   00:5BA2                      
+     580   00:5BA2                      	
+     581   00:5BA2                      	
+     582   00:5BA2                      font_data:
+     583   00:5BA2  (0800)              	incbin	".\fontpat.bin"
+     584   00:63A2                      
+     585   00:63A2                      ;	include ".\sfx.asm"
+     586   00:63A2                      	
+     587   00:63A2                      ;sfx_PSG_STREAMS:
+     588   00:63A2                      ;sfx_SCC_STREAMS:
+     589   00:63A2                      ;	dw	sfx1
+     590   00:63A2                      ;	dw	sfx2
+     591   00:63A2                      ;	dw	sfx3
+     592   00:63A2                      ;	dw	sfx4
+     593   00:63A2                      ;	dw	sfx5
+     594   00:63A2                      ;
+     595   00:63A2                      ;
+     596   00:63A2                      ;
+     597   00:63A2                      ;sfx1:
+     598   00:63A2                      ;	db	1,4*8
+     599   00:63A2                      ;	incbin	"..\ttsfxplay\sfx\menu1.afx"
+     600   00:63A2                      ;sfx2:
+     601   00:63A2                      ;	db	1,2*8
+     602   00:63A2                      ;	incbin	"..\ttsfxplay\sfx\menu2.afx"	
+     603   00:63A2                      ;sfx3:
+     604   00:63A2                      ;	db	1,3*8
+     605   00:63A2                      ;	incbin	"..\ttsfxplay\sfx\menu3.afx"
+     606   00:63A2                      ;sfx4:
+     607   00:63A2                      ;	db	1,5*8
+     608   00:63A2                      ;	incbin	"..\ttsfxplay\sfx\menu4.afx"
+     609   00:63A2                      ;sfx5:
+     610   00:63A2                      ;	db	1,6*8
+     611   00:63A2                      ;	incbin	"..\ttsfxplay\sfx\menu5.afx"
+     612   00:63A2                      ;
+     613   00:63A2                      	
+     614   00:63A2                      	
+     615   00:63A2  (C000)              	map	0xc000
+     616   00:63A2                      	include	"..\code\ttreplaySMSRAM.asm"
+       1.  00:63A2                      ;================================
+       2.  00:63A2                      ; The new replayer.
+       3.  00:63A2                      ;
+       4.  00:63A2                      ; Persistent RAM unswappable
+       5.  00:63A2                      ;
+       6.  00:63A2                      ;================================
+       7.  00:63A2                      
+       8.  00:63A2  (00:FFFFFFEF)       TRACK_Instrument		equ 0-17
+       9.  00:63A2  (00:FFFFFFF0)       TRACK_Command		equ 1-17
+      10.  00:63A2  (00:FFFFFFF1)       TRACK_MacroPointer	equ 2-17
+      11.  00:63A2  (00:FFFFFFF3)       TRACK_MacroStart		equ 4-17
+      12.  00:63A2  (00:FFFFFFF5)       TRACK_MacroRestart 	equ 6-17		; no longer needed
+      13.  00:63A2  (00:FFFFFFF6)       TRACK_Note			equ 7-17
+      14.  00:63A2  (00:FFFFFFF7)       TRACK_Volume		equ 8-17
+      15.  00:63A2  (00:FFFFFFF8)       TRACK_Voice			equ 9-17
+      16.  00:63A2  (00:FFFFFFF9)       TRACK_Flags			equ 10-17
+      17.  00:63A2                      	; 0 = note trigger
+      18.  00:63A2                      	; 1 = note active
+      19.  00:63A2                      	; 4 = morph active		;-< for SCC when 1 then waveform is following morph buffer
+      20.  00:63A2                      	; 3 = command trigger
+      21.  00:63A2                      	; 2 = envelope trigger
+      22.  00:63A2                      	; 5 = instrument trigger
+      23.  00:63A2                      	; 6 = waveform trigger
+      24.  00:63A2                      	; 7 = PSG/SCC
+      25.  00:63A2  (00:FFFFFFFA)       TRACK_empty			equ 11-17		; needed for pushing 0 at note start
+      26.  00:63A2  (00:FFFFFFFB)       TRACK_ToneAdd		equ 12-17		; reset after note set
+      27.  00:63A2  (00:FFFFFFFD)       TRACK_VolumeAdd		equ 14-17		; reset after note set
+      28.  00:63A2  (00:FFFFFFFE)       TRACK_Noise			equ 15-17	;[OBSOLETE]	; reset after note set
+      29.  00:63A2  (00:FFFFFFFF)       TRACK_cmd_VolumeAdd	equ 16-17		; reset after note set
+      30.  00:63A2  (00:0000)           TRACK_cmd_ToneSlideAdd	equ 17-17		; reset after note set
+      31.  00:63A2  (00:0002)           TRACK_cmd_ToneAdd		equ 19-17		; reset after note set
+      32.  00:63A2  (00:0004)           TRACK_cmd_detune		equ 21-17
+      33.  00:63A2  (00:0006)           TRACK_cmd_0			equ 23-17
+      34.  00:63A2  (00:0007)           TRACK_cmd_1			equ 24-17
+      35.  00:63A2  (00:0008)           TRACK_cmd_2			equ 25-17
+      36.  00:63A2  (00:0009)           TRACK_cmd_3			equ 26-17
+      37.  00:63A2  (00:000A)           TRACK_cmd_4_depth		equ 27-17
+      38.  00:63A2  (00:000C)           TRACK_cmd_4_step		equ 29-17
+      39.  00:63A2  (00:000D)           TRACK_cmd_NoteAdd		equ 30-17		;x reset after note set
+      40.  00:63A2  (00:000E)           TRACK_cmd_A			equ 31-17		
+      41.  00:63A2  (00:000F)           TRACK_cmd_B			equ 32-17		
+      42.  00:63A2  (00:0010)           TRACK_cmd_E			equ 33-17
+      43.  00:63A2  (00:0011)           TRACK_Timer			equ 34-17		; used for timing by all cmd's
+      44.  00:63A2  (00:0012)           TRACK_Step			equ 35-17		; only for VIBRATO???
+      45.  00:63A2  (00:0013)           TRACK_Delay			equ 36-17		; rows to wait till next data
+      46.  00:63A2                      ;TRACK_Retrig		equ 35-17		; rows to retrigger command
+      47.  00:63A2  (00:0014)           TRACK_prevDelay		equ 37-17
+      48.  00:63A2  (00:0015)           TRACK_cmd_A_add		equ 38-17		;<< Still in use???
+      49.  00:63A2                      
+      50.  00:63A2  (00:0027)           TRACK_REC_SIZE		equ 39
+      51.  00:63A2                      
+      52.  00:63A2                      
+      53.  00:63A2  (00:0000)           B_TRGNOT			equ 0			; note trigger
+      54.  00:63A2  (00:0001)           B_ACTNOT			equ 1			; note active
+      55.  00:63A2  (00:0002)           B_TRGENV			equ 2			; envelope trigger
+      56.  00:63A2  (00:0003)           B_TRGCMD			equ 3			; command active
+      57.  00:63A2  (00:0004)           B_KEYON			equ 4			; for fm note trigger
+      58.  00:63A2  (00:0005)           B_SUST			equ 5			; for fm note sustain
+      59.  00:63A2  (00:0006)           B_TRGVOI			equ 6			; custom voice trigger	
+      60.  00:63A2  (00:0007)           B_PSGFM			equ 7			; chip type (PSG or FM)	
+      61.  00:63A2                      
+      62.  00:63A2                      ;B_ACTMOR			equ 4			; morph active
+      63.  00:63A2                      ;B_TRGINS			equ 5			; instrument trigger
+      64.  00:63A2                      ;B_TRGWAV			equ 6			; waveform trigger
+      65.  00:63A2                      
+      66.  00:63A2                      
+      67.  00:63A2  (00:C000)           _SP_Storage			#2			; to store the SP
+      68.  00:63A2                      
+      69.  00:63A2  (00:C002)           replay_trigger		#1			; trigger byte.
+      70.  00:63A2  (00:C003)           replay_mainPSGvol		#2			; volume mixer for PSG SCC balance
+      71.  00:63A2  (00:C005)           replay_mainSCCvol		#2			; volume mixer for PSG SCC balance
+      72.  00:63A2                      ;replay_songbase:		#2			; pointer to song data
+      73.  00:63A2                      
+      74.  00:63A2                      ; Do not move these
+      75.  00:63A2  (00:C007)           replay_voicebase:		#2			; pointer to custom voice data
+      76.  00:63A2  (00:C009)           replay_drumbase:		#2			; pointer to drum macro data
+      77.  00:63A2  (00:C00B)           replay_insbase:		#2			; pointer to instrument data
+      78.  00:63A2  (00:C00D)           TRACK_pointer1		#2
+      79.  00:63A2  (00:C00F)           TRACK_pointer2		#2
+      80.  00:63A2  (00:C011)           TRACK_pointer3		#2
+      81.  00:63A2  (00:C013)           TRACK_pointer4		#2
+      82.  00:63A2  (00:C015)           TRACK_pointer5		#2
+      83.  00:63A2  (00:C017)           TRACK_pointer6		#2
+      84.  00:63A2  (00:C019)           TRACK_pointer7		#2
+      85.  00:63A2  (00:C01B)           TRACK_pointer8		#2
+      86.  00:63A2                      ; / Do not move above
+      87.  00:63A2                      
+      88.  00:63A2                      
+      89.  00:63A2                      
+      90.  00:63A2  (00:C01D)           replay_orderpointer:	#2			; pointer to the order track list pointers
+      91.  00:63A2                      
+      92.  00:63A2  (00:C01F)           replay_speed 		#1			; speed to replay (get from song)
+      93.  00:63A2  (00:C020)           replay_speed_subtimer 	#1			; counter for finer speed
+      94.  00:63A2  (00:C021)           replay_speed_timer 	#1 			; counter for speed
+      95.  00:63A2  (00:C022)           replay_mode 		#1			; Replayer status
+      96.  00:63A2                      ; mode 0  = no sound output
+      97.  00:63A2                      ; mode 1  = replay song 
+      98.  00:63A2  (00:C023)           replay_chan_setup		#1			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
+      99.  00:63A2  (00:C024)           replay_arp_speed		#1			; arpeggio speed ( 0 = fast, $f = slowest)
+     100.  00:63A2  (00:C025)           replay_fade			#1			; Fade active (value = fade speed)
+     101.  00:63A2  (00:C026)           replay_fade_timer		#1			; Timer for fade
+     102.  00:63A2  (00:C027)           replay_fade_vol		#1			; fade volume to lower the channel volume.
+     103.  00:63A2                      
+     104.  00:63A2  (00:C028)           replay_previous_note	#1			; previous note played
+     105.  00:63A2  (00:C029)           replay_mainvol		#2			; the volume correction.
+     106.  00:63A2                      
+     107.  00:63A2  (00:C02B)           replay_vib_table		#2			; pointer to the vibrato table
+     108.  00:63A2                      ;replay_tonetable_PSG	#2			; ToneTable (affected by transpose);
+     109.  00:63A2                      ;replay_tonetable_FM	#2			; ToneTable (affected by transpose);
+     110.  00:63A2  (00:C02D)           replay_tonetable		#2			; Current tonetable to read from
+     111.  00:63A2                      
+     112.  00:63A2  (00:C02F)           equalization_freq:	#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
+     113.  00:63A2  (00:C030)           equalization_cnt:		#1	; counter for correct playback on 60hz
+     114.  00:63A2  (00:C031)           equalization_flag:	#1	; flag indicating if only instruments need to be processed.
+     115.  00:63A2                      
+     116.  00:63A2                      
+     117.  00:63A2                      
+     118.  00:63A2  (00:C032)           TRACK_Chan1			#TRACK_REC_SIZE
+     119.  00:63A2  (00:C059)           TRACK_Chan2			#TRACK_REC_SIZE
+     120.  00:63A2  (00:C080)           TRACK_Chan3			#TRACK_REC_SIZE
+     121.  00:63A2  (00:C0A7)           TRACK_Chan4			#TRACK_REC_SIZE
+     122.  00:63A2  (00:C0CE)           TRACK_Chan5			#TRACK_REC_SIZE
+     123.  00:63A2  (00:C0F5)           TRACK_Chan6			#TRACK_REC_SIZE
+     124.  00:63A2  (00:C11C)           TRACK_Chan7			#TRACK_REC_SIZE
+     125.  00:63A2  (00:C143)           TRACK_Chan8			#TRACK_REC_SIZE
+     126.  00:63A2                      
+     127.  00:63A2                      
+     128.  00:63A2                      
+     129.  00:63A2                      ;--- AY SPECIFIC
+     130.  00:63A2  (00:C16A)           PSG_registers		#0 
+     131.  00:63A2  (00:C16A)           PSG_regToneA 		#2	; Tone A freq low (8bit)
+     132.  00:63A2                      					; Tone A freq high (4bit)
+     133.  00:63A2  (00:C16C)           PSG_regToneB 		#2	; Tone B freq low
+     134.  00:63A2                      					; Tone B freq high
+     135.  00:63A2  (00:C16E)           PSG_regToneC 		#2	; Tone C freq low
+     136.  00:63A2                      					; Tone C freq high
+     137.  00:63A2  (00:C170)           PSG_regNOISE 		#1	; Noise freq (5bit)
+     138.  00:63A2  (00:C171)           PSG_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
+     139.  00:63A2  (00:C172)           PSG_regVOLA 			#1	; Chan A volume
+     140.  00:63A2  (00:C173)           PSG_regVOLB 			#1	; Chan B volume
+     141.  00:63A2  (00:C174)           PSG_regVOLC  		#1	; Chan C volume
+     142.  00:63A2  (00:C175)           PSG_regVOLN			#1
+     143.  00:63A2  (00:C176)           PSG_regNOISEold		#1
+     144.  00:63A2  (00:C177)           GG_panning			#1
+     145.  00:63A2                      ;PSG_regEnvL 			#1	; Volume Env Freq low (8bit)	
+     146.  00:63A2                      ;PSG_regEnvH 			#1	; Volume Env Freq high (4bit)
+     147.  00:63A2                      ;PSG_regEnvShape 		#1	; Volume Env Shape (4bit)
+     148.  00:63A2                      
+     149.  00:63A2                      ;--- SCC SPECIFIC
+     150.  00:63A2                      ;
+     151.  00:63A2                      ;_0x9800:	#32			; Waveform data
+     152.  00:63A2                      ;_0x9820:	#32
+     153.  00:63A2                      ;_0x9840:	#32
+     154.  00:63A2                      ;_0x9860:	#32
+     155.  00:63A2                      
+     156.  00:63A2  (00:C178)           FM_Registers: 	#0	; contains the registers values to write and value previously written
+     157.  00:63A2  (00:C178)           FM_regToneA 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+     158.  00:63A2  (00:C17A)           FM_regToneAb 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+     159.  00:63A2  (00:C17C)           FM_regVOLA		#1	; Chan A volume
+     160.  00:63A2  (00:C17D)           FM_regVOLAb		#1	; Chan A volume
+     161.  00:63A2  (00:C17E)           FM_regToneB 	#2	; Tone B freq low					; Tone B freq high
+     162.  00:63A2  (00:C180)           FM_regToneBb 	#2	; Tone B freq low					; Tone B freq high
+     163.  00:63A2  (00:C182)           FM_regVOLB		#1	; Chan B volume
+     164.  00:63A2  (00:C183)           FM_regVOLBb		#1	; Chan B volume
+     165.  00:63A2  (00:C184)           FM_regToneC 	#2	; Tone C freq low					; Tone C freq high
+     166.  00:63A2  (00:C186)           FM_regToneCb 	#2	; Tone C freq low					; Tone C freq high
+     167.  00:63A2  (00:C188)           FM_regVOLC	 	#1	; Chan C volume
+     168.  00:63A2  (00:C189)           FM_regVOLCb	 	#1	; Chan C volume
+     169.  00:63A2  (00:C18A)           FM_regToneD 	#2	; Tone D freq low					; Tone D freq high
+     170.  00:63A2  (00:C18C)           FM_regToneDb 	#2	; Tone D freq low					; Tone D freq high
+     171.  00:63A2  (00:C18E)           FM_regVOLD		#1	; Chan D volume
+     172.  00:63A2  (00:C18F)           FM_regVOLDb		#1	; Chan D volume
+     173.  00:63A2  (00:C190)           FM_regToneE 	#2	; Tone E freq low					; Tone E freq high
+     174.  00:63A2  (00:C192)           FM_regToneEb 	#2	; Tone E freq low					; Tone E freq high
+     175.  00:63A2  (00:C194)           FM_regVOLE	  	#1	; Chan E volume
+     176.  00:63A2  (00:C195)           FM_regVOLEb	  	#1	; Chan E volume
+     177.  00:63A2  (00:C196)           FM_regToneF 	#2	; Tone E freq low					; Tone F freq high
+     178.  00:63A2  (00:C198)           FM_regToneFb 	#2	; Tone E freq low					; Tone F freq high
+     179.  00:63A2  (00:C19A)           FM_regVOLF	  	#1	; Chan F volume
+     180.  00:63A2  (00:C19B)           FM_regVOLFb	  	#1	; Chan F volume
+     181.  00:63A2                      
+     182.  00:63A2  (00:C19C)           DRUM_regToneBD	#2
+     183.  00:63A2  (00:C19E)           DRUM_regToneBDb	#2
+     184.  00:63A2  (00:C1A0)           DRUM_regVolBD	#1
+     185.  00:63A2  (00:C1A1)           DRUM_regVolBDb	#1
+     186.  00:63A2  (00:C1A2)           DRUM_regToneSH	#2
+     187.  00:63A2  (00:C1A4)           DRUM_regToneSHb	#2
+     188.  00:63A2  (00:C1A6)           DRUM_regVolSH	#1
+     189.  00:63A2  (00:C1A7)           DRUM_regVolSHb	#1
+     190.  00:63A2  (00:C1A8)           DRUM_regToneCT	#2
+     191.  00:63A2  (00:C1AA)           DRUM_regToneCTb	#2
+     192.  00:63A2  (00:C1AC)           DRUM_regVolCT	#1
+     193.  00:63A2  (00:C1AD)           DRUM_regVolCTb	#1
+     194.  00:63A2  (00:C1AE)           FM_DRUM		#1	; Percussion bits
+     195.  00:63A2  (00:C1AF)           FM_DRUM_Flags		#1	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update
+     196.  00:63A2  (00:C1B0)           FM_freqreg1			#2	; Base drum
+     197.  00:63A2  (00:C1B2)           FM_volreg1			#1	; Drum (low)
+     198.  00:63A2  (00:C1B3)           FM_freqreg2			#2	; Snare + HiHat
+     199.  00:63A2  (00:C1B5)           FM_volreg2			#1	; Snare(low) Hihat(High)
+     200.  00:63A2  (00:C1B6)           FM_freqreg3			#2	; Cymbal + TomTom
+     201.  00:63A2  (00:C1B8)           FM_volreg3			#1	; Cymbal(low) TomTom (High)
+     202.  00:63A2                      
+     203.  00:63A2  (00:C1B9)           FM_DRUM_LEN			#1	; Length of drum macro
+     204.  00:63A2  (00:C1BA)           FM_DRUM_MACRO		#2	; Pointer to drum macro data
+     205.  00:63A2                      
+     206.  00:63A2  (00:C1BC)           FM_softvoice_req		#1	; Software voice requested
+     207.  00:63A2  (00:C1BD)           FM_softvoice_set 		#1	; Software voice currently loaded
+     208.  00:63A2                      
+     209.  00:63A2                      
+     210.  00:63A2                      ; DEze lijkt niet meer nodig
+     211.  00:63A2  (00:C1BE)           FM_regMIXER 		#1	; x3f	; Mixer control (1 = off, 0 = on)
+     212.  00:63A2                      
+     213.  00:63A2                      
+     214.  00:63A2                      
+     215.  00:63A2                      
+     216.  00:63A2                      ;/// see to remove this.
+     217.  00:63A2                      ;-- SCC registers
+     218.  00:63A2  (00:C1BF)           oldregs:	#(32*4)+(3*5)+1		; a way to int the SCC
+     219.  00:63A2                      
+     220.  00:63A2                      
+     617   00:63A2                      	
+     618   00:63A2                      
+     619   00:63A2  (00:C24F)           debug_pointer1:	#2
+     620   00:63A2  (00:C251)           debug_pointer2:	#2	
+     621   00:63A2  (00:C253)           debug_pnt:		#8*80
+     622   00:63A2  (00:C4D3)           TEXT_Chan		#40
+     623   00:63A2                      
+     624   00:63A2                      	
+     625   00:63A2                      ;	include	"..\ttsfxplay\ttsfxplay_RAM.asm"
+     626   00:63A2  (00:C4FB)           pattern	#1
 
     LABELS
 -------------------------------------------------
@@ -4859,39 +6029,98 @@ Errors: 0
 00:00005060 X route_SN
 00:00005101 X route_gg
 00:00005104 X route_FM
-00:0000510E   route_FM.noVoice
-00:00005118   route_FM.channel_loop
-00:0000514B X _route_FM_drum_update
-00:00005167   _route_FM_reg8_update
-00:0000516C   _route_FM_reg16_update
-00:0000516F   _rfr_cont
-00:0000517D   _route_FM_keyOff_update
-00:0000520C   _VOLUME_TABLE
-00:0000530C   TRACK_ToneTable_PSG
-00:000053CC   TRACK_ToneTable_FM
-00:0000548C   TRACK_Vibrato_sine
-00:0000560C   demo_song
-00:00005613   demo_song.restart
-00:00005627   demo_song.customvoice_start
-00:00005627 X demo_song.waveform_start
-00:00005627   demo_song.drummacro_start
-00:00005627   demo_song.instrument_start
-00:0000562B   demo_song.instrument_00
-00:0000562C   demo_song.rst_i00
-00:00005630   demo_song.instrument_01
-00:00005631   demo_song.rst_i01
-00:00005635   demo_song.track_168
-00:00005637   demo_song.track_169
-00:0000564D   demo_song.track_170
-00:0000566D   demo_song.track_171
-00:00005682   demo_song.track_172
-00:0000569D   TEXT_Title
-00:000056C2   TEXT_Step
-00:000056C8   TEXT_Header_Data
-00:000056E0   TEXT_Register_Header
-00:00005703   TEXT_Register_Drum
-00:00005714   TEXT_Legend_Data
-00:0000574E   font_data
+00:00005111   route_FM.noVoice
+00:0000511B   route_FM.channel_loop
+00:0000514E X _route_FM_drum_update
+00:0000516A   _route_FM_reg8_update
+00:0000516F   _route_FM_reg16_update
+00:00005172   _rfr_cont
+00:00005180   _route_FM_keyOff_update
+00:0000518F   load_softwarevoice
+00:00005199   load_softwarevoice.voiceupd_loop
+00:00005230   _VOLUME_TABLE
+00:00005330   TRACK_ToneTable_PSG
+00:000053F0   TRACK_ToneTable_FM
+00:000054B0   TRACK_Vibrato_sine
+00:00005630   demo_song
+00:00005697   demo_song.restart
+00:0000576B   demo_song.customvoice_start
+00:0000576B X demo_song.waveform_start
+00:0000576B   demo_song.drummacro_start
+00:0000576B   demo_song.instrument_start
+00:0000577D   demo_song.instrument_00
+00:00005796   demo_song.rst_i00
+00:0000579A   demo_song.instrument_01
+00:0000579B   demo_song.rst_i01
+00:000057AD   demo_song.instrument_02
+00:000057B4   demo_song.rst_i02
+00:000057C5   demo_song.instrument_03
+00:000057CC   demo_song.rst_i03
+00:000057DE   demo_song.instrument_04
+00:000057F5   demo_song.rst_i04
+00:000057FA   demo_song.instrument_05
+00:00005803   demo_song.rst_i05
+00:00005807   demo_song.instrument_06
+00:00005808   demo_song.rst_i06
+00:0000580C   demo_song.instrument_07
+00:0000580D   demo_song.rst_i07
+00:00005811   demo_song.instrument_08
+00:00005812   demo_song.rst_i08
+00:00005816   demo_song.track_000
+00:00005829   demo_song.track_001
+00:0000583E   demo_song.track_002
+00:00005843   demo_song.track_003
+00:00005845   demo_song.track_008
+00:00005856   demo_song.track_009
+00:00005860   demo_song.track_010
+00:0000586D   demo_song.track_017
+00:00005877   demo_song.track_018
+00:00005886   demo_song.track_025
+00:0000588F   demo_song.track_026
+00:00005895   demo_song.track_033
+00:0000589E   demo_song.track_034
+00:000058A8   demo_song.track_040
+00:000058BA   demo_song.track_041
+00:000058BF   demo_song.track_042
+00:000058C5   demo_song.track_043
+00:000058C7   demo_song.track_049
+00:000058DB   demo_song.track_050
+00:000058ED   demo_song.track_057
+00:000058FF   demo_song.track_058
+00:0000590D   demo_song.track_065
+00:0000591F   demo_song.track_066
+00:00005930   demo_song.track_073
+00:00005942   demo_song.track_074
+00:00005951   demo_song.track_081
+00:00005963   demo_song.track_082
+00:00005972   demo_song.track_089
+00:00005984   demo_song.track_090
+00:00005994   demo_song.track_097
+00:000059A7   demo_song.track_098
+00:000059B8   demo_song.track_104
+00:000059CB   demo_song.track_105
+00:000059DB   demo_song.track_106
+00:000059EE   demo_song.track_112
+00:00005A04   demo_song.track_113
+00:00005A19   demo_song.track_114
+00:00005A31   demo_song.track_120
+00:00005A41   demo_song.track_121
+00:00005A54   demo_song.track_122
+00:00005A63   demo_song.track_128
+00:00005A77   demo_song.track_129
+00:00005A8C   demo_song.track_130
+00:00005AA1   demo_song.track_136
+00:00005AB1   demo_song.track_138
+00:00005AC1   demo_song.track_144
+00:00005AD4   demo_song.track_145
+00:00005AE5   demo_song.track_146
+00:00005AF1   TEXT_Title
+00:00005B16   TEXT_Step
+00:00005B1C   TEXT_Header_Data
+00:00005B34   TEXT_Register_Header
+00:00005B57   TEXT_Register_Drum
+00:00005B68   TEXT_Legend_Data
+00:00005BA2   font_data
 00:FFFFFFEF   TRACK_Instrument
 00:FFFFFFF0   TRACK_Command
 00:FFFFFFF1   TRACK_MacroPointer
@@ -5047,8 +6276,8 @@ Errors: 0
 -------------------------------------------------
 
  Page: 00
-  Org: 00004000  Size: 00008000  Used: 00001F4E
+  Org: 00004000  Size: 00008000  Used: 000023A2
 
    Address   Length Align   Label
-   00004000    8014         initmain
-   00005F4E   24754       <empty>
+   00004000    9122         initmain
+   000063A2   23646       <empty>

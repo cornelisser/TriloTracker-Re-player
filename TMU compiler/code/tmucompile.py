@@ -6,6 +6,8 @@ from track import Track
 from voice import Voice
 from waveform import Waveform
 
+#from replayer import Replayer
+
 import sys
 
 USAGE = f"Usage: {sys.argv[0]} [--options] infile [outfile]"
@@ -134,52 +136,51 @@ def load_tmu(infile,song):
 					drum.rows.append(row)
 					r+=1
 				d+=1
-				
-			# THIS IS TO OVERCOME AN ERROR IN THE FILES
+
+
+		# THIS IS TO OVERCOME AN ERROR IN THE FILES
+		if song.type != "SCC":	
 			index = index -1	
-			
-			
-			p = 0							# Patterns
-			t = 0
-			while p != -1:
-				num = data[index]
-				if num == 255:
-					break
-				index+=1
-				l = data[index]
-				l += ord(data[index+1:index+2])*256
-				index+=2
-				# decompress pattern
-				cmp_pat = data[index:index+l]
-				pat = decompress_pattern(cmp_pat)
-				index+=l
-				# store pattern
-				pattern = Pattern(num,t)
-				song.patterns.append(pattern)
-				#print (pattern.tracks)
-				# store tracks
-				chan = 0 
-				for chan in range(0,8):
-					#print(f"Pat:{num} Track: {t}")
-					track = Track(t)
-					row = 0
-					for row in range(0,64):
-						note = pat[(chan*4+row*32)+0]
-						ins = pat[(chan*4+row*32)+1]
-						tmp = int(pat[(chan*4+row*32)+2])
-						par = pat[(chan*4+row*32)+3]
-
-						vol = tmp >> 4
-						cmd = tmp & 0x0f
-
-						
-						track.rows.append([note,ins,vol,cmd,par])
-						#row += 1
-					#chan += 1
-					t += 1
-					song.tracks.append(track)
-		# DONE!	
 		
+		p = 0							# Patterns
+		t = 0
+		while p != -1:
+			num = data[index]
+			if num == 255:
+				break
+			index+=1
+			l = data[index]
+			l += ord(data[index+1:index+2])*256
+			index+=2
+			# decompress pattern
+			cmp_pat = data[index:index+l]
+			pat = decompress_pattern(cmp_pat)
+			index+=l
+			# store pattern
+			pattern = Pattern(num,t)
+			song.patterns.append(pattern)
+			#print (pattern.tracks)
+			# store tracks
+			chan = 0 
+			for chan in range(0,8):
+				#print(f"Pat:{num} Track: {t}")
+				track = Track(t)
+				row = 0
+				for row in range(0,64):
+					note = pat[(chan*4+row*32)+0]
+					ins = pat[(chan*4+row*32)+1]
+					tmp = int(pat[(chan*4+row*32)+2])
+					par = pat[(chan*4+row*32)+3]
+					vol = tmp >> 4
+					cmd = tmp & 0x0f
+						
+					track.rows.append([note,ins,vol,cmd,par])
+					#row += 1
+				#chan += 1
+				t += 1
+				song.tracks.append(track)
+	# DONE!	
+	
 def decompress_pattern(data):
 	pat = [0]*2048
 	
@@ -257,7 +258,7 @@ def export_asm(outfile,song):
 				file.write(f"{_DB}")
 				for x in range(0,31):
 					file.write(f" ${waveform.data[x]:02x},")
-				file.write(f" ${waveform.data[31]:02x}\t\t; Waveform:{waveform.number:0}\n")		
+				file.write(f" ${waveform.data[31]:02x}\t\t\t\t; Waveform:{waveform.number:0}\n")		
 			
 		file.write("\n; [ FM Drum macros]\n")		
 		file.write(f"{_CHILD}drummacro_start:\n")		
@@ -281,7 +282,7 @@ def export_asm(outfile,song):
 				file.write(f"{_CHILD}instrument_{instrument.export_number:02}:\t\t\t\t\t; {instrument.name}\n")
 				if song.type == "SCC":
 					waveform = song.get_waveform(instrument.number)
-					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\; Waveform {waveform.number}\n")
+					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\t\t; Waveform {waveform.number}\n")
 				elif song.type == "FM" or song.type == "SMS":
 					voice = song.get_voice(instrument.voice)
 					if instrument.voice < 16:
@@ -296,7 +297,7 @@ def export_asm(outfile,song):
 						# Compile row
 						#===========================================
 					file.write(export_instrument_row_asm(instrument,r,song))
-				file.write(f"{_DW} {_CHILD}rst_i{instrument.export_number:02}\t\t\t; Loop address\n")		
+				file.write(f"{_DW} {_CHILD}rst_i{instrument.export_number:02}\t\t\t\t\t\t; Loop address\n")		
 		
 		file.write("\n; [ Song track data ]\n")							
 		for track in song.tracks:
@@ -439,7 +440,7 @@ def export_instrument_row_asm_fm(ins,r):
 
 
 	result_vol = byte2 & 0x0f						# volume value
-	result_noise= 0;								#byte1 And $1f	; noise value / voicelink
+	result_noise= 0									#byte1 And $1f	; noise value / voicelink
 	result_nvol = 0
 
 	result_toneL = byte3
@@ -518,93 +519,83 @@ def export_instrument_row_asm_fm(ins,r):
 
 def export_instrument_row_asm_scc(ins,r):
 	row = ins.rows[r]
+	out = ""
+	bit0 = 1
+	bit1 = 2
+	bit2 = 4
+	bit3 = 8
+	bit4 = 16
+	bit5 = 32
+	bit6 = 64
+	bit7 = 128
 
-	byte1 = row[0]
-	byte2 = row[1]
-	byte3 = row[2]
-	byte4 = row[3]
+	byte1 = row[0]			# [N |Nd |Nd |  Noise 5bit   ] 
+	byte2 = row[1]			# [T |Td |Vd |Vd |Volume 4bit]
+	byte3 = row[2]			# [      Tone low 8 bit      ]
+	byte4 = row[3]			# [           |Tone high 4bit]
 
-	if r == ins.length:			# set the end of instrument bit
-		e = 0x08
+							# Output format:
+							# [Nbit |Nupd|Ndev|Tbit|Tupd|Vupd|Vdev|End]
+							#	7     6    5    4    3    2    1    0
+
+	if r == ins.length -1:			# set the end of instrument bit
+		e = bit0
 	else:
 		e = 0
-
-	result_info = byte1 & 0x80						# Set the noise active bit
-	result_info = result_info + ((byte2 >>3 ) & 0x10)	# Set the tone active bit
-	result_info = result_info + e						# Set the END macro bit
-
-	result_vol = byte2 & 0x0f						# volume value
-	result_noise= 0;								#byte1 And $1f			; noise value / voicelink
-
-	result_toneL = byte3
-	result_toneH = byte4 & 0x7f						# tone without voicelink bit
-	
-	result_link = byte4 & 0x80					# voicelink bit
-
-	# Calculate noise
-	if (byte1 & 0x80 > 0):
-		result_noise= byte1 & 0x1f					#; noise value
-		if ((byte1 & 0x40) == 0):		
-			# base noise
-			result_info = result_info + 0x20
-		elif (result_noise> 0):
-			if ((byte1 & 0x60) == 0x40):
-				# add noise
-				result_info = result_info + 0x60
-			elif ((byte1 & 0x60) == 0x60):
-				# min noise
-				#result_info = result_info + $40		Be aware changed this as only an add is needed as value is negative
-				result_info = result_info + 0x60
-				result_noise= (255-result_noise)+1
-	
-	if (result_link > 0):
-		result_noise= byte1 & 0x0f					#; voice value
-		result_info = result_info + 0x40	
+	result_info = e
 
 	# calculate volume
-	if ((byte2 & 0x20) == 0x00):
+	result_vol = byte2 & 0x0f
+	if ((byte2 & bit5) == 0x00):		# if bit5 is not set
 		#base volume
-		result_info = result_info + 0x01
+		result_info = result_info + bit2
+		out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume _\n"
 	elif (byte2 & 0x30) == 0x20 and (result_vol > 0):
 		# add volume
-		result_info = result_info + 0x03
+		result_info = result_info + bit2 + bit1
+		out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume +\n"
 	elif (result_vol > 0):
 		#min volume
-		result_info = result_info + 0x03
+		result_info = result_info + bit2 + bit1
 		result_vol = (255-result_vol)+1
-	
-	# calculate tone	
-	if (result_toneL + result_toneH > 0):
-		if ((byte2 & 0x40) == 0x40):
-			# min
-			result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
-			result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
-		result_info = result_info + 0x04
+		out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume -\n"
 
-	
+	# calculate noise value
+	result_noise = byte1 & 0x1f
+	if ((byte1 & bit7)!= 0x00):
+		# set noise bit
+		result_info = result_info + bit7
+		if ((byte1 & bit6) == 0x00):
+			# base noise
+			result_info = result_info + bit6
+			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise _\n"
+		if ((byte1 & 0x60) == 0x40 and result_noise >0):
+			# add noise
+			result_info = result_info + bit6 + bit5
+			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise +\n"		
+		elif (result_noise > 0):
+			# min noise
+			result_info = result_info + bit6 + bit5
+			result_noise = (255-result_noise)+1	
+			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise +\n"		
+
+	# calculate tone
+	result_toneL = byte3
+	result_toneH = byte4 & 0x0f
+
+	if ((byte2 & bit7)!= 0x00):
+		# Set Tone bit
+		result_info = result_info + bit4
+		if (result_toneL + result_toneH > 0):
+			if ((byte2 & bit6) == bit6):
+				# min
+				result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
+				result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff				
+			result_info = result_info + bit3
+			out = out+ f"{_DW} ${result_toneH:02x}{result_toneL:02x}\t\t\t\t\t\t\t; Tone\n"			
+
 	# calculate output
-	out = f"{_DB} ${result_info:02x}"
-	if ((result_info & 0x03) > 0):
-		out = out + f",${result_vol:02x}"
-	else: 
-		out = out + "    "
-
-	if (result_noise> 0):
-		if (result_link > 0):
-			out = out + "    "
-			out = out +f",${result_link:02x}"
-		else:
-			out = out +f",${result_noise:02x}"
-			out = out + "    "
-	else:
-		out = out + "        "
-	if ((result_info & 0x04) > 0):
-		out = out + f",${result_toneL:02x}"
-		out = out + f",${result_toneH:02x}"
-	else: 
-		out = out + "        "	
-		
-	out = out + f"\t\t; {result_info:08b}\n"
+	out = f"{_DB} ${result_info:02x}\t\t\t\t\t\t\t; Info byte: {result_info:08b}\n"+out
 	return out
 
 
@@ -869,6 +860,7 @@ def process_commandline_parameter_option(option):
 process_commandline_parameters()
 song = Song()
 load_tmu(infile,song)
+#replayer = Replayer(song)
 
 print (f"Input file: {infile}")
 print (f"Output file: {outfile}")
@@ -879,6 +871,8 @@ song.debug()
 
 
 export_asm(outfile,song)
+
+#replayer.logframes(song)
 
 
 

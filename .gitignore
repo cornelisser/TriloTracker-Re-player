@@ -24,3 +24,23 @@ TMU compiler/boy.tmu
 TMU compiler/boymsx.tmu
 
 *.pyc
+
+PSG-FM_Re-player/test/compile.bat
+
+PSG-FM_Re-player/test/main.lst
+
+PSG-SCC_Re-player/example/main\{SCC\}.lst
+
+PSG-SCC_Re-player/example/main\{SCC\}.sym
+
+PSG-SCC_Re-player/example/sjasm.exe
+
+TMU compiler/code/cmd-test.tmu
+
+TMU compiler/code/replayer.tmu
+
+TMU compiler/code/test.lst
+
+TMU
+
+PSG-FM_Re-player/.vscode/launch.json

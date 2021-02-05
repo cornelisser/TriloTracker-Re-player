@@ -1,0 +1,72 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:soap1="http://xy.spatial-eye.com/soap">
+   <soap:Header/>
+   <soap:Body>
+      <soap1:PswServiceRequestResponse>
+         <soap1:PrismaId>1</soap1:PrismaId>
+         <soap1:TownName>Bergen op Zoom</soap1:TownName>
+         <soap1:StreetName>Plasticlaan 5</soap1:StreetName>
+         <soap1:XCustomerLocation>76318.03</soap1:XCustomerLocation>
+         <soap1:YCustomerLocation>391547.92</soap1:YCustomerLocation>
+         <soap1:ValidAddress>true</soap1:ValidAddress>
+         <soap1:Pops>
+            <!--Zero or more repetitions:-->
+            <soap1:PswPop>
+               <soap1:ProductGroup>Fibre</soap1:ProductGroup>
+               <soap1:ProductType>Premium Access</soap1:ProductType>
+               <soap1:ProductFeature>100 mb</soap1:ProductFeature>
+               <soap1:NetworkStatus>Green</soap1:NetworkStatus>
+               <soap1:NetworkRemarkPSWId>0</soap1:NetworkRemarkPSWId>
+               <soap1:NetworkRemarkText>ok</soap1:NetworkRemarkText>
+               <soap1:Distance>75</soap1:Distance>
+               <soap1:PopType>Glasshole</soap1:PopType>
+               <soap1:PopName>BOZ-H20404</soap1:PopName>
+               <soap1:XPopLocation>76318.03</soap1:XPopLocation>
+               <soap1:YPopLocation>391547.92</soap1:YPopLocation>
+               <soap1:DsLocationName>BOZ-LC0012</soap1:DsLocationName>
+                <soap1:Obstacles>
+                  <!--Zero or more repetitions:-->
+                  <soap1:ObjectDetail>
+                     <soap1:Name>Obstacle1</soap1:Name>
+                  </soap1:ObjectDetail>
+               </soap1:Obstacles>
+               <soap1:AdditionalNetworkComponentNames>
+                  <!--Zero or more repetitions:-->
+                  <soap1:ObjectDetail>
+                  	<soap1:Name>ComponentName1</soap1:Name>
+                  </soap1:ObjectDetail>
+               </soap1:AdditionalNetworkComponentNames>
+               <soap1:FootPrint>fZiggo</soap1:FootPrint>
+            </soap1:PswPop>
+            <soap1:PswPop>
+               <soap1:ProductGroup>Fibre2</soap1:ProductGroup>
+               <soap1:ProductType>Premium Access2</soap1:ProductType>
+               <soap1:ProductFeature>10 mb</soap1:ProductFeature>
+               <soap1:NetworkStatus>Orange</soap1:NetworkStatus>
+               <soap1:NetworkRemarkPSWId>0</soap1:NetworkRemarkPSWId>
+               <soap1:NetworkRemarkText>ok</soap1:NetworkRemarkText>
+               <soap1:Distance>50</soap1:Distance>
+               <soap1:PopType>Glasshole</soap1:PopType>
+               <soap1:PopName>BOZ-H20555</soap1:PopName>
+               <soap1:XPopLocation>99999.03</soap1:XPopLocation>
+               <soap1:YPopLocation>11111.92</soap1:YPopLocation>
+               <soap1:DsLocationName>BOZ-LC0777</soap1:DsLocationName>
+                <soap1:Obstacles>
+                  <!--Zero or more repetitions:-->
+                  <soap1:ObjectDetail>
+                     <soap1:Name>Obstacle2</soap1:Name>
+                  </soap1:ObjectDetail>
+               </soap1:Obstacles>
+               <soap1:AdditionalNetworkComponentNames>
+                  <!--Zero or more repetitions:-->
+                  <soap1:ObjectDetail>
+                  	<soap1:Name>ComponentName2</soap1:Name>
+                  </soap1:ObjectDetail>
+               </soap1:AdditionalNetworkComponentNames>
+               <soap1:FootPrint>fZiggo2</soap1:FootPrint>
+            </soap1:PswPop>
+         </soap1:Pops>
+         <soap1:ErrorCode>0</soap1:ErrorCode>
+         <soap1:ErrorText>Ok</soap1:ErrorText>
+      </soap1:PswServiceRequestResponse>
+   </soap:Body>
+</soap:Envelope>

@@ -252,7 +252,11 @@ class Song:
 		return None
 
 
-
+	def get_waveform(self,number):
+		for waveform in self.waveforms:
+			if waveform.number == number:
+				return waveform
+		return None
 
 
 
@@ -287,7 +291,7 @@ class Song:
 	
 		for pat in self.patterns:
 			if pat.number in self.order_list:			# test if pattern is on order list
-				length = 64;
+				length = 64
 				pat.used = True							# Set to true if used.
 				for t in pat.tracks:					# Set tracks related to pattern also to true
 					tmp = self.tracks[t].detect_length()	# Detect Effect D00 in track
