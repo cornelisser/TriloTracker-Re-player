@@ -219,9 +219,9 @@ def export_asm(outfile,song):
 		file.write(f"; By:   {song.by}\n\n")		
 	
 		file.write("; [ Song start data ]\n")
-		file.write(f"{_DB} ${song.speed:02x}\t\t\t\t\t; Initial song speed.\n")
+		file.write(f"{_DB} ${song.speed:02x}\t\t\t\t\t\t\t; Initial song speed.\n")
 		file.write(f"{_DW} {_CHILD}customvoice_start\t\t\t; Start of the custom voices data.\n")
-		file.write(f"{_DW} {_CHILD}drummacro_start\t\t\t; Start of the drum macro data.\n")		
+		file.write(f"{_DW} {_CHILD}drummacro_start\t\t\t\t; Start of the drum macro data.\n")		
 		file.write(f"{_DW} {_CHILD}instrument_start\t\t\t; Start of the instrument data.\n")		
 
 		file.write("\n; [ Song order pointer list ]\n")	
@@ -240,7 +240,7 @@ def export_asm(outfile,song):
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[5]].export_number:03},")			
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[6]].export_number:03},")
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[7]].export_number:03}\t; Step:{step:03} Pattern:{pat.number:03}\n")		
-		file.write(f"{_DW} 0x0000, {_CHILD}restart\t\t\t; End of sequence delimiter + restart address.\n\n")
+		file.write(f"{_DW} 0x0000, {_CHILD}restart\t\t\t\t; End of sequence delimiter + restart address.\n\n")
 
 
 	
@@ -296,7 +296,7 @@ def export_asm(outfile,song):
 						file.write(f"{_CHILD}rst_i{instrument.export_number:02}:\n")
 						# Compile row
 						#===========================================
-					file.write(export_instrument_row_asm(instrument,r,song))
+					file.write(export_ins_row_asm(instrument,r,song))
 				file.write(f"{_DW} {_CHILD}rst_i{instrument.export_number:02}\t\t\t\t\t\t; Loop address\n")		
 		
 		file.write("\n; [ Song track data ]\n")							
@@ -309,19 +309,19 @@ def export_asm(outfile,song):
 
 
 
-def export_instrument_row_asm(ins,r,song):
+def export_ins_row_asm(ins,r,song):
 	
 	if song.type == "SMS":
-		return export_instrument_row_asm_sms(ins,r)
+		return export_ins_row_asm_sms(ins,r)
 	elif song.type == "SCC":
-		return export_instrument_row_asm_scc(ins,r)
+		return export_ins_row_asm_scc(ins,r)
 	else:
-		return export_instrument_row_asm_fm(ins,r)
+		return export_ins_row_asm_fm(ins,r)
 		
 		
 		
 
-def export_instrument_row_asm_sms(ins,r):
+def export_ins_row_asm_sms(ins,r):
 	row = ins.rows[r]
 	out = ""
 	bit0 = 1
@@ -419,7 +419,7 @@ def export_instrument_row_asm_sms(ins,r):
 
 
 
-def export_instrument_row_asm_fm(ins,r):
+def export_ins_row_asm_fm(ins,r):
 	row = ins.rows[r]
 
 	byte1 = row[0]	
@@ -517,7 +517,7 @@ def export_instrument_row_asm_fm(ins,r):
 
 
 
-def export_instrument_row_asm_scc(ins,r):
+def export_ins_row_asm_scc(ins,r):
 	row = ins.rows[r]
 	out = ""
 	bit0 = 1
@@ -699,84 +699,161 @@ def export_track(file,track):
 			pass	
 		else:
 			# Add end command detection here (e.g. 100, 300, 400 etc)
-			if p == 0 and (c <= 6 or c == 0xa):	# command end
+			if p == 0 and (c <= 6 or c == 0xa):	
+				# command end
+				# parameter: none
 				file.write(f"{_DB} ${cmd['END']:02x}\t\t\t;CMD End \n")	
-			elif c == 0:					# arpeggio
+			elif c == 0:					
+				# arpeggio
+				# parameter: as in tracker
 				file.write(f"{_DB} ${cmd['0']:02x},${p:02x}\t\t\t;CMD Arpeggio\n")	
-			elif c == 1:					# portamento up
+			elif c == 1:					
+				# portamento up
+				# parameter: as in tracker
 				file.write(f"{_DB} ${cmd['1']:02x},${p:02x}\t\t\t;CMD Portamento up\n")	
-			elif c == 2:					# portamento down
+			elif c == 2:					
+				# portamento down
+				# parameter: as in tracker
 				file.write(f"{_DB} ${cmd['2']:02x},${p:02x}\t\t\t;CMD Portamento down\n")	
-			elif c == 3:					# portamento tone
+			elif c == 3:					
+				# portamento tone
+				# parameter: as in tracker
 				file.write(f"{_DB} ${cmd['3']:02x},${p:02x}\t\t\t;CMD Portamento tone\n")	
-			elif c == 4:					# vibrato
+			elif c == 4:					
+				# vibrato
+				# parameter: xy - x = speed, y=depth. Depth is limited to 0xC0
 				par = calculate_vibrato_parameter(p)
-				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")			
-			elif c == 5:					# portamento tone + volume slide
+				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t;CMD Vibrato\n")			
+			elif c == 5:					
+				# portamento tone + volume slide
+				# parameter: xy = slide value value (pos or negative)
 				val = calculate_volslide_parameter(p)	
 				file.write(f"{_DB} ${cmd['5']:02x},${val:02x}\t\t\t;CMD Portamento tone + Volume slide\n")
-			elif c == 6:					# vibrato + volume slide
+			elif c == 6:					
+				# vibrato + volume slide
+				# parameter: xy = slide value value (pos or negative)
 				val = calculate_volslide_parameter(p)
 				file.write(f"{_DB} ${cmd['6']:02x},${val:02x}\t\t\t;CMD Vibrato + Volume slide\n")
-			elif c == 7:				# Tremolo
+			elif c == 7:				
+				# Tremolo
+				# parameter: xy - x = speed, y=depth. Depth is limited to 0xC0
 				par = calculate_vibrato_parameter(p)
 				file.write(f"{_DB} ${cmd['7']:02x},${par:02x}\t\t\t;CMD Tremolo\n")				
 			elif c == 8:	
-				if song.type == 'SMS': 	# unused
-					file.write(f"\t\t\t;CMD 8 Unused\n")	
-				else:					# envelope multiplier
-					file.write(f"{_DB} ${cmd['8']:02x},${p:02x}\t\t\t;CMD Envelope multiplier\n")
-			elif c == 9:					# Unused
-				file.write(f"\t\t\t;CMD 9 Unused up\n")
-			elif c == 0xa:				# volume slide
+				if song.type == 'SMS': 	
+					# unused
+					file.write(f"\t\t\t;CMD 8 Unused [WARNING]\n")	
+					print(f"CMD 8 Unused [WARNING]")	
+				else:					
+					# envelope multiplier
+					# parameter: as in tracker
+					file.write(f"{_DB} ${cmd['8']:02x},${p:02x}\t\t;CMD Envelope multiplier\n")
+			elif c == 9:					
+				# Unused
+				file.write(f"\t\t\t;CMD 9 Not supported [Macro Offset][WARNING]\n")
+				print(f"CMD 9 Not supported [Macro Offset][WARNING]")
+			elif c == 0xa:				
+				# volume slide
+				# parameter: xy = slide value value (pos or negative)
 				val = calculate_volslide_parameter(p)	
 				file.write(f"{_DB} ${cmd['A']:02x},${val:02x}\t\t\t;CMD Volume slide up\n")			
 			elif c == 0xb:				
-				if song.type == "SCC":	# SCC commands
-					file.write(f"\t\t\t;CMD SCC up\n")
-				else:					# Channel setup
+				if song.type == "SCC":
+					# SCC commands
+					file.write(f"\t\t\t;CMD Waveform Not implemented [WARNING]\n")
+					print(f"CMD Waveform Not implemented [WARNING]")
+				else:					
+					# Channel setup
 					file.write(f"{_DB} ${cmd['B']:02x},${p:02x}\t\t\t;CMD Channel setup\n")
 			elif c == 0xc:		
-				if song.type == "SCC":	# SCC commands
-					file.write(f"\t\t\t;CMD SCC up\n")
-				else:					# Drum
+				if song.type == "SCC":	
+					# SCC commands
+					file.write(f"\t\t\t;CMD Waveform Not implemented [WARNING]\n")
+					print(f"CMD Waveform Not implemented [WARNING]")
+				else:					
+					# Drum
+					# parameter: as in tracker
 					file.write(f"{_DB} ${cmd['C']:02x},${p:02x}\t\t\t;CMD Drum ${p:02x}\n")
-			elif c == 0x0d:				# End of pattern
+			elif c == 0x0d:				
+				# End of pattern
+				# Parameter: none
 				pass						
-			elif c == 0x0e:		# Extended command
+			elif c == 0x0e:		
+				# Extended command
 				x = p & 0xf0
 				y = p & 0x0f
-				if x == 0:				# Arpegio speed
+				if x == 0:				
+					# Arpegio speed
+					# Parameter: xy = speed value
 					file.write(f"{_DB} ${cmd['E0']:02x},${y:02x}\t\t\t;CMD Arpegio speed\n")
-				elif x == 0x10:			# Portamento fine up
+				elif x == 0x10:			
+					# Portamento fine up
+					# Parameter: xy = value (pos)
 					file.write(f"{_DB} ${cmd['E1']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
-				elif x == 0x20:			# Portamento fine down
+				elif x == 0x20:			
+					# Portamento fine down
+					# Parameter: xy = value (negative)
 					y = 256-y
 					file.write(f"{_DB} ${cmd['E2']:02x},${y:02x}\t\t\t;CMD Portamento fine up\n")
-				elif x == 0x50: 			# note link
+				elif x == 0x50: 			
+					# note link
+					# Parameter: none
 					file.write(f"{_DB} ${cmd['E5']:02x}\t\t\t;CMD Note link\n")
-				elif x == 0x60: 			# track detune
-					file.write(f"{_DB} ${cmd['E6']:02x},${y:02x}\t\t\t;CMD Track detune\n")
-				elif x == 0x80 and song.type == 'SMS':
-					file.write(f"{_DB} ${cmd['E8']:02x},${y:02x}\t\t\t;CMD GG tone panning\n")
-				elif x == 0x90 and song.type == 'SMS':
-					file.write(f"{_DB} ${cmd['E9']:02x},${y:02x}\t\t\t;CMD GG noise panning\n")
+				elif x == 0x60: 			
+					# track detune
+					# Parameter: xy = value
+					file.write(f"{_DB} ${cmd['E6']:02x},${y:02x}\t\t;CMD Track detune\n")
+				elif x == 0x80:
+					if song.type == 'SMS':
+						# GG Tone panning
+						# Parameter: xy = panning value
+						file.write(f"{_DB} ${cmd['E8']:02x},${y:02x}\t\t\t;CMD GG tone panning\n")
+					else:
+						# Unused
+						file.write(f"\t\t\t;CMD 8 Not supported [Global transpose][WARNING]\n")	
+						print(f"CMD 8 Not supported [Global transpose][WARNING]")	
+				elif x == 0x90:
+					if song.type == 'SMS':
+						# GG Noise panning
+						# Parameter: xy = panning value
+						file.write(f"{_DB} ${cmd['E9']:02x},${y:02x}\t\t\t;CMD GG noise panning\n")
+					else:
+						# Unused
+						file.write(f"\t\t\t;CMD E9 Not supported [WARNING]\n")
+						print(f"CMD E9 Not supported [WARNING]")
 				elif x == 0xc0:	
-					par = y + 1
-					file.write(f"{_DB} ${cmd['EC']:02x},${par:02x}\t\t\t;CMD Note cut delay\n")
-				elif x == 0xd0:				# Note delay	
-					par = y + 1
-					file.write(f"{_DB} ${cmd['ED']:02x},${par:02x}\t\t\t;CMD Note delay\n")
-				elif x == 0xe0 and song.type != 'SMS':
-					file.write(f"{_DB} ${cmd['EE']:02x},${y:02x}\t\t\t;CMD Envelope shape\n")
-				elif x == 0xf0:			# Trigger
+					# Note cut delay
+					# Parameter: xy = tic value +1
+					y = y + 1
+					file.write(f"{_DB} ${cmd['EC']:02x},${y:02x}\t\t\t;CMD Note cut delay\n")
+				elif x == 0xd0:				
+					# Note delay	
+					# Parameter: xy = tic value +1
+					y = y + 1
+					file.write(f"{_DB} ${cmd['ED']:02x},${y:02x}\t\t\t;CMD Note delay\n")
+				elif x == 0xe0:
+					if song.type != 'SMS':
+						# Envelope shape
+						# Parameter: xy = shape
+						file.write(f"{_DB} ${cmd['EE']:02x},${y:02x}\t\t\t;CMD Envelope shape\n")
+					else:
+						# Unused
+						file.write(f"\t\t\t;CMD EE Not supported [Global transpose][WARNING]\n")
+						print(f"CMD EE Not supported [Global transpose][WARNING]")	
+				elif x == 0xf0:			
+					# Trigger
+					# Parameter: xy = trigger value
 					file.write(f"{_DB} ${cmd['EF']:02x},${y:02x}\t\t\t;CMD Trigger ${y:02x}\n")
 				else:
-					print(f"Unable to parse extended command $E{p:02x}")
-			elif c == 0x0f:				# Speed
+					# unknown
+					print(f"Unable to parse extended command $E{p:02x} [WARNING]")
+			elif c == 0x0f:				
+				# Speed
+				# Parameter: as in tracker
 				file.write(f"{_DB} ${cmd['F']:02x},${p:02x}\t\t\t;CMD Speed\n")
 			else:
-				print(f"Unable to parse command ${c:02x}")		
+				# unknown
+				print(f"Unable to parse command ${c:02x} [WARNING]")		
 
 	if wait > 0:
 		if wait == wait_prev:
