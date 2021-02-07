@@ -220,8 +220,12 @@ def export_asm(outfile,song):
 	
 		file.write("; [ Song start data ]\n")
 		file.write(f"{_DB} ${song.speed:02x}\t\t\t\t\t\t\t; Initial song speed.\n")
-		file.write(f"{_DW} {_CHILD}customvoice_start\t\t\t; Start of the custom voices data.\n")
-		file.write(f"{_DW} {_CHILD}drummacro_start\t\t\t\t; Start of the drum macro data.\n")		
+		if song.type == 'SCC':
+			file.write(f"{_DW} {_CHILD}waveform_start\t\t\t; Start of the waveform data.\n")
+		else:
+			file.write(f"{_DW} {_CHILD}customvoice_start\t\t\t; Start of the custom voices data.\n")
+			file.write(f"{_DW} {_CHILD}drummacro_start\t\t\t\t; Start of the drum macro data.\n")		
+
 		file.write(f"{_DW} {_CHILD}instrument_start\t\t\t; Start of the instrument data.\n")		
 
 		file.write("\n; [ Song order pointer list ]\n")	
@@ -281,14 +285,14 @@ def export_asm(outfile,song):
 			if instrument.used == True:
 				file.write(f"{_CHILD}instrument_{instrument.export_number:02}:\t\t\t\t\t; {instrument.name}\n")
 				if song.type == "SCC":
-					waveform = song.get_waveform(instrument.number)
-					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\t\t; Waveform {waveform.number}\n")
+					waveform = song.get_waveform(instrument.waveform)
+					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\t\t; Waveform {waveform.export_number//8}\n")
 				elif song.type == "FM" or song.type == "SMS":
 					voice = song.get_voice(instrument.voice)
 					if instrument.voice < 16:
 						file.write(f"{_DB} ${instrument.number << 4:02x}\t\t\t\t\t; FM Hardware Voice {voice.number}\n")
 					else:
-						file.write(f"{_DB} $00,${voice.export_number << 3:02x}\t\t\t\t\t; FM Software Voice {voice.number}\n")
+						file.write(f"{_DB} $00,${voice.export_number << 3:02x}\t\t\t\t\t; FM Software Voice {voice.export_number}\n")
 					
 				#file.write("\t\t;Flg,Vol,Noi,Lnk,Tone\n")
 				for r in range(0,instrument.length):
@@ -569,7 +573,7 @@ def export_ins_row_asm_scc(ins,r):
 			# base noise
 			result_info = result_info + bit6
 			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise _\n"
-		if ((byte1 & 0x60) == 0x40 and result_noise >0):
+		elif ((byte1 & 0x60) == 0x40 and result_noise >0):
 			# add noise
 			result_info = result_info + bit6 + bit5
 			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise +\n"		
@@ -631,7 +635,7 @@ def export_track(file,track):
 			"ED":	cmd_offset+10,	#note delay				
 			
 			# secondary effects
-			"END":	cmd_offset+11,	# end all lasting effects
+			"END":cmd_offset+11,	# end all lasting effects
 			"C":	cmd_offset+12,	#SCC Morph/FM Drum			
 			"E0":	cmd_offset+13,	#arp speed
 			"E1":	cmd_offset+14,	#tone up
@@ -693,7 +697,7 @@ def export_track(file,track):
 		if i != 0:
 			tmp = song.ins[i-1].export_number
 #			print(f"{song.ins[i-1].number} + {song.ins[i-1].export_number}")
-			file.write(f"{_DB} ${ins_offset+tmp:02x}\t\t\t;Instrument {i-1}\n")
+			file.write(f"{_DB} ${ins_offset+tmp:02x}\t\t\t;Instrument {tmp}\n")
 	
 		if c == 0 and p == 0:
 			pass	

@@ -388,7 +388,14 @@ class Song:
 						voice.export_number = number
 						print(f"softvoice: {voice.number} -> {voice.export_number}")
 						number+=1
-						
+		else:
+			number = 0	
+			for waveform in self.waveforms:
+				if waveform.used == True:
+					waveform.export_number = number*8			# Times 8 for cpu load reduce in replayer
+					print(f"waveform: {waveform.number} -> {waveform.export_number}")
+					number+=1						
+
 		
 		
 		
