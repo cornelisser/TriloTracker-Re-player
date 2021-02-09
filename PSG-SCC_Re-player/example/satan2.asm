@@ -2,7 +2,7 @@
 ; By:   Gryzor87 (c)2020                
 
 ; [ Song start data ]
-	db $05							; Initial song speed.
+	db $05					; Initial song speed.
 	dw .waveform_start			; Start of the waveform data.
 	dw .instrument_start			; Start of the instrument data.
 
@@ -302,9 +302,9 @@
 	db $77			;Instrument 6
 	db $a1,$08		;CMD Track detune
 	db $c5			;Wait 6
-			;CMD Waveform Not implemented [WARNING]
+			;CMD $c24 Waveform Not implemented [WARNING]
 	db $d6			;Wait 23
-			;CMD Waveform Not implemented [WARNING]
+			;CMD $c10 Waveform Not implemented [WARNING]
 	db $d2			;Wait 19
 	db $bf			;[End-Of-Track]
 .track_005:
@@ -399,7 +399,7 @@
 	db $2c			;Note G#4
 	db $67			;Volume 6
 	db $76			;Instrument 5
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$28			; SCC Set Waveform 7
 	db $c2			;Wait 3
 	db $29			;Note F-4
 					;Wait Repeat 3
@@ -418,7 +418,7 @@
 	db $25			;Note C#4
 	db $62			;Volume 1
 	db $79			;Instrument 8
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$30			; SCC Set Waveform 10
 	db $c1			;Wait 2
 	db $63			;Volume 2
 					;Wait Repeat 2
@@ -439,7 +439,7 @@
 	db $2c			;Note G#4
 	db $65			;Volume 4
 	db $76			;Instrument 5
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$28			; SCC Set Waveform 7
 	db $c2			;Wait 3
 	db $29			;Note F-4
 					;Wait Repeat 3
@@ -456,7 +456,7 @@
 	db $2c			;Note G#4
 	db $62			;Volume 1
 	db $79			;Instrument 8
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$30			; SCC Set Waveform 10
 					;Wait Repeat 2
 	db $63			;Volume 2
 					;Wait Repeat 2
@@ -826,7 +826,7 @@
 	db $18			;Note C-3
 	db $6c			;Volume 11
 	db $76			;Instrument 5
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$00			; SCC Set Waveform 1
 	db $c2			;Wait 3
 	db $14			;Note G#2
 	db $6b			;Volume 10
@@ -873,7 +873,7 @@
 	db $18			;Note C-3
 	db $67			;Volume 6
 	db $76			;Instrument 5
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$00			; SCC Set Waveform 1
 	db $c2			;Wait 3
 	db $14			;Note G#2
 	db $66			;Volume 5
@@ -970,7 +970,7 @@
 	db $18			;Note C-3
 	db $69			;Volume 8
 	db $76			;Instrument 5
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$00			; SCC Set Waveform 1
 	db $c2			;Wait 3
 	db $14			;Note G#2
 	db $c0			;Wait 1
@@ -1284,7 +1284,7 @@
 	db $20			;Note G#3
 	db $6b			;Volume 10
 	db $76			;Instrument 5
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$28			; SCC Set Waveform 7
 	db $c2			;Wait 3
 	db $22			;Note A#3
 	db $c0			;Wait 1
@@ -1380,7 +1380,7 @@
 	db $1d			;Note F-3
 	db $70			;Volume 15
 	db $74			;Instrument 3
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$08			; SCC Set Waveform 2
 	db $c6			;Wait 7
 	db $6b			;Volume 10
 	db $c0			;Wait 1
@@ -1425,7 +1425,7 @@
 	db $1d			;Note F-3
 	db $6b			;Volume 10
 	db $74			;Instrument 3
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$08			; SCC Set Waveform 2
 	db $c7			;Wait 8
 	db $68			;Volume 7
 	db $c0			;Wait 1
@@ -1462,7 +1462,7 @@
 	db $20			;Note G#3
 	db $6b			;Volume 10
 	db $76			;Instrument 5
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$28			; SCC Set Waveform 7
 	db $c2			;Wait 3
 	db $22			;Note A#3
 	db $c0			;Wait 1
@@ -1560,7 +1560,7 @@
 	db $27			;Note D#4
 	db $70			;Volume 15
 	db $74			;Instrument 3
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$08			; SCC Set Waveform 2
 	db $c6			;Wait 7
 	db $6b			;Volume 10
 	db $c0			;Wait 1
@@ -1605,7 +1605,7 @@
 	db $27			;Note D#4
 	db $6b			;Volume 10
 	db $74			;Instrument 3
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$08			; SCC Set Waveform 2
 	db $c7			;Wait 8
 	db $68			;Volume 7
 	db $c0			;Wait 1
@@ -1679,7 +1679,7 @@
 	db $1b			;Note D#3
 	db $6b			;Volume 10
 	db $76			;Instrument 5
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$28			; SCC Set Waveform 7
 	db $c2			;Wait 3
 	db $1c			;Note E-3
 	db $c0			;Wait 1
@@ -1738,7 +1738,7 @@
 	db $25			;Note C#4
 	db $70			;Volume 15
 	db $74			;Instrument 3
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$08			; SCC Set Waveform 2
 	db $c9			;Wait 10
 	db $94,$55		;CMD Vibrato
 					;Wait Repeat 10
@@ -1757,7 +1757,7 @@
 	db $25			;Note C#4
 	db $6b			;Volume 10
 	db $74			;Instrument 3
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$08			; SCC Set Waveform 2
 	db $fb			;Wait 60
 	db $bf			;[End-Of-Track]
 .track_064:
@@ -1837,7 +1837,7 @@
 	db $70			;Volume 15
 	db $77			;Instrument 6
 	db $c4			;Wait 5
-			;CMD Waveform Not implemented [WARNING]
+			;CMD $c24 Waveform Not implemented [WARNING]
 	db $cb			;Wait 12
 	db $6f			;Volume 14
 	db $c2			;Wait 3
@@ -1846,7 +1846,7 @@
 	db $6d			;Volume 12
 	db $c2			;Wait 3
 	db $6c			;Volume 11
-			;CMD Waveform Not implemented [WARNING]
+			;CMD $c10 Waveform Not implemented [WARNING]
 					;Wait Repeat 3
 	db $6b			;Volume 10
 					;Wait Repeat 3
@@ -1855,7 +1855,7 @@
 	db $68			;Volume 7
 	db $c1			;Wait 2
 	db $68			;Volume 7
-			;CMD Waveform Not implemented [WARNING]
+			;CMD $c04 Waveform Not implemented [WARNING]
 	db $c3			;Wait 4
 	db $bf			;[End-Of-Track]
 .track_068:
@@ -1891,7 +1891,7 @@
 	db $38			;Note G#5
 	db $70			;Volume 15
 	db $74			;Instrument 3
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$08			; SCC Set Waveform 2
 	db $c0			;Wait 1
 	db $6e			;Volume 13
 					;Wait Repeat 1
@@ -1908,7 +1908,7 @@
 	db $36			;Note F#5
 	db $6b			;Volume 10
 	db $77			;Instrument 6
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$08			; SCC Set Waveform 2
 	db $c3			;Wait 4
 	db $94,$66		;CMD Vibrato
 					;Wait Repeat 4
@@ -2012,7 +2012,7 @@
 	db $77			;Instrument 6
 	db $a1,$08		;CMD Track detune
 	db $c5			;Wait 6
-			;CMD Waveform Not implemented [WARNING]
+			;CMD $c24 Waveform Not implemented [WARNING]
 	db $c8			;Wait 9
 	db $67			;Volume 6
 	db $c4			;Wait 5
@@ -2020,7 +2020,7 @@
 					;Wait Repeat 5
 	db $65			;Volume 4
 	db $c3			;Wait 4
-			;CMD Waveform Not implemented [WARNING]
+			;CMD $c10 Waveform Not implemented [WARNING]
 	db $c7			;Wait 8
 	db $64			;Volume 3
 	db $c4			;Wait 5
@@ -2032,7 +2032,7 @@
 	db $3b			;Note B-5
 	db $68			;Volume 7
 	db $75			;Instrument 4
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$28			; SCC Set Waveform 7
 	db $c8			;Wait 9
 	db $3b			;Note B-5
 					;Wait Repeat 9
@@ -2048,7 +2048,7 @@
 	db $2f			;Note B-4
 	db $68			;Volume 7
 	db $75			;Instrument 4
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$28			; SCC Set Waveform 7
 	db $c8			;Wait 9
 	db $3e			;Note D-6
 					;Wait Repeat 9
@@ -2063,7 +2063,7 @@
 	db $36			;Note F#5
 	db $68			;Volume 7
 	db $75			;Instrument 4
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$20			; SCC Set Waveform 5
 	db $c8			;Wait 9
 	db $3b			;Note B-5
 	db $ca			;Wait 11
@@ -2081,7 +2081,7 @@
 	db $3b			;Note B-5
 	db $65			;Volume 4
 	db $75			;Instrument 4
-			;CMD Waveform Not implemented [WARNING]
+	db $a9,$20			; SCC Set Waveform 5
 	db $c2			;Wait 3
 	db $2f			;Note B-4
 					;Wait Repeat 3
