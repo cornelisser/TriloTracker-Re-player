@@ -346,7 +346,15 @@ class Song:
 								elif x == 0x20:
 									x = 0x10
 									row[4] = x | y
-			
+					if self.type == "SCC":
+						if c == 0x0b:					# SCC command Bxy
+							cmd = p &0xf0				# get the command type
+							val = p &0x0f				# get the waveform
+							if cmd == 0xb0:
+								self.waveforms[val].used = True
+							if cmd == 0xc0:
+								self.waveforms[val+16].used = True							
+	
 
 		# ====================================
 		# Detect tracks duplicates

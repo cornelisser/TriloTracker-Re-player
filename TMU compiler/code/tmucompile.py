@@ -656,7 +656,7 @@ def export_track(file,track):
 			"B1":	cmd_offset+23,	#SCC Duty Cycle
 			"B2":	cmd_offset+24,	#SCC Waveform cut
 			"BB":	cmd_offset+25,	#SCC set waveform
-			"BC":	cmd_offset+26,	#SCC set waveform +16		
+	
 					}
 					
 	for row in track.rows:
@@ -764,16 +764,36 @@ def export_track(file,track):
 			elif c == 0xb:				
 				if song.type == "SCC":
 					# SCC commands
-					file.write(f"\t\t\t;CMD Waveform Not implemented [WARNING]\n")
-					print(f"CMD Waveform Not implemented [WARNING]")
+					cm = p & 0xf0
+					v = p & 0x0f
+					if cm == 0x00:
+						# waveform reset
+						file.write(f"{_DB} ${cmd['B0']:02x}\t\t\t\t; SCC Waveform reset\n")	
+					elif cm == 0x10:
+						# duty cycle Waveform
+						file.write(f"{_DB} ${cmd['B1']:02x},${v:02x}\t\t\t; SCC Duty cycle Waveform\n")
+					elif cm == 0x20:
+						# cut waveform
+						file.write(f"{_DB} ${cmd['B2']:02x},${v:02x}\t\t\t; SCC Waveform cut\n")
+					elif cm == 0xB0:
+						# set waveform 
+						wf = song.get_waveform(v)
+						file.write(f"{_DB} ${cmd['BB']:02x},${wf.export_number:02x}\t\t\t; SCC Set Waveform {v}\n")
+					elif cm == 0xC0:
+						# set waveform +16 
+						wf = song.get_waveform(v)
+						file.write(f"{_DB} ${cmd['BB']:02x},${wf.export_number+16:02x}\t\t\t; SCC Set Waveform {v+16}\n")
+					else:
+						file.write(f"\t\t\t;CMD Bxy Waveform Not implemented [WARNING]\n")
+						print(f"CMD Bxy Waveform Not implemented [WARNING]")
 				else:					
 					# Channel setup
 					file.write(f"{_DB} ${cmd['B']:02x},${p:02x}\t\t\t;CMD Channel setup\n")
 			elif c == 0xc:		
 				if song.type == "SCC":	
 					# SCC commands
-					file.write(f"\t\t\t;CMD Waveform Not implemented [WARNING]\n")
-					print(f"CMD Waveform Not implemented [WARNING]")
+					file.write(f"\t\t\t;CMD ${c:01x}{p:02x} Waveform Not implemented [WARNING]\n")
+					print(f"CMD ${c:01x}{p:02x} Waveform Not implemented [WARNING]")
 				else:					
 					# Drum
 					# parameter: as in tracker

@@ -562,7 +562,7 @@ init_vdp:
 
 	
 demo_song:
-	include	".\satan2.asm" 
+	include	".\satan1.asm" 
 ;	include	".\scctest.asm"
 	
 TEXT_Title:

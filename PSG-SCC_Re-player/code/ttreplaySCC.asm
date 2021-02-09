@@ -791,7 +791,7 @@ _replay_decode_ins:
 
 
 _replay_decode_vol:
-	sub	_VOL		; Add 1 here as volume 10 becomes 9
+	sub	_VOL-1		; Add 1 here as volume 10 becomes 9
 	add	a
 	add	a
 	add	a
