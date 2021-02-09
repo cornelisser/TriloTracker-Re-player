@@ -219,7 +219,7 @@ def export_asm(outfile,song):
 		file.write(f"; By:   {song.by}\n\n")		
 	
 		file.write("; [ Song start data ]\n")
-		file.write(f"{_DB} ${song.speed:02x}\t\t\t\t\t\t\t; Initial song speed.\n")
+		file.write(f"{_DB} ${song.speed:02x}\t\t\t\t\t; Initial song speed.\n")
 		if song.type == 'SCC':
 			file.write(f"{_DW} {_CHILD}waveform_start\t\t\t; Start of the waveform data.\n")
 		else:
@@ -396,22 +396,20 @@ def export_ins_row_asm_sms(ins,r):
 	
 
 	
-	# calculate tone
-	result_toneL = byte3
-	result_toneH = byte4 & 0x7f							# tone without voicelink bit	
-	if (result_toneL + result_toneH > 0):
-		if ((byte2 & 0x40) == 0x40):
-			# min
-			result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
-			result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
-		result_info = result_info + bit4
-		out = out+ f"{_DW} ${result_toneH:02x}{result_toneL:02x}\t\t\t; Tone\n"
-	
-	
-	
+
 	# Calculate the Tone bit
 	if (byte2 & bit7 > 0):
 		result_info = result_info + bit5
+		# calculate tone
+		result_toneL = byte3
+		result_toneH = byte4 & 0x7f							# tone without voicelink bit	
+		if (result_toneL + result_toneH > 0):
+			if ((byte2 & 0x40) == 0x40):
+				# min
+				result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
+				result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
+			result_info = result_info + bit4
+			out = out+ f"{_DW} ${result_toneH:02x}{result_toneL:02x}\t\t\t; Tone\n"
 
 
 	
