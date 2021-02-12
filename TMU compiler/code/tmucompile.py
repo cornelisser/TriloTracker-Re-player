@@ -190,8 +190,8 @@ def decompress_pattern(data):
 	
 	while d < 2048:
 		val = data[s]
-		if val == 255:
-			return pat
+#		if val == 255:
+#			return pat
 		if val != 0:					# write val	
 			pat[d] = val
 			d+=1			

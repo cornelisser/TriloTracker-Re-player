@@ -34,9 +34,9 @@ define INTERNAL_SCC
 ; Input: none
 ;===========================================================
 replay_init:
-	ld	a,7
+	ld	a,8
 	call	replay_set_SCC_balance
-	ld	a,7
+	ld	a,8
 	call	replay_set_PSG_balance
 
 	xor	a
