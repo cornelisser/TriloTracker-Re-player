@@ -294,7 +294,6 @@ PAL:
 ;===========================================================
 decode_data:
 	;--- process the channels (tracks)
-
 .decode1:
 	ld 	hl,TRACK_Chan1+17+TRACK_Delay
 	dec	(hl)
@@ -316,6 +315,7 @@ decode_data:
 	jp	nz,.decode3
 
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
+
 	ld	d,a
 	ld	a,(TRACK_Chan2+17+TRACK_Note)	
 	ld	ix,TRACK_Chan2+17
@@ -327,6 +327,7 @@ decode_data:
 
 .decode3:
 	ld 	hl,TRACK_Chan3+17+TRACK_Delay
+	
 	dec	(hl)
 	jp	nz,.decode4
 
@@ -487,8 +488,8 @@ process_data:
 	ld	(replay_mainvol),hl
 
 	
-;	ld	iyh,0			; iyh stores the SCC chan#
-;					; used for waveform updates
+	ld	iyh,0			; iyh stores the SCC chan#
+					; used for waveform updates
 	;--------------------
 	;--- Process track 4
 	;--------------------
@@ -503,7 +504,7 @@ process_data:
 	;--------------------
 	;--- Process track 5
 	;--------------------
-;	inc	iyh
+	ld	iyh,$20
 	ld	ix,TRACK_Chan5+17
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a
@@ -516,7 +517,7 @@ process_data:
 	;--------------------
 	;--- Process track 6
 	;--------------------
-;	inc	iyh
+	ld	iyh,$40
 	ld	ix,TRACK_Chan6+17
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a
@@ -528,7 +529,7 @@ process_data:
 	;--------------------
 	;--- Process track 7
 	;--------------------
-;	inc	iyh
+	ld	iyh,$60
 	ld	ix,TRACK_Chan7+17
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a
@@ -632,6 +633,7 @@ _replay_check_patternend:
 	ldir
 	ld	(replay_orderpointer),hl		; store pointer for next set
 								; of strack pointers
+
 	jp	process_data
 
 
@@ -647,6 +649,7 @@ _replay_check_patternend:
 ;    D contains flags.
 ;===========================================================
 decode_data_chan:
+
 	;--- initialize data
 	ld	a,(ix+TRACK_Note)
 	ld	(replay_previous_note),a
@@ -699,9 +702,14 @@ _rd_delay:
 	ld	(ix+TRACK_Delay),a
 	jp	_replay_decode_trigger_porttone_check
 
+_rd_eot:
+	inc	a
+	ld	(ix+TRACK_Delay),a
+	jp	_replay_decode_trigger_porttone_check
+
 _replay_decode_delay:
 	sub	_WAIT-1
-	jp	z,_rd_delay		; EOT found
+	jp	z,_rd_eot			; EOT found  
 	ld	(ix+TRACK_Delay),a
 	ld	(ix+TRACK_prevDelay),a
 	inc	bc
@@ -1931,9 +1939,9 @@ process_cmdc_wave_duty:
 	;get the waveform	start	in [DE]
 	ld	hl,_0x9800
 	ld	a,iyh		;ixh contains chan#
-	rrca			; a mac value is 4 so
-	rrca			; 3 times rrca is	X32
-	rrca			; max	result is 128.
+;	rrca			; a mac value is 4 so
+;	rrca			; 3 times rrca is	X32
+;	rrca			; max	result is 128.
 	add	a,l
 	ld	l,a
 	jp	nc,.skip
@@ -1942,7 +1950,7 @@ process_cmdc_wave_duty:
 	ld	b,(ix+TRACK_cmd_B)
 	inc	b
 
-	ld	c,96	
+	ld	c,77	
 	ld	a,32
 	sub	b
 _wspw_loop_h:
@@ -1953,7 +1961,7 @@ _wspw_loop_h:
 	and	a
 	jp	z,process_commandEND
 	
-	ld	c,-96
+	ld	c,-87
 	ld	b,a
 _wspw_loop_l:
 	ld	(hl),c
@@ -1968,7 +1976,6 @@ process_cmdd_wave_cut:
 	;=================
 	; Waveform Cut
 	;=================
-
 	res	B_TRGCMD,d		;(ix+TRACK_Flags)	; reset command
 	set	B_TRGWAV,d		;(ix+TRACK_Flags)	; reset normal wave update
 	ld	a,d
@@ -1977,15 +1984,16 @@ process_cmdd_wave_cut:
 	;get the waveform	start	in [DE]
 	ld	de,_0x9800
 	ld	a,iyh		;ixh contains chan#
-	rrca			; a mac value is 4 so
-	rrca			; 3 times rrca is	X32
-	rrca			; max	result is 128.
+;	rrca			; a mac value is 4 so
+;	rrca			; 3 times rrca is	X32
+;	rrca			; max	result is 128.
 	add	a,e
 	ld	e,a
 	jp	nc,.skip
 	inc	d
 .skip:
 	ld	a,(ix+TRACK_Waveform)
+	
 	inc	a	
 	ld	(ix+TRACK_Waveform),a
 	dec	a
@@ -2041,9 +2049,9 @@ process_cmde_wave_compr:
 	;get the waveform	start	in [DE]
 	ld	de,_0x9800
 	ld	a,iyh		;ixh contains chan#
-	rrca			; a mac value is 4 so
-	rrca			; 3 times rrca is	X32
-	rrca			; max	result is 128.
+;	rrca			; a mac value is 4 so
+;	rrca			; 3 times rrca is	X32
+;	rrca			; max	result is 128.
 	add	a,e
 	ld	e,a
 	jp	nc,.skip
@@ -2057,7 +2065,6 @@ process_cmde_wave_compr:
 ;	add	a,a
 ;	add	a,a
 ;	add	a,a	
-
 	ld	l,a
 	ld	h,0
 	add	hl,hl

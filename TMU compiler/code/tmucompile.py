@@ -549,9 +549,15 @@ def export_ins_row_asm_scc(ins,r):
 	# calculate volume
 	result_vol = byte2 & 0x0f
 	if ((byte2 & bit5) == 0x00):		# if bit5 is not set
-		#base volume
-		result_info = result_info + bit2
-		out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume _\n"
+		#base volume		
+		if ins.restart != r and r > 0: 
+			vol_prev = ins.rows[r][2] & 0x0f			# detect of volume has not changed
+			if result_vol != vol_prev:
+				result_info = result_info + bit2
+				out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume _\n"
+		else:
+			result_info = result_info + bit2
+			out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume _\n"
 	elif (byte2 & 0x30) == 0x20 and (result_vol > 0):
 		# add volume
 		result_info = result_info + bit2 + bit1
@@ -824,7 +830,7 @@ def export_track(file,track):
 				elif x == 0x60: 			
 					# track detune
 					# Parameter: xy = value
-					file.write(f"{_DB} ${cmd['E6']:02x},${y:02x}\t\t;CMD Track detune\n")
+					file.write(f"{_DB} ${cmd['E6']:02x},${y:02x}\t\t\t;CMD Track detune\n")
 				elif x == 0x80:
 					if song.type == 'SMS':
 						# GG Tone panning
@@ -878,9 +884,9 @@ def export_track(file,track):
 				print(f"Unable to parse command ${c:02x} [WARNING]")		
 
 	if wait > 0:
-		if wait == wait_prev:
-			file.write(f"\t\t\t\t\t;Wait Repeat\n")
-		else:
+#		if wait == wait_prev:
+#			file.write(f"\t\t\t\t\t;Wait Repeat\n")
+#		else:
 			file.write(f"{_DB} ${wait_offset+wait:02x}\t\t\t;Wait {wait+1}\n")
 	file.write(f"{_DB} ${191:02x}\t\t\t;[End-Of-Track]\n")
 

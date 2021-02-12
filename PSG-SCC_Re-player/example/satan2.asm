@@ -247,7 +247,7 @@
 	db $1d			;Note F-3
 					;Wait Repeat 2
 	db $1c			;Note E-3
-					;Wait Repeat
+	db $c1			;Wait 2
 	db $bf			;[End-Of-Track]
 .track_001:
 	db $11			;Note F-2
@@ -267,13 +267,13 @@
 	db $11			;Note F-2
 					;Wait Repeat 6
 	db $11			;Note F-2
-					;Wait Repeat
+	db $c5			;Wait 6
 	db $bf			;[End-Of-Track]
 .track_002:
 	db $05			;Note F-1
 	db $6a			;Volume 9
 	db $77			;Instrument 6
-	db $a1,$00		;CMD Track detune
+	db $a1,$00			;CMD Track detune
 	db $ef			;Wait 48
 	db $bf			;[End-Of-Track]
 .track_003:
@@ -294,13 +294,13 @@
 	db $05			;Note F-1
 					;Wait Repeat 6
 	db $05			;Note F-1
-					;Wait Repeat
+	db $c5			;Wait 6
 	db $bf			;[End-Of-Track]
 .track_004:
 	db $05			;Note F-1
 	db $68			;Volume 7
 	db $77			;Instrument 6
-	db $a1,$08		;CMD Track detune
+	db $a1,$08			;CMD Track detune
 	db $c5			;Wait 6
 			;CMD $c24 Waveform Not implemented [WARNING]
 	db $d6			;Wait 23
@@ -363,13 +363,13 @@
 	db $11			;Note F-2
 					;Wait Repeat 6
 	db $11			;Note F-2
-					;Wait Repeat
+	db $c5			;Wait 6
 	db $bf			;[End-Of-Track]
 .track_010:
 	db $05			;Note F-1
 	db $6b			;Volume 10
 	db $77			;Instrument 6
-	db $a1,$00		;CMD Track detune
+	db $a1,$00			;CMD Track detune
 	db $ef			;Wait 48
 	db $bf			;[End-Of-Track]
 .track_011:
@@ -390,7 +390,7 @@
 	db $05			;Note F-1
 					;Wait Repeat 6
 	db $05			;Note F-1
-					;Wait Repeat
+	db $c5			;Wait 6
 	db $bf			;[End-Of-Track]
 .track_013:
 	db $ef			;Wait 48
@@ -503,7 +503,7 @@
 	db $5d			;Note A-8
 					;Wait Repeat 2
 	db $5d			;Note A-8
-					;Wait Repeat
+	db $c1			;Wait 2
 	db $bf			;[End-Of-Track]
 .track_017:
 	db $11			;Note F-2
@@ -524,13 +524,13 @@
 	db $11			;Note F-2
 					;Wait Repeat 6
 	db $11			;Note F-2
-					;Wait Repeat
+	db $c5			;Wait 6
 	db $bf			;[End-Of-Track]
 .track_018:
 	db $05			;Note F-1
 	db $6c			;Volume 11
 	db $77			;Instrument 6
-	db $a1,$00		;CMD Track detune
+	db $a1,$00			;CMD Track detune
 	db $ef			;Wait 48
 	db $bf			;[End-Of-Track]
 .track_020:
@@ -643,7 +643,7 @@
 	db $24			;Note C-4
 	db $6b			;Volume 10
 	db $74			;Instrument 3
-	db $a1,$01		;CMD Track detune
+	db $a1,$01			;CMD Track detune
 	db $c5			;Wait 6
 	db $68			;Volume 7
 	db $c0			;Wait 1
@@ -694,7 +694,7 @@
 	db $68			;Volume 7
 	db $bf			;[End-Of-Track]
 .track_023:
-	db $a1,$02		;CMD Track detune
+	db $a1,$02			;CMD Track detune
 	db $c3			;Wait 4
 	db $24			;Note C-4
 	db $67			;Volume 6
@@ -766,7 +766,7 @@
 	db $1d			;Note F-3
 					;Wait Repeat 2
 	db $1c			;Note E-3
-					;Wait Repeat
+	db $c1			;Wait 2
 	db $bf			;[End-Of-Track]
 .track_025:
 	db $3c			;Note C-6
@@ -865,7 +865,7 @@
 	db $17			;Note B-2
 					;Wait Repeat 3
 	db $18			;Note C-3
-					;Wait Repeat
+	db $c2			;Wait 3
 	db $bf			;[End-Of-Track]
 .track_031:
 	db $60			;Release 96
@@ -943,7 +943,7 @@
 	db $5d			;Note A-8
 					;Wait Repeat 2
 	db $5d			;Note A-8
-					;Wait Repeat
+	db $c1			;Wait 2
 	db $bf			;[End-Of-Track]
 .track_033:
 	db $11			;Note F-2
@@ -964,7 +964,7 @@
 	db $11			;Note F-2
 					;Wait Repeat 6
 	db $11			;Note F-2
-					;Wait Repeat
+	db $c5			;Wait 6
 	db $bf			;[End-Of-Track]
 .track_035:
 	db $18			;Note C-3
@@ -1172,7 +1172,7 @@
 	db $24			;Note C-4
 	db $6c			;Volume 11
 	db $74			;Instrument 3
-	db $a1,$01		;CMD Track detune
+	db $a1,$01			;CMD Track detune
 	db $c5			;Wait 6
 	db $68			;Volume 7
 	db $c0			;Wait 1
@@ -1226,7 +1226,7 @@
 	db $68			;Volume 7
 	db $bf			;[End-Of-Track]
 .track_039:
-	db $a1,$02		;CMD Track detune
+	db $a1,$02			;CMD Track detune
 	db $c3			;Wait 4
 	db $24			;Note C-4
 	db $67			;Volume 6
@@ -1660,7 +1660,7 @@
 	db $05			;Note F-1
 	db $6c			;Volume 11
 	db $77			;Instrument 6
-	db $a1,$00		;CMD Track detune
+	db $a1,$00			;CMD Track detune
 	db $ff			;Wait 64
 	db $bf			;[End-Of-Track]
 .track_059:
@@ -1796,7 +1796,7 @@
 	db $5d			;Note A-8
 					;Wait Repeat 2
 	db $5d			;Note A-8
-					;Wait Repeat
+	db $c1			;Wait 2
 	db $bf			;[End-Of-Track]
 .track_065:
 	db $0e			;Note D-2
@@ -2010,7 +2010,7 @@
 	db $05			;Note F-1
 	db $68			;Volume 7
 	db $77			;Instrument 6
-	db $a1,$08		;CMD Track detune
+	db $a1,$08			;CMD Track detune
 	db $c5			;Wait 6
 			;CMD $c24 Waveform Not implemented [WARNING]
 	db $c8			;Wait 9
@@ -2076,7 +2076,7 @@
 	db $c4			;Wait 5
 	db $bf			;[End-Of-Track]
 .track_079:
-	db $a1,$00		;CMD Track detune
+	db $a1,$00			;CMD Track detune
 	db $c1			;Wait 2
 	db $3b			;Note B-5
 	db $65			;Volume 4
