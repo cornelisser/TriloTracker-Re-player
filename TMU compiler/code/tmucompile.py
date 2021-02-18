@@ -656,12 +656,20 @@ def export_track(file,track):
 			"EE":	cmd_offset+20,	#envelope	
 			"8":	cmd_offset+21,	#PSG ENV				
 			# SCC
-			"B0":	cmd_offset+22,	#SCC RESET		
-			"B1":	cmd_offset+23,	#SCC Duty Cycle
-			"B2":	cmd_offset+24,	#SCC Waveform cut
-			"BB":	cmd_offset+25,	#SCC set waveform
-	
-					}
+			"BE":	cmd_offset+22,	#SCC RESET		
+			"B3":	cmd_offset+23,	#SCC Duty Cycle
+			"B5":	cmd_offset+24,	#SCC Soften waveform
+			"B0":	cmd_offset+25,	#SCC set waveform
+			"B1":	cmd_offset+25,	#SCC set waveform +16	
+
+			"C0":	cmd_offset+26,	#SCC Morph to waveform	
+			"C1":	cmd_offset+27,	#SCC Morph to waveform+16
+			"CC":	cmd_offset+28,	#SCC Morph follow (Carbon C0py)
+			"CE":	cmd_offset+29,	#SCC Morph type
+			"CF":	cmd_offset+29,	#SCC Morpg speed
+
+			"CA":	cmd_offset+30,	#SCC Sample		
+		}
 					
 	for row in track.rows:
 
@@ -770,34 +778,60 @@ def export_track(file,track):
 					# SCC commands
 					cm = p & 0xf0
 					v = p & 0x0f
+
 					if cm == 0x00:
-						# waveform reset
-						file.write(f"{_DB} ${cmd['B0']:02x}\t\t\t\t; SCC Waveform reset\n")	
-					elif cm == 0x10:
-						# duty cycle Waveform
-						file.write(f"{_DB} ${cmd['B1']:02x},${v:02x}\t\t\t; SCC Duty cycle Waveform\n")
-					elif cm == 0x20:
-						# cut waveform
-						file.write(f"{_DB} ${cmd['B2']:02x},${v:02x}\t\t\t; SCC Waveform cut\n")
-					elif cm == 0xB0:
 						# set waveform 
 						wf = song.get_waveform(v)
-						file.write(f"{_DB} ${cmd['BB']:02x},${wf.export_number:02x}\t\t\t; SCC Set Waveform {v}\n")
-					elif cm == 0xC0:
+						file.write(f"{_DB} ${cmd['B0']:02x},${wf.export_number:02x}\t\t\t; SCC Set Waveform {v}\n")
+					elif cm == 0x10:
 						# set waveform +16 
-						wf = song.get_waveform(v)
-						file.write(f"{_DB} ${cmd['BB']:02x},${wf.export_number+16:02x}\t\t\t; SCC Set Waveform {v+16}\n")
+						wf = song.get_waveform(v+16)
+						file.write(f"{_DB} ${cmd['B1']:02x},${wf.export_number:02x}\t\t\t; SCC Set Waveform {v+16}\n")
+					elif cm == 0x30:
+						# duty cycle Waveform
+						file.write(f"{_DB} ${cmd['B3']:02x},${v:02x}\t\t\t; SCC Duty cycle Waveform\n")
+					elif cm == 0x50:
+						# soften waveform
+						file.write(f"{_DB} ${cmd['B5']:02x}\t\t\t\t; SCC Soften Waveform\n")
+					elif cm == 0xE0:
+						# waveform reset
+						file.write(f"{_DB} ${cmd['BE']:02x}\t\t\t\t; SCC Waveform reset\n")	
 					else:
-						file.write(f"\t\t\t;CMD Bxy Waveform Not implemented [WARNING]\n")
-						print(f"CMD Bxy Waveform Not implemented [WARNING]")
+						file.write(f"\t\t\t;CMD {c:01x}{p:02x} Waveform Not valid [WARNING]\n")
+						print(f"CMD {c:01x}{p:02x} Waveform Not valid [WARNING]")
 				else:					
 					# Channel setup
 					file.write(f"{_DB} ${cmd['B']:02x},${p:02x}\t\t\t;CMD Channel setup\n")
 			elif c == 0xc:		
 				if song.type == "SCC":	
-					# SCC commands
-					file.write(f"\t\t\t;CMD ${c:01x}{p:02x} Waveform Not implemented [WARNING]\n")
-					print(f"CMD ${c:01x}{p:02x} Waveform Not implemented [WARNING]")
+					# SCC Morph commands
+					cm = p & 0xf0
+					v = p & 0x0f
+
+					if cm == 0x00:
+						# morph to waveform 
+						wf = song.get_waveform(v)
+						file.write(f"{_DB} ${cmd['C0']:02x},${wf.export_number:02x}\t\t\t; SCC Morph to Waveform {v}\n")
+					elif cm == 0x10:
+						# morph to waveform +16
+						wf = song.get_waveform(v+16)
+						file.write(f"{_DB} ${cmd['C1']:02x},${wf.export_number:02x}\t\t\t; SCC Morph to Waveform {v+16}\n")
+					elif cm == 0xC0:
+						# morph follow (Carbom C0py)
+						file.write(f"{_DB} ${cmd['CC']:02x}\t\t\t\t; SCC Morph foloow (Carbon C0poy) {v}\n")
+					elif cm == 0xE0:
+						# morph type ( 0 = from waveform, 1 = continue from fata in waveform buffer)
+						file.write(f"{_DB} ${cmd['CE']:02x},${v:02x}\t\t\t; SCC Morph follow (Carbon C0poy) {v}\n")
+					elif cm == 0xF0:
+						# morph speed
+						file.write(f"{_DB} ${cmd['CF']:02x},${v:02x}\t\t\t; SCC Morph speed {v}\n")
+					elif cm == 0xA0:
+						# Sample playback
+						file.write(f"{_DB} ${cmd['CA']:02x},${v*2:02x}\t\t\t; SCC Sample {v}\n")
+					else:
+						# SCC commands
+						file.write(f"\t\t\t;CMD {c:01x}{p:02x} Waveform Not valid [WARNING]\n")
+						print(f"CMD {c:01x}{p:02x} Waveform Not valid [WARNING]")
 				else:					
 					# Drum
 					# parameter: as in tracker
