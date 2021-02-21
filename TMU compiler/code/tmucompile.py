@@ -640,7 +640,10 @@ def export_track(file,track):
 			
 			# secondary effects
 			"END":cmd_offset+11,	# end all lasting effects
-			"C":	cmd_offset+12,	#SCC Morph/FM Drum			
+			"C":	cmd_offset+12,	#FM Drum		
+			"C0":	cmd_offset+12,	#SCC Morph to waveform	
+			"C1":	cmd_offset+12,	#SCC Morph to waveform+16
+
 			"E0":	cmd_offset+13,	#arp speed
 			"E1":	cmd_offset+14,	#tone up
 			"E2":	cmd_offset+15,	#tone down
@@ -661,14 +664,10 @@ def export_track(file,track):
 			"B5":	cmd_offset+24,	#SCC Soften waveform
 			"B0":	cmd_offset+25,	#SCC set waveform
 			"B1":	cmd_offset+25,	#SCC set waveform +16	
-
-			"C0":	cmd_offset+26,	#SCC Morph to waveform	
-			"C1":	cmd_offset+27,	#SCC Morph to waveform+16
-			"CC":	cmd_offset+28,	#SCC Morph follow (Carbon C0py)
-			"CE":	cmd_offset+29,	#SCC Morph type
-			"CF":	cmd_offset+29,	#SCC Morpg speed
-
-			"CA":	cmd_offset+30,	#SCC Sample		
+			"CC":	cmd_offset+26,	#SCC Morph follow (Carbon C0py)
+			"CE":	cmd_offset+27,	#SCC Morph type
+			"CF":	cmd_offset+28,	#SCC Morph speed
+			"CA":	cmd_offset+29,	#SCC Sample		
 		}
 					
 	for row in track.rows:

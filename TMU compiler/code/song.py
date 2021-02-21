@@ -350,10 +350,18 @@ class Song:
 						if c == 0x0b:					# SCC command Bxy
 							cmd = p &0xf0				# get the command type
 							val = p &0x0f				# get the waveform
-							if cmd == 0xb0:
+							if cmd == 0x00:
 								self.waveforms[val].used = True
-							if cmd == 0xc0:
-								self.waveforms[val+16].used = True							
+							elif cmd == 0x10:
+								self.waveforms[val+16].used = True
+						if c == 0x0c:					# SCC morph
+							cmd = p &0xf0				# get the command type
+							val = p &0x0f				# get the waveform
+							if cmd == 0x00:
+								self.waveforms[val].used = True
+							elif cmd == 0x10:
+								self.waveforms[val+16].used = True
+
 	
 
 		# ====================================

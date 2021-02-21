@@ -21,7 +21,7 @@ initmain:
 
 ;	ei
 ;	halt
-	di
+ 	di
 		
 ;; set pages and subslot
 ;;
@@ -562,7 +562,7 @@ init_vdp:
 
 	
 demo_song:
-	include	".\satan2.asm" 
+	include	".\shrine.asm" 
 ;	include	".\scctest.asm"
 	
 TEXT_Title:

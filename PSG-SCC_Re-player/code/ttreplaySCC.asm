@@ -44,6 +44,8 @@ replay_init:
 	ld	(equalization_cnt),a
 	ld	(equalization_flag),a	
 	ld	(equalization_freq),a	
+	ld	(replay_morph_speed),a
+	ld	(replay_morph_type),a
 	
 	ret
 
@@ -426,9 +428,9 @@ decode_data:
 ;===========================================================
 process_data:
 	;---- morph routine here
-;	ld	a,(replay_morph_active)
-;	and	a
-;	call	nz,replay_process_morph
+	ld	a,(replay_morph_active)
+	and	a
+	call	nz,replay_process_morph
 
 	;--- Initialize PSG Mixer and volume
 	xor	a
@@ -822,7 +824,7 @@ _replaydecode_cmd:
 	sub	_CMD
 
 	;[Debug]
-	cp	27
+	cp	31
 	jp	c,99f
 	di
 	halt
@@ -862,7 +864,7 @@ DECODE_CMDLIST:
 	dw	decode_cmd10_note_delay
 	; Secondary
 	dw	decode_cmd11_command_end
-	dw	decode_cmd12_morph
+	dw	decode_cmd12_SCC_morph
 	dw	decode_cmd13_arp_speed
 	dw	decode_cmd14_fine_up
 	dw	decode_cmd15_fine_down
@@ -873,12 +875,16 @@ DECODE_CMDLIST:
 	; SoundChip Specific
 	dw	decode_cmd20_envelope
 	dw	decode_cmd21_envelope_multiplier
+
 	dw	decode_cmd22_SCC_reset
 	dw	decode_cmd23_SCC_duty
-	dw	decode_cmd24_SCC_cut
+	dw	decode_cmd24_SCC_soften
 	dw	decode_cmd25_SCC_waveform
+	dw	decode_cmd26_SCC_morph_copy
+	dw	decode_cmd27_SCC_morph_type
+	dw	decode_cmd28_SCC_morph_speed
 
-
+	dw	decode_cmd29_SCC_sample
 
 
 decode_cmd0_arpeggio:
@@ -1123,13 +1129,6 @@ decode_cmd11_command_end:
 	jp	_rdc_noinc
 
 
-decode_cmd12_morph:
-	; in:	[A] contains the paramvalue
-	; 
-	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------
-	jp	_rdc_noinc
-	; IMPLEMENT THIS LATER
 
 ;_CHIPcmd10_morph_slave:
 ;	set	B_ACTMOR,d
@@ -1293,29 +1292,207 @@ decode_cmd21_envelope_multiplier:
 decode_cmd22_SCC_reset:
 	set	B_TRGWAV,d
 	res	B_ACTMOR,d
-
-	dec 	bc
-	jp	_rdc
+	
+	;--- Look up the waveform form the instrument.
+	ld	l,(ix+TRACK_MacroPointer)
+	ld	h,(ix+TRACK_MacroPointer+1)
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	ld	(ix+TRACK_Waveform),a
+	ret
+;	dec 	bc
+	jp	_rdc_noinc
 
 
 decode_cmd23_SCC_duty:
-decode_cmd24_SCC_cut:
-	ld	(ix+TRACK_cmd_B),a
-	set	B_TRGCMD,d
-	res	B_ACTMOR,d
+	;=================
+	; Waveform PWM / Duty Cycle
+	; Do not overwrite [BC] and [D](flags)
+	;=================
+	res	B_ACTMOR,d			;(ix+TRACK_Flags)	; reset morph
+	res	B_TRGWAV,d			;(ix+TRACK_Flags)	; reset normal wave update
+
+	ld	e,a		; store in length in E for later		
+	ex	af,af'
+	;get the waveform	start	in [DE]
+	ld	hl,_0x9800
+	ld	a,iyh		;ixh contains chan#
+;	rrca			; a mac value is 4 so
+;	rrca			; 3 times rrca is	X32
+;	rrca			; max	result is 128.
+	add	a,l
+	ld	l,a
+	jp	nc,.skip
+	inc	h
+.skip:
+	ld	a,e		
+	ex	af,af'	; store for later
+	inc	a
+	ld	e,$77		; store for the other loop
+.wspw_loop_h:
+	ld	(hl),e
+	inc	hl
+	dec	a
+	jp	nz,.wspw_loop_h
+
+	ex	af,af'	; restore the initial length
+	ld	e,a
+	sub	31
+
+	ld	e,$87
+.wspw_loop_l:
+	ld	(hl),e
+	inc	hl
+	dec	a
+	jp	nz,.wspw_loop_l
 
 	jp	_rdc	
 
 
+decode_cmd24_SCC_soften:
+	;=================
+	; Waveform Soften
+	; Do not overwrite [BC] and [D](flags)
+	;=================
+	res	B_ACTMOR,d			;(ix+TRACK_Flags)	; reset morph
+	res	B_TRGWAV,d			;(ix+TRACK_Flags)	; reset normal wave update
+
+	;get the waveform	start	in [hl]
+	ld	a,(ix+TRACK_Waveform)
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+	add	hl,hl
+
+	ld	a,d			; Preserve flags
+	ex	af,af'
+	
+	ld	de,(replay_wavebase)
+	add	hl,de	
+
+	;get the waveform destination address in [DE]
+	ld	de,_0x9800
+	ld	a,iyh		;ixh contains chan#
+	add	a,e
+	ld	e,a
+	jp	nc,99f
+	inc	d
+99:
+	ld	iyl,32
+.softloop:	
+	ld	a,(hl)
+	sra	a
+	ld	(de),a
+	dec	iyl
+	jp	z,.end
+	inc	hl
+	inc	de
+	jp	.softloop
+.end:	
+	ex	af,af'
+	ld	d,a		; restore flags
+	jp	_rdc_noinc
+
+	;=================
+	; Waveform Set
+	; Do not overwrite [BC] and [D](flags)
+	;=================
 decode_cmd25_SCC_waveform:
 	ld	(ix+TRACK_Waveform),a
 	set	B_TRGWAV,d
 	res	B_ACTMOR,d
-
 	jp	_rdc	
 
 
+	;=================
+	; Waveform Morph
+	; Do not overwrite [BC] and [D](flags)
+	;=================
+decode_cmd12_SCC_morph:
+	push	bc			; Preserve pointer
 
+	ld	(replay_morph_waveform),a
+	xor	a
+	ld 	(replay_morph_counter),a
+	inc	a
+	ld	(replay_morph_timer),a
+	ld	a,(replay_morph_type)
+	and	a
+	jp	z,.morph_continue
+.morph_start:		; Set start in buffer
+	ld	hl,_0x9800
+	ld	a,iyh
+	add	a,l
+	ld	l,a
+	jp	nc,.morph_copy
+	inc	h
+	jr.	.morph_copy	
+
+.morph_continue:
+	;--- Set the the waveform address
+	ld	l,(ix+TRACK_Waveform)
+	ld	h,0
+	add	hl,hl
+	add	hl,hl
+		 
+	ld	bc,(replay_wavebase)
+	add	hl,bc
+
+.morph_copy:
+	ld	bc,replay_morph_buffer
+	ld	a,32
+44:
+	ex	af,af'	;'
+	ld	a,(hl)
+	inc	bc		; copy to value (skip delta value byte)
+	ld	(bc),a	
+	inc	hl
+	inc	bc
+	ex	af,af'	;'
+	dec	a
+	jp	nz,44b
+
+	;--- calculate the delta's	
+	ld	a,255				; 255 triggers calc init
+	ld	(replay_morph_active),a		
+	set	B_ACTMOR,d
+	pop	bc			; Restore the pointer
+	jp	_rdc	
+
+
+	;================= 
+	; Waveform Morph copy /follow
+	; Do not overwrite [BC] and [D](flags)
+	;=================
+decode_cmd26_SCC_morph_copy:
+	set	B_ACTMOR,d
+	jp	_rdc_noinc
+
+
+	;=================
+	; Waveform Morph type
+	; Do not overwrite [BC] and [D](flags)
+	;=================
+decode_cmd27_SCC_morph_type:
+	ld	(replay_morph_type),a
+	jp	_rdc	
+
+
+	;=================
+	; Waveform Morph speed
+	; Do not overwrite [BC] and [D](flags)
+	;=================
+decode_cmd28_SCC_morph_speed:
+	ld	(replay_morph_speed),a
+	jp	_rdc	
+
+	;=================
+	; Waveform Morph
+	; Do not overwrite [BC] and [D](flags)
+	;=================
+decode_cmd29_SCC_sample:
+	jp	_rdc	
 
 
 
@@ -2343,22 +2520,21 @@ replay_process_morph:
 ;	ld	(replay_morph_update),a		; after this update the waveforms of the SCC
 
 	ld	a,(replay_morph_speed)
+	inc	a
 	ld	(replay_morph_timer),a
 	
 
 	;--- calculate the delta's
-	ld	de,replay_morph_buffer
-	ld	hl,(replay_wavebase)
 	ld	a,(replay_morph_waveform)
-	add	a
-	jp	nc,.skip2
-	inc	h
-.skip2:
-	add	a,l
 	ld	l,a
-	jp	nc,.skip3
-	inc	h
-.skip3:	
+	ld	h,0
+	add	hl,hl
+	add	hl,hl
+	ld	de,(replay_wavebase)
+	add	hl,de
+	ld	de,replay_morph_buffer
+
+	
 	;---- start calculating
 	ld	b,32		; 32 values
 _rpm_loop:	
@@ -2407,6 +2583,7 @@ _rpm_smaller:
 ;============================
 _rpm_next_step:
 	ld	a,(replay_morph_speed)
+	inc	a
 	ld	(replay_morph_timer),a
 
 	;-- apply the delta's
