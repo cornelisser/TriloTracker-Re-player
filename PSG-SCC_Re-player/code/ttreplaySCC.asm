@@ -1563,20 +1563,23 @@ process_triggerNote:
 
 	ld	l,(ix+TRACK_MacroStart)
 	ld	h,(ix+TRACK_MacroStart+1)
-	;--- Store the macro start	
+;	;--- Store the macro start	
 	ld	(ix+TRACK_MacroPointer),l
 	ld	(ix+TRACK_MacroPointer+1),h	
 
-	ld	hl,0
+	;ld	hl,0
 	ld	(_SP_Storage),sp
-	ld	sp,ix
-	pop	af
-	pop	af
-	push	hl
-	push	hl		
-	push	hl
-	push	hl
-	push	hl
+	ld	sp,ix				
+	; reset the macro pointer 
+	pop	af				; Move just after TRACK_cmd_ToneAdd			
+	pop	af	
+
+	ld	hl,0
+	push	hl				; clear TRACK_cmd_ToneAdd	
+	push	hl				; clear TRACK_cmd_ToneSlideAdd
+	push	hl				; clear TRACK_cmd_VolumeAdd + TRACK_Noise	
+	push	hl				; clear TRACK_VolumeAdd +TRACK_ToneAdd (high)
+	push	hl				; clear RACK_ToneAdd(low)+ TRACK_empty
 	ld	sp,(_SP_Storage)
 
 ;	ld	(ix+TRACK_ToneAdd),0
@@ -1591,10 +1594,10 @@ process_triggerNote:
 
 process_noNoteTrigger:
 	;Get note freq
-	ld	a,(ix+TRACK_Note)
-	add	a,(ix+TRACK_cmd_NoteAdd)
-	add	a
-	ex	af,af'			;'store the	note offset
+//	ld	a,(ix+TRACK_Note)
+//	add	a,(ix+TRACK_cmd_NoteAdd)
+//	add	a
+//	ex	af,af'			;'store the	note offset
 	
 
 	;==============
@@ -1639,7 +1642,7 @@ _vol_base:
 	; is done here to be able to continue
 	; macro volume values.
 	bit	B_TRGENV,d		;'(IX+TRACK_Flags)
-	jp	z,_noEnv		; if not set then normal volume calculation
+	jr	z,_noEnv		; if not set then normal volume calculation
 	ld	a,16			; set volume to 16 == envelope
 	ld	(SCC_regVOLE),a
 	jp	_noVolume	
@@ -1776,7 +1779,11 @@ process_noToneAdd:
 	ld	(ix+TRACK_MacroPointer),l	;--- store pointer for next time
 	ld	(ix+TRACK_MacroPointer+1),h	
 
-	ex	af,af'			;';restore note offset
+	// Get the current note
+	ld	a,(ix+TRACK_Note)
+	add	a,(ix+TRACK_cmd_NoteAdd)
+	add	a
+
 	ld	hl,(replay_tonetable)
 	add	a,l
 	ld	l,a
@@ -1809,7 +1816,6 @@ process_noToneAdd:
 	ld	(hl),e
 	inc	hl
 	ld	(hl),d
-
 	ret
 
 	
