@@ -653,7 +653,7 @@ _replay_check_patternend:
 decode_data_chan:
 
 	;--- initialize data
-	ld	a,(ix+TRACK_Note)
+//	ld	a,(ix+TRACK_Note)
 	ld	(replay_previous_note),a
 
 	;=============
@@ -1201,14 +1201,14 @@ decode_cmd13_arp_speed:
 	
 decode_cmd14_fine_up:
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	xor	a
-	ld	(ix+TRACK_cmd_ToneSlideAdd+1),a
+	//xor	a
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0
 	jp	_rdc
 	
 decode_cmd15_fine_down:
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	ld	a,$ff
-	ld	(ix+TRACK_cmd_ToneSlideAdd+1),a
+	//ld	a,$ff
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),$ff
 	jp	_rdc
 
 
@@ -1337,7 +1337,7 @@ decode_cmd23_SCC_duty:
 	jp	nz,.wspw_loop_h
 
 	ex	af,af'	; restore the initial length
-	ld	e,a
+;	ld	e,a
 	sub	31
 
 	ld	e,$87
@@ -1519,28 +1519,20 @@ process_data_chan:
 	;=====
 	ld	a,(equalization_flag)			; check for speed equalization
 	and	a
-	jp	nz,process_noNoteTrigger		; Only process instruments
+	jr	nz,process_noNoteTrigger		; Only process instruments
 	
 	
 	;=====
 	; COMMAND
 	;=====
 	ld	(ix+TRACK_cmd_NoteAdd),0			; Always reset note add
-	
+
 	bit	B_TRGCMD,d	;(ix+TRACK_Flags)
-	jp	z,process_note
+	jr	z,process_note
 	
 	ld	hl,PROCESS_CMDLIST
 	ld	a,(ix+TRACK_Command)
-;[DEBUG]	
-	cp	11
-	jp	c,99f
-	di
-1:	halt
-	jp	1b
 
-99:
-;[/DEBUG]
 	add	a
 	add	a,l
 	ld	l,a
@@ -1739,9 +1731,14 @@ _noNoise:
 	JP	z,process_noToneAdd
 
 	;-- enable tone output
-	ld	a,(SCC_regMIXER)
-	or	16
-	ld	(SCC_regMIXER),a
+;	ld	a,(SCC_regMIXER)
+;	or	16
+;	ld	(SCC_regMIXER),a
+	ld	bc,SCC_regMIXER
+	ld	a,(bc)
+	or 	16
+	ld	(bc),a
+
 
 	ld	b,(ix+TRACK_ToneAdd)	; get	the current	deviation	
 	ld	c,(ix+TRACK_ToneAdd+1)
@@ -1986,10 +1983,14 @@ process_cmd8_tremelo:
 	inc	h
 99:
 	ld	a,(hl)
-	sla	a
-	sla	a	
-	sla	a	
-	sla	a
+;	sla	a
+;	sla	a	
+;	sla	a	
+;	sla	a
+	add	a
+	add	a
+	add	a
+	add	a
 	ld	(ix+TRACK_cmd_VolumeAdd),a
 	jp	process_commandEND	
 
@@ -2298,8 +2299,9 @@ replay_route:
 ; P S	G 
 ;---------------
 	;--- Push values to AY HW
-	ld	b,0
-	ld	c,0xa0
+;	ld	b,0
+;	ld	c,0xa0
+	ld	bc,$00a0
 	ld	hl,PSG_registers
 _comp_loop:	
 	out	(c),b
