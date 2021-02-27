@@ -114,7 +114,13 @@ def load_tmu(infile,song):
 
 			
 											# Drum names
-			for d in range(0,20):
+			if (song.version < 9):
+				nr_drum = 20
+			else:
+				nr_drum = 19
+		
+
+			for d in range(0,nr_drum):
 				drum = Drum(d)
 				str = data[index:index+16]
 				drum.name = str.decode('utf-8')
@@ -123,7 +129,7 @@ def load_tmu(infile,song):
 				song.drums.append(drum)
 				
 											#drum macros
-			for d in range(0,20):
+			for d in range(0,nr_drum):
 				drum = song.drums[d]
 				l = data[index]
 				drum.set_length(l)
