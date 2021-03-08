@@ -498,6 +498,8 @@ _rdd_3psg_5fm:
 	srl	a
 	xor	0x3f
 	ld	(PSG_regMIXER),a
+	xor	a
+	ld	(FM_regMIXER),a
 
 	; Set tone table
 	ld	hl,TRACK_ToneTable_FM
