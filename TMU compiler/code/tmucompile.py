@@ -545,7 +545,7 @@ def export_ins_row_asm_scc(ins,r):
 							# Output format:
 							# [Nbit |Nupd|Ndev|Tbit|Tupd|Vupd|Vdev|End]
 							#	7     6    5    4    3    2    1    0
-
+							#    '0'   '1' = Waveform update
 	if r == ins.length -1:			# set the end of instrument bit
 		e = bit0
 	else:
@@ -592,6 +592,13 @@ def export_ins_row_asm_scc(ins,r):
 			result_info = result_info + bit6 + bit5
 			result_noise = (255-result_noise)+1	
 			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise +\n"		
+	# Test form waveform update in macro
+	elif ((byte1 & bit6) != 0x00):
+		# waveform update
+		result_info = result_info + bit6
+		result_waveform = result_noise
+		out = out+ f"{_DB} ${result_waveform:02x}\t\t\t\t\t\t\t; Waveform +\n"
+
 
 	# calculate tone
 	result_toneL = byte3

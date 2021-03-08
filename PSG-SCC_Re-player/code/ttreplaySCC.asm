@@ -222,6 +222,7 @@ ENDIF
 	ld	(TRACK_Chan5+17+TRACK_Flags),a
 	ld	(TRACK_Chan6+17+TRACK_Flags),a	
 	ld	(TRACK_Chan7+17+TRACK_Flags),a	
+	ld	(TRACK_Chan8+17+TRACK_Flags),a	
 	
 ;	call scc_reg_update			; Probably not needed.
 	
@@ -484,6 +485,8 @@ process_data:
 	srl	a
 	xor	0x3f
 	ld	(PSG_regMIXER),a
+	xor	a
+	ld	(SCC_regMixer),a
 
 	;--- set SCC balance
 	ld	hl,(replay_mainSCCvol)
@@ -1723,8 +1726,21 @@ _noVolume:
 .skip:	
 	ld	(ix+TRACK_Noise),a
 	ld	(PSG_regNOISE),a
-	
+	jp	_noWave
+
 _noNoise:
+	;-------------------------------
+	; Waveform update
+	;-------------------------------
+	bit	6,e
+	jp	z,_noWave
+	ld	a,(hl)
+	inc	hl
+	ld	(ix+TRACK_Waveform),a
+	set	B_TRGWAV,d
+	res	B_ACTMOR,d	
+
+_noWave:
 	;-------------------------------
 	;
 	; TONE
