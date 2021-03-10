@@ -785,9 +785,14 @@ _rd_delay:
 	ld	(ix+TRACK_Delay),a
 	jp	_replay_decode_trigger_porttone_check
 
+_rd_eot:
+	inc	a
+	ld	(ix+TRACK_Delay),a
+	jp	_replay_decode_trigger_porttone_check
+
 _replay_decode_delay:
 	sub	_WAIT-1
-	jp	z,_rd_delay		; EOT found
+	jp	z,_rd_eot		; EOT found
 	ld	(ix+TRACK_Delay),a
 	ld	(ix+TRACK_prevDelay),a
 	inc	bc
