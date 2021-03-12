@@ -1520,9 +1520,9 @@ process_data_chan:
 	;===== 
 	; Speed equalization check
 	;=====
-	ld	a,(equalization_flag)			; check for speed equalization
-	and	a
-	jr	nz,process_noNoteTrigger		; Only process instruments
+;	ld	a,(equalization_flag)			; check for speed equalization
+;	and	a
+;	jr	nz,process_noNoteTrigger		; Only process instruments
 	
 	
 	;=====
@@ -1795,7 +1795,7 @@ process_noToneAdd:
 	ld	(ix+TRACK_MacroPointer),l	;--- store pointer for next time
 	ld	(ix+TRACK_MacroPointer+1),h	
 
-	// Get the current note
+	;-- Get the current note
 	ld	a,(ix+TRACK_Note)
 	add	a,(ix+TRACK_cmd_NoteAdd)
 	add	a

@@ -208,7 +208,7 @@ class Song:
 		
 	def set_version(self,version):
 
-		if version != 8:
+		if version < 8:
 			raise SystemExit('The version of the .TMU file is not compatible')			# Error is no file arguments.
 		self.version = version
 	

@@ -319,7 +319,7 @@ decode_data:
 	ld	a,(TRACK_Chan2+17+TRACK_Note)	
 	ld	ix,TRACK_Chan2+17
 	ld	bc,(TRACK_pointer2)
-	call	decode_data_chan
+;	call	decode_data_chan
 	ld	(TRACK_pointer2),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan2+17+TRACK_Flags),a	
@@ -339,7 +339,7 @@ decode_data:
 	ld	a,(TRACK_Chan3+17+TRACK_Note)	
 	ld	ix,TRACK_Chan3+17
 	ld	bc,(TRACK_pointer3)
-	call	decode_data_chan
+;	call	decode_data_chan
 	ld	(TRACK_pointer3),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
@@ -354,7 +354,7 @@ decode_data:
 	ld	a,(TRACK_Chan4+17+TRACK_Note)	
 	ld	ix,TRACK_Chan4+17
 	ld	bc,(TRACK_pointer4)
-	call	decode_data_chan
+;	call	decode_data_chan
 	ld	(TRACK_pointer4),bc
 	ld	a,d			;'
 	ld	(TRACK_Chan4+17+TRACK_Flags),a	
@@ -369,7 +369,7 @@ decode_data:
 	ld	a,(TRACK_Chan5+17+TRACK_Note)	
 	ld	ix,TRACK_Chan5+17
 	ld	bc,(TRACK_pointer5)
-	call	decode_data_chan
+;	call	decode_data_chan
 	ld	(TRACK_pointer5),bc
 	ld	a,d			;'
 	ld	(TRACK_Chan5+17+TRACK_Flags),a	
@@ -384,7 +384,7 @@ decode_data:
 	ld	a,(TRACK_Chan6+17+TRACK_Note)	
 	ld	ix,TRACK_Chan6+17
 	ld	bc,(TRACK_pointer6)
-	call	decode_data_chan
+;	call	decode_data_chan
 	ld	(TRACK_pointer6),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan6+17+TRACK_Flags),a	
@@ -399,7 +399,7 @@ decode_data:
 	ld	a,(TRACK_Chan7+17+TRACK_Note)	
 	ld	ix,TRACK_Chan7+17
 	ld	bc,(TRACK_pointer7)
-	call	decode_data_chan
+;	call	decode_data_chan
 	ld	(TRACK_pointer7),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan7+17+TRACK_Flags),a	
@@ -414,7 +414,7 @@ decode_data:
 	ld	a,(TRACK_Chan8+17+TRACK_Note)	
 	ld	ix,TRACK_Chan8+17
 	ld	bc,(TRACK_pointer8)
-	call	decode_data_chan
+;	call	decode_data_chan
 	ld	(TRACK_pointer8),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan8+17+TRACK_Flags),a
@@ -618,13 +618,14 @@ _rdd_cont:
 	ld	ix,TRACK_Chan8+17
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,FM_regToneF
 	call	process_data_chan
 	ld	a,(FM_regVOLF)
 	ld	d,a
-	ld	a,(TRACK_Chan3+17+TRACK_Voice)
+	ld	a,(TRACK_Chan8+17+TRACK_Voice)
 	and	$f0
 	or	d	
-	ld	(FM_regVOLE),a
+	ld	(FM_regVOLF),a
 ;	ld	(FM_regToneF),hl
 	
 
@@ -1350,9 +1351,9 @@ process_data_chan:
 	;===== 
 	; Speed equalization check
 	;=====
-	ld	a,(equalization_flag)			; check for speed equalization
-	and	a
-	jp	nz,process_noNoteTrigger		; Only process instruments macro
+;	ld	a,(equalization_flag)			; check for speed equalization
+;	and	a
+;	jp	nz,process_noNoteTrigger		; Only process instruments macro
 	
 	
 	;=====
@@ -1365,15 +1366,7 @@ process_data_chan:
 
 	ld	hl,PROCESS_CMDLIST
 	ld	a,(ix+TRACK_Command)
-;[DEBUG]	
-	cp	11
-	jp	c,99f
-	di
-1:	halt
-	jp	1b
 
-99:
-;[/DEBUG]
 	add	a
 	add	a,l
 	ld	l,a
@@ -1400,8 +1393,9 @@ process_note:
 
 process_triggerNote:	
 	;--- get new Note
-	res	B_TRGNOT,d		;(ix+TRACK_Flags)		; reset trigger note flag
+;	res	B_TRGNOT,d		;(ix+TRACK_Flags)		; reset trigger note flag
 	set	B_ACTNOT,d		;(ix+TRACK_Flags)		; set	note active	flag
+
 
 	ld	l,(ix+TRACK_MacroStart)
 	ld	h,(ix+TRACK_MacroStart+1)
@@ -1433,10 +1427,10 @@ process_triggerNote:
 
 process_noNoteTrigger:
 	;Get note freq
-	ld	a,(ix+TRACK_Note)
-	add	a,(ix+TRACK_cmd_NoteAdd)
-	add	a
-	ex	af,af'			;'store the	note offset
+;	ld	a,(ix+TRACK_Note)
+;	add	a,(ix+TRACK_cmd_NoteAdd)
+;	add	a
+;	ex	af,af'			;'store the	note offset
 
 
 	;==============
@@ -1662,7 +1656,11 @@ process_noToneBit:
 	ld	(ix+TRACK_MacroPointer),l	;--- store pointer for next time
 	ld	(ix+TRACK_MacroPointer+1),h	
 
-	ex	af,af'			;';restore note offset
+	;-- Get current note
+	ld	a,(ix+TRACK_Note)
+	add	a,(ix+TRACK_cmd_NoteAdd)
+	add	a
+
 	ld	hl,(replay_tonetable)
 	add	a,l
 	ld	l,a
@@ -2339,7 +2337,7 @@ route_FM:
 	;---- Update the tone and drum registers
 	;------------------------------------------
 	ld 	hl,FM_Registers
-	ld	de,TRACK_Chan3+TRACK_Flags
+	ld	de,TRACK_Chan3+17+TRACK_Flags
 	ld	a,$10		; Register $10
 	ld	b,9		; 6(tone)+3(drum) channels to update
 
@@ -2480,12 +2478,14 @@ _route_FM_keyOff_update:
 load_softwarevoice:
 	;-- Set the software voice data address
 	ld 	hl,(replay_voicebase)
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	add	hl,de
 	xor	a		; set reg# 0
+
+
+
 .voiceupd_loop:
 
 	out	(FM_WRITE),a

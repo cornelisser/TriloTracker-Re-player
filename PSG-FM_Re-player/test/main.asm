@@ -562,7 +562,7 @@ init_vdp:
 
 	
 demo_song:
-	include	".\test.asm"
+	include	".\demo_sms.asm"
 	
 TEXT_Title:
 	db	"TriloTracker FM Re-player Debug info",0	

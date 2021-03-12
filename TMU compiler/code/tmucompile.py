@@ -107,7 +107,7 @@ def load_tmu(infile,song):
 
 		else:
 			for x in range(0,16):			# Custom FM voices 
-				voice = Voice(x+178)
+				voice = Voice(x+177)
 				voice.data = data[index:index+8]
 				song.voices.append(voice)
 				index +=8
@@ -145,8 +145,8 @@ def load_tmu(infile,song):
 
 
 		# THIS IS TO OVERCOME AN ERROR IN THE FILES
-		if song.type != "SCC":	
-			index = index -1	
+	#	if song.type != "SCC":	
+	#		index = index -1	
 		
 		p = 0							# Patterns
 		t = 0
@@ -229,7 +229,7 @@ def export_asm(outfile,song):
 		if song.type == 'SCC':
 			file.write(f"{_DW} {_CHILD}waveform_start\t\t\t; Start of the waveform data.\n")
 		else:
-			file.write(f"{_DW} {_CHILD}customvoice_start\t\t\t; Start of the custom voices data.\n")
+			file.write(f"{_DW} {_CHILD}customvoice_start-8\t\t\t; Start of the custom voices data.\n")
 			file.write(f"{_DW} {_CHILD}drummacro_start\t\t\t\t; Start of the drum macro data.\n")		
 
 		file.write(f"{_DW} {_CHILD}instrument_start\t\t\t; Start of the instrument data.\n")		
@@ -260,7 +260,7 @@ def export_asm(outfile,song):
 			if voice.number > 15:
 				if voice.used == True:
 					file.write(f"{_DB} ${voice.data[0]:02x},${voice.data[1]:02x},${voice.data[2]:02x},${voice.data[3]:02x},${voice.data[4]:02x},${voice.data[5]:02x},${voice.data[6]:02x},${voice.data[7]:02x} \t\t; Custom voice:{voice.number:0}\n")				
-	
+
 		file.write("\n; [ SCC Waveforms ]\n")		
 		file.write(f"{_CHILD}waveform_start:\n")	
 		for waveform in song.waveforms:
@@ -295,10 +295,14 @@ def export_asm(outfile,song):
 					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\t\t; Waveform {waveform.export_number//8}\n")
 				elif song.type == "FM" or song.type == "SMS":
 					voice = song.get_voice(instrument.voice)
-					if instrument.voice < 16:
-						file.write(f"{_DB} ${instrument.number << 4:02x}\t\t\t\t\t; FM Hardware Voice {voice.number}\n")
+					if instrument.voice == 0:
+						file.write(f"{_DB} $01\t\t\t\t\t; FM Hardware Voice was not set\n")
+
+					elif instrument.voice < 16:
+						file.write(f"{_DB} ${instrument.voice << 4:02x}\t\t\t\t\t; FM Hardware Voice {voice.number}\n")
 					else:
-						file.write(f"{_DB} $00,${voice.export_number << 3:02x}\t\t\t\t\t; FM Software Voice {voice.export_number}\n")
+						# set the address offset of the voice data (= export+1 * 4) 
+						file.write(f"{_DB} $00,${voice.export_number+1 << 2:02x}\t\t\t\t\t; FM Software Voice {voice.export_number}\n")
 					
 				#file.write("\t\t;Flg,Vol,Noi,Lnk,Tone\n")
 				for r in range(0,instrument.length):

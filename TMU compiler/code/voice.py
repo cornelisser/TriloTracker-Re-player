@@ -5,7 +5,6 @@
 #===================================================================
 class Voice:
 	
-	
 	def __init__(self,number):	
 		self.number = number
 		self.export_number = number
