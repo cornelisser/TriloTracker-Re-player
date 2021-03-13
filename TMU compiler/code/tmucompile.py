@@ -686,8 +686,12 @@ def export_track(file,track):
 			"CF":	cmd_offset+28,	#SCC Morph speed
 			"CA":	cmd_offset+29,	#SCC Sample		
 		}
-					
+
+
+	last_value = 	0	# last value written in data. Used for checking delay repeat exceptions
+	curr_value =      0					
 	for row in track.rows:
+
 
 		n = row[0]		# note
 		i = row[1]		# instrument
@@ -695,12 +699,27 @@ def export_track(file,track):
 		c = row[3]		# command
 		p = row[4]		# parameters
 		
-		
+		if curr_value > 0:
+			last_value = curr_value
+		# detect highest action
+		if (p != 0):
+			curr_value = 4
+		elif (c != 0):
+			curr_value = 4
+		elif (v != 0):
+			curr_value = 3
+		elif (i != 0):
+			curr_value = 2
+		elif (n != 0):
+			curr_value = 1
+		else:
+			curr_value = 0
+
 		# Handle wait timer/repeat.
 		if (n + i + v + c + p == 0):		# If empty row then add 1 wait
 			wait += 1				
-		elif wait >= 0:						# Action and there are waits then add wait
-			if wait == wait_prev:			# If previous wait is same then just repeat
+		elif wait >= 0:					# Action and there are waits then add wait
+			if (wait == wait_prev) & (curr_value <= last_value):			# If previous wait is same then just repeat
 				file.write(f"\t\t\t\t\t;Wait Repeat {wait_prev+1}\n")
 				wait = 0
 			else:							# Add the new wait.
@@ -709,8 +728,7 @@ def export_track(file,track):
 				wait = 0
 		else:
 			wait += 1
-			
-			
+
 			
 		if n != 0:
 			n -= 1			#note 1 -> 0

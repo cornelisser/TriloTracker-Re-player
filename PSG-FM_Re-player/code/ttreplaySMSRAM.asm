@@ -54,10 +54,10 @@ B_TRGNOT				equ 0			; note trigger
 B_ACTNOT				equ 1			; note active
 B_TRGENV				equ 2			; envelope trigger
 B_TRGCMD				equ 3			; command active
-B_KEYON					equ 4			; for fm note trigger
-B_SUST					equ 5			; for fm note sustain
+B_KEYON				equ 4			; for fm note trigger
+B_SUST				equ 5			; for fm note sustain
 B_TRGVOI				equ 6			; custom voice trigger	
-B_PSGFM					equ 7			; chip type (PSG or FM)	
+B_PSGFM				equ 7			; chip type (PSG or FM)	
 
 ;B_ACTMOR			equ 4			; morph active
 ;B_TRGINS			equ 5			; instrument trigger
@@ -204,7 +204,6 @@ FM_DRUM_LEN			#1	; Length of drum macro
 FM_DRUM_MACRO		#2	; Pointer to drum macro data
 
 FM_softvoice_req		#1	; Software voice requested
-FM_softvoice_set 		#1	; Software voice currently loaded
 
 
 ; DEze lijkt niet meer nodig

@@ -201,7 +201,7 @@ replay_loadsong:
 	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
 	ld	(FM_softvoice_req),a	
-	ld	(FM_softvoice_set),a
+;	ld	(FM_softvoice_set),a
 
 	ld	a,16
 	ld	(TRACK_Chan3+17+TRACK_Voice),a
@@ -274,7 +274,7 @@ replay_play:
 	dec	(hl)
 
 	jp	nz,_replay_check_patternend	
-		
+
 	;--- Re-init Timer == 0
 	xor	a
 	ld	bc,(replay_speed)		; [b]	sub-timer [c] speed
@@ -319,7 +319,7 @@ decode_data:
 	ld	a,(TRACK_Chan2+17+TRACK_Note)	
 	ld	ix,TRACK_Chan2+17
 	ld	bc,(TRACK_pointer2)
-;	call	decode_data_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer2),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan2+17+TRACK_Flags),a	
@@ -339,7 +339,7 @@ decode_data:
 	ld	a,(TRACK_Chan3+17+TRACK_Note)	
 	ld	ix,TRACK_Chan3+17
 	ld	bc,(TRACK_pointer3)
-;	call	decode_data_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer3),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
@@ -354,7 +354,7 @@ decode_data:
 	ld	a,(TRACK_Chan4+17+TRACK_Note)	
 	ld	ix,TRACK_Chan4+17
 	ld	bc,(TRACK_pointer4)
-;	call	decode_data_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer4),bc
 	ld	a,d			;'
 	ld	(TRACK_Chan4+17+TRACK_Flags),a	
@@ -369,7 +369,7 @@ decode_data:
 	ld	a,(TRACK_Chan5+17+TRACK_Note)	
 	ld	ix,TRACK_Chan5+17
 	ld	bc,(TRACK_pointer5)
-;	call	decode_data_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer5),bc
 	ld	a,d			;'
 	ld	(TRACK_Chan5+17+TRACK_Flags),a	
@@ -399,7 +399,7 @@ decode_data:
 	ld	a,(TRACK_Chan7+17+TRACK_Note)	
 	ld	ix,TRACK_Chan7+17
 	ld	bc,(TRACK_pointer7)
-;	call	decode_data_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer7),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan7+17+TRACK_Flags),a	
@@ -414,7 +414,7 @@ decode_data:
 	ld	a,(TRACK_Chan8+17+TRACK_Note)	
 	ld	ix,TRACK_Chan8+17
 	ld	bc,(TRACK_pointer8)
-;	call	decode_data_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer8),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan8+17+TRACK_Flags),a
@@ -459,7 +459,6 @@ process_data:
 	ld	d,a
 	ld	hl,PSG_regToneA
 	call	process_data_chan
-;	ld	(PSG_regToneA),hl
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLA),a	
 
@@ -471,7 +470,6 @@ process_data:
 	ld	d,a
 	ld	hl,PSG_regToneB
 	call	process_data_chan
-;	ld	(PSG_regToneB),hl
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLB),a	
 
@@ -488,7 +486,6 @@ _rdd_3psg_5fm:
 	ld	d,a
 	ld	hl,PSG_regToneC
 	call	process_data_chan
-;	ld	(PSG_regToneC),hl
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLC),a
 
@@ -535,7 +532,7 @@ _rdd_2psg_6fm:
 	ld	d,a
 	ld	hl,FM_regToneA
 	call	process_data_chan
-;	ld	(FM_regToneA),hl
+
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan3+17+TRACK_Voice)
@@ -553,7 +550,6 @@ _rdd_cont:
 	ld	d,a
 	ld	hl,FM_regToneB
 	call	process_data_chan
-;	ld	(FM_regToneB),hl
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan4+17+TRACK_Voice)
@@ -569,7 +565,6 @@ _rdd_cont:
 	ld	d,a
 	ld	hl,FM_regToneC
 	call	process_data_chan
-;	ld	(FM_regToneC),hl
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan5+17+TRACK_Voice)
@@ -586,7 +581,6 @@ _rdd_cont:
 	ld	d,a
 	ld	hl,FM_regToneD
 	call	process_data_chan
-;	ld	(FM_regToneD),hl
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan6+17+TRACK_Voice)
@@ -602,9 +596,6 @@ _rdd_cont:
 	ld	d,a
 	ld	hl,FM_regToneE
 	call	process_data_chan
-;	ld	(FM_regToneE),hl
-;	ld	a,d
-;	ld	(TRACK_Chan7+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan7+17+TRACK_Voice)
@@ -626,7 +617,7 @@ _rdd_cont:
 	and	$f0
 	or	d	
 	ld	(FM_regVOLF),a
-;	ld	(FM_regToneF),hl
+
 	
 
 	;--------------------
@@ -684,12 +675,15 @@ _replay_check_patternend:
 	dec	a
 	jp	nz,process_data
 	
+
+
 	ld	hl,(TRACK_pointer1)
 	ld	a,(hl)
 	
 	;--- check for end of pattern
 	cp	191	
 	jp	nz,process_data
+
 
 	;--- Set track pointers to start
 	ld	hl,(replay_orderpointer)
@@ -1360,7 +1354,6 @@ process_data_chan:
 	; COMMAND
 	;=====
 	ld	(ix+TRACK_cmd_NoteAdd),0			; Always reset note add
-	
 	bit	B_TRGCMD,d	;(ix+TRACK_Flags)
 	jp	z,process_note
 
@@ -1393,7 +1386,11 @@ process_note:
 
 process_triggerNote:	
 	;--- get new Note
-;	res	B_TRGNOT,d		;(ix+TRACK_Flags)		; reset trigger note flag
+
+	bit	B_PSGFM,d		; Only reset note trigger for PSG
+	jp	nz,99f
+	res	B_TRGNOT,d		;(ix+TRACK_Flags)		; reset trigger note flag
+99:
 	set	B_ACTNOT,d		;(ix+TRACK_Flags)		; set	note active	flag
 
 
@@ -1481,23 +1478,25 @@ _vol_base:
 ;	jp	_noVolume	
 	
 _noVolumeChange:
+	; Apply Tone bit to volume (as SN7 and opll have no mixer)
+	; Check only for SMS PSG and FM!
+	bit	5,e		; do we have tone?
+	jp	nz,_tone_on
+
+	bit 	B_PSGFM,d
+	jp	nz,99f
+;psg:
+	xor	a
+	jp	_tone_off
+99:
+	ld	a,15
+	jp	_tone_off
+
+_tone_on:
 	or	(ix+TRACK_Volume)
 	ld	c,a			; store volume add
-
 	ld 	a,(ix+TRACK_cmd_VolumeAdd)
-;	rla				; shift to detect shift
-;	jp 	c,.sub_Vadd		
-;.add_Vadd:  
-;	add	a,c
-;	jp	nc,_Vadd
-;	ld	a,c
-;	or	0xf0
-;	jp	_Vadd	
-;.sub_Vadd:	
 	ld	b,a
-;	xor	a
-;	sub 	b
-;	ld	b,a
 	ld	a,c
 	sub	a,b
 	jp 	nc,.skip2
@@ -1505,8 +1504,6 @@ _noVolumeChange:
  	and	0x0f
 .skip2:
 
-	
-	;-- next is _Vadd
 _Vadd:
 	;--- apply main volume balance
 	ld	bc,(replay_mainvol)
@@ -1525,6 +1522,7 @@ _Vadd:
 	rra
 .skip2:
 	and	0x0f
+_tone_off:
 	ld	(FM_regVOLF),a
 
 _noVolume:
@@ -1574,8 +1572,22 @@ _noNoise:
 	
 	bit	B_PSGFM,d		;(ix+TRACK_Flags)
 	jp	nz,_noLink		; Noise and Link not at the same time
-	
+
+
+
+	;--- calculate end volume
 	or	(ix+TRACK_Volume)
+	ld	c,a			; store volume add
+	ld 	a,(ix+TRACK_cmd_VolumeAdd)
+	ld	b,a
+	ld	a,c
+	sub	a,b
+	jp 	nc,.skip2
+	ld	a,c
+ 	and	0x0f
+.skip2:
+
+_NVadd:
 	;--- apply main volume balance
 	ld	bc,(replay_mainvol)
 	add	a,c
@@ -1583,6 +1595,24 @@ _noNoise:
 	jp	nc,.skip
 	inc	b
 .skip:
+	ld	a,(bc)	
+	rra
+	rra
+	rra
+	rra
+.skip2:
+	and	0x0f
+	ld	(PSG_regVOLN),a
+	jp	_noLink
+
+	or	(ix+TRACK_Volume)
+	;--- apply main volume balance
+	ld	bc,(replay_mainvol)
+	add	a,c
+	ld	c,a
+	jp	nc,.skip3
+	inc	b
+.skip3:
 	ld	a,(bc)
 	ld	(PSG_regVOLN),a
 	jp	_noLink
@@ -2194,7 +2224,7 @@ route_SN:
 	cp	(hl)
 	jp	z,0f
 	ld	(hl),a
-	ld	a,11100000b
+	or	11100000b
 	;or	11100000b
 	out	($3f),a
 0:
