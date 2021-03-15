@@ -9,16 +9,14 @@
 
 ; [ Song order pointer list ]
 .restart:
-;	dw .track_000, .track_000, .track_002, .track_002, .track_004, .track_005, .track_000, .track_000	; Step:001 Pattern:000
+	dw .track_000, .track_000, .track_002, .track_002, .track_004, .track_005, .track_000, .track_000	; Step:001 Pattern:000
 	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:002 Pattern:001
 	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:003 Pattern:001
 	dw .track_016, .track_017, .track_010, .track_011, .track_012, .track_021, .track_022, .track_023	; Step:004 Pattern:002
 	dw .track_016, .track_017, .track_010, .track_011, .track_012, .track_021, .track_022, .track_023	; Step:005 Pattern:002
 	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:006 Pattern:001
-;	dw .track_024, .track_025, .track_010, .track_027, .track_028, .track_029, .track_030, .track_031	; Step:007 Pattern:003
+	dw .track_024, .track_025, .track_010, .track_027, .track_028, .track_029, .track_030, .track_031	; Step:007 Pattern:003
 	dw 0x0000, .restart				; End of sequence delimiter + restart address.
-
-
 
 ; [ Custom FM voices ]
 .customvoice_start:
@@ -59,52 +57,56 @@
 	db $10					; FM Hardware Voice 1
 	db $28			; Info byte: 00101000
 	db $0f			; Volume _
-	db $c8			; Info byte: 11001000
-	db $0c			; Volume _
-	db $00			; Noise
-	db $06			; Noise volume
-	db $c8			; Info byte: 11001000
-	db $0b			; Volume _
-	db $00			; Noise
-	db $06			; Noise volume
-	db $c8			; Info byte: 11001000
-	db $0a			; Volume _
-	db $00			; Noise
-	db $06			; Noise volume
-	db $c8			; Info byte: 11001000
-	db $09			; Volume _
-	db $00			; Noise
-	db $06			; Noise volume
-	db $c8			; Info byte: 11001000
+	db $e8			; Info byte: 11101000
 	db $08			; Volume _
-	db $00			; Noise
+	db $05			; Noise
+	db $0f			; Noise volume
+	db $c8			; Info byte: 11001000
+	db $00			; Volume _
+	db $06			; Noise
+	db $0e			; Noise volume
+	db $c8			; Info byte: 11001000
+	db $00			; Volume _
+	db $06			; Noise
+	db $0d			; Noise volume
+	db $c8			; Info byte: 11001000
+	db $00			; Volume _
+	db $06			; Noise
+	db $0c			; Noise volume
+	db $c8			; Info byte: 11001000
+	db $00			; Volume _
+	db $06			; Noise
+	db $0a			; Noise volume
+	db $c8			; Info byte: 11001000
+	db $00			; Volume _
+	db $06			; Noise
+	db $08			; Noise volume
+	db $c8			; Info byte: 11001000
+	db $00			; Volume _
+	db $06			; Noise
 	db $06			; Noise volume
 	db $c8			; Info byte: 11001000
-	db $07			; Volume _
-	db $00			; Noise
-	db $06			; Noise volume
+	db $00			; Volume _
+	db $06			; Noise
+	db $04			; Noise volume
 	db $c8			; Info byte: 11001000
-	db $06			; Volume _
-	db $00			; Noise
-	db $06			; Noise volume
-	db $c8			; Info byte: 11001000
-	db $05			; Volume _
-	db $00			; Noise
-	db $06			; Noise volume
-	db $c8			; Info byte: 11001000
-	db $04			; Volume _
-	db $00			; Noise
-	db $06			; Noise volume
+	db $00			; Volume _
+	db $06			; Noise
+	db $02			; Noise volume
 .rst_i00:
 	db $09			; Info byte: 00001001
 	db $00			; Volume _
 	dw .rst_i00						; Loop address
 .instrument_01:					; HH CL A8        
 	db $70					; FM Hardware Voice 7
-	db $e8			; Info byte: 11101000
-	db $0b			; Volume _
+	db $c8			; Info byte: 11001000
+	db $00			; Volume _
 	db $04			; Noise
-	db $0f			; Noise volume
+	db $0d			; Noise volume
+	db $c8			; Info byte: 11001000
+	db $00			; Volume _
+	db $04			; Noise
+	db $0e			; Noise volume
 .rst_i01:
 	db $09			; Info byte: 00001001
 	db $00			; Volume _
@@ -494,7 +496,7 @@
 	db $5d			;Note A-8
 	db $6d			;Volume 12
 	db $72			;Instrument 1
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $9c,$01			;CMD Drum $01
 	db $c3			;Wait 4
 	db $2f			;Note B-4
@@ -525,12 +527,12 @@
 	db $5d			;Note A-8
 	db $6d			;Volume 12
 	db $72			;Instrument 1
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $9c,$01			;CMD Drum $01
 	db $c3			;Wait 4
 	db $5d			;Note A-8
 	db $6d			;Volume 12
-					;Wait Repeat 4
+	db $c3			;Wait 4
 	db $9c,$01			;CMD Drum $01
 					;Wait Repeat 4
 	db $21			;Note A-3
@@ -541,7 +543,7 @@
 	db $5d			;Note A-8
 	db $6d			;Volume 12
 	db $72			;Instrument 1
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $5d			;Note A-8
 	db $6f			;Volume 14
 	db $7b			;Instrument 10
@@ -856,12 +858,12 @@
 	db $5d			;Note A-8
 	db $6d			;Volume 12
 	db $72			;Instrument 1
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $9c,$01			;CMD Drum $01
 	db $c3			;Wait 4
 	db $5d			;Note A-8
 	db $6d			;Volume 12
-					;Wait Repeat 4
+	db $c3			;Wait 4
 	db $9c,$01			;CMD Drum $01
 					;Wait Repeat 4
 	db $21			;Note A-3
@@ -880,7 +882,7 @@
 	db $21			;Note A-3
 	db $6d			;Volume 12
 	db $71			;Instrument 0
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $9c,$01			;CMD Drum $01
 	db $c3			;Wait 4
 	db $5d			;Note A-8
@@ -897,7 +899,7 @@
 	db $5d			;Note A-8
 	db $6d			;Volume 12
 	db $72			;Instrument 1
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $9c,$01			;CMD Drum $01
 	db $c3			;Wait 4
 	db $5d			;Note A-8
@@ -905,7 +907,7 @@
 	db $c1			;Wait 2
 	db $5d			;Note A-8
 	db $6d			;Volume 12
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $5d			;Note A-8
 	db $6e			;Volume 13
 	db $7b			;Instrument 10
@@ -1030,7 +1032,7 @@
 	db $36			;Note F#5
 	db $c1			;Wait 2
 	db $36			;Note F#5
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $34			;Note E-5
 	db $6e			;Volume 13
 	db $75			;Instrument 4
@@ -1057,7 +1059,7 @@
 	db $36			;Note F#5
 					;Wait Repeat 2
 	db $38			;Note G#5
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $34			;Note E-5
 	db $9a,$03			;CMD Note delay
 	db $c2			;Wait 3
@@ -1141,7 +1143,7 @@
 	db $36			;Note F#5
 					;Wait Repeat 2
 	db $38			;Note G#5
-					;Wait Repeat 2
+	db $c1			;Wait 2
 	db $34			;Note E-5
 	db $9a,$03			;CMD Note delay
 	db $c2			;Wait 3
@@ -1201,18 +1203,22 @@
 .track_024:
 	db $9c,$01			;CMD Drum $01
 	db $c0			;Wait 1
-	db $97,$8c			;CMD Volume slide up
+	db $97,$8a			;CMD Volume slide up
 	db $c6			;Wait 7
 	db $60			;Release 96
-	db $f7			;Wait 56
+	db $c5			;Wait 6
+	db $9b			;CMD End 
+	db $f1			;Wait 50
 	db $bf			;[End-Of-Track]
 .track_025:
 			;CMD 8 Unused [WARNING]
 	db $c0			;Wait 1
-	db $97,$8c			;CMD Volume slide up
+	db $97,$8a			;CMD Volume slide up
 	db $c6			;Wait 7
 	db $60			;Release 96
-	db $f7			;Wait 56
+	db $c5			;Wait 6
+	db $9b			;CMD End 
+	db $f1			;Wait 50
 	db $bf			;[End-Of-Track]
 .track_027:
 	db $53			;Note B-7
@@ -1220,35 +1226,45 @@
 	db $78			;Instrument 7
 	db $a1,$08			;CMD Track detune
 	db $c0			;Wait 1
-	db $97,$8c			;CMD Volume slide up
-	db $fe			;Wait 63
+	db $97,$8a			;CMD Volume slide up
+	db $cc			;Wait 13
+	db $9b			;CMD End 
+	db $f1			;Wait 50
 	db $bf			;[End-Of-Track]
 .track_028:
 	db $17			;Note B-2
 	db $6e			;Volume 13
 	db $76			;Instrument 5
 	db $97,$8a			;CMD Volume slide up
-	db $ff			;Wait 64
+	db $cd			;Wait 14
+	db $9b			;CMD End 
+	db $f1			;Wait 50
 	db $bf			;[End-Of-Track]
 .track_029:
 	db $2d			;Note A-4
 	db $6c			;Volume 11
 	db $77			;Instrument 6
 	db $97,$86			;CMD Volume slide up
-	db $ff			;Wait 64
+	db $cd			;Wait 14
+	db $9b			;CMD End 
+	db $f1			;Wait 50
 	db $bf			;[End-Of-Track]
 .track_030:
 	db $32			;Note D-5
 	db $6c			;Volume 11
 	db $77			;Instrument 6
 	db $97,$86			;CMD Volume slide up
-	db $ff			;Wait 64
+	db $cd			;Wait 14
+	db $9b			;CMD End 
+	db $f1			;Wait 50
 	db $bf			;[End-Of-Track]
 .track_031:
 	db $36			;Note F#5
 	db $6c			;Volume 11
 	db $77			;Instrument 6
 	db $97,$86			;CMD Volume slide up
-	db $ff			;Wait 64
+	db $cd			;Wait 14
+	db $9b			;CMD End 
+	db $f1			;Wait 50
 	db $bf			;[End-Of-Track]
 

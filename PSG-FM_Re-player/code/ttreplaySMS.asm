@@ -955,7 +955,7 @@ DECODE_CMDLIST:
 	dw	decode_cmd1_port_up
 	dw	decode_cmd6_vibrato_vol	
 	dw	decode_cmd7_vol_slide
-	dw	decode_cmd8_tremelo
+	dw	decode_cmd8_tremolo
 	dw	decode_cmd9_note_cut
 	dw	decode_cmd10_note_delay
 	; Secondary
@@ -1093,7 +1093,7 @@ decode_cmd3_port_tone_new_note:
 	ret
 	
 	
-decode_cmd8_tremelo:
+decode_cmd8_tremolo:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -1495,9 +1495,9 @@ _noVolumeChange:
 _tone_on:
 	or	(ix+TRACK_Volume)
 	ld	c,a			; store volume add
-	ld 	a,(ix+TRACK_cmd_VolumeAdd)
-	ld	b,a
-	ld	a,c
+	ld 	b,(ix+TRACK_cmd_VolumeAdd)
+;	ld	b,a
+;	ld	a,c
 	sub	a,b
 	jp 	nc,.skip2
 	ld	a,c
@@ -1839,7 +1839,7 @@ PROCESS_CMDLIST:
 	dw	process_cmd1_port_up	
 	dw	process_cmd6_vibrato_vol		
 	dw	process_cmd7_vol_slide
-	dw	process_cmd8_tremelo
+	dw	process_cmd8_tremolo
 	dw	process_cmd9_note_cut		
 	dw	process_cmd10_note_delay		
 
@@ -1973,10 +1973,10 @@ process_cmd3_stop:
 	jp	process_commandEND
 
 
-process_cmd8_tremelo:
+process_cmd8_tremolo:
 	;=================================
 	;
-	; Tremelo	
+	; tremolo	
 	;
 	;=================================	
 	ld	l,(ix+TRACK_cmd_4_depth)

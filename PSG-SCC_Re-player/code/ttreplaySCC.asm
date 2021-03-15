@@ -1655,7 +1655,7 @@ _noVolumeChange:
 	or	(ix+TRACK_Volume)
 	ld	c,a			; store volume add
 
-	ld 	a,(ix+TRACK_cmd_VolumeAdd)
+	ld 	b,(ix+TRACK_cmd_VolumeAdd)
 ;	rla				; shift to detect shift
 ;	jp 	c,.sub_Vadd		
 ;.add_Vadd:  
@@ -1665,11 +1665,11 @@ _noVolumeChange:
 ;	or	0xf0
 ;	jp	_Vadd	
 ;.sub_Vadd:	
-	ld	b,a
+;	ld	b,a
 ;	xor	a
 ;	sub 	b
 ;	ld	b,a
-	ld	a,c
+;	ld	a,c
 	sub	a,b
 	jp 	nc,.skip2
 	ld	a,c
