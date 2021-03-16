@@ -834,7 +834,7 @@ _replay_decode_release:
 
 
 _replay_decode_sustain:
-	res	B_ACTNOT,d				; reset note bit to	0
+;	res	B_ACTNOT,d				; reset note bit to	0
 	set	B_SUST,d				; rest sustain
 	res	B_KEYON,d				; reset Key on
 
