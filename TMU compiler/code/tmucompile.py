@@ -277,8 +277,9 @@ def export_asm(outfile,song):
 				file.write(f"{_DW} {_CHILD}drum_{drum.number:02}\n")	
 		
 		for drum in song.drums:
-			if drum.used == True:
-				file.write(f"\n{_CHILD}drum_{drum.number:02}:\n")
+			## if drum.used == True:
+			##	file.write(f"\n{_CHILD}drum_{drum.number:02}:\n")
+				export_drum(file,drum)
 			
 		file.write("\n; [ Instruments]\n")				
 		file.write(f"{_CHILD}instrument_start:\n")
@@ -624,7 +625,112 @@ def export_ins_row_asm_scc(ins,r):
 	return out
 
 
+#--------------------------------------------
+#
+# DRUM
+#
+#--------------------------------------------
+def export_drum(file,drum):
+	file.write(f"\n{_CHILD}drum_{drum.export_number:02}:\t\t\t\t\t\t; Drum {drum.number}. {drum.name}\n")				
 
+	for r in range(0,drum.length):
+		row = drum.rows[r]
+		p = row[0]			# percussion
+		bt = row[1]
+		bv = row[2]	& 0x0f	# bdrum
+		st = row[3]
+		sv = row[4] & 0xf0 	# snare
+		hv = row[4] & 0x0f	# hihat
+		ct = row[5]
+		cv = row[6] & 0xf0 	# cymbal
+		tv = row[6] & 0x0f	# tom
+
+		# tone byte  [n | d | x x x x x x]
+		# n = note, d = deviation, x = value
+
+		# cmd: 
+		# 0 = end of row
+		# 2 = stop playback
+		# 4 = bdrum vol
+		# 6 = snare vol
+		# 8 = hhat vol
+		# a = snare+hhat vol
+		# c = cymbal vol
+		# e = tomtom vol
+		# 10 = cymbal+tomtom vol
+		# 12 = bdrum tone note
+		# 14 = dbrum tone add
+		# 16 = snare+hhat tone note
+		# 18 = snare+hhat tone add
+		# 1a = cymbal+hhat tone note
+		# 1c = cymbal+hhat tone add 
+		# 1e = percussion
+
+		if (p != 0):	
+			# percussion
+			file.write(f"{_DW} $1e, ${p:02x}\t\t\t\t\t\t\t; Percussion\n")			
+		if (bv != 0):
+			# bdrum volume
+			file.write(f"{_DW} $04, ${bv:02x}\t\t\t\t\t\t\t; volume Base drum\n")	
+		if (sv != 0 and hv == 0):
+			# Snare volume
+			file.write(f"{_DW} $06, ${(sv):02x}\t\t\t\t\t\t\t; volume Snare\n")				
+		if (sv != 0 and hv != 0):
+			# Hihat volume
+			file.write(f"{_DW} $08, ${(hv):02x}\t\t\t\t\t\t\t; volume HiHat\n")	
+		if (sv != 0 and hv != 0):
+			# Snare + Hihat volume
+			file.write(f"{_DW} $0a, ${(sv+hv):02x}\t\t\t\t\t\t\t; volume Snare + HiHat\n")	
+		if (cv != 0 and tv == 0):
+			# Cymbal 
+			file.write(f"{_DW} $0c, ${(cv):02x}\t\t\t\t\t\t\t; volume Cymbal\n")	
+		if (cv == 0 and tv != 0):
+			# Tom volume
+			file.write(f"{_DW} $0e, ${tv:02x}\t\t\t\t\t\t\t; volume Tom\n")	
+		if (cv != 0 and tv != 0):
+			# Cymbal + Tom volume
+			file.write(f"{_DW} $10, ${(sv+hv):02x}\t\t\t\t\t\t\t; volume Cymbal + Tom \n")	
+
+		if (bt != 0):
+			if (bt & 0x80 == 0):
+				#note
+				file.write(f"{_DW} $12, ${(bt & 0x7f):02x}\t\t\t\t\t\t\t; note Bdrum\n")					
+			elif (bt &0x3f != 0):
+				if (bt & 0x40 == 0):
+					#add
+					file.write(f"{_DW} $14, ${(bt & 0x3f):02x}\t\t\t\t\t\t\t; tone add pos Bdrum \n")
+				else:
+					#add - neg
+					file.write(f"{_DW} $14, ${256-(bt & 0x3f):02x}\t\t\t\t\t\t\t; tone add neg Bdrum \n")										
+		if (st != 0):
+			if (st & 0x80 == 0):
+				#note
+				file.write(f"{_DW} $16, ${(st & 0x7f):02x}\t\t\t\t\t\t\t; note Snare \n")	
+			elif (st &0x3f != 0):
+				if (st & 0x40 == 0):
+					#add
+					file.write(f"{_DW} $18, ${(st & 0x3f):02x}\t\t\t\t\t\t\t; tone add pos Snare \n")
+				else:
+					#add - neg
+					file.write(f"{_DW} $18, ${256-(st & 0x3f):02x}\t\t\t\t\t\t\t; tone add neg Snare \n")						
+		if (ct != 0):
+			if (ct & 0x80 == 0):
+				#note
+				file.write(f"{_DW} $1a, ${(ct & 0x7f):02x}\t\t\t\t\t\t\t; note Cymbal \n")					
+			elif (ct &0x3f != 0):
+				if (ct & 0x40 == 0):
+					#add
+					file.write(f"{_DW} $1c, ${(ct & 0x3f):02x}\t\t\t\t\t\t\t; tone add pos Cymbal \n")
+				else:
+					#add - neg
+					file.write(f"{_DW} $1c, ${256-(ct & 0x3f):02x}\t\t\t\t\t\t\t; tone add neg Cymbal \n")		
+
+		# End of row to End of Drum macro?
+		if (r == drum.length -1):
+			file.write(f"{_DW} $02\t\t\t\t\t\t\t; STOP - End of Drum macro\n")		
+		else:
+			file.write(f"{_DW} $00\t\t\t\t\t\t\t; END  - End of row\n")
+	return	
 
 
 
