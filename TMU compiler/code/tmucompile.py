@@ -18,6 +18,27 @@ outfile = ''
 _DB = "\tdb"
 _DW = "\tdw"
 _CHILD = "."
+
+OPLL_notes = [	0,0,
+			0xad,0x00,0xb7,0x00,0xc2,0x00,0xcd,0x00,0xd9,0x00,0xe6,0x00,	# Oct 1
+			0xf4,0x00,0x03,0x01,0x12,0x01,0x22,0x01,0x34,0x01,0x46,0x01,
+			0xad,0x02,0xb7,0x02,0xc2,0x02,0xcd,0x02,0xd9,0x02,0xe6,0x02,	# Oct 2
+			0xf4,0x02,0x03,0x03,0x12,0x03,0x22,0x03,0x34,0x03,0x46,0x03,
+			0xad,0x04,0xb7,0x04,0xc2,0x04,0xcd,0x04,0xd9,0x04,0xe6,0x04,	# Oct 3
+			0xf4,0x04,0x03,0x05,0x12,0x05,0x22,0x05,0x34,0x05,0x46,0x05,
+			0xad,0x06,0xb7,0x06,0xc2,0x06,0xcd,0x06,0xd9,0x06,0xe6,0x06,	# Oct 4
+			0xf4,0x06,0x03,0x07,0x12,0x07,0x22,0x07,0x34,0x07,0x46,0x07,
+			0xad,0x08,0xb7,0x08,0xc2,0x08,0xcd,0x08,0xd9,0x08,0xe6,0x08,	# Oct 5
+			0xf4,0x08,0x03,0x09,0x12,0x09,0x22,0x09,0x34,0x09,0x46,0x09,
+			0xad,0x0a,0xb7,0x0a,0xc2,0x0a,0xcd,0x0a,0xd9,0x0a,0xe6,0x0a,	# Oct 6
+			0xf4,0x0a,0x03,0x0b,0x12,0x0b,0x22,0x0b,0x34,0x0b,0x46,0x0b,
+			0xad,0x0c,0xb7,0x0c,0xc2,0x0c,0xcd,0x0c,0xd9,0x0c,0xe6,0x0c,	# Oct 7
+			0xf4,0x0c,0x03,0x0d,0x12,0x0d,0x22,0x0d,0x34,0x0d,0x46,0x0d,
+			0xad,0x0e,0xb7,0x0e,0xc2,0x0e,0xcd,0x0e,0xd9,0x0e,0xe6,0x0e,	# Oct 8
+			0xf4,0x0e,0x03,0x0f,0x12,0x0f,0x22,0x0f,0x34,0x0f,0x46,0x0f]
+
+
+
 #===================================================================
 #
 #	TMU File Loading 
@@ -668,68 +689,71 @@ def export_drum(file,drum):
 
 		if (p != 0):	
 			# percussion
-			file.write(f"{_DW} $1e, ${p:02x}\t\t\t\t\t\t\t; Percussion\n")			
+			file.write(f"{_DB} $1e, ${p:02x}\t\t\t\t\t\t\t; Percussion\n")			
 		if (bv != 0):
 			# bdrum volume
-			file.write(f"{_DW} $04, ${bv:02x}\t\t\t\t\t\t\t; volume Base drum\n")	
+			file.write(f"{_DB} $04, ${bv:02x}\t\t\t\t\t\t\t; volume Base drum\n")	
 		if (sv != 0 and hv == 0):
 			# Snare volume
-			file.write(f"{_DW} $06, ${(sv):02x}\t\t\t\t\t\t\t; volume Snare\n")				
+			file.write(f"{_DB} $06, ${(sv):02x}\t\t\t\t\t\t\t; volume Snare\n")				
 		if (sv != 0 and hv != 0):
 			# Hihat volume
-			file.write(f"{_DW} $08, ${(hv):02x}\t\t\t\t\t\t\t; volume HiHat\n")	
+			file.write(f"{_DB} $08, ${(hv):02x}\t\t\t\t\t\t\t; volume HiHat\n")	
 		if (sv != 0 and hv != 0):
 			# Snare + Hihat volume
-			file.write(f"{_DW} $0a, ${(sv+hv):02x}\t\t\t\t\t\t\t; volume Snare + HiHat\n")	
+			file.write(f"{_DB} $0a, ${(sv+hv):02x}\t\t\t\t\t\t\t; volume Snare + HiHat\n")	
 		if (cv != 0 and tv == 0):
 			# Cymbal 
-			file.write(f"{_DW} $0c, ${(cv):02x}\t\t\t\t\t\t\t; volume Cymbal\n")	
+			file.write(f"{_DB} $0c, ${(cv):02x}\t\t\t\t\t\t\t; volume Cymbal\n")	
 		if (cv == 0 and tv != 0):
 			# Tom volume
-			file.write(f"{_DW} $0e, ${tv:02x}\t\t\t\t\t\t\t; volume Tom\n")	
+			file.write(f"{_DB} $0e, ${tv:02x}\t\t\t\t\t\t\t; volume Tom\n")	
 		if (cv != 0 and tv != 0):
 			# Cymbal + Tom volume
-			file.write(f"{_DW} $10, ${(sv+hv):02x}\t\t\t\t\t\t\t; volume Cymbal + Tom \n")	
+			file.write(f"{_DB} $10, ${(sv+hv):02x}\t\t\t\t\t\t\t; volume Cymbal + Tom \n")	
 
 		if (bt != 0):
 			if (bt & 0x80 == 0):
 				#note
-				file.write(f"{_DW} $12, ${(bt & 0x7f):02x}\t\t\t\t\t\t\t; note Bdrum\n")					
+				tmp_note = (bt & 0x3f)*2
+				file.write(f"{_DB} $12, ${OPLL_notes[tmp_note]:02x}, ${OPLL_notes[tmp_note+1]:02x}\t\t\t\t\t\t; note Bdrum\n")					
 			elif (bt &0x3f != 0):
 				if (bt & 0x40 == 0):
 					#add
-					file.write(f"{_DW} $14, ${(bt & 0x3f):02x}\t\t\t\t\t\t\t; tone add pos Bdrum \n")
+					file.write(f"{_DB} $14, ${(bt & 0x3f):02x}, $00\t\t\t\t\t\t; tone add pos Bdrum \n")
 				else:
 					#add - neg
-					file.write(f"{_DW} $14, ${256-(bt & 0x3f):02x}\t\t\t\t\t\t\t; tone add neg Bdrum \n")										
+					file.write(f"{_DB} $14, ${256-(bt & 0x3f):02x}, $ff\t\t\t\t\t\t; tone add neg Bdrum \n")										
 		if (st != 0):
 			if (st & 0x80 == 0):
 				#note
-				file.write(f"{_DW} $16, ${(st & 0x7f):02x}\t\t\t\t\t\t\t; note Snare \n")	
+				tmp_note = (st & 0x3f)*2
+				file.write(f"{_DB} $16, ${OPLL_notes[tmp_note]:02x}, ${OPLL_notes[tmp_note+1]:02x}\t\t\t\t\t\t; note Snare \n")	
 			elif (st &0x3f != 0):
 				if (st & 0x40 == 0):
 					#add
-					file.write(f"{_DW} $18, ${(st & 0x3f):02x}\t\t\t\t\t\t\t; tone add pos Snare \n")
+					file.write(f"{_DB} $18, ${(st & 0x3f):02x}, $00\t\t\t\t\t\t; tone add pos Snare \n")
 				else:
 					#add - neg
-					file.write(f"{_DW} $18, ${256-(st & 0x3f):02x}\t\t\t\t\t\t\t; tone add neg Snare \n")						
+					file.write(f"{_DB} $18, ${256-(st & 0x3f):02x}, $ff\t\t\t\t\t\t; tone add neg Snare \n")						
 		if (ct != 0):
 			if (ct & 0x80 == 0):
 				#note
-				file.write(f"{_DW} $1a, ${(ct & 0x7f):02x}\t\t\t\t\t\t\t; note Cymbal \n")					
+				tmp_note = (ct & 0x3f)*2
+				file.write(f"{_DB} $1a, ${OPLL_notes[tmp_note]:02x}, ${OPLL_notes[tmp_note+1]:02x}\t\t\t\t\t\t; note Cymbal \n")					
 			elif (ct &0x3f != 0):
 				if (ct & 0x40 == 0):
 					#add
-					file.write(f"{_DW} $1c, ${(ct & 0x3f):02x}\t\t\t\t\t\t\t; tone add pos Cymbal \n")
+					file.write(f"{_DB} $1c, ${(ct & 0x3f):02x}, $00\t\t\t\t\t\t; tone add pos Cymbal \n")
 				else:
 					#add - neg
-					file.write(f"{_DW} $1c, ${256-(ct & 0x3f):02x}\t\t\t\t\t\t\t; tone add neg Cymbal \n")		
+					file.write(f"{_DB} $1c, ${256-(ct & 0x3f):02x}, $ff\t\t\t\t\t\t; tone add neg Cymbal \n")		
 
 		# End of row to End of Drum macro?
 		if (r == drum.length -1):
-			file.write(f"{_DW} $02\t\t\t\t\t\t\t; STOP - End of Drum macro\n")		
+			file.write(f"{_DB} $02\t\t\t\t\t\t\t; STOP - End of Drum macro\n")		
 		else:
-			file.write(f"{_DW} $00\t\t\t\t\t\t\t; END  - End of row\n")
+			file.write(f"{_DB} $00\t\t\t\t\t\t\t; END  - End of row\n")
 	return	
 
 

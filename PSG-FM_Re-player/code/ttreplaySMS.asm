@@ -166,7 +166,7 @@ replay_loadsong:
 	ldir
 	
 	ld	(replay_arp_speed),a
-	ld	(FM_DRUM_LEN),a
+	ld	(FM_DRUM_ACTIVE),a
 	ld	(FM_DRUM),a	
 	
 	ld	(PSG_regVOLA),a
@@ -617,6 +617,14 @@ _rdd_cont:
 	and	$f0
 	or	d	
 	ld	(FM_regVOLF),a
+
+	;--------------------
+	;--- Process Drums
+	;--------------------
+	call	process_drum
+
+
+
 
 	
 
@@ -1222,6 +1230,7 @@ decode_cmd12_drum:
 	and 	a		; drum reset not supported
 	jr 	z,0f
 	
+	ld	(FM_DRUM_ACTIVE),a		; to enable processing	
 	; Get the base addres of the drum list
 	add 	a 
 	ld	hl,(replay_drumbase)
@@ -1237,10 +1246,6 @@ decode_cmd12_drum:
 	ld	h,(hl)
 	ld	l,a
 	
-	; Store the length
-	ld	a,(hl)
-	ld	(FM_DRUM_LEN),a
-	inc	hl
 	; Store the address
 	ld	a,l
 	ld 	(FM_DRUM_MACRO),a
@@ -2164,6 +2169,207 @@ process_cmd10_note_delay:
 
 
 
+
+
+_process_drum_none:
+	ld	(FM_DRUM_ACTIVE),a
+	ret
+;============================================================================
+; process_drum
+;
+;
+;
+;============================================================================
+process_drum:
+	ld	a,(FM_DRUM_ACTIVE)
+	and	a
+	jp	z,_process_drum_none
+
+	;-- Retrieve the next action
+	ld	bc,(FM_DRUM_MACRO)
+
+_process_drum_loop:
+	ld	hl,DRUM_MACRO_LIST-2
+	ld	a,(bc)
+	and	a
+	jp	z.end
+	inc	bc
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+
+.end:
+	ld	(FM_DRUM_MACRO),bc
+	ret
+
+
+DRUM_MACRO_LIST:
+	dw	_drum_stop		;2
+	dw	_drum_vol_bd	;4
+	dw	_drum_vol_sn	;6
+	dw	_drum_vol_hh	;8
+	dw	_drum_vol_snhh	;a
+	dw	_drum_vol_cy	;c
+	dw	_drum_vol_tt	;e
+	dw	_drum_vol_cytt	;10
+	dw	_drum_note_bd	;12
+	dw	_drum_tone_bd	;14
+	dw	_drum_note_snhh	;16
+	dw	_drum_tone_snhh	;18
+	dw	_drum_note_cytt	;1a
+	dw	_drum_tone_cytt	;1c
+	dw	_drum_percussion	;1e
+
+_drum_stop:			;2
+	xor	a
+	ld	(DRUM_ACTIVE),a
+	ret
+
+_drum_vol_bd:		;4
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regVolBD),a
+	jp	_process_drum_loop
+
+_drum_vol_sn:		;6
+	ld	a,(DRUM_regVolSH)
+	and	0xf0
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolSH),a
+	jp	_process_drum_loop
+
+_drum_vol_hh:		;8
+	ld	a,(DRUM_regVolSH)
+	and	0x0f
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolSH),a
+	jp	_process_drum_loop
+
+drum_vol_snhh:	;a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regVolSH),a
+	jp	_process_drum_loop
+
+
+_drum_vol_cy:		;6
+	ld	a,(DRUM_regVolCT)
+	and	0xf0
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolCT),a
+	jp	_process_drum_loop
+
+_drum_vol_tt:		;8
+	ld	a,(DRUM_regVolCT)
+	and	0x0f
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolCT),a
+	jp	_process_drum_loop
+
+drum_vol_cytt:	;a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regVolCT),a
+	jp	_process_drum_loop
+
+drum_note_bd:	;12
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneBD),a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneBD+1),a
+	jp	_process_drum_loop
+
+drum_tone_bd:	;14
+	ld	hl,(DRUM_regToneBD)
+	ld	a,(bc)
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	inc	bc
+	ld	d,a
+	add	hl,de
+	ld	(DRUM_regToneBD),hl
+	jp	_process_drum_loop
+
+drum_note_snhh:	;16
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneSH),a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneSH+1),a
+	jp	_process_drum_loop
+
+drum_tone_snhh:	;18
+	ld	hl,(DRUM_regToneSH)
+	ld	a,(bc)
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	inc	bc
+	ld	d,a
+	add	hl,de
+	ld	(DRUM_regToneSH),hl
+	jp	_process_drum_loop
+
+drum_note_cytt:	;1a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneCT),a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneCT+1),a
+	jp	_process_drum_loop
+
+drum_tone_cytt:	;1c
+	ld	hl,(DRUM_regToneCT)
+	ld	a,(bc)
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	inc	bc
+	ld	d,a
+	add	hl,de
+	ld	(DRUM_regToneCT),hl
+	jp	_process_drum_loop
+
+drum_percussion:	;1e
+	ld	a,(bc)
+	inc	bc
+	ld	(FM_DRUM),a
+	jp	_process_drum_loop
+	
+
+
+
+
+
+
+
+
+
+
 ;===========================================================
 ; ---replay_route
 ; Output the data	to the CHIP	registers
@@ -2291,52 +2497,6 @@ route_gg:
 
 
 
-
-
-;	;--- Push values to AY HW
-;	ld	b,0
-;	ld	c,0xa0
-;	ld	hl,PSG_registers
-;_comp_loop:	
-;	out	(c),b
-;	ld	a,(hl)
-;	add	1
-;	out	(0xa1),a
-;	inc	hl
-;	ld	a,(hl)
-;	adc	a,0
-;	inc	b
-;	out	(c),b	
-;	inc	hl
-;	out	(0xa1),a	
-;	inc	b
-;	ld	a,6
-;	cp	b
-;	jp	nz,_comp_loop
-;	
-;	ld	a,b	
-;	
-;	
-;_ptPSG_loop:
-;	out	(c),a
-;	inc	c
-;	outi
-;	dec	c
-;	inc	a
-;	cp	13
-;	jr	nz,_ptPSG_loop
-;
-;	ld	b,a
-;	ld	a,(hl)
-;	and	a
-;	jp	z,_ptPSG_noEnv
-;	out	(c),b
-;	inc	c
-;	out 	(c),a
-;	ld	(hl),0	;reset the envwrite
-;	
-;	
-;_ptPSG_noEnv:
 
 
 
