@@ -1709,7 +1709,7 @@ _noVolume:
 	
 	;--- prevent SCC and noise
 	bit	B_PSGSCC,d		;(ix+TRACK_Flags)
-	jp	nz,_noNoise
+	jp	nz,_noWave		;_noNoise
 
 	;--- Set the mixer for noise
 	ld	a,(SCC_regMIXER)
@@ -1717,7 +1717,7 @@ _noVolume:
 	ld	(SCC_regMIXER),a
 
 	bit	6,e
-	jp	z,_noNoise
+	jp	z,_noWave		;_noNoise
 	ld	a,(hl)	; get the deviation	
 	inc	hl
 	bit	5,e

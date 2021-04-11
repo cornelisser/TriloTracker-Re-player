@@ -350,7 +350,7 @@ def export_ins_row_asm(ins,r,song):
 	if song.type == "SMS":
 		return export_ins_row_asm_sms(ins,r)
 	elif song.type == "SCC":
-		return export_ins_row_asm_scc(ins,r)
+		return export_ins_row_asm_scc(ins,r,song)
 	else:
 		return export_ins_row_asm_fm(ins,r)
 		
@@ -551,7 +551,7 @@ def export_ins_row_asm_fm(ins,r):
 
 
 
-def export_ins_row_asm_scc(ins,r):
+def export_ins_row_asm_scc(ins,r,song):
 	row = ins.rows[r]
 	out = ""
 	bit0 = 1
@@ -619,10 +619,10 @@ def export_ins_row_asm_scc(ins,r):
 			result_noise = (255-result_noise)+1	
 			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise +\n"		
 	# Test form waveform update in macro
-	elif ((byte1 & bit6) != 0x00):
+	elif ((byte1 & (bit6+bit5)) == 0x20):
 		# waveform update
 		result_info = result_info + bit6
-		result_waveform = result_noise
+		result_waveform = song.waveforms[result_noise].export_number
 		out = out+ f"{_DB} ${result_waveform:02x}\t\t\t\t\t\t\t; Waveform +\n"
 
 

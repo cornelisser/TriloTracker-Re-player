@@ -292,7 +292,7 @@ class Song:
 		for pat in self.patterns:
 			if pat.number in self.order_list:			# test if pattern is on order list
 				length = 64
-				pat.used = True							# Set to true if used.
+				pat.used = True						# Set to true if used.
 				for t in pat.tracks:					# Set tracks related to pattern also to true
 					tmp = self.tracks[t].detect_length()	# Detect Effect D00 in track
 					if tmp < length:						
@@ -319,12 +319,12 @@ class Song:
 						
 					if i != 0:
 						if prev_i == i:
-							row[1] = 0						# remove redundant instruments
+							row[1] = 0					# remove redundant instruments
 						else:
 							prev_i = i
 							self.ins[i-1].used = True		# set used instruments
 					if v != 0:
-						if prev_v == v:						# remove redundant volumes
+						if prev_v == v:					# remove redundant volumes
 							row[2] = 0
 						else:
 							prev_i = i
@@ -333,7 +333,7 @@ class Song:
 						if c == 0x0c and p != 0:			# set used drums
 							self.drums[p-1].used = True
 						if (isPSG == False):	 
-							if c == 0x01:					# for FM channels reverse cmd 1 and 2
+							if c == 0x01:				# for FM channels reverse cmd 1 and 2
 								row[3] = 0x02
 							elif c == 0x02:
 								row[3] = 0x01
@@ -392,7 +392,19 @@ class Song:
 					self.voices[instrument.voice].used = True		# Set used voices
 				else:
 					self.waveforms[instrument.waveform].used = True		# Set used waveforms
-		
+
+				if self.type == "SCC":
+					#--- Check for used waveforms in instrument macro					
+					for r in range(0,instrument.length):
+						row = instrument.rows[r]
+						test = row[0] & 0x60
+						wve = row[0] &0x1f
+						if (row[0] & 0x60) == 0x20:
+							w = row[0] & 0x1f
+							self.waveforms[w].used = True
+
+
+
 		# ===================================
 		# Renumber the used software voices for FM
 		# ===================================
