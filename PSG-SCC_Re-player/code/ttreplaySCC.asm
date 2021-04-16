@@ -486,7 +486,7 @@ process_data:
 	xor	0x3f
 	ld	(PSG_regMIXER),a
 	xor	a
-	ld	(SCC_regMixer),a
+	ld	(SCC_regMIXER),a
 
 	;--- set SCC balance
 	ld	hl,(replay_mainSCCvol)
