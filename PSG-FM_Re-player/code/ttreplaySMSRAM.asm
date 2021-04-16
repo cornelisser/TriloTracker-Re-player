@@ -174,8 +174,8 @@ FM_regToneE 	#2	; Tone E freq low					; Tone E freq high
 FM_regToneEb 	#2	; Tone E freq low					; Tone E freq high
 FM_regVOLE	  	#1	; Chan E volume
 FM_regVOLEb	  	#1	; Chan E volume
-FM_regToneF 	#2	; Tone E freq low					; Tone F freq high
-FM_regToneFb 	#2	; Tone E freq low					; Tone F freq high
+FM_regToneF 	#2	; Tone F freq low					; Tone F freq high
+FM_regToneFb 	#2	; Tone F freq low					; Tone F freq high
 FM_regVOLF	  	#1	; Chan F volume
 FM_regVOLFb	  	#1	; Chan F volume
 

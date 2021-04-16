@@ -174,6 +174,7 @@ replay_loadsong:
 	ld	(PSG_regVOLC),a
 	ld	(PSG_regNOISE),a
 
+
 ;	;--- Set the tone table base
 ;	ld	hl,TRACK_ToneTable_PSG
 ;	ld	(replay_tonetable_PSG),hl
@@ -384,7 +385,7 @@ decode_data:
 	ld	a,(TRACK_Chan6+17+TRACK_Note)	
 	ld	ix,TRACK_Chan6+17
 	ld	bc,(TRACK_pointer6)
-;	call	decode_data_chan
+	call	decode_data_chan
 	ld	(TRACK_pointer6),bc
 	ld	a,d				;'
 	ld	(TRACK_Chan6+17+TRACK_Flags),a	
@@ -617,6 +618,11 @@ _rdd_cont:
 	and	$f0
 	or	d	
 	ld	(FM_regVOLF),a
+
+	ld	a,$f6 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
 
 	;--------------------
 	;--- Process Drums
@@ -1227,12 +1233,12 @@ decode_cmd11_command_end:
 	
 
 decode_cmd12_drum:
-	and 	a		; drum reset not supported
-	jr 	z,0f
+;	and 	a		; drum reset not supported
+;	jr 	z,0f
 	
-	ld	(FM_DRUM_ACTIVE),a		; to enable processing	
+
 	; Get the base addres of the drum list
-	add 	a 
+	;add 	a 
 	ld	hl,(replay_drumbase)
 	add	a,l 
 	ld	l,a
@@ -1247,14 +1253,11 @@ decode_cmd12_drum:
 	ld	l,a
 	
 	; Store the address
-	ld	a,l
-	ld 	(FM_DRUM_MACRO),a
+	ld 	(FM_DRUM_MACRO),hl
 	ld	a,h
-	ld	(FM_DRUM_MACRO+1),a
+	ld	(FM_DRUM_ACTIVE),a
 	jp	_rdc		
-0:
-	dec	bc
-	jp	_rdc		
+		
 	
 
 
@@ -2183,17 +2186,17 @@ _process_drum_none:
 process_drum:
 	ld	a,(FM_DRUM_ACTIVE)
 	and	a
-	jp	z,_process_drum_none
-
+	;jp	z,_process_drum_none
+	ret	z
 	;-- Retrieve the next action
 	ld	bc,(FM_DRUM_MACRO)
 
 _process_drum_loop:
 	ld	hl,DRUM_MACRO_LIST-2
 	ld	a,(bc)
-	and	a
-	jp	z.end
 	inc	bc
+	and	a
+	jp	z,.end
 	add	a,l
 	ld	l,a
 	jp	nc,99f
@@ -2229,7 +2232,7 @@ DRUM_MACRO_LIST:
 
 _drum_stop:			;2
 	xor	a
-	ld	(DRUM_ACTIVE),a
+	ld	(FM_DRUM_ACTIVE),a
 	ret
 
 _drum_vol_bd:		;4
@@ -2258,7 +2261,7 @@ _drum_vol_hh:		;8
 	ld	(DRUM_regVolSH),a
 	jp	_process_drum_loop
 
-drum_vol_snhh:	;a
+_drum_vol_snhh:	;a
 	ld	a,(bc)
 	inc	bc
 	ld	(DRUM_regVolSH),a
@@ -2285,13 +2288,13 @@ _drum_vol_tt:		;8
 	ld	(DRUM_regVolCT),a
 	jp	_process_drum_loop
 
-drum_vol_cytt:	;a
+_drum_vol_cytt:	;a
 	ld	a,(bc)
 	inc	bc
 	ld	(DRUM_regVolCT),a
 	jp	_process_drum_loop
 
-drum_note_bd:	;12
+_drum_note_bd:	;12
 	ld	a,(bc)
 	inc	bc
 	ld	(DRUM_regToneBD),a
@@ -2300,7 +2303,7 @@ drum_note_bd:	;12
 	ld	(DRUM_regToneBD+1),a
 	jp	_process_drum_loop
 
-drum_tone_bd:	;14
+_drum_tone_bd:	;14
 	ld	hl,(DRUM_regToneBD)
 	ld	a,(bc)
 	ld	e,a
@@ -2309,10 +2312,10 @@ drum_tone_bd:	;14
 	inc	bc
 	ld	d,a
 	add	hl,de
-	ld	(DRUM_regToneBD),hl
+;	ld	(DRUM_regToneBD),hl
 	jp	_process_drum_loop
 
-drum_note_snhh:	;16
+_drum_note_snhh:	;16
 	ld	a,(bc)
 	inc	bc
 	ld	(DRUM_regToneSH),a
@@ -2321,7 +2324,7 @@ drum_note_snhh:	;16
 	ld	(DRUM_regToneSH+1),a
 	jp	_process_drum_loop
 
-drum_tone_snhh:	;18
+_drum_tone_snhh:	;18
 	ld	hl,(DRUM_regToneSH)
 	ld	a,(bc)
 	ld	e,a
@@ -2333,7 +2336,7 @@ drum_tone_snhh:	;18
 	ld	(DRUM_regToneSH),hl
 	jp	_process_drum_loop
 
-drum_note_cytt:	;1a
+_drum_note_cytt:	;1a
 	ld	a,(bc)
 	inc	bc
 	ld	(DRUM_regToneCT),a
@@ -2342,7 +2345,7 @@ drum_note_cytt:	;1a
 	ld	(DRUM_regToneCT+1),a
 	jp	_process_drum_loop
 
-drum_tone_cytt:	;1c
+_drum_tone_cytt:	;1c
 	ld	hl,(DRUM_regToneCT)
 	ld	a,(bc)
 	ld	e,a
@@ -2354,7 +2357,7 @@ drum_tone_cytt:	;1c
 	ld	(DRUM_regToneCT),hl
 	jp	_process_drum_loop
 
-drum_percussion:	;1e
+_drum_percussion:	;1e
 	ld	a,(bc)
 	inc	bc
 	ld	(FM_DRUM),a
@@ -2518,12 +2521,6 @@ route_FM:
 	
 .noVoice:
 	;------------------------------------------
-	;---- Process Drum macro
-	;------------------------------------------
-	;call	_route_FM_drum_update
-	
-
-	;------------------------------------------
 	;---- Update the tone and drum registers
 	;------------------------------------------
 	ld 	hl,FM_Registers
@@ -2572,8 +2569,10 @@ route_FM:
 	inc	hl
 	add	a,-$1F	; Register# = channel + $10
 	djnz	.channel_loop
-	ret
 
+	;------------------------------------------
+	;---- Process Drum macro
+	;------------------------------------------
 _route_FM_drum_update:
 	ld	a,(FM_DRUM)
 	and	00011111b		; erase bit 5
@@ -2590,12 +2589,13 @@ _route_FM_drum_update:
 
 	push	ix			; 17 cycles	dummy code to implement delay
 	pop	ix			; 17 cycles
-	rld				; 20 cycles
-	rrd				; 20 cycles
+	ld	b,a
+	xor	a
+	ld	(FM_DRUM),a
+	ld	a,b
 
 	or	100000b		; set the percussion bit
 	out	(FM_DATA),a
-	
 	ret
 	
 

@@ -295,11 +295,11 @@ def export_asm(outfile,song):
 		file.write(f"{_CHILD}drummacro_start:\n")		
 		for drum in song.drums:
 			if drum.used == True:
-				file.write(f"{_DW} {_CHILD}drum_{drum.number:02}\n")	
+				file.write(f"{_DW} {_CHILD}drum_{drum.export_number:02}\n")	
 		
 		for drum in song.drums:
-			## if drum.used == True:
-			##	file.write(f"\n{_CHILD}drum_{drum.number:02}:\n")
+			if drum.used == True:
+				#file.write(f"\n{_CHILD}drum_{drum.export_number:02}:\n")
 				export_drum(file,drum)
 			
 		file.write("\n; [ Instruments]\n")				
@@ -658,13 +658,13 @@ def export_drum(file,drum):
 		row = drum.rows[r]
 		p = row[0]			# percussion
 		bt = row[1]
-		bv = row[2]	& 0x0f	# bdrum
+		bv = 0x0f - (row[2] & 0x0f)	# bdrum
 		st = row[3]
-		sv = row[4] & 0xf0 	# snare
-		hv = row[4] & 0x0f	# hihat
+		sv = 0xf0 - (row[4] & 0xf0) 	# snare
+		hv = 0x0f - (row[4] & 0x0f)	# hihat
 		ct = row[5]
-		cv = row[6] & 0xf0 	# cymbal
-		tv = row[6] & 0x0f	# tom
+		cv = 0xf0 - (row[6] & 0xf0) 	# cymbal
+		tv = 0x0f - (row[6] & 0x0f)	# tom
 
 		# tone byte  [n | d | x x x x x x]
 		# n = note, d = deviation, x = value
@@ -690,34 +690,34 @@ def export_drum(file,drum):
 		if (p != 0):	
 			# percussion
 			file.write(f"{_DB} $1e, ${p:02x}\t\t\t\t\t\t\t; Percussion\n")			
-		if (bv != 0):
+		if (bv != 0x0f):
 			# bdrum volume
 			file.write(f"{_DB} $04, ${bv:02x}\t\t\t\t\t\t\t; volume Base drum\n")	
-		if (sv != 0 and hv == 0):
+		if (sv != 0xf0 and hv == 0x0f):
 			# Snare volume
 			file.write(f"{_DB} $06, ${(sv):02x}\t\t\t\t\t\t\t; volume Snare\n")				
-		if (sv != 0 and hv != 0):
+		if (sv == 0xf0 and hv != 0x0f):
 			# Hihat volume
 			file.write(f"{_DB} $08, ${(hv):02x}\t\t\t\t\t\t\t; volume HiHat\n")	
-		if (sv != 0 and hv != 0):
+		if (sv != 0xf0 and hv != 0x0f):
 			# Snare + Hihat volume
-			file.write(f"{_DB} $0a, ${(sv+hv):02x}\t\t\t\t\t\t\t; volume Snare + HiHat\n")	
-		if (cv != 0 and tv == 0):
+			file.write(f"{_DB} $0a, ${(sv&0xf0)|(hv&0x0f):02x}\t\t\t\t\t\t\t; volume Snare + HiHat\n")	
+		if (cv != 0xf0 and tv == 0x0f):
 			# Cymbal 
 			file.write(f"{_DB} $0c, ${(cv):02x}\t\t\t\t\t\t\t; volume Cymbal\n")	
-		if (cv == 0 and tv != 0):
+		if (cv == 0xf0 and tv != 0x0f):
 			# Tom volume
 			file.write(f"{_DB} $0e, ${tv:02x}\t\t\t\t\t\t\t; volume Tom\n")	
-		if (cv != 0 and tv != 0):
+		if (cv != 0xf0 and tv != 0x0f):
 			# Cymbal + Tom volume
-			file.write(f"{_DB} $10, ${(sv+hv):02x}\t\t\t\t\t\t\t; volume Cymbal + Tom \n")	
+			file.write(f"{_DB} $10, ${(sv&0xf0)|(hv&0xf0):02x}\t\t\t\t\t\t\t; volume Cymbal + Tom \n")	
 
 		if (bt != 0):
 			if (bt & 0x80 == 0):
 				#note
-				tmp_note = (bt & 0x3f)*2
+				tmp_note = (bt & 0x7f)*2
 				file.write(f"{_DB} $12, ${OPLL_notes[tmp_note]:02x}, ${OPLL_notes[tmp_note+1]:02x}\t\t\t\t\t\t; note Bdrum\n")					
-			elif (bt &0x3f != 0):
+			elif (bt &0x7f != 0):
 				if (bt & 0x40 == 0):
 					#add
 					file.write(f"{_DB} $14, ${(bt & 0x3f):02x}, $00\t\t\t\t\t\t; tone add pos Bdrum \n")
@@ -750,7 +750,7 @@ def export_drum(file,drum):
 					file.write(f"{_DB} $1c, ${256-(ct & 0x3f):02x}, $ff\t\t\t\t\t\t; tone add neg Cymbal \n")		
 
 		# End of row to End of Drum macro?
-		if (r == drum.length -1):
+		if (r == drum.length-1):
 			file.write(f"{_DB} $02\t\t\t\t\t\t\t; STOP - End of Drum macro\n")		
 		else:
 			file.write(f"{_DB} $00\t\t\t\t\t\t\t; END  - End of row\n")
@@ -999,7 +999,8 @@ def export_track(file,track):
 				else:					
 					# Drum
 					# parameter: as in tracker
-					file.write(f"{_DB} ${cmd['C']:02x},${p:02x}\t\t\t;CMD Drum ${p:02x}\n")
+					drum = song.drums[p-1]
+					file.write(f"{_DB} ${cmd['C']:02x},${drum.export_number:02x}\t\t\t;CMD Drum ${p:02x}\n")
 			elif c == 0x0d:				
 				# End of pattern
 				# Parameter: none

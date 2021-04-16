@@ -416,6 +416,12 @@ class Song:
 						voice.export_number = number
 						print(f"softvoice: {voice.number} -> {voice.export_number}")
 						number+=1
+			number = 0
+			for drum in self.drums:
+				if drum.used == True:
+					drum.export_number = number
+					number += 2
+
 		else:
 			number = 0	
 			for waveform in self.waveforms:
