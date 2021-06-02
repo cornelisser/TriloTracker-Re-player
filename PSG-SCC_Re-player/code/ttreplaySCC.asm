@@ -58,7 +58,7 @@ replay_init:
 replay_pause:
 	ld	a,(replay_mode)
 	and	a
-	jp	z,_r_pause_disable
+	jp	   nz,_r_pause_disable
 _r_pause_enable:
 	;-- re-enable music decoding and processing
 	ld	a,1
