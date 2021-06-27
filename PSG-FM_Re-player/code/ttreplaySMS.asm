@@ -985,7 +985,7 @@ DECODE_CMDLIST:
 	; SoundChip Specific
 	dw	decode_cmd20_tone_panning
 	dw	decode_cmd21_noise_panning
-	dw	decode_cmd22_chan_setup	
+	dw	decode_cmd22_brightness	
 	
 
 decode_cmd0_arpeggio:
@@ -1330,7 +1330,17 @@ decode_cmd20_tone_panning:
 decode_cmd21_noise_panning:
 	jp	_rdc
 
-decode_cmd22_chan_setup:
+decode_cmd22_brightness:
+	ld	e,a
+	ld	a,(FM_Voicereg+4)
+	ld	d,a
+	add	a,e
+	and	00111111b
+	ld	e,a
+	ld	a,d
+	and	11000000b
+	or	e
+	ld	(FM_Voicereg+4),a
 	jp	_rdc
 
 

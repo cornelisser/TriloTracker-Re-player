@@ -9,7 +9,7 @@ TRACK_Instrument			equ 0-17
 TRACK_Command			equ 1-17
 TRACK_MacroPointer		equ 2-17
 TRACK_MacroStart			equ 4-17
-TRACK_MacroRestart 		equ 6-17		; no longer needed
+TRACK_MacroRestart 		equ 6-17		; Delete
 TRACK_Note				equ 7-17
 TRACK_Volume			equ 8-17
 TRACK_Waveform			equ 9-17
@@ -37,7 +37,7 @@ TRACK_cmd_2			equ 25-17
 TRACK_cmd_3			equ 26-17
 TRACK_cmd_4_depth		equ 27-17
 TRACK_cmd_4_step		equ 29-17
-TRACK_cmd_NoteAdd		equ 30-17		;x reset after note set
+TRACK_cmd_NoteAdd		equ 30-17		; reset after note set
 TRACK_cmd_A			equ 31-17		
 TRACK_cmd_B			equ 32-17		
 TRACK_cmd_E			equ 33-17
@@ -82,15 +82,14 @@ TRACK_pointer7		#2
 TRACK_pointer8		#2
 ; / Do not move/reorder above
 
-
 replay_orderpointer:	#2			; pointer to the order track list pointers
 
 replay_speed 		#1			; speed to replay (get from song)
 replay_speed_subtimer 	#1			; counter for finer speed
 replay_speed_timer 	#1 			; counter for speed
 replay_mode 		#1			; Replayer status
-; mode 0  = no sound output
-; mode 1  = replay song 
+	; mode 0  = no sound output
+	; mode 1  = replay song 
 replay_arp_speed		#1			; arpeggio speed ( 0 = fast, $f = slowest)
 replay_fade			#1			; Fade active (value = fade speed)
 replay_fade_timer		#1			; Timer for fade
@@ -99,7 +98,7 @@ replay_fade_vol		#1			; fade volume to lower the channel volume.
 replay_previous_note	#1			; previous note played
 replay_mainvol		#2			; the volume correction.
 
-replay_vib_table		#2			; pointer to the vibrato table
+;replay_vib_table		#2			; pointer to the vibrato table
 replay_tonetable		#2			; ToneTable (affected by transpose);
 
 replay_morph_active	#1			; flag to indicate morphing is active
@@ -110,6 +109,7 @@ replay_morph_speed	#1 			; tics to wait between steps.
 replay_morph_counter	#1			; counter till end morph
 replay_morph_buffer	#64			; interleaved buffer with morphed waveform and morph delta values
 replay_morph_waveform	#1 			; waveform we are morphing to.
+;replay_envelope_shape	#1			; current envelope shape
 
 equalization_freq:	#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
 equalization_cnt:		#1	; counter for correct playback on 60hz
@@ -134,11 +134,11 @@ PSG_regToneC 		#2	; Tone C freq low
 					; Tone C freq high
 PSG_regNOISE 		#1	; Noise freq (5bit)
 PSG_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
-PSG_regVOLA 			#1	; Chan A volume
-PSG_regVOLB 			#1	; Chan B volume
+PSG_regVOLA 		#1	; Chan A volume
+PSG_regVOLB 		#1	; Chan B volume
 PSG_regVOLC  		#1	; Chan C volume
-PSG_regEnvL 			#1	; Volume Env Freq low (8bit)	
-PSG_regEnvH 			#1	; Volume Env Freq high (4bit)
+PSG_regEnvL 		#1	; Volume Env Freq low (8bit)	
+PSG_regEnvH 		#1	; Volume Env Freq high (4bit)
 PSG_regEnvShape 		#1	; Volume Env Shape (4bit)
 
 ;--- SCC SPECIFIC
@@ -166,8 +166,7 @@ SCC_regVOLE  		#1	; Chan E volume
 SCC_regMIXER 		#1	; x3f	; Mixer control (1 = off, 0 = on)
 
 
-;/// see to remove this.
 ;-- SCC registers
-oldregs:	#(32*4)+(3*5)+1		; a way to int the SCC
+oldregs:	#(32*4)+(3*5)+1	; a way to int the SCC
 
 
