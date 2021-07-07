@@ -1,0 +1,18 @@
+Sjasm Z80 Assembler v0.42b8 - www.xl2s.tk             [2021.03.10 - 20:34:10]
+
+main.asm
+Errors: 1
+
+Error opening file: main.asm
+
+    LABELS
+-------------------------------------------------
+
+
+ Output: main.rom
+-------------------------------------------------
+
+ Page: 00
+  Org: 00000000  Size: *  Used: 00000000
+
+    No output

@@ -1,5 +1,5 @@
 	defpage	0,0x4000, 0x8000		; page 0 contains main code + far call routines
-	defpage	1,0x4000, 0x8000		; page 0 contains main code + far call routines
+
 ; -----------------------------
 ; TT-replayer example
 ; 
@@ -19,10 +19,9 @@
 		
 initmain:
 
-   outi
 ;	ei
 ;	halt
- 	di
+	di
 		
 ;; set pages and subslot
 ;;
@@ -35,7 +34,7 @@ initmain:
 	ld      hl,0xfcc1
 	add     hl,bc
 	or      (hl)
-	ld      b,a 
+	ld      b,a
 	inc     hl
 	inc     hl
 	inc     hl
@@ -111,9 +110,9 @@ initmain:
 	ld	de,TEXT_Register_Header
 	call	draw_label		
 
-;	ld 	hl,80*13+56
-;	ld	de,TEXT_Register_Drum
-;	call	draw_label	
+	ld 	hl,80*13+56
+	ld	de,TEXT_Register_Drum
+	call	draw_label	
 
 	ld 	hl,80*18+4
 	ld	de,TEXT_Legend_Data
@@ -252,7 +251,7 @@ debuginfo:
 	ld	a,(ix+TRACK_Instrument)
 	call	draw_hex2
 	inc 	de
-	ld	a,(ix+TRACK_Waveform)
+	ld	a,(ix+TRACK_Voice)
 	call	draw_hex2
 	inc 	de	
 	ld	a,(ix+TRACK_Volume)
@@ -331,23 +330,23 @@ register_debug:
 	call	register_debug_loop		
 
 	;	DRAW FM Tone Vol	
-	ld	iyl,5
-	ld 	de,debug_pnt+(80*3)+38
+	ld	iyl,6
+	ld 	de,debug_pnt+(80*2)+38
 ;	ld	(debug_pointer1),bc
 	call	register_debug_loop
 	
 	
 	;	DRAW FM Drum macro + percusion
-;	ld	iyl,1
-;	ld 	de,debug_pnt+(80*5)+56
-;;	ld	(debug_pointer1),bc
-;	call	register_debug_loop
-;
-;	;	DRAW FM Drum tone + vol
-;	ld	iyl,3
-;	ld 	de,debug_pnt+(80*5)+65
-;;	ld	(debug_pointer1),bc
-;	call	register_debug_loop
+	ld	iyl,1
+	ld 	de,debug_pnt+(80*5)+56
+;	ld	(debug_pointer1),bc
+	call	register_debug_loop
+
+	;	DRAW FM Drum tone + vol
+	ld	iyl,3
+	ld 	de,debug_pnt+(80*5)+65
+;	ld	(debug_pointer1),bc
+	call	register_debug_loop
 	
 	ret
 
@@ -394,16 +393,16 @@ REG_list:
 	dw	PSG_regToneC,PSG_regVOLC
 	dw	PSG_regNOISE,PSG_regMIXER
 	dw	0,0;PSG_regEnvL,PSG_regEnvShape 	
-	dw	SCC_regToneA,SCC_regVOLA 
-	dw	SCC_regToneB,SCC_regVOLB 
-	dw	SCC_regToneC,SCC_regVOLC 
-	dw	SCC_regToneD,SCC_regVOLD 
-	dw	SCC_regToneE,SCC_regVOLE 
-	dw	0,0;FM_regToneF,FM_regVOLF 
-	dw	0,0;FM_DRUM_MACRO,FM_DRUM
-	dw	0,0;FM_freqreg1,FM_volreg1
-	dw	0,0;FM_freqreg2,FM_volreg2	
-	dw	0,0;FM_freqreg3,FM_volreg3	
+	dw	FM_regToneA,FM_regVOLA 
+	dw	FM_regToneB,FM_regVOLB 
+	dw	FM_regToneC,FM_regVOLC 
+	dw	FM_regToneD,FM_regVOLD 
+	dw	FM_regToneE,FM_regVOLE 
+	dw	FM_regToneF,FM_regVOLF 
+	dw	FM_DRUM_MACRO,FM_DRUM
+	dw	FM_freqreg1,FM_volreg1
+	dw	FM_freqreg2,FM_volreg2	
+	dw	FM_freqreg3,FM_volreg3	
 
 
 
@@ -420,7 +419,7 @@ clear_TEXT:
 debug_flags:
 	bit	7,b
 	jp	z,1f
-	ld	(hl),'S'
+	ld	(hl),'F'
 	jp	2f
 1:
 	ld	(hl),'P'
@@ -429,7 +428,7 @@ debug_flags:
 	inc	hl
 	bit	6,b
 	jp	z,1f
-	ld	(hl),'W'
+	ld	(hl),'V'
 	jp	2f
 1:
 	ld	(hl),' '
@@ -557,28 +556,28 @@ init_vdp:
 
 	ret		
 	include	".\screen.asm"
-	include	"..\code\ttreplaySCC.asm"
-	include	"..\code\ttreplaySCCDAT.asm"
+	include	"..\code\ttreplaySMS.asm"
+	include	"..\code\ttreplaySMSDAT.asm"
 ;	include	"..\ttsfxplay\ttsfxplay.asm"
 
 	
 demo_song:
-	include	".\short.asm" 
-;	include	".\scctest.asm"
+	include	".\demo_sms.asm"
 	
 TEXT_Title:
-	db	"TriloTracker SCC Re-player Debug info",0	
+	db	"TriloTracker FM Re-player Debug info",0	
 TEXT_Step:
 	db	"Step:",0	
 TEXT_Header_Data:
-	db	"C# Nt In Wv Vl Cm Flags",0
+	db	"C# Nt In FM Vl Cm Flags",0
 TEXT_Register_Header:
 	db 	"Tone Vl  Tone Vl  Nois Mx  Env  Sh",0
-;TEXT_Register_Drum:
-;	db 	"Macr Drm Tone Vl",0	
+TEXT_Register_Drum:
+	db 	"Macr Drm Tone Vl",0	
 TEXT_Legend_Data:
-	db	"Legend: Psg, Scc, Wavefor, Env, xxxx, Command, Active(note)",0
+	db	"Legend: Psg, Fm, Voice, Env, Keyon, Command, Active(note)",0
 
+	
 	
 font_data:
 	incbin	".\fontpat.bin"
@@ -614,7 +613,7 @@ font_data:
 	
 	
 	map	0xc000
-	include	"..\code\ttreplaySCCRAM.asm"
+	include	"..\code\ttreplaySMSRAM.asm"
 	
 
 debug_pointer1:	#2
