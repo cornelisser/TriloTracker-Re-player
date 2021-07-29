@@ -10,7 +10,7 @@ from waveform import Waveform
 
 import sys
 
-USAGE = f"Usage: {sys.argv[0]} [--options] infile [outfile]"
+USAGE = f"TMUCompile v0.11\nUsage: {sys.argv[0]} [--options] infile [outfile]"
 
 infile = ''
 outfile = ''
@@ -57,6 +57,13 @@ def load_tmu(infile,song):
 		song.set_version(val & 0x0f)		# version
 		song.set_type(val >> 4)				# type
 		
+		#--- Skip the extra bytes for now
+		if (song.version >= 11):
+			tmp = data[index]
+			song.set_period(data[index+1])
+
+			index += tmp + 1
+
 		str = data[index:index+32]			# name
 		index += 32		
 		song.name = str.decode('utf-8')
@@ -242,8 +249,9 @@ def export_asm(outfile,song):
 	index = 0 
 
 	with open(outfile,"w+") as file:
-		file.write(f"; Song: {song.name}\n")
-		file.write(f"; By:   {song.by}\n\n")		
+		file.write(f"; Song:\t\t\t{song.name}\n")
+		file.write(f"; By:\t\t\t{song.by}\n")
+		file.write(f"; Period table: {song.get_period()}\n\n")		
 	
 		file.write("; [ Song start data ]\n")
 		file.write(f"{_DB} ${song.speed:02x}\t\t\t\t\t; Initial song speed.\n")
@@ -325,15 +333,7 @@ def export_asm(outfile,song):
 					else:
 						# set the address offset of the voice data (= export+1 * 4) 
 						file.write(f"{_DB} $00,${voice.export_number+1 << 2:02x}\t\t\t\t\t; FM Software Voice {voice.export_number}\n")
-					
-				#file.write("\t\t;Flg,Vol,Noi,Lnk,Tone\n")
-				for r in range(0,instrument.length):
-					if r == instrument.restart:
-						file.write(f"{_CHILD}rst_i{instrument.export_number:02}:\n")
-						# Compile row
-						#===========================================
-					file.write(export_ins_row_asm(instrument,r,song))
-				file.write(f"{_DW} {_CHILD}rst_i{instrument.export_number:02}\t\t\t\t\t\t; Loop address\n")		
+				export_ins(instrument, song, file)
 		
 		file.write("\n; [ Song track data ]\n")							
 		for track in song.tracks:
@@ -345,305 +345,196 @@ def export_asm(outfile,song):
 
 
 
-def export_ins_row_asm(ins,r,song):
-	
-	if song.type == "SMS":
-		return export_ins_row_asm_sms(ins,r)
-	elif song.type == "SCC":
-		return export_ins_row_asm_scc(ins,r,song)
-	else:
-		return export_ins_row_asm_fm(ins,r)
-		
-		
-		
+def export_ins(ins, song, file):
+	vol_prev = 255
+	noise_prev = 255
+	loop_bytes = 0
 
-def export_ins_row_asm_sms(ins,r):
-	row = ins.rows[r]
-	out = ""
-	bit0 = 1
-	bit1 = 2
-	bit2 = 4
-	bit3 = 8
-	bit4 = 16
-	bit5 = 32
-	bit6 = 64
-	bit7 = 128
+	print("*", end = '')
 
-	byte1 = row[0]			# [N |          | Voice 4bit ] if Vl = 1
-							# [N |Noise 3bit|NoiVol 4bit ]
-	byte2 = row[1]			# [T |Td|Vd |Vd |Volume 4bit ]
-	byte3 = row[2]			# [      Tone low 8 bit      ]
-	byte4 = row[3]			# [ Vl |    Tone high 7 bit  ]
+	for r in range(0,ins.length):
+		row = ins.rows[r]
+      
 
-							# Output format:
-							# [Nup|Nvol|  T | Tv | Vv | Vd | Vl |End]
-							#	7    6    5    4    3    2    1    0
+		bit0 = 1
+		bit1 = 2
+		bit2 = 4
+		bit3 = 8
+		bit4 = 16
+		bit5 = 32
+		bit6 = 64
+		bit7 = 128
+								# SCC
+		byte1 = row[0]			# [N |Nd |Nd |  Noise 5bit   ] 
+		byte2 = row[1]			# [T |Td |Vd |Vd |Volume 4bit]
+		byte3 = row[2]			# [      Tone low 8 bit      ]
+		byte4 = row[3]			# [           |Tone high 4bit]
 
-	# Calculate the end of instrument bit
-	if r == (ins.length -1):		# set the end of instrument bit
-		e = bit0
-	else:
-		e = 0
-	result_info = e	
+								# TTSMS
+								# [N |          | Voice 4bit ] if Vl = 1
+								# [N |Noise 3bit|NoiVol 4bit ]
+								# [T |Td|Vd |Vd |Volume 4bit ]
+								# [      Tone low 8 bit      ]
+								# [ Vl |    Tone high 7 bit  ]
 
-	# calculate volume
-	result_vol = byte2 & 0x0f							# volume value
-	if ((byte2 & 0x20) == 0x00):
-		#base volume
-		result_info = result_info + bit3
-		out = out+ f"{_DB} ${result_vol:02x}\t\t\t; Volume _\n"
-	elif (byte2 & 0x30) == 0x20 and (result_vol > 0):
-		# add volume
-		result_info = result_info + bit3 + bit2
-		out = out+ f"{_DB} ${result_vol:02x}\t\t\t; Volume +\n"
-	elif (result_vol > 0):
-		#min volume
-		result_info = result_info + bit3 + bit2
-		result_vol = (255-result_vol)+1
-		out = out+ f"{_DB} ${result_vol:02x}\t\t\t; Volume -\n"
+								# TTFM
+								# [N |          | Voice 4bit ] if Vl = 1
+								# [N |Nd |Nd |  Noise 5bit   ]
+								# [T |Td|Vd |Vd |Volume 4bit ]
+								# [      Tone low 8 bit      ]
+								# [ Vl |    Tone high 7 bit  ]
 
 
 
-	# calculate noise value
-	result_noise = (byte1 >> 4) & 0x07					# noise value	
-	if (byte1 & bit7 > 0):
-		result_info = result_info + bit7
-		out = out+ f"{_DB} ${result_noise:02x}\t\t\t; Noise\n"		
+		# Restart position
+		if r == ins.restart:			# set the end of instrument bit
+			#file.write(f"{_CHILD}rst_i{ins.export_number:02}:\t\t\t\t\t\t\t; Loop address\n")
+			file.write(f"\t\t\t\t\t\t\t\t; --- Macro loop\n")
+			vol_prev = 255            # reset previous values as this is a loop point.
+			noise_prev = 255
+			loop_bytes = 2
 
 
+		# Mixer
+		mixer = 0
+		out = ''
+		if (byte2 & bit7):      # Tone bit
+			mixer += 16  
+			out = out+'T'
+		if (byte1 & bit7):      # Noise bit
+			mixer += 128
+			out = out+'N'
+		if mixer !=0:			# value 8 is most of the times. Only set differences to this.
+			loop_bytes += 2
+			file.write(f"{_DB} $02,${mixer:02x}\t\t\t\t\t\t; Mixer ({out})\n")
+#		else:
+#			file.write(f";{_DB} $02,${mixer:02x}\t\t\t\t\t\t; Mixer\n")
 
-	# calculate noise volume
-	result_noisevol = (byte1 & 0x0f) 					# noise volume
-	if (byte1 & bit7) > 0:								# set noise volume to 0 if no noise is active
-		result_info = result_info + bit6
-		out = out+ f"{_DB} ${result_noisevol:02x}\t\t\t; Noise volume\n"	
-
-
-
-	# calculate voice link value
-	if (byte4 & bit7 > 0):								# voice link bit	
-		result_voice = (byte1 & 0x0f) 					# voice
-		result_info = result_info + bit1
-		out = out+ f"{_DB} ${result_voice:02x}\t\t\t; FM Voice\n"
-	
-
-	
-
-	# Calculate the Tone bit
-	if (byte2 & bit7 > 0):
-		result_info = result_info + bit5
-		# calculate tone
+		# Tone 
 		result_toneL = byte3
-		result_toneH = byte4 & 0x7f							# tone without voicelink bit	
-		if (result_toneL + result_toneH > 0):
-			if ((byte2 & 0x40) == 0x40):
-				# min
-				result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
-				result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
-			result_info = result_info + bit4
-			out = out+ f"{_DW} ${result_toneH:02x}{result_toneL:02x}\t\t\t; Tone\n"
+		result_toneH = byte4 & 0x0f
+
+		if ((byte2 & bit7)!= 0x00):                  # tone enabled?
+
+			if (result_toneL + result_toneH > 0):     # tone update?
+				if (byte2 & bit6):
+					# min
+					result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
+					result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff	
+					loop_bytes += 3
+					file.write(f"{_DB} $06,${result_toneL:02x},${result_toneH:02x}\t\t\t\t\t; Tone sub\n")
+				else:		
+					loop_bytes += 3	
+					file.write(f"{_DB} $04,${result_toneL:02x},${result_toneH:02x}\t\t\t\t\t; Tone add\n")
 
 
-	
-	# calculate output
-	out = f"{_DB} ${result_info:02x}\t\t\t; Info byte: {result_info:08b}\n"+out
-	return out
-
-
-
-
-
-def export_ins_row_asm_fm(ins,r):
-	row = ins.rows[r]
-
-	byte1 = row[0]	
-	byte2 = row[1]
-	byte3 = row[2]
-	byte4 = row[3]
-
-	if r == ins.length:			# set the end of instrument bit
-		e = 0x08
-	else:
-		e = 0
-
-	result_info = byte1 & 0x80						# Set the noise active bit
-	result_info = result_info + ((byte2 >>3 ) & 0x10)	# Set the tone active bit
-	result_info = result_info + e						# Set the END macro bit
-
-	
-
-
-	result_vol = byte2 & 0x0f						# volume value
-	result_noise= 0									#byte1 And $1f	; noise value / voicelink
-	result_nvol = 0
-
-	result_toneL = byte3
-	result_toneH = byte4 & 0x7f						# tone without voicelink bit
-	
-	result_link = byte4 & 0x80					# voicelink bit
-
-	# Calculate noise
-	if (byte1 & 0x80 > 0):
-		result_noise= byte1 & 0x1f					#; noise value
-		if ((byte1 & 0x40) == 0):		
-			# base noise
-			result_info = result_info + 0x20
-		elif (result_noise> 0):
-			if ((byte1 & 0x60) == 0x40):
-				# add noise
-				result_info = result_info + 0x60
-			elif ((byte1 & 0x60) == 0x60):
-				# min noise
-				#result_info = result_info + $40		Be aware changed this as only an add is needed as value is negative
-				result_info = result_info + 0x60
-				result_noise= (255-result_noise)+1
-	
-	if (result_link > 0):
-		result_noise= byte1 & 0x0f					#; voice value
-		result_info = result_info + 0x40	
-
-	# calculate volume
-	if ((byte2 & 0x20) == 0x00):
-		#base volume
-		result_info = result_info + 0x01
-	elif (byte2 & 0x30) == 0x20 and (result_vol > 0):
-		# add volume
-		result_info = result_info + 0x03
-	elif (result_vol > 0):
-		#min volume
-		result_info = result_info + 0x03
-		result_vol = (255-result_vol)+1
-	
-	# calculate tone	
-	if (result_toneL + result_toneH > 0):
-		if ((byte2 & 0x40) == 0x40):
-			# min
-			result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
-			result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff
-		result_info = result_info + 0x04
-
-	
-	# calculate output
-	out = f"{_DB} ${result_info:02x}"
-	if ((result_info & 0x03) > 0):
-		out = out + f",${result_vol:02x}"
-	else: 
-		out = out + "    "
-
-	if (result_noise> 0):
-		if (result_link > 0):
-			out = out + "    "
-			out = out +f",${result_link:02x}"
+		# Noise
+		# SMS noise
+		if	song.type == 'SMS':
+			result_noise = byte1 & 0x70 >> 4
+			result_noice_vol = byte1 & 0x0f
+			if	(byte4 & bit7) != 0x00:
+				loop_bytes += 2
+				result_voice = byte1 & 0x0f
+				file.write(f"{_DB} $16,${result_voice:02x}\t\t\t\t\t\t; FM Hardware Voice\n")
+			elif ((byte1 & bit7) != 0x00):
+				loop_bytes += 3
+				file.write(f"{_DB} $14,${result_noise:02x},${result_noise:02x}\t\t\t\t\t; Noise + Noice volume\n")	
+			
 		else:
-			out = out +f",${result_noise:02x}"
-			out = out + "    "
-	else:
-		out = out + "        "
-	if ((result_info & 0x04) > 0):
-		out = out + f",${result_toneL:02x}"
-		out = out + f",${result_toneH:02x}"
-	else: 
-		out = out + "        "	
-		
-	out = out + f"\t\t; {result_info:08b}\n"
-	return out
+    	# SCC anf FM noise		
+			result_noise = byte1 & 0x1f
+			if ((byte1 & bit7)!= 0x00):            # Noise enabled?
+				if ((byte1 & (bit6+bit5)) == 0x00) and (result_noise != noise_prev):
+					# base noise
+					noise_prev = result_noise
+					loop_bytes += 2
+					file.write(f"{_DB} $0E,${result_noise:02x}\t\t\t\t\t\t; Noise _\n")
+				elif ((byte1 & (bit6+bit5)) == 0x40 and result_noise >0):
+					# add noise
+					noise_prev = 255
+					loop_bytes += 2
+					file.write(f"{_DB} $10,${result_noise:02x}\t\t\t\t\t\t; Noise +\n")	
+				elif ((byte1 & (bit6+bit5)) == 0x60 and result_noise > 0):
+					# min noise
+					noise_prev = 255
+					loop_bytes += 2
+					result_noise = (255-result_noise)+1	
+					file.write(f"{_DB} $12,${result_noise:02x}\t\t\t\t\t\t; Noise -\n")	
+
+			# Waveform
+			elif ((byte1 & (bit6+bit5)) == 0x20) and song.type == 'SCC':
+				# waveform update
+				loop_bytes += 2
+				result_waveform = song.waveforms[result_noise].export_number
+				file.write(f"{_DB} $16,${result_waveform:02x}\t\t\t\t\t\t; Waveform +\n")
+
+			# Voice link
+			elif ((byte4 & (bit7)) != 0) and song.type != 'SCC':
+				loop_bytes += 2
+				result_voice = byte1 & 0x0f
+				file.write(f"{_DB} $16,${result_voice:02x}\t\t\t\t\t\t; FM Hardware Voice\n")
 
 
+		# Volume
+		result_vol = byte2 & 0x0f
 
+		if ((byte2 & (bit5+bit4) == 0x00)):		      # Base volume?
+			#base volume		
+			if ins.restart != r and r > 0: 
+				if result_vol != vol_prev:
+					vol_prev = result_vol
+					loop_bytes += 2
+					file.write(f"{_DB} $08,${result_vol:02x}\t\t\t\t\t\t; Volume _\n")
+				else:
+					loop_bytes += 1
+					file.write(f"{_DB} $00\t\t\t\t\t\t\t; Volume same\n")				
+			else:
+				loop_bytes += 2
+				file.write(f"{_DB} $08,${result_vol:02x}\t\t\t\t\t\t; Volume _\n")
+		elif (byte2 & (bit5+bit4)) == 0x20:
+			if (result_vol > 0):
+				# add volume
+				vol_prev = 255
+				loop_bytes += 2
+				file.write(f"{_DB} $0a,${result_vol:02x}\t\t\t\t\t\t; Volume +\n")
+			else:
+				loop_bytes += 1
+				file.write(f"{_DB} $00\t\t\t\t\t\t\t; Volume same\n")
+		elif (byte2 & (bit5+bit4)) == 0x30:
+			if (result_vol > 0):
+				#min volume
+				vol_prev = 255
+				loop_bytes += 2
+				file.write(f"{_DB} $0c,${result_vol:02x}\t\t\t\t\t\t; Volume -\n")
+			else:
+				loop_bytes += 1
+				file.write(f"{_DB} $00\t\t\t\t\t\t\t; Volume same\n")
+		elif (byte2 & (bit5+bit4)) == 0x10:
+			if	song.type == 'SMS':
+				file.write("ERRRRROOOORRRRRRRRRR\n")
+			else:
+				#envelope
+				vol_prev = 16
+				if result_vol > 0:
+					loop_bytes += 2
+					file.write(f"{_DB} $1c,${result_vol:02x}\t\t\t\t\t\t; Envelope shape\n")
+				else:
+					loop_bytes += 1
+					file.write(f"{_DB} $1a\t\t\t\t\t\t; Envelope\n")
 
-def export_ins_row_asm_scc(ins,r,song):
-	row = ins.rows[r]
-	out = ""
-	bit0 = 1
-	bit1 = 2
-	bit2 = 4
-	bit3 = 8
-	bit4 = 16
-	bit5 = 32
-	bit6 = 64
-	bit7 = 128
+		#file.write(f"\t\t\t\t\t\t\t\t\t; {loop_bytes -2} \n")
 
-	byte1 = row[0]			# [N |Nd |Nd |  Noise 5bit   ] 
-	byte2 = row[1]			# [T |Td |Vd |Vd |Volume 4bit]
-	byte3 = row[2]			# [      Tone low 8 bit      ]
-	byte4 = row[3]			# [           |Tone high 4bit]
+		# Instrument end
+		if r == ins.length -1:			# set the end of instrument bit
+			loop = 0xff - (loop_bytes -2)
 
-							# Output format:
-							# [Nbit |Nupd|Ndev|Tbit|Tupd|Vupd|Vdev|End]
-							#	7     6    5    4    3    2    1    0
-							#    '0'   '1' = Waveform update
-	if r == ins.length -1:			# set the end of instrument bit
-		e = bit0
-	else:
-		e = 0
-	result_info = e
+			file.write(f"{_DB} $18,${loop:02x}\t\t\t\t\t\t; Loop (-{loop_bytes})\n\n")
+#		else:
+#			loop_bytes += 1
+#			file.write(f"{_DB} $00\t\t\t\t\t\t\t; End of row.\n")
 
-	# calculate volume
-	result_vol = byte2 & 0x0f
-	if ((byte2 & bit5) == 0x00):		# if bit5 is not set
-		#base volume		
-		if ins.restart != r and r > 0: 
-			vol_prev = ins.rows[r][2] & 0x0f			# detect of volume has not changed
-			if result_vol != vol_prev:
-				result_info = result_info + bit2
-				out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume _\n"
-		else:
-			result_info = result_info + bit2
-			out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume _\n"
-	elif (byte2 & 0x30) == 0x20 and (result_vol > 0):
-		# add volume
-		result_info = result_info + bit2 + bit1
-		out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume +\n"
-	elif (result_vol > 0):
-		#min volume
-		result_info = result_info + bit2 + bit1
-		result_vol = (255-result_vol)+1
-		out = out+ f"{_DB} ${result_vol:02x}\t\t\t\t\t\t\t; Volume -\n"
-
-	# calculate noise value
-	result_noise = byte1 & 0x1f
-	if ((byte1 & bit7)!= 0x00):
-		# set noise bit
-		result_info = result_info + bit7
-		if ((byte1 & bit6) == 0x00):
-			# base noise
-			result_info = result_info + bit6
-			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise _\n"
-		elif ((byte1 & 0x60) == 0x40 and result_noise >0):
-			# add noise
-			result_info = result_info + bit6 + bit5
-			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise +\n"		
-		elif (result_noise > 0):
-			# min noise
-			result_info = result_info + bit6 + bit5
-			result_noise = (255-result_noise)+1	
-			out = out+ f"{_DB} ${result_noise:02x}\t\t\t\t\t\t\t; Noise +\n"		
-	# Test form waveform update in macro
-	elif ((byte1 & (bit6+bit5)) == 0x20):
-		# waveform update
-		result_info = result_info + bit6
-		result_waveform = song.waveforms[result_noise].export_number
-		out = out+ f"{_DB} ${result_waveform:02x}\t\t\t\t\t\t\t; Waveform +\n"
-
-
-	# calculate tone
-	result_toneL = byte3
-	result_toneH = byte4 & 0x0f
-
-	if ((byte2 & bit7)!= 0x00):
-		# Set Tone bit
-		result_info = result_info + bit4
-		if (result_toneL + result_toneH > 0):
-			if ((byte2 & bit6) == bit6):
-				# min
-				result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
-				result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff				
-			result_info = result_info + bit3
-			out = out+ f"{_DW} ${result_toneH:02x}{result_toneL:02x}\t\t\t\t\t\t\t; Tone\n"			
-
-	# calculate output
-	out = f"{_DB} ${result_info:02x}\t\t\t\t\t\t\t; Info byte: {result_info:08b}\n"+out
-	return out
+	return 
 
 
 #--------------------------------------------
@@ -653,6 +544,8 @@ def export_ins_row_asm_scc(ins,r,song):
 #--------------------------------------------
 def export_drum(file,drum):
 	file.write(f"\n{_CHILD}drum_{drum.export_number:02}:\t\t\t\t\t\t; Drum {drum.number}. {drum.name}\n")				
+
+	print("*", end = '')
 
 	for r in range(0,drum.length):
 		row = drum.rows[r]
@@ -760,6 +653,9 @@ def export_drum(file,drum):
 
 
 def export_track(file,track):
+    	
+	print("*", end = '')
+
 	wait = -1
 	wait_prev = 255
 	
@@ -786,7 +682,7 @@ def export_track(file,track):
 			"ED":	cmd_offset+10,	#note delay				
 			
 			# secondary effects
-			"END":cmd_offset+11,	# end all lasting effects
+			"END":	cmd_offset+11,	# end all lasting effects
 			"C":	cmd_offset+12,	#FM Drum		
 			"C0":	cmd_offset+12,	#SCC Morph to waveform	
 			"C1":	cmd_offset+12,	#SCC Morph to waveform+16
@@ -801,10 +697,9 @@ def export_track(file,track):
 			#SN7
 			"E8":	cmd_offset+20,	#tone panning			
 			"E9":	cmd_offset+21,	#noise panning	
-			"B":	cmd_offset+22,	#FM+SG Chan setup	
 			#AY3
-			"EE":	cmd_offset+20,	#envelope	
-			"8":	cmd_offset+21,	#PSG ENV				
+			"9":	cmd_offset+20,	#envelope High	
+			"8":	cmd_offset+21,	#envelope Low				
 			# SCC
 			"BE":	cmd_offset+22,	#SCC RESET		
 			"B3":	cmd_offset+23,	#SCC Duty Cycle
@@ -815,6 +710,9 @@ def export_track(file,track):
 			"CE":	cmd_offset+27,	#SCC Morph type
 			"CF":	cmd_offset+28,	#SCC Morph speed
 			"CA":	cmd_offset+29,	#SCC Sample		
+			# FM
+			"EB":	cmd_offset+22,	#FM Brightness		
+
 		}
 
 
@@ -917,8 +815,9 @@ def export_track(file,track):
 			elif c == 7:				
 				# Tremolo
 				# parameter: xy - x = speed, y=depth. Depth is limited to 0xC0
-				par = calculate_vibrato_parameter(p)
-				file.write(f"{_DB} ${cmd['7']:02x},${par:02x}\t\t\t;CMD Tremolo\n")				
+				if p != 0x11:
+					par = calculate_vibrato_parameter(p)
+					file.write(f"{_DB} ${cmd['7']:02x},${par:02x}\t\t\t;CMD Tremolo\n")
 			elif c == 8:	
 				if song.type == 'SMS': 	
 					# unused
@@ -927,11 +826,15 @@ def export_track(file,track):
 				else:					
 					# envelope multiplier
 					# parameter: as in tracker
-					file.write(f"{_DB} ${cmd['8']:02x},${p:02x}\t\t;CMD Envelope multiplier\n")
-			elif c == 9:					
+					file.write(f"{_DB} ${cmd['8']:02x},${p:02x}\t\t;CMD Envelope multiplier low\n")
+			elif c == 9:	
+				if song.type != 'SMS':
+					# envelope multiplier
+					# parameter: as in tracker
+					file.write(f"{_DB} ${cmd['9']:02x},${p:02x}\t\t;CMD Envelope multiplier high\n")					
 				# Unused
-				file.write(f"\t\t\t;CMD 9 Not supported [Macro Offset][WARNING]\n")
-				print(f"CMD 9 Not supported [Macro Offset][WARNING]")
+				else:
+					file.write(f"\t\t\t;CMD 9 Not supported [Macro Offset][WARNING]\n")
 			elif c == 0xa:				
 				# volume slide
 				# parameter: xy = slide value value (pos or negative)
@@ -962,7 +865,7 @@ def export_track(file,track):
 						file.write(f"{_DB} ${cmd['BE']:02x}\t\t\t\t; SCC Waveform reset\n")	
 					else:
 						file.write(f"\t\t\t;CMD {c:01x}{p:02x} Waveform Not valid [WARNING]\n")
-						print(f"CMD {c:01x}{p:02x} Waveform Not valid [WARNING]")
+						print(f"CMD {c:01x}{p:02x} Waveform Not valid [WARNING]")				
 				else:					
 					# Channel setup
 					file.write(f"{_DB} ${cmd['B']:02x},${p:02x}\t\t\t;CMD Channel setup\n")
@@ -1048,6 +951,13 @@ def export_track(file,track):
 						# Unused
 						file.write(f"\t\t\t;CMD E9 Not supported [WARNING]\n")
 						print(f"CMD E9 Not supported [WARNING]")
+				elif x == 0xb0:	
+					# Note cut delay
+					# Parameter: xy = tic value +1
+					if y > 7:
+						y = 7-y	
+					file.write(f"{_DB} ${cmd['EB']:02x},${y:02x}\t\t\t;CMD Brightness\n")
+
 				elif x == 0xc0:	
 					# Note cut delay
 					# Parameter: xy = tic value +1
@@ -1059,14 +969,9 @@ def export_track(file,track):
 					y = y + 1
 					file.write(f"{_DB} ${cmd['ED']:02x},${y:02x}\t\t\t;CMD Note delay\n")
 				elif x == 0xe0:
-					if song.type != 'SMS':
-						# Envelope shape
-						# Parameter: xy = shape
-						file.write(f"{_DB} ${cmd['EE']:02x},${y:02x}\t\t\t;CMD Envelope shape\n")
-					else:
-						# Unused
-						file.write(f"\t\t\t;CMD EE Not supported [Global transpose][WARNING]\n")
-						print(f"CMD EE Not supported [Global transpose][WARNING]")	
+					# Unused
+					file.write(f"\t\t\t;CMD EE Not supported [Global transpose][WARNING]\n")
+					print(f"CMD EE Not supported [Global transpose][WARNING]")	
 				elif x == 0xf0:			
 					# Trigger
 					# Parameter: xy = trigger value
@@ -1168,6 +1073,7 @@ load_tmu(infile,song)
 
 print (f"Input file: {infile}")
 print (f"Output file: {outfile}")
+print ('')
 
 song.cleanup()
 # Debug info

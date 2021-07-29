@@ -10,12 +10,12 @@
 ; [ Song order pointer list ]
 .restart:
 	dw .track_000, .track_000, .track_002, .track_002, .track_004, .track_005, .track_000, .track_000	; Step:001 Pattern:000
-	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:002 Pattern:001
-	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:003 Pattern:001
-	dw .track_016, .track_017, .track_010, .track_011, .track_012, .track_021, .track_022, .track_023	; Step:004 Pattern:002
-	dw .track_016, .track_017, .track_010, .track_011, .track_012, .track_021, .track_022, .track_023	; Step:005 Pattern:002
-	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:006 Pattern:001
-	dw .track_024, .track_025, .track_010, .track_027, .track_028, .track_029, .track_030, .track_031	; Step:007 Pattern:003
+;	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:002 Pattern:001
+;	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:003 Pattern:001
+;	dw .track_016, .track_017, .track_010, .track_011, .track_012, .track_021, .track_022, .track_023	; Step:004 Pattern:002
+;	dw .track_016, .track_017, .track_010, .track_011, .track_012, .track_021, .track_022, .track_023	; Step:005 Pattern:002
+;	dw .track_008, .track_009, .track_010, .track_011, .track_012, .track_013, .track_014, .track_015	; Step:006 Pattern:001
+;	dw .track_024, .track_025, .track_010, .track_027, .track_028, .track_029, .track_030, .track_031	; Step:007 Pattern:003
 	dw 0x0000, .restart				; End of sequence delimiter + restart address.
 
 ; [ Custom FM voices ]

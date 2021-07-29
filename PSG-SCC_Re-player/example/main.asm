@@ -12,10 +12,10 @@
 	code page 0
 	
 	org	04000h
-	db	041h,042h
+	db	041h,042h 
 	dw	initmain
 	dz 	'TTDEMO'
-	ds	5
+	ds	5 
 		
 initmain:
 
@@ -28,7 +28,7 @@ initmain:
 ;;
 	call    0x138
 	rrca
-	rrca
+	rrca 
 	and     0x03
 	ld      c,a
 	ld      b,0
@@ -563,7 +563,7 @@ init_vdp:
 
 	
 demo_song:
-	include	".\short.asm" 
+	include	".\ULTITEST.asm" 
 ;	include	".\scctest.asm"
 	
 TEXT_Title:

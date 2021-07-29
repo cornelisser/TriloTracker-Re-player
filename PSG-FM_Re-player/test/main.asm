@@ -400,9 +400,9 @@ REG_list:
 	dw	FM_regToneE,FM_regVOLE 
 	dw	FM_regToneF,FM_regVOLF 
 	dw	FM_DRUM_MACRO,FM_DRUM
-	dw	FM_freqreg1,FM_volreg1
-	dw	FM_freqreg2,FM_volreg2	
-	dw	FM_freqreg3,FM_volreg3	
+	dw	DRUM_regToneBD,DRUM_regVolBD
+	dw	DRUM_regToneSH,DRUM_regVolSH	
+	dw	DRUM_regToneCT,DRUM_regVolCT	
 
 
 
@@ -562,7 +562,7 @@ init_vdp:
 
 	
 demo_song:
-	include	".\demo_sms.asm"
+	include	".\tttest.asm"
 	
 TEXT_Title:
 	db	"TriloTracker FM Re-player Debug info",0	

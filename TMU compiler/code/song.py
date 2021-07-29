@@ -18,6 +18,7 @@ class Song:
 		self.speed 		= 0
 		self.restart 	= 0
 		self.length		= 0
+		self.period		= 0
 		self.order_list = []	
 		self.name 		= ''
 		self.by 		= ''
@@ -208,7 +209,7 @@ class Song:
 		
 	def set_version(self,version):
 
-		if version < 8:
+		if version < 11:
 			raise SystemExit('The version of the .TMU file is not compatible')			# Error is no file arguments.
 		self.version = version
 	
@@ -235,7 +236,8 @@ class Song:
 			raise SystemExit(f"Error reading order data. Invalid data!")
 		self.length = length
 
-
+	def set_period(self,period):
+    		self.period = period
 
 
 	def get_pattern(self,number):
@@ -258,9 +260,10 @@ class Song:
 				return waveform
 		return None
 
+	def get_period(self):
+		p_tables = ["A440 Modern","A445 Konami","A448","A432 Earth"]
 
-
-
+		return p_tables[self.period]
 
 
 
@@ -269,17 +272,20 @@ class Song:
 		print(f"Name: {self.name}")
 		print(f"By: {self.by}")
 		print(f"Version: {self.version}")
-		print(f"Type: {self.type}")		
-		print(f"Speed: {self.speed}")
-		print(f"Length: {self.length}")
-		print(f"Restart: {self.restart}")
-		print(f"Order list: {self.order_list}")
-		for ins in self.ins:
-			if (ins.length != 1):
-				ins.debug()
-		for drum in self.drums:
-			if (drum.length != 1):
-				drum.debug()
+		print(f"Type: {self.type}")
+		print(f"Period table: {self.get_period()}")
+		print(f"Progress: ", end ='')
+
+#		print(f"Speed: {self.speed}")
+#		print(f"Length: {self.length}")
+#		print(f"Restart: {self.restart}")
+#		print(f"Order list: {self.order_list}")
+#		for ins in self.ins:
+#			if (ins.length != 1):
+#				ins.debug()
+#		for drum in self.drums:
+#			if (drum.length != 1):
+#				drum.debug()
 
 
 	
@@ -361,7 +367,7 @@ class Song:
 								self.waveforms[val].used = True
 							elif cmd == 0x10:
 								self.waveforms[val+16].used = True
-
+					
 	
 
 		# ====================================
@@ -427,7 +433,7 @@ class Song:
 			for waveform in self.waveforms:
 				if waveform.used == True:
 					waveform.export_number = number*8			# Times 8 for cpu load reduce in replayer
-					print(f"waveform: {waveform.number} -> {waveform.export_number}")
+					#print(f"waveform: {waveform.number} -> {waveform.export_number}")
 					number+=1						
 
 		

@@ -9,7 +9,7 @@ TRACK_Instrument			equ 0-17
 TRACK_Command			equ 1-17
 TRACK_MacroPointer		equ 2-17
 TRACK_MacroStart			equ 4-17
-TRACK_MacroRestart 		equ 6-17		; Delete
+;TRACK_MacroRestart 		equ 6-17		; Delete
 TRACK_Note				equ 7-17
 TRACK_Volume			equ 8-17
 TRACK_Waveform			equ 9-17
@@ -26,7 +26,7 @@ TRACK_empty			equ 11-17		; needed for pushing 0 at note start
 TRACK_ToneAdd		equ 12-17		; reset after note set
 TRACK_VolumeAdd		equ 14-17		; reset after note set
 TRACK_Noise			equ 15-17		; reset after note set
-TRACK_cmd_VolumeAdd	equ 16-17		; reset after note set
+TRACK_cmd_VolumeAdd	equ 16-17		; reset after note set - For tremelo
 TRACK_cmd_ToneSlideAdd	equ 17-17		; reset after note set
 TRACK_cmd_ToneAdd		equ 19-17		; reset after note set
 
