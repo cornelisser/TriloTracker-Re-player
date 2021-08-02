@@ -270,14 +270,13 @@ replay_play:
 NTSC:
 	ld	hl,equalization_cnt  		; if NTSC call 5 times out of 6
 	dec	(hl)
-	jr.	nz,PAL			   		; skip music data processing one tic out of 6
+	jr.	nz,PAL			   	; skip music data processing one tic out of 6
 
 	;--- Reset timer and raise equalization flag
 	ld	a,6
 	ld	(hl),a						
  	ld	(equalization_flag),a		
 
-	call	process_data	
 	xor	a
 	ld	(equalization_flag),a
 	ret
@@ -465,9 +464,9 @@ process_data:
 	ld	d,a
 ;	ld	hl,PSG_regToneA
 	call	process_data_chan
-	jp	nc,99f
+	jp	nc,.skipa
 	ld	(PSG_regToneA),hl
-99:
+.skipa:
 	ld	a,(SCC_regVOLE)
 	ld	(PSG_regVOLA),a	
 
@@ -479,9 +478,9 @@ process_data:
 	ld	d,a
 ;	ld	hl,PSG_regToneB
 	call	process_data_chan
-	jp	nc,99f
+	jp	nc,.skipb
 	ld	(PSG_regToneB),hl
-99:
+.skipb:
 	ld	a,(SCC_regVOLE)
 	ld	(PSG_regVOLB),a	
 
@@ -493,9 +492,9 @@ process_data:
 	ld	d,a
 ;	ld	hl,PSG_regToneC
 	call	process_data_chan
-	jp	nc,99f
+	jp	nc,.skipc
 	ld	(PSG_regToneC),hl
-99:
+.skipc:
 	ld	a,(SCC_regVOLE)
 	ld	(PSG_regVOLC),a
 	
@@ -529,9 +528,9 @@ process_data:
 	ld	d,a
 ;	ld	hl,SCC_regToneA
 	call	process_data_chan
-	jp	nc,99f
+	jp	nc,skipd
 	ld	(SCC_regToneA),hl
-99:
+skipd:
 	ld	a,(SCC_regVOLE)
 	ld	(SCC_regVOLA),a	
 
@@ -544,9 +543,9 @@ process_data:
 	ld	d,a
 ;	ld	hl,SCC_regToneB
 	call	process_data_chan
-	jp	nc,99f
+	jp	nc,.skipe
 	ld	(SCC_regToneB),hl
-99:
+.skipe:
 	ld	a,(SCC_regVOLE)
 	ld	(SCC_regVOLB),a	
 
@@ -560,9 +559,9 @@ process_data:
 	ld	d,a
 ;	ld	hl,SCC_regToneC
 	call	process_data_chan
-	jp	nc,99f
+	jp	nc,.skipf
 	ld	(SCC_regToneC),hl
-99:
+.skipf:
 	ld	a,(SCC_regVOLE)
 	ld	(SCC_regVOLC),a	
 
@@ -575,9 +574,9 @@ process_data:
 	ld	d,a
 ;	ld	hl,SCC_regToneD
 	call	process_data_chan
-	jp	nc,99f
+	jp	nc,.skipg
 	ld	(SCC_regToneD),hl
-99:
+.skipg:
 	ld	a,(SCC_regVOLE)
 	ld	(SCC_regVOLD),a		
 
@@ -591,9 +590,9 @@ process_data:
 	ld	d,a
 ;	ld	hl,SCC_regToneE
 	call	process_data_chan
-	jp	nc,99f
+	jp	nc,.skiph
 	ld	(SCC_regToneE),hl
-99:
+.skiph:
 	
 
 	;--------------------
@@ -773,7 +772,7 @@ _replay_decode_trigger_porttone_check:
 	;-- trigger CMD
 	res	B_TRGNOT,d
 	set	B_ACTNOT,d
-;	ld	a,(ix+TRACK_cmd_3)
+	ld	a,(ix+TRACK_cmd_3)
 	jp	decode_cmd3_port_tone_new_note	
 
 
@@ -867,13 +866,13 @@ _replay_decode_vol:
 _replaydecode_cmd:
 	sub	_CMD
 
-	;[Debug]
-	cp	31
-	jp	c,99f
-	di
-	halt
-99:
-	;[Debug end]
+;	;[Debug]
+;	cp	31
+;	jp	c,.skip0
+;	di
+;	halt
+;.skip0:
+;	;[Debug end]
 
 	ld	e,a				; store command for later
 	ld	hl,DECODE_CMDLIST
@@ -1023,6 +1022,7 @@ decode_cmd3_port_tone_new_note:
 	ld	l,a
 	jp	nc,.skip2
 	inc	h
+	ccf
 .skip2:
 	ld	a,(hl)
 	inc	hl
@@ -1030,7 +1030,7 @@ decode_cmd3_port_tone_new_note:
 	ld	l,a				; destination freq in [hl]
 	
 	;--- Calculate the delta
-	xor	a
+;	xor	a
 	ex	de,hl
 	sbc	hl,de				; results in pos/neg delta
 	
@@ -1040,9 +1040,9 @@ decode_cmd3_port_tone_new_note:
 	;--- re-apply deviation
 	ex	af,af'			;'
 	bit	7,h
-	jp	nz,99f
+	jp	nz,.skip3
 	or 	128
-99:
+.skip3:
 	ld 	(ix+TRACK_cmd_3),a
 	
 	exx					; restore flags in D
@@ -1084,14 +1084,14 @@ decode_cmd4_vibrato:
 	sub	16
 	ld	hl,TRACK_Vibrato_sine;-16
 	add	a,a
-	jp	nc,99f
+	jp	nc,.skip1
 	inc	h
-99:	
+.skip1:	
 	add	a,l
 	ld 	l,a
-	jp	nc,99f
+	jp	nc,.skip2
 	inc	h
-99:
+.skip2:
 	ld	(ix+TRACK_cmd_4_depth),l
 	ld	(ix+TRACK_cmd_4_depth+1),h
 	
@@ -1412,9 +1412,9 @@ decode_cmd24_SCC_soften:
 	ld	a,iyh		;ixh contains chan#
 	add	a,e
 	ld	e,a
-	jp	nc,99f
+	jp	nc,.skip
 	inc	d
-99:
+.skip:
 	ld	iyl,32
 .softloop:	
 	ld	a,(hl)
@@ -1630,9 +1630,9 @@ process_macro:
 	ld	hl,MACROACTIONLIST-2
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jp	nc,.skip
 	inc	h
-99:
+.skip:
 	ld	a,(hl)
 	inc	hl
 	ld	h,(hl)
@@ -1836,8 +1836,8 @@ _macro_end:
 	ld	l,a
 
 ; ----- Check deze BC nog eens goed na.	
-	  ld	c,(ix+TRACK_ToneAdd)
-	  ld	b,(ix+TRACK_ToneAdd+1)	
+	ld	c,(ix+TRACK_ToneAdd)
+	ld	b,(ix+TRACK_ToneAdd+1)	
 	add	hl,bc		;--- Store tone deviation		
 
 	;-- set	the detune.
@@ -1846,6 +1846,12 @@ _macro_end:
 	pop	bc		; cmd_ToneSlideAdd
 	add	hl,bc
 	pop	bc		; cmd_ToneAdd
+	
+	bit	B_PSGSCC,(ix+TRACK_Flags)
+	jp	z,.tonePSG
+.toneSCC:
+	dec	bc		; SCC tone is -1 of PSG tone
+.tonePSG:
 	add	hl,bc
 	pop	bc		; TRACK_cmd_detune
 	add	hl,bc
@@ -1889,12 +1895,12 @@ process_cmd0_arpeggio:
 	ld	(IX+TRACK_Timer),a
 	ld	a,(ix+TRACK_Step)
 	and	a
-	jp	z,99f
+	jp	z,.skip
 	ld	a,(IX+TRACK_cmd_0)
 	and	$0f
 	ld	(ix+TRACK_cmd_NoteAdd),a	
 	jr.	process_commandEND
-99:
+.skip:
 	ld	(ix+TRACK_cmd_NoteAdd),0	
 	jr.	process_commandEND
 
@@ -1905,7 +1911,7 @@ process_cmd0_arpeggio:
 	
 	ld	a,(ix+TRACK_Step)
 	and	a
-	jr.	nz,99f
+	jr.	nz,.skip1
 	;--- set x
 		ld	(ix+TRACK_Step),1
 		ld	a,(ix+TRACK_cmd_0)
@@ -1918,9 +1924,9 @@ process_cmd0_arpeggio:
 		ld	(ix+TRACK_cmd_NoteAdd),a
 		jr.	process_commandEND
 	
-99:
+.skip1:
 	dec	a
-	jr.	nz,99f
+	jr.	nz,.skip2
 	;--- set y
 		ld	(ix+TRACK_Step),2
 		ld	a,(ix+TRACK_cmd_0)
@@ -1930,14 +1936,14 @@ process_cmd0_arpeggio:
 		rlca		
 		ld	(ix+TRACK_cmd_0),a			
 		and	0x0f
-		jp	nz,0f
+		jp	nz,.zero
 		;--- if zero then skip this note and set step to start
 		ld	(ix+TRACK_Step),0
-0:		
+.zero:		
 		ld	(ix+TRACK_cmd_NoteAdd),a	
 		jr.	process_commandEND
 	
-99:
+.skip2:
 	;--- set none
 	ld	(ix+TRACK_Step),0
 	ld	(ix+TRACK_cmd_NoteAdd),0		
@@ -1996,7 +2002,7 @@ process_cmd3_sub:
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
 	jp	process_commandEND
 process_cmd3_stop:	
-;	res	B_TRGCMD,d		;(ix+TRACK_Flags)
+	res	B_TRGCMD,d		;(ix+TRACK_Flags)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),0
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0	
 	jp	process_commandEND
@@ -2023,9 +2029,9 @@ ELSE
 
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jp	nc,.skip
 	inc	h
-99:
+.skip:
 	ld	a,(hl)
 ;	sla	a
 ;	sla	a	
@@ -2063,9 +2069,9 @@ process_cmd4_vibrato:
 	and	$1f	; make it 32 steps again
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jp	nc,.skip1
 	inc	h
-99:
+.skip1:
 	ld	a,(hl)
 	neg
 	jp	z,.zero			; $ff00 gives strange result ;)	
@@ -2076,9 +2082,9 @@ process_cmd4_vibrato:
 .pos:
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jp	nc,.skip2
 	inc	h
-99:
+.skip2:
 	ld	a,(hl)
 .zero:	
 	ld	(ix+TRACK_cmd_ToneAdd),a
@@ -2352,7 +2358,7 @@ replay_route:
 _comp_loop:	
 	out	(c),b
 	ld	a,(hl)
-	add	1
+;	add	1
 	out	(0xa1),a
 	inc	hl
 	ld	a,(hl)

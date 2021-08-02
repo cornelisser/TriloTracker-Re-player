@@ -294,7 +294,7 @@ step_debug:
 	add	hl,hl		;X8
 	add	hl,hl		;X16
 	ld	a,h
-	dec	a
+;	dec	a
 	ld	hl,debug_pointer1
 	ld	(hl),a
 	ld	de,TEXT_Chan

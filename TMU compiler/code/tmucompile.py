@@ -249,8 +249,8 @@ def export_asm(outfile,song):
 	index = 0 
 
 	with open(outfile,"w+") as file:
-		file.write(f"; Song:\t\t\t{song.name}\n")
-		file.write(f"; By:\t\t\t{song.by}\n")
+		file.write(f"; Song: {song.name}\n")
+		file.write(f"; By:   {song.by}\n")
 		file.write(f"; Period table: {song.get_period()}\n\n")		
 	
 		file.write("; [ Song start data ]\n")
@@ -278,7 +278,7 @@ def export_asm(outfile,song):
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[4]].export_number:03},")
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[5]].export_number:03},")			
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[6]].export_number:03},")
-			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[7]].export_number:03}\t; Step:{step:03} Pattern:{pat.number:03}\n")		
+			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[7]].export_number:03}\t; Step:{step-1:03} Pattern:{pat.number:03}\n")		
 		file.write(f"{_DW} 0x0000, {_CHILD}restart\t\t\t\t; End of sequence delimiter + restart address.\n\n")
 
 
@@ -322,7 +322,7 @@ def export_asm(outfile,song):
 				file.write(f"{_CHILD}instrument_{instrument.export_number:02}:\t\t\t\t\t; {instrument.name}\n")
 				if song.type == "SCC":
 					waveform = song.get_waveform(instrument.waveform)
-					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\t\t; Waveform {waveform.export_number//8}\n")
+					file.write(f"{_DB} ${waveform.export_number:02x}\t\t\t\t\t\t; Waveform {waveform.export_number//8}\n")
 				elif song.type == "FM" or song.type == "SMS":
 					voice = song.get_voice(instrument.voice)
 					if instrument.voice == 0:
@@ -777,7 +777,7 @@ def export_track(file,track):
 			pass	
 		else:
 			# Add end command detection here (e.g. 100, 300, 400 etc)
-			if p == 0 and (c <= 6 or c == 0xa):	
+			if p == 0 and (c <= 7 or c == 0xa):	
 				# command end
 				# parameter: none
 				file.write(f"{_DB} ${cmd['END']:02x}\t\t\t;CMD End \n")	
@@ -801,7 +801,7 @@ def export_track(file,track):
 				# vibrato
 				# parameter: xy - x = speed, y=depth. Depth is limited to 0xC0
 				par = calculate_vibrato_parameter(p)
-				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t;CMD Vibrato\n")			
+				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")			
 			elif c == 5:					
 				# portamento tone + volume slide
 				# parameter: xy = slide value value (pos or negative)
@@ -815,9 +815,10 @@ def export_track(file,track):
 			elif c == 7:				
 				# Tremolo
 				# parameter: xy - x = speed, y=depth. Depth is limited to 0xC0
-				if p != 0x11:
-					par = calculate_vibrato_parameter(p)
-					file.write(f"{_DB} ${cmd['7']:02x},${par:02x}\t\t\t;CMD Tremolo\n")
+				par = calculate_vibrato_parameter(p)
+				file.write(f"{_DB} ${cmd['7']:02x},${par:02x}\t\t\t;CMD Tremolo\n")
+
+
 			elif c == 8:	
 				if song.type == 'SMS': 	
 					# unused
@@ -826,12 +827,12 @@ def export_track(file,track):
 				else:					
 					# envelope multiplier
 					# parameter: as in tracker
-					file.write(f"{_DB} ${cmd['8']:02x},${p:02x}\t\t;CMD Envelope multiplier low\n")
+					file.write(f"{_DB} ${cmd['8']:02x},${p:02x}\t\t\t;CMD Envelope multiplier low\n")
 			elif c == 9:	
 				if song.type != 'SMS':
 					# envelope multiplier
 					# parameter: as in tracker
-					file.write(f"{_DB} ${cmd['9']:02x},${p:02x}\t\t;CMD Envelope multiplier high\n")					
+					file.write(f"{_DB} ${cmd['9']:02x},${p:02x}\t\t\t;CMD Envelope multiplier high\n")					
 				# Unused
 				else:
 					file.write(f"\t\t\t;CMD 9 Not supported [Macro Offset][WARNING]\n")
