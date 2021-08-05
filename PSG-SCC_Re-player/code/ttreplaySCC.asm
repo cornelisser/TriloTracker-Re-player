@@ -7,6 +7,7 @@
 ;	replay_fade_out
 ;================================
 
+
 ; Compile options:
 ;define TAIL_ON			; Limit volume to 1
 
@@ -16,11 +17,15 @@
 define PERIOD_A445		; Konami
 ;define PERIOD_A448		; Classical
 
+
 ;define EXTERNAL_SCC 
 define INTERNAL_SCC		; For internal no slot select is needed.
 
+
 ;---- Performance option
-define TREMOLO_OFF		; removes tremolo code making the replayer a little bit faster
+;define FPGA_SCC			; FPGA SCC can be written faster
+					; as there are no artifacts when writing same values
+;define TREMOLO_OFF		; removes tremolo code making the replayer a little bit faster
 ;===============================
 ; todo:
 ; - add external SCC support through conditional code.
@@ -134,7 +139,10 @@ replay_set_PSG_balance:
 	ret
 	
 _getnewbalancebase:
-[4]	add	a		; times 16
+	add	a		; times 16
+	add	a
+	add	a
+	add	a
 	ld	hl,_VOLUME_TABLE-128
 	add	a,l
 	ld	l,a
@@ -166,8 +174,6 @@ replay_loadsong:
 	;--- Initialize replayer variables.
 	xor	a
 	ld	(replay_speed_subtimer),a
-;	ld	(replay_morph_active),a
-;	ld	(replay_morph_waveform),a
 	
 	;--- Set tonetable here as SCC and PSG share same tonetable
 	ld	hl,TRACK_ToneTable_PSG			; Set the PSG note table
@@ -448,7 +454,6 @@ process_data:
 	call	nz,replay_process_morph
 
 	;--- Initialize PSG Mixer and volume
-;	ld	a,11100000b
 	xor	a
 	ld	(SCC_regMIXER),a
 
@@ -462,7 +467,6 @@ process_data:
 	ld	ix,TRACK_Chan1+17
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,PSG_regToneA
 	call	process_data_chan
 	jp	nc,.skipa
 	ld	(PSG_regToneA),hl
@@ -476,7 +480,6 @@ process_data:
 	ld	ix,TRACK_Chan2+17
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,PSG_regToneB
 	call	process_data_chan
 	jp	nc,.skipb
 	ld	(PSG_regToneB),hl
@@ -490,7 +493,6 @@ process_data:
 	ld	ix,TRACK_Chan3+17
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,PSG_regToneC
 	call	process_data_chan
 	jp	nc,.skipc
 	ld	(PSG_regToneC),hl
@@ -696,7 +698,6 @@ _replay_check_patternend:
 decode_data_chan:
 
 	;--- initialize data
-;	ld	a,(ix+TRACK_Note)
 	ld	(replay_previous_note),a
 
 	;=============
@@ -866,14 +867,6 @@ _replay_decode_vol:
 _replaydecode_cmd:
 	sub	_CMD
 
-;	;[Debug]
-;	cp	31
-;	jp	c,.skip0
-;	di
-;	halt
-;.skip0:
-;	;[Debug end]
-
 	ld	e,a				; store command for later
 	ld	hl,DECODE_CMDLIST
 	add	a,a
@@ -979,7 +972,6 @@ decode_cmd3_port_tone:
 	ld	(ix+TRACK_cmd_3),a
 	ld	(ix+TRACK_Timer),2
 
-;decode_cmd3_port_tone_cont:
 	;--- Check if we have a	note on the	same event
 	bit	B_TRGNOT,d
 	jp	z,_rdc
@@ -1030,7 +1022,6 @@ decode_cmd3_port_tone_new_note:
 	ld	l,a				; destination freq in [hl]
 	
 	;--- Calculate the delta
-;	xor	a
 	ex	de,hl
 	sbc	hl,de				; results in pos/neg delta
 	
@@ -1174,69 +1165,6 @@ decode_cmd11_command_end:
 
 
 
-;_CHIPcmd10_morph_slave:
-;	set	B_ACTMOR,d
-;	
-;	dec 	bc
-;	jp	_rdc	
-;	
-;_CHIPcmd11_morph_start:
-;	and	0x0f
-;	ld	(replay_morph_speed),a
-;	
-;	exx
-;	;--- load the waveformbuffer
-;	ld	a,(ix+TRACK_Waveform)
-;;	add	a,a
-;;	add	a,a
-;;	add	a,a	
-;
-;	ld	l,a
-;	ld	h,0
-;	add	hl,hl
-;	add	hl,hl
-;		
-;	ld	de,(replay_wavebase)
-;	add	hl,de
-;
-;	ld	de,replay_morph_buffer
-;	ld	a,32
-;.loop:
-;	ex	af,af'	;'
-;	ld	a,(hl)
-;	ld	(de),a		; copy value to both wave and delta pos
-;	inc	de
-;	ld	(de),a
-;	inc	hl
-;	inc	de
-;	ex	af,af'	;'
-;	dec	a
-;	jp	nz,.loop
-;	exx
-;	
-;	ld	a,(bc)
-;
-;_CHIPcmd12_morph_cont:
-;	;---- init new morph
-;	and	0xf0	
-;	ld	(replay_morph_waveform),a	; store dest form offset
-;	
-;	xor	a
-;	ld	(replay_morph_counter),a
-;	inc	a
-;	ld	(replay_morph_timer),a
-;
-;	;--- calculate the delta's	
-;	ld	a,255				; 255 triggers calc init
-;	ld	(replay_morph_active),a	
-;
-;	set	B_ACTMOR,d
-;	jp	_rdc		
-;	
-;
-
-
-
 decode_cmd13_arp_speed:
 	ld	(replay_arp_speed),a		; store the halve not to add
 	jp	_rdc	
@@ -1245,13 +1173,11 @@ decode_cmd13_arp_speed:
 	
 decode_cmd14_fine_up:
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	//xor	a
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0
 	jp	_rdc
 	
 decode_cmd15_fine_down:
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	//ld	a,$ff
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),$ff
 	jp	_rdc
 
@@ -1267,8 +1193,6 @@ decode_cmd17_track_detune:
 	and	0x07		; low	4 bits is value
 	bit	3,e		; Center around 8
 	jp	z,.pos
-;	inc	a
-;	neg			; make correct value
 	cpl
 	ld	(ix+TRACK_cmd_detune),a
 	ld	(ix+TRACK_cmd_detune+1),0xff
@@ -1337,7 +1261,6 @@ decode_cmd22_SCC_reset:
 	ld	a,(hl)
 	ld	(ix+TRACK_Waveform),a
 	ret
-;	dec 	bc
 	jp	_rdc_noinc
 
 
@@ -1354,9 +1277,6 @@ decode_cmd23_SCC_duty:
 	;get the waveform	start	in [DE]
 	ld	hl,_0x9800
 	ld	a,iyh		;ixh contains chan#
-;	rrca			; a mac value is 4 so
-;	rrca			; 3 times rrca is	X32
-;	rrca			; max	result is 128.
 	add	a,l
 	ld	l,a
 	jp	nc,.skip
@@ -1373,7 +1293,6 @@ decode_cmd23_SCC_duty:
 	jp	nz,.wspw_loop_h
 
 	ex	af,af'	; restore the initial length
-;	ld	e,a
 	sub	31
 
 	ld	e,$87
@@ -1640,18 +1559,18 @@ process_macro:
 	jp	(hl)
 
 MACROACTIONLIST:
-	dw  macro_mixer			 ; 2
-	dw  macro_tone_add		  ; 4
-	dw  macro_tone_sub		  ; 6
-	dw  macro_vol_base		  ; 8
-	dw  macro_vol_add		   ; a
-	dw  macro_vol_sub			; c
-	dw  macro_noise_base		; e
-	dw  macro_noise_add			; 10
-	dw  macro_noise_sub			; 12
-	dw  macro_noise_vol		; 14
-	dw  macro_voice			 ; 16
-	dw  macro_loop				; 18
+	dw  	macro_mixer			 ; 2
+	dw  	macro_tone_add		  ; 4
+	dw  	macro_tone_sub		  ; 6
+	dw  	macro_vol_base		  ; 8
+	dw  	macro_vol_add		   ; a
+	dw  	macro_vol_sub			; c
+	dw  	macro_noise_base		; e
+	dw  	macro_noise_add			; 10
+	dw  	macro_noise_sub			; 12
+	dw  	macro_noise_vol		; 14
+	dw  	macro_voice			 ; 16
+	dw  	macro_loop				; 18
 	dw	macro_envelope			; 1a
 	dw	macro_envelope_shape	; 1c
 
@@ -1661,52 +1580,51 @@ macro_mixer:
 	inc	de
 	ld	b,a
 	ld	a,(SCC_regMIXER)   
-;	and	01101111b
 	or	b
 	ld	(SCC_regMIXER),a
 	jp  process_macro
 
 
 macro_tone_add:
-	  ld	a,(de)
-	  inc   de
-	  add   (ix+TRACK_ToneAdd)
-	  ld	(ix+TRACK_ToneAdd),a
-	  ld	a,(de)
-	  adc   (ix+TRACK_ToneAdd+1)
-	  ld	(ix+TRACK_ToneAdd+1),a
+	ld	a,(de)
+	inc   de
+	add   (ix+TRACK_ToneAdd)
+	ld	(ix+TRACK_ToneAdd),a
+	ld	a,(de)
+	adc   (ix+TRACK_ToneAdd+1)
+	ld	(ix+TRACK_ToneAdd+1),a
 	inc	de
-	  jp	process_macro
+	jp	process_macro
 
 
 macro_tone_sub:
-	  ld	a,(de)
-	  ld	c,a
-	  inc   de
-	  ld	a,(de)
-	  ld	b,a
-	  inc   de
-	  ld	l,(ix+TRACK_ToneAdd)
-	  ld	h,(ix+TRACK_ToneAdd+1)
-	  add   hl,bc
-	  ld	(ix+TRACK_ToneAdd),l
-	  ld	(ix+TRACK_ToneAdd+1),h
-	  jp	process_macro
+	ld	a,(de)
+	ld	c,a
+	inc   de
+	ld	a,(de)
+	ld	b,a
+	inc   de
+	ld	l,(ix+TRACK_ToneAdd)
+	ld	h,(ix+TRACK_ToneAdd+1)
+	add   hl,bc
+	ld	(ix+TRACK_ToneAdd),l
+	ld	(ix+TRACK_ToneAdd+1),h
+	jp	process_macro
 
 
 macro_noise_base:
-	  ld	a,(de)
-	  inc   de
-	  ld	(ix+TRACK_Noise),a
-	  jp	process_macro
+	ld	a,(de)
+	inc   de
+	ld	(ix+TRACK_Noise),a
+	jp	process_macro
 
 macro_noise_sub:
 macro_noise_add:
-	  ld	a,(de)
-	  inc   de
-	  add   (ix+TRACK_Noise)
+	ld	a,(de)
+	inc   de
+	add   (ix+TRACK_Noise)
 	ld	(ix+TRACK_Noise),a
-	  jp	process_macro
+	jp	process_macro
 
 macro_noise_vol:
 	inc	de
@@ -1737,12 +1655,10 @@ macro_envelope:
 macro_loop:
 	ex	de,hl
 	ld	e,(hl)
-;	inc	hl
-;	ld	d,(hl)
 	ld	d,$ff
 	add	hl,de
 	ex	de,hl
-	 	jp	process_macro
+	jp	process_macro
 
 
 macro_volume_same:
@@ -1751,34 +1667,34 @@ macro_volume_same:
 
 
 macro_vol_base:
-	  ld	a,(de)
-	  inc   de
-	  ld	(ix+TRACK_VolumeAdd),a
-	  jp	_macro_set_volume
+	ld	a,(de)
+	inc   de
+	ld	(ix+TRACK_VolumeAdd),a
+	jp	_macro_set_volume
 
 
 macro_vol_add:
-	  ld	a,(de)
-	  inc   de
-	  add   (ix+TRACK_VolumeAdd)
-	  cp	16
+	ld	a,(de)
+	inc   de
+	add   (ix+TRACK_VolumeAdd)
+	cp	16
 	jp	c,.nolimit
-	  ld	a,$0f
+	ld	a,$0f
 .nolimit:	  
-	  ld	(ix+TRACK_VolumeAdd),a
-	  jp	_macro_set_volume
+	ld	(ix+TRACK_VolumeAdd),a
+	jp	_macro_set_volume
 
 
 macro_vol_sub:
-	  ld	a,(de)
-	  ld	h,a
-	  inc   de
-	  ld	a,(ix+TRACK_VolumeAdd)
-	  sub   h
-	  jp	nc,.nolimit
+	ld	a,(de)
+	ld	h,a
+	inc   de
+	ld	a,(ix+TRACK_VolumeAdd)
+	sub   h
+	jp	nc,.nolimit
 	xor   a
 .nolimit:
-	  ld	(ix+TRACK_VolumeAdd),a
+	ld	(ix+TRACK_VolumeAdd),a
 
 ;-- Set the output volume directly after any update
 _macro_set_volume:
@@ -1786,7 +1702,6 @@ _macro_set_volume:
 
 IFDEF tremolo_OFF
 ELSE	
-;	ld	c,a			; store volume add
 	ld 	b,(ix+TRACK_cmd_VolumeAdd)
 	sub	a,b
 	jp 	nc,.skip2
@@ -1812,7 +1727,6 @@ ENDIF
 .skip3:
 	and	0x0f
 	ld	(SCC_regVOLE),a
- ;	 jp	process_macro
 
 _macro_end:
 	;--- Store macro pointer
@@ -1840,7 +1754,7 @@ _macro_end:
 	ld	b,(ix+TRACK_ToneAdd+1)	
 	add	hl,bc		;--- Store tone deviation		
 
-	;-- set	the detune.
+	;-- set the detune.
 	ld	(_SP_Storage),sp
 	ld	sp,ix
 	pop	bc		; cmd_ToneSlideAdd
@@ -1866,7 +1780,6 @@ process_noNoteActive:
 	;-- Silence
 	xor	a			; also clears the carry flag.
 	ld	(SCC_regVOLE),a
-;	ld	(ix+TRACK_Flags),d
 	ret 	
 
 
@@ -2033,10 +1946,6 @@ ELSE
 	inc	h
 .skip:
 	ld	a,(hl)
-;	sla	a
-;	sla	a	
-;	sla	a	
-;	sla	a
 	add	a
 	add	a
 	add	a
@@ -2157,189 +2066,6 @@ process_cmd10_note_delay:
 	jp	process_commandEND	
 
 
-
-
-
-;process_cmdc_wave_duty:
-;	;=================
-;	; Waveform PWM / Duty Cycle
-;	;=================
-;	res	B_TRGCMD,d			;(ix+TRACK_Flags)	; reset command
-;	set	B_TRGWAV,d			;(ix+TRACK_Flags)	; reset normal wave update
-;
-;	;get the waveform	start	in [DE]
-;	ld	hl,_0x9800
-;	ld	a,iyh		;ixh contains chan#
-;;	rrca			; a mac value is 4 so
-;;	rrca			; 3 times rrca is	X32
-;;	rrca			; max	result is 128.
-;	add	a,l
-;	ld	l,a
-;	jp	nc,.skip
-;	inc	h
-;.skip:
-;	ld	b,(ix+TRACK_cmd_B)
-;	inc	b
-;
-;	ld	c,77	
-;	ld	a,32
-;	sub	b
-;_wspw_loop_h:
-;	ld	(hl),c
-;	inc	hl
-;	djnz	_wspw_loop_h
-;	
-;	and	a
-;	jp	z,process_commandEND
-;	
-;	ld	c,-87
-;	ld	b,a
-;_wspw_loop_l:
-;	ld	(hl),c
-;	inc	hl
-;	djnz	_wspw_loop_l
-;
-;	jp	process_commandEND
-	
-	
-	
-;process_cmdd_wave_cut:
-;	;=================
-;	; Waveform Cut
-;	;=================
-;	res	B_TRGCMD,d		;(ix+TRACK_Flags)	; reset command
-;	set	B_TRGWAV,d		;(ix+TRACK_Flags)	; reset normal wave update
-;	ld	a,d
-;	ex	af,af'		;'
-;
-;	;get the waveform	start	in [DE]
-;	ld	de,_0x9800
-;	ld	a,iyh		;ixh contains chan#
-;;	rrca			; a mac value is 4 so
-;;	rrca			; 3 times rrca is	X32
-;;	rrca			; max	result is 128.
-;	add	a,e
-;	ld	e,a
-;	jp	nc,.skip
-;	inc	d
-;.skip:
-;	ld	a,(ix+TRACK_Waveform)
-;	
-;	inc	a	
-;	ld	(ix+TRACK_Waveform),a
-;	dec	a
-;
-;;	add	a,a
-;;	add	a,a
-;;	add	a,a	
-;
-;	ld	l,a
-;	ld	h,0
-;	add	hl,hl
-;	add	hl,hl
-;		
-;	ld	  bc,(replay_wavebase)
-;	add	  hl,bc
-;
-;	ld	a,(ix+TRACK_cmd_B)
-;;	inc	a
-;;	add	a
-;	ld	c,a
-;	ld	b,0
-;	ldir
-;	
-;	EX	DE,HL
-;
-;	
-;	sub	32
-;	neg	
-;	ld	b,a
-;	EX	AF,AF'		;'
-;	LD	D,A
-;	jp	z,process_commandEND	
-;	
-;	xor	a
-;_wsc_l:
-;	ld	(HL),a
-;	inc	HL
-;	djnz	_wsc_l
-;	
-;	jp	process_commandEND;		
-
-	
-;process_cmde_wave_compr:
-;	;=================
-;	; Waveform Compress
-;	;=================
-;	res	B_TRGCMD,d	;(ix+TRACK_Flags)	; reset command
-;	set	B_TRGWAV,d	;(ix+TRACK_Flags)	; reset normal wave update
-;	ld	a,d
-;	ex	af,af'	;'
-;	
-;	;get the waveform	start	in [DE]
-;	ld	de,_0x9800
-;	ld	a,iyh		;ixh contains chan#
-;;	rrca			; a mac value is 4 so
-;;	rrca			; 3 times rrca is	X32
-;;	rrca			; max	result is 128.
-;	add	a,e
-;	ld	e,a
-;	jp	nc,.skip
-;	inc	d
-;.skip:
-;	ld	a,(ix+TRACK_Waveform)
-;	inc	a
-;	ld	(ix+TRACK_Waveform),a
-;	dec	a
-;
-;;	add	a,a
-;;	add	a,a
-;;	add	a,a	
-;	ld	l,a
-;	ld	h,0
-;	add	hl,hl
-;	add	hl,hl
-;		
-;	ld	  bc,(replay_wavebase)
-;	add	  hl,bc
-;
-;	ld	a,(ix+TRACK_cmd_B)
-;	ld	bc,0x0040
-;	rrca	; x32
-;	rrca
-;	rrca
-;	add	31
-;	ld	iyl,a		; fraction
-;	xor	a	
-;_wcomp_loop:
-;	ldi			
-;	dec	c
-;	jp	z,.skip
-;	add	iyl
-;	jp	nc,_wcomp_loop
-;	inc	hl
-;	inc	b
-;	dec	c
-;	dec	c
-;	jp	nz,_wcomp_loop
-;	
-;	;--- remaining data
-;.skip:
-;	dec	hl
-;	ld	a,(hl)
-;.loop:
-;	ld	(de),a
-;	inc	de
-;	djnz	.loop
-;	
-;	EX	AF,AF'		;'
-;	LD	D,A	
-;	jp	process_commandEND		
-	
-
-
-
-
 ;===========================================================
 ; ---replay_route
 ; Output the data	to the CHIP	registers
@@ -2351,49 +2077,24 @@ replay_route:
 ; P S	G 
 ;---------------
 	;--- Push values to AY HW
-;	ld	b,0
-;	ld	c,0xa0
-	ld	bc,$00a0
+	ld	bc,$0da1
 	ld	hl,PSG_registers
-_comp_loop:	
-	out	(c),b
-	ld	a,(hl)
-;	add	1
-	out	(0xa1),a
-	inc	hl
-	ld	a,(hl)
-	adc	a,0
-	inc	b
-	out	(c),b	
-	inc	hl
-	out	(0xa1),a	
-	inc	b
-	ld	a,6
-	cp	b
-	jp	nz,_comp_loop
-	
-	ld	a,b	
-	
-	
+	xor	a
 _ptAY_loop:
-	out	(c),a
-	inc	c
-	outi
-	dec	c
+	out	($a0),a
 	inc	a
-	cp	13
+	outi
 	jr	nz,_ptAY_loop
 
-	ld	b,a
+	;--- Envelope shape R#13
 	ld	a,(hl)
-	and	a
-	jp	z,_ptAY_noEnv
+	and	a				; Value to write?
+	jp	z,_ptAY_noEnv	
+	ld	b,a	
+	ld	a,$0d
+	out	($a0),a	
 	out	(c),b
-	inc	c
-	out 	(c),a
-	ld	(hl),0	;reset the envwrite
-	
-	
+	ld	(hl),0			;reset the envwrite	
 _ptAY_noEnv:
 ;--------------
 ; S C	C 
@@ -2401,17 +2102,6 @@ _ptAY_noEnv:
 	ld  a,03Fh				; enable SCC
 	ld  (0x9000),a
 
-	
-	;--- This for the ttsfxplayer!!!
-;	ld	a,(sfx_SCC_WAVE)
-;	cp	255
-;	jp	z,.nosfx		; if a == 255 there is no waveform
-;
-;	ld	de,0x9800
-;	call	_write_SFX_wave	
-;	jp	.skip	
-	
-.nosfx:	
 	;--- Set the waveforms
 	ld	hl,TRACK_Chan4+17+TRACK_Flags
 	bit	B_TRGWAV,(hl)
@@ -2454,25 +2144,47 @@ scc_reg_update:
 	ld  a,03Fh				; enable SCC
 	ld  (0x9000),a
 	
+IFDEF FPGA_SCC
+	ld	de,$9880
+	ld	hl,SCC_registers
+	;-- write 16 values
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+ELSE
 	;--- Update changed SCC registers.
-	ld hl,oldregs				; Comment out if FPGA scc
+	ld hl,oldregs				
 	ld de,SCC_registers
 	ld bc,0x9880
-	ld a,3*5+1
+	ld a,(3*5)+1
 .loop:
 	ex af,af'	;'
 	ld a,(de)
-	cp (hl)					; Comment out if FPGA scc
-	jr z,.skip					; Comment out if FPGA scc
-	ld (hl),a		 				; Comment out if FPGA scc	; update old	registers in ram
+	cp (hl)					
+	jr z,.skip					
+	ld (hl),a		 				
 	ld (bc),a		 				; update scc	registers
 .skip:		
-	inc hl					; Comment out if FPGA scc
+	inc hl					
 	inc de
 	inc bc
 	ex af,af'		;'
 	dec a
 	jr nz,.loop
+ENDIF
 	ret
 
 	
@@ -2490,9 +2202,6 @@ _write_SCC_wave:
 	
 	bit	0,a
 	jp	nz,.ramwave
-;	add	a,a
-;	add	a,a
-;	add	a,a
 
 .normalwave:
 	ld	l,a
@@ -2502,10 +2211,12 @@ _write_SCC_wave:
 		
 	ld	  bc,(replay_wavebase)
 	add	  hl,bc
-	ld	  bc,32
-	ldir
-	ret
-	
+
+	jp	copy_wave_fast
+;	ld	  bc,32
+;	ldir
+;	ret
+
 	
 .ramwave:
 	dec	hl		; reset the special flag in the wave form number
@@ -2519,26 +2230,50 @@ _write_SCC_wave:
 	jp	nc,.skip
 	inc	h
 .skip:
-	ld	  bc,32
-	ldir
-	ret	
-	
-	
-	
+copy_wave_fast:
+	;--- Fastest way to copy waveform to SCC
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi		; 8
+	ldi	
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi		; 16
+	ldi	
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi		; 24
+	ldi		
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi		; 32
 
+	ret	
 
 _write_SCC_special:
-	ld	hl,replay_morph_buffer+1
-	ld	b,32
+	ld	hl,replay_morph_buffer
+	ld	bc,32
 _wss_l:
-	ld	a,(hl)
-	ld	(de),a
 	inc	hl
-	inc	hl
-	inc	de
-	djnz	_wss_l
-	 
-	
+	ldi
+	jp	pe,_wss_l
 	ret
 
 	
@@ -2570,7 +2305,6 @@ replay_process_morph:
 	;---- calculate offset
 	inc	a		
 	ld	(replay_morph_active),a		; set status to 1
-;	ld	(replay_morph_update),a		; after this update the waveforms of the SCC
 
 	ld	a,(replay_morph_speed)
 	inc	a
