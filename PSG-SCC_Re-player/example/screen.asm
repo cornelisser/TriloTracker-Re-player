@@ -109,7 +109,6 @@ clear_files:
 	; DE = pointer to the label text
 ; ==========================================================
 draw_label:
-	di
 ;	ld	a,$f3 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
 ;	out	(0x99),a
 ;	ld	a,7+128
@@ -120,6 +119,7 @@ draw_label:
 	add	hl,bc
 	call	set_vdpwrite			
 	
+	di
 draw_label_loop:
 	ld	a,(de)
 	cp	0
