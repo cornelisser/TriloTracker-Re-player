@@ -432,17 +432,17 @@ def export_ins(ins, song, file):
 		# SMS noise
 		if	song.type == 'SMS':
 			result_noise = byte1 & 0x70 >> 4
-			result_noice_vol = byte1 & 0x0f
+			result_noise_vol = byte1 & 0x0f
 			if	(byte4 & bit7) != 0x00:
 				loop_bytes += 2
 				result_voice = byte1 & 0x0f
 				file.write(f"{_DB} $16,${result_voice:02x}\t\t\t\t\t\t; FM Hardware Voice\n")
 			elif ((byte1 & bit7) != 0x00):
 				loop_bytes += 3
-				file.write(f"{_DB} $14,${result_noise:02x},${result_noise:02x}\t\t\t\t\t; Noise + Noice volume\n")	
+				file.write(f"{_DB} $14,${result_noise:02x},${result_noise_vol:02x}\t\t\t\t\t; Noise + Noise volume\n")	
 			
 		else:
-    	# SCC anf FM noise		
+    	# SCC and FM noise		
 			result_noise = byte1 & 0x1f
 			if ((byte1 & bit7)!= 0x00):            # Noise enabled?
 				if ((byte1 & (bit6+bit5)) == 0x00) and (result_noise != noise_prev):

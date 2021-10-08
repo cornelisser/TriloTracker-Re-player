@@ -142,7 +142,7 @@ PSG_regEnvH 		#1	; Volume Env Freq high (4bit)
 PSG_regEnvShape 		#1	; Volume Env Shape (4bit)
 
 ;--- SCC SPECIFIC
-
+ttsfx_waveform:		#2 	; Pointer to sfx waveform
 _0x9800:	#32			; Waveform data
 _0x9820:	#32
 _0x9840:	#32

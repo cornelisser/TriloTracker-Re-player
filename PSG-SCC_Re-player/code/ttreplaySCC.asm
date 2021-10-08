@@ -17,10 +17,10 @@
 define PERIOD_A445		; Konami
 ;define PERIOD_A448		; Classical
 
-
 ;define EXTERNAL_SCC 
 define INTERNAL_SCC		; For internal no slot select is needed.
 
+define SFX				; Enable the SFX functionality.
 
 ;---- Performance option
 ;define FPGA_SCC			; FPGA SCC can be written faster
@@ -1616,6 +1616,7 @@ macro_noise_base:
 	ld	a,(de)
 	inc   de
 	ld	(ix+TRACK_Noise),a
+	ld	(PSG_regNOISE),a
 	jp	process_macro
 
 macro_noise_sub:
@@ -1624,6 +1625,7 @@ macro_noise_add:
 	inc   de
 	add   (ix+TRACK_Noise)
 	ld	(ix+TRACK_Noise),a
+	ld	(PSG_regNOISE),a
 	jp	process_macro
 
 macro_noise_vol:
@@ -2077,6 +2079,7 @@ replay_route:
 ; P S	G 
 ;---------------
 	;--- Push values to AY HW
+	; faster update thanks to theNestruo
 	ld	bc,$0da1
 	ld	hl,PSG_registers
 	xor	a
@@ -2103,46 +2106,64 @@ _ptAY_noEnv:
 	ld  (0x9000),a
 
 	;--- Set the waveforms
-	ld	hl,TRACK_Chan4+17+TRACK_Flags
-	bit	B_TRGWAV,(hl)
-	jp	z,.skip
+	ld	a,(TRACK_Chan4+17+TRACK_Flags)
+	bit	B_TRGWAV,a
+	jp	z,.skip1
+
 	;--- set wave form
-	res	B_TRGWAV,(hl)
-	ld	a,(TRACK_Chan4+17+TRACK_Waveform)
 	ld	de,0x9800
+	and	10111111b		;res	B_TRGWAV,a
+	ld	(TRACK_Chan4+17+TRACK_Flags),a
+	bit	B_ACTMOR,a
+	call	nz,_write_SCC_special
+	;--- write_SCC_special will handle the return to next skip [HACK]
+	ld	a,(TRACK_Chan4+17+TRACK_Waveform)
 	call	_write_SCC_wave
-.skip:
-	ld	hl,TRACK_Chan5+17+TRACK_Flags
-	bit	B_TRGWAV,(hl)
+.skip1:
+	ld	a,(TRACK_Chan5+17+TRACK_Flags)
+	bit	B_TRGWAV,a
 	jp	z,.skip2
+
 	;--- set wave form
-	res	B_TRGWAV,(hl)
-	ld	a,(TRACK_Chan5+17+TRACK_Waveform)
 	ld	de,0x9820
+	and	10111111b		;res	B_TRGWAV,a
+	ld	(TRACK_Chan5+17+TRACK_Flags),a
+	bit	B_ACTMOR,a
+	call	nz,_write_SCC_special
+	;--- write_SCC_special will handle the return to next skip [HACK]
+	ld	a,(TRACK_Chan5+17+TRACK_Waveform)
 	call	_write_SCC_wave
 .skip2:
-	ld	hl,TRACK_Chan6+17+TRACK_Flags
-	bit	B_TRGWAV,(hl)
+	ld	a,(TRACK_Chan6+17+TRACK_Flags)
+	bit	B_TRGWAV,a
 	jp	z,.skip3
+
 	;--- set wave form
-	res	B_TRGWAV,(hl)
-	ld	a,(TRACK_Chan6+17+TRACK_Waveform)
 	ld	de,0x9840
+	and	10111111b		;res	B_TRGWAV,a
+	ld	(TRACK_Chan6+17+TRACK_Flags),a
+	bit	B_ACTMOR,a
+	call	nz,_write_SCC_special
+	;--- write_SCC_special will handle the return to next skip [HACK]
+	ld	a,(TRACK_Chan6+17+TRACK_Waveform)
 	call	_write_SCC_wave
 .skip3:
-	ld	hl,TRACK_Chan7+17+TRACK_Flags
-	bit	B_TRGWAV,(hl)
+	ld	a,(TRACK_Chan7+17+TRACK_Flags)
+	bit	B_TRGWAV,a
 	jp	z,.skip4
+
 	;--- set wave form
-	res	B_TRGWAV,(hl)
-	ld	a,(TRACK_Chan7+17+TRACK_Waveform)
 	ld	de,0x9860
+	and	10111111b		;res	B_TRGWAV,a
+	ld	(TRACK_Chan7+17+TRACK_Flags),a
+	bit	B_ACTMOR,a
+	call	nz,_write_SCC_special
+	;--- write_SCC_special will handle the return to next skip [HACK]
+	ld	a,(TRACK_Chan7+17+TRACK_Waveform)
 	call	_write_SCC_wave
 .skip4:
 
 scc_reg_update:
-	ld  a,03Fh				; enable SCC
-	ld  (0x9000),a
 	
 IFDEF FPGA_SCC
 	ld	de,$9880
@@ -2165,25 +2186,44 @@ IFDEF FPGA_SCC
 	ldi
 	ldi
 ELSE
-	;--- Update changed SCC registers.
-	ld hl,oldregs				
-	ld de,SCC_registers
-	ld bc,0x9880
-	ld a,(3*5)+1
+
+;    ;--- Update changed SCC registers.
+;	; fast update routine by SpaceMoai
+	ld hl,oldregs+(3*5)
+	ld de,SCC_registers+(3*5)
+	ld bc,0x9880+(3*5)
 .loop:
-	ex af,af'	;'
 	ld a,(de)
-	cp (hl)					
-	jr z,.skip					
-	ld (hl),a		 				
-	ld (bc),a		 				; update scc	registers
-.skip:		
-	inc hl					
-	inc de
-	inc bc
-	ex af,af'		;'
-	dec a
-	jr nz,.loop
+	cp (hl)
+	jr z,.skip
+	ld (hl),a
+	ld (bc),a                         ; update scc    registers
+.skip:        
+	dec de
+	dec hl
+	dec c
+	jp m,.loop
+
+
+	;--- Update changed SCC registers.
+;	ld hl,oldregs				
+;	ld de,SCC_registers
+;	ld bc,0x9880
+;	ld a,(3*5)+1
+;.loop:
+;	ex af,af'	;'
+;	ld a,(de)
+;	cp (hl)					
+;	jr z,.skip					
+;	ld (hl),a		 				
+;	ld (bc),a		 				; update scc	registers
+;.skip:		
+;	inc hl					
+;	inc de
+;	inc bc
+;	ex af,af'		;'
+;	dec a
+;	jr nz,.loop
 ENDIF
 	ret
 
@@ -2197,27 +2237,13 @@ ENDIF
 ; Data is not written to SCC but into RAM	shadow registers.
 ;==================
 _write_SCC_wave:
-	bit	B_ACTMOR,(hl)
-	jp	nz,_write_SCC_special
-	
+	;---- 000000SR	-> S = sfx waveform, R = RAM waveform
 	bit	0,a
-	jp	nz,.ramwave
-
-.normalwave:
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	  bc,(replay_wavebase)
-	add	  hl,bc
-
-	jp	copy_wave_fast
-;	ld	  bc,32
-;	ldir
-;	ret
-
-	
+	jp	z,.normalwave
+IFDEF	SFX
+	bit	1,a
+	jp	nz,.sfxwave
+ENDIF
 .ramwave:
 	dec	hl		; reset the special flag in the wave form number
 	and	$fe
@@ -2230,6 +2256,29 @@ _write_SCC_wave:
 	jp	nc,.skip
 	inc	h
 .skip:
+	jp	copy_wave_fast
+
+IFDEF SFX
+.sfxwave:
+	and	11111000b
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+	add	hl,hl
+		
+	ld	bc,SFX_WAVEBASE
+	add	hl,bc
+	jp	copy_wave_fast
+ENDIF
+
+.normalwave:
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+	add	hl,hl
+		
+	ld	  bc,(replay_wavebase)
+	add	  hl,bc
 copy_wave_fast:
 	;--- Fastest way to copy waveform to SCC
 	ldi
@@ -2269,12 +2318,77 @@ copy_wave_fast:
 
 _write_SCC_special:
 	ld	hl,replay_morph_buffer
-	ld	bc,32
+;	ld	bc,32
 _wss_l:
 	inc	hl
 	ldi
-	jp	pe,_wss_l
-	ret
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	inc	hl
+	ldi
+	;--- Hack the return address
+	pop	hl
+	ld	bc,6
+	add	hl,bc
+	jp	(hl)
 
 	
 ;=============
