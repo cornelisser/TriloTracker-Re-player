@@ -124,6 +124,8 @@ TRACK_Chan6			#TRACK_REC_SIZE
 TRACK_Chan7			#TRACK_REC_SIZE
 TRACK_Chan8			#TRACK_REC_SIZE
 
+IFDEF SFXPLAY_ENABLED
+
 ;--- AY SPECIFIC
 PSG_registers		#0 
 PSG_regToneA 		#2	; Tone A freq low (8bit)
@@ -140,6 +142,30 @@ PSG_regVOLC  		#1	; Chan C volume
 PSG_regEnvL 		#1	; Volume Env Freq low (8bit)	
 PSG_regEnvH 		#1	; Volume Env Freq high (4bit)
 PSG_regEnvShape 		#1	; Volume Env Shape (4bit)
+replay_noise		#1 ; replayer_noise
+
+ELSE
+
+;--- AY SPECIFIC
+PSG_registers		#0 
+PSG_regToneA 		#2	; Tone A freq low (8bit)
+					; Tone A freq high (4bit)
+PSG_regToneB 		#2	; Tone B freq low
+					; Tone B freq high
+PSG_regToneC 		#2	; Tone C freq low
+					; Tone C freq high
+replay_noise:
+PSG_regNOISE 		#1	; Noise freq (5bit)
+PSG_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
+PSG_regVOLA 		#1	; Chan A volume
+PSG_regVOLB 		#1	; Chan B volume
+PSG_regVOLC  		#1	; Chan C volume
+PSG_regEnvL 		#1	; Volume Env Freq low (8bit)	
+PSG_regEnvH 		#1	; Volume Env Freq high (4bit)
+PSG_regEnvShape 		#1	; Volume Env Shape (4bit)
+
+ENDIF
+
 
 ;--- SCC SPECIFIC
 ttsfx_waveform:		#2 	; Pointer to sfx waveform

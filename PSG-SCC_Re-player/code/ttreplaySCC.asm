@@ -20,7 +20,7 @@ define PERIOD_A445		; Konami
 ;define EXTERNAL_SCC 
 define INTERNAL_SCC		; For internal no slot select is needed.
 
-define SFX				; Enable the SFX functionality.
+define SFXPLAY_ENABLED	; Enable the SFX functionality.
 
 ;---- Performance option
 ;define FPGA_SCC			; FPGA SCC can be written faster
@@ -192,7 +192,8 @@ replay_loadsong:
 	ld	(PSG_regVOLA),a
 	ld	(PSG_regVOLB),a	
 	ld	(PSG_regVOLC),a
-	ld	(PSG_regNOISE),a
+	;ld	(PSG_regNOISE),a
+	ld	(replay_noise),a
 	ld	a,0x3f
 	ld	(PSG_regMIXER),a
 
@@ -1616,7 +1617,8 @@ macro_noise_base:
 	ld	a,(de)
 	inc   de
 	ld	(ix+TRACK_Noise),a
-	ld	(PSG_regNOISE),a
+	;ld	(PSG_regNOISE),a
+	ld	(replay_noise),a
 	jp	process_macro
 
 macro_noise_sub:
@@ -1625,7 +1627,8 @@ macro_noise_add:
 	inc   de
 	add   (ix+TRACK_Noise)
 	ld	(ix+TRACK_Noise),a
-	ld	(PSG_regNOISE),a
+	;ld	(PSG_regNOISE),a
+	ld	(replay_noise),a
 	jp	process_macro
 
 macro_noise_vol:

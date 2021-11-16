@@ -114,20 +114,25 @@ ttsfx_play:
 	ld	a,(sfx_STATUS)	; a:=Current sfx_PSG stream priority
 	bit	0,a			; PSG active?
 	jp	nz,.psg_play
-	and	a			; SCC active?
+	and	a			; test if scc is active
+	
+	;--- If not active just use re-player noise and mixer
+	ld	a,(replay_noise)
+	ld	(PSG_regNOISE),a
+
 	jp	nz,_ttsfx_scc_play.scc_play
 	ret
 
 .psg_play:
-	ld	b,00000000b			; mixer mask for music noise 
 	; --- PLAY A FRAME OF AN sfx_PSG STREAM ---
 	; --- Extract control byte from stream ---
 	ld	hl,(sfx_PSG_POINTER)	; Pointer to the current sfx_PSG stream
-	ld	c,(hl)			; c:=Control byte
-;	ld	a,c
-;	cp	64				; Check for end marker
-;	jp	z,_ttsfx_psg_end
+	ld	c,(hl)			; c:=Control byteb
+	ld	a,(PSG_regMIXER)
+	ld	b,a				; b = mixer 
 	inc	hl				; Increment pointer
+
+_ayCHECK_NT:
 	; --- Check if there's new tone on stream ---
 	bit	5,c				; If bit 5 c is off...
 	jp	z,_ayCHECK_NN		; ...jump to _ayCHECK_NN (no new tone)
@@ -136,7 +141,8 @@ ttsfx_play:
 	inc	hl				; Increment pointer
 	ld	d,(hl)			; d:=higher byte of new tone
 	inc	hl				; Increment pointer
-	ld	(PSG_regToneC),de		; sfx_PSG tone updated
+	ld	(sfx_PSG_TONE),de		; sfx_PSG tone updated
+
 _ayCHECK_NN:	
 	; --- Check if there's new noise on stream ---
 	bit	6,c				; if bit 6 c is off...
@@ -145,30 +151,44 @@ _ayCHECK_NN:
 	ld	a,(hl)			; a:=New noise
 	inc	hl				; Increment pointer
 	cp	$20				; If it's an illegal value of noise (used to mark end of stream)...
-	jp	nz,_ayNOISE
-	;--- end of sfx
-	ld	a,(sfx_STATUS)
-	and	00000010b			; remove bit 0
-	ld	(sfx_STATUS),a
-	ld	a,255				; reset prio
-	ld	(sfx_PRIORITY),a
-	jp	_aySETPOINTER
+	jp	z,_ayEND
 _ayNOISE:
 	ld	(sfx_PSG_NOISE),a		; sfx_PSG noise updated
 _aySETPOINTER:
 	; --- Update sfx_PSG pointer ---
 	ld	(sfx_PSG_POINTER),hl	; Update sfx_PSG stream pointer
-	; --- Set noise register ---
-	bit	7,c				; If noise is off...
-	jp	nz,_ayVOLUME		; ...jump to _aySETMASKS
+
+	; --- Set noise register if enabled ---
+	bit	7,c						; If noise is off...
+	jp	nz,_ayMUSNOISE			; ...jump to _aySETMASKS
+	ld	a,b				; mixer mask for no music noise
+	or	00011000b
+	and	00011111b
+	ld	b,a
 	ld	a,(sfx_PSG_NOISE)		; sfx_PSG noise value
+	jp	_ayNOISESET
+_ayMUSNOISE:
+	;-- If no sfx noise then use music noise value
+	ld	a,(replay_noise)		; replaer PSG noise value
+_ayNOISESET:
 	ld	(PSG_regNOISE),a		; copied in to AYREGS (noise channel)
-	ld	b,00011000b			; mixer mask for no music noise
+
+	; --- Extract and set volume if tone or noise is enabled ---
+	bit	4,c						; If tone is off...
+	jp	nz,_ayVOLUME			; ...jump to _ayMIXER
+	ld	hl,(sfx_PSG_TONE)
+	ld	(PSG_regToneC),hl
+	res	 2,b				; enable tone on chan 3
 
 _ayVOLUME:	
-	; --- Extract volume ---
-	ld	a,c				; a:=Control byte
-	and	$0F				; lower nibble
+	;--- Only update volume if tone or noise is active
+	ld	a,00100100b
+	and	b
+	cp	00100100b
+	jp	z,_ayMIXER
+
+	ld	a,c					; a:=Control byte
+	and	$0F					; lower nibble
 	; --- Fix the volume using TT Volume Table ---
 	ld	hl,(sfx_PSG_BALANCE)	; hl:=Pointer to relative volume table
 	add	a,l
@@ -176,44 +196,45 @@ _ayVOLUME:
 	jp	nc,.skip
 	inc	h
 .skip:	
-	ld	a,(hl)			; a:=sfx_PSG relative volume
-	and	$0f				; mask only ay volume
+	ld	a,(hl)				; a:=sfx_PSG relative volume
+	and	$0f					; mask only ay volume
 	ld	(PSG_regVOLC),a		; Diretly update the TT register value
 
+
+
+_ayMIXER:
 	;--- Set Mixer
-	ld	a,c
-	rra
-	rra					; shift the bits in place for the mixer
-	and	00100100b			; tone and noise bits
-	ld	c,a
-	ld	a,(PSG_regMIXER)
-	and	00111111b
-	or	b
-	and 	c
+	ld	a,b
 	ld	(PSG_regMIXER),a		; Directly write the TT register value
+
 
 
 _ttsfx_scc_play:	
 	ld	a,(sfx_STATUS)	; a:=Current sfx_PSG stream priority
-	and	00000010b		; PSG active?
+	and	00000010b		; SCC active?
 	ret	z
 
 .scc_play:
 	; --- Extract control byte from stream ---
 	ld	hl,(sfx_SCC_POINTER)	; Pointer to the current sfx_SCC stream
 	ld	c,(hl)			; c:=Control byte
-;	ld	a,c
+	ld	a,(SCC_regMIXER)
+	ld	b,a				; b = mixer 
 	inc	hl				; Increment pointer
+
+_sccCHECK_NT:
 	; --- Check if there's new tone on stream ---
 	bit	5,c				; If bit 5 c is off...
-	jp	z,_sccCHECK_W		; ...jump to _sccCHECK_NN (no new tone)
+	jp	z,_sccCHECK_NW		; ...jump to _sccCHECK_NN (no new tone)
 	; --- Extract new tone from stream ---
 	ld	e,(hl)			; e:=lower byte of new tone
 	inc	hl				; Increment pointer
 	ld	d,(hl)			; d:=higher byte of new tone
 	inc	hl				; Increment pointer
-	ld	(SCC_regToneA),de		; sfx_SCC tone updated
-_sccCHECK_W:	; --- Check if there's the end of the sfx ---
+	ld	(sfx_SCC_TONE),de		; sfx_SCC tone updated
+
+_sccCHECK_NW:	
+	; --- Check if there's the end of the sfx ---
 	bit	6,c				; if bit 6 c is off...
 	jp	z,_sccSETPOINTER		; ...jump to _sccSETPOINTER (no end)
 	; --- Extract new waveform from stream ---
@@ -222,15 +243,8 @@ _sccCHECK_W:	; --- Check if there's the end of the sfx ---
 	add	a				; *2
 	jp	z,_sccSETPOINTER		; wave form 0 is no waveform
 	cp	$40				; And marker is now 2*$20 due to the add
-	jp	nz,_sccWAVE		
-	;--- end of sfx
-	ld	a,(sfx_STATUS)
-	and	00000001b			; remove bit 1
-	ld	(sfx_STATUS),a
-	jp	nz,_sccSETPOINTER
-	dec	a				; reset prio if status is 0
-	ld	(sfx_PRIORITY),a
-	jp	_sccSETPOINTER
+	jp	z,_sccEND		
+
 _sccWAVE:
 	add	a				; *4
 	add	a				; *8
@@ -242,41 +256,60 @@ _sccWAVE:
 	cp	(hl)
 	jp	z,_sccVOLUME
 
-
 	ld	(TRACK_Chan4+17+TRACK_Waveform),a		; Set a new waveform trigger, ttreplay will handle this
 	ld	hl,TRACK_Chan4+17+TRACK_Flags
-	set 	B_TRGWAV,(hl)
+	set B_TRGWAV,(hl)
 	jp	_sccVOLUME
 
 _sccSETPOINTER:	; --- Update sfx_SCC pointer ---
 	ld	(sfx_SCC_POINTER),hl	; Update sfx_SCC stream pointer
+
+
 _sccVOLUME:		
-	; --- Extract volume ---
-	ld	a,c				; a:=Control byte
-	and	$0F				; lower nibble
+	; --- Extract and set volume if tone is enabled ---
+	bit	4,c						; If tone is off...
+	jp	nz,_sccMIXER			; ...jump to _ayMIXER
+
+	set	0,b						; enable sound chan1
+	ld	a,c						; a:=Control byte
+	and	$0F						; lower nibble
 	; --- Fix the volume using TT Volume Table ---
 	ld	hl,(sfx_SCC_BALANCE)	; hl:=Pointer to relative volume table
-	ld	e,a				; e:=a (sfx_SCC volume)
-	ld	d,0				; d:=0
-	add	hl,de				; hl:=hl+de (hl points to the relative volume of this frame
-	ld	a,(hl)			; a:=sfx_SCC relative volume
-	rra					; SCC relative volume is in the higher 4 bits
+	ld	e,a						; e:=a (sfx_SCC volume)
+	ld	d,0						; d:=0
+	add	hl,de					; hl:=hl+de (hl points to the relative volume of this frame
+	ld	a,(hl)					; a:=sfx_SCC relative volume
+	rra							; SCC relative volume is in the higher 4 bits
 	rra
 	rra
 	rra
-	and	$0f				; mask only scc volume
+	and	$0f						; mask only scc volume
 	ld	(SCC_regVOLA),a			; Volume copied in to SCCREGS (channel 1 volume)
 
-	; -------------------------------------
-	; --- COPY sfx_SCC VALUES IN TO sccREGS ---
-	; -------------------------------------
-	; --- Set mixer masks ---
-	ld	a,c				; a:=Control byte
-	and	$80				; Only bit 4 (tone mask for SCC)
-	ret	z				; ...return (don't copy sfx_SCC values in to sccREGS)
+	ld	hl,(sfx_SCC_TONE)
+	ld	(SCC_regToneA),hl
 
-	;--- Set the SCC mixer value
-	ld	hl,SCC_regMIXER
-	set 	0,(hl)
-
+_sccMIXER:
+	;--- Set Mixer
+	ld	a,b
+	ld	(SCC_regMIXER),a		; Directly write the TT register value
 	ret
+
+
+_ayEND:		
+	ld	a,(sfx_STATUS)		; remove bit 0
+	and	00000010b
+	ld	(sfx_STATUS),a
+	jp	nz,_ttsfx_scc_play.scc_play
+	dec	a					; reset prio (255)
+	ld	(sfx_PRIORITY),a	
+	ret					
+
+_sccEND:	
+	ld	a,(sfx_STATUS)		; remove bit 0
+	and	00000001b
+	ld	(sfx_STATUS),a
+	ret	nz
+	dec	a					; reset prio (255)
+	ld	(sfx_PRIORITY),a	
+	ret					
