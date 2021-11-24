@@ -268,7 +268,7 @@ _sccSETPOINTER:	; --- Update sfx_SCC pointer ---
 _sccVOLUME:		
 	; --- Extract and set volume if tone is enabled ---
 	bit	4,c						; If tone is off...
-	jp	nz,_sccMIXER			; ...jump to _ayMIXER
+	ret	nz						; end
 
 	set	0,b						; enable sound chan1
 	ld	a,c						; a:=Control byte

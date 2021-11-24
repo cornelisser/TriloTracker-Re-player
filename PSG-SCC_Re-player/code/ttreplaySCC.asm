@@ -257,6 +257,16 @@ ENDIF
 
 
 ;===========================================================
+; Set mixer values to silent.
+;===========================================================
+replay_play_no:
+      xor   a
+      ld    (SCC_regMIXER),a
+      xor   $3f
+      ld    (PSG_regMIXER),a
+      ret
+
+;===========================================================
 ; ---	replay_play
 ; Decode music data and process instruments and effects. 
 ; Music chip registers will be prepared for replay_route 
@@ -266,7 +276,9 @@ ENDIF
 replay_play:
 	ld	a,(replay_mode)
 	and	a
-	ret	z		; replay mode = 0	; halted
+
+      jr    z,replay_play_no
+;	ret	z		; replay mode = 0	; halted
 				; replay mode = 1	; active
 	
 	;---- SPEED EQUALIZATION 
@@ -2243,7 +2255,7 @@ _write_SCC_wave:
 	;---- 000000SR	-> S = sfx waveform, R = RAM waveform
 	bit	0,a
 	jp	z,.normalwave
-IFDEF	SFX
+IFDEF	SFXPLAY_ENABLED
 	bit	1,a
 	jp	nz,.sfxwave
 ENDIF
@@ -2261,7 +2273,7 @@ ENDIF
 .skip:
 	jp	copy_wave_fast
 
-IFDEF SFX
+IFDEF SFXPLAY_ENABLED
 .sfxwave:
 	and	11111000b
 	ld	l,a
