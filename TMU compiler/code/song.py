@@ -237,7 +237,7 @@ class Song:
 		self.length = length
 
 	def set_period(self,period):
-    		self.period = period
+		self.period = period
 
 
 	def get_pattern(self,number):
@@ -295,6 +295,30 @@ class Song:
 	
 	def cleanup(self):
 	
+		# ====================================
+		# Check if start of song has volume and instrument
+		# ====================================
+		nr = self.order_list[0]
+		pat = self.patterns[nr]
+		for t in pat.tracks:
+			track = self.tracks[t]
+			ins = 0
+			vol = 0
+			for row in track.rows:
+				i = row[1]
+				v = row[2]
+				if i > 0:
+					ins = i
+				if v > 0:
+					vol = v
+			if ins == 0:
+				track.rows[0][1] = 1
+			if vol == 0:
+				track.rows[0][2] = 15			
+
+		# ====================================
+		# Detect used tracks
+		# ====================================
 		for pat in self.patterns:
 			if pat.number in self.order_list:			# test if pattern is on order list
 				length = 64
@@ -309,6 +333,9 @@ class Song:
 					self.tracks[t].set_length(length)	
 					self.tracks[t].used = True
 		
+      	# ====================================
+		# Remove redundance and pre=proces tracks
+		# ====================================
 		for track in self.tracks:
 			prev_i = 0
 			prev_v = 0
@@ -435,13 +462,9 @@ class Song:
 					waveform.export_number = number*8			# Times 8 for cpu load reduce in replayer
 					#print(f"waveform: {waveform.number} -> {waveform.export_number}")
 					number+=1						
+	
+		
 
-		
-		
-		
-		
-		
-		
-		#	;--- Check volume setting on first pattern. Add volume F if none is set.
+
 	
 	
