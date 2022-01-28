@@ -1,11 +1,11 @@
 ;=================================
-; TriloTracker Re-player SCC
-;
+; TriloTracker Re-player FM
+; 
 ; Functions:
 ; 	replay_init
 ;	replay_pause
 ;	replay_fade_out
-;	replay_set_SCC_balance
+;	replay_set_FM_balance
 ;	replay_set_PSG_balance
 ;	replay_equalization
 ;	replay_load_song
@@ -22,21 +22,15 @@ define MSX2				; Used in speed equalization
 define PERIOD_A445		; Konami
 ;define PERIOD_A448		; Classical
 
-;define EXTERNAL_SCC 
-define INTERNAL_SCC		; For internal no slot select is needed.
-
-define SFXPLAY_ENABLED		; Enable the SFX functionality.
+define SFXPLAY_ENABLED	; Enable the SFX functionality.
 
 ;---- Performance option
 ;define FPGA_SCC			; FPGA SCC can be written faster
 					; as there are no artifacts when writing same values
 ;define TREMOLO_OFF		; removes tremolo code making the replayer a little bit faster
-;===============================
-; TODO:
-; - add external SCC support through conditional code.
-; - add replayer speed up through conditional code.
-; - optimize replayer code
-; - instructions for external usage of the RAM variables (setting PSG/SCC base volumes etc)
+
+FM_WRITE:	equ	0x7c	; port to set fm reg nr.
+FM_DATA:	equ	0x7d	; port to set fm data for reg	
 ;===============================
 _REL:		equ	96	; = release
 _SUS:		equ	97	; = sustain
@@ -46,19 +40,17 @@ _CMD:		equ	144	; = effect 0
 _SPC:		equ	184	; = special commands
 _EOT:		equ	191	; = end of track
 _WAIT:	equ	192	; = wait 1
-	
 
-	
 	
 ;===========================================================
 ; ---	replay_init
-; Initialize replayer data
+; Initialize re-player data
 ; Only call this on start-up
 ; Input: none
 ;===========================================================
 replay_init:
 	ld	a,8
-	call	replay_set_SCC_balance
+	call	replay_set_FM_balance
 	ld	a,8
 	call	replay_set_PSG_balance
 
@@ -66,11 +58,7 @@ replay_init:
 	ld	(replay_mode),a	
 	ld	(equalization_cnt),a
 	ld	(equalization_flag),a	
-	ld	(equalization_freq),a	
-	ld	(replay_morph_speed),a
-	inc	a
-	ld	(replay_morph_type),a
-	
+	ld	(equalization_freq),a
 	ret
 
 ;===========================================================
@@ -79,6 +67,7 @@ replay_init:
 ; 
 ; Input: none
 ;===========================================================
+; TODO Test if pause is working and leaves no sound hanging 
 replay_pause:
 	ld	a,(replay_mode)
 	and	a
@@ -88,20 +77,29 @@ _r_pause_enable:
 	ld	a,1
 	ld	(replay_mode),a
 	ret
-
+	
 _r_pause_disable:
 	;-- stop decoding and processing music data
 	xor	a
-	ld	(replay_mode),a
-	;-- set mixers to silence.
-	ld 	a,0x3F
-	ld	(PSG_regMIXER),a 
+	ld	(replay_mode),a	
+	ld	(FM_DRUM),a
+	;--- Silence the SN7 PSG
+	ld	(PSG_regVOLA),a
+	ld	(PSG_regVOLB),a
+	ld	(PSG_regVOLC),a
+
+	; release key on all FM channels
+	ld	b,9
+	ld	hl,FM_Registers+1
+	ld	de,6
 	xor	a
-	ld	(SCC_regMIXER),a
-	ret
-
-
+_r_pause_loop:
+	ld	(hl),a
+	add	hl,de
+	djnz	_r_pause_loop
+	ret	
 	
+
 ;===========================================================
 ; ---	replay_fade_out
 ; Fade out the music. 
@@ -116,27 +114,28 @@ replay_fade_out:
 	ld	(replay_fade_vol),a
 	ret
 
+
 	
 ;===========================================================
-; ---	replay_set_SCC_balance
-; Set the main volume for the SCC chip. This enables for
-; setting the balance between SCC and PSG as some MSX models 
+; ---	replay_set_FM_balance
+; Set the main volume for the FM chip. This enables for
+; setting the balance between FM and PSG as some MSX models 
 ; default balance differs. 
 ;
-; in: [A] master volume (0-7) 0=halve volume, 8=full volume. 
+; in: [A] master volume (0-7) 0=halve volume, 7=full volume. 
 ;===========================================================	
-replay_set_SCC_balance:
+replay_set_FM_balance:
 	call	_getnewbalancebase
-	ld	(replay_mainSCCvol),hl	
+	ld	(replay_mainFMvol),hl	
 	ret
 	
 ;===========================================================
 ; ---	replay_set_PSG_balance
 ; Set the main volume for the PSG chip. This enables for
-; setting the balance between SCC and PSG as some MSX models 
+; setting the balance between FM and PSG as some MSX models 
 ; default balance differs. 
 ;
-; in: [A] master volume (0-7) 0=halve volume, 8=full volume. 
+; in: [A] master volume (0-7) 0=halve volume, 7=full volume. 
 ;===========================================================	
 replay_set_PSG_balance:
 	call	_getnewbalancebase
@@ -151,7 +150,7 @@ _getnewbalancebase:
 	ld	hl,_VOLUME_TABLE-128
 	add	a,l
 	ld	l,a
-	ret 	nc
+	ret nc
 	inc	h
 	ret
 	
@@ -174,9 +173,8 @@ IFDEF MSX2
 .off:
 ENDIF
 	ld	(equalization_freq),a
-	ret
+	ret	
 	
-		
 ;===========================================================
 ; ---	replay_loadsong
 ; Initialize a song for playback
@@ -189,42 +187,46 @@ replay_loadsong:
 	inc	hl
 	ld	(replay_speed),a
 
-	;--- Set waveform base, intrument base and track pointers 
-	ld 	de,replay_wavebase
-	ld	bc,20
+	;--- Get the channel setup
+	ld	a,(hl)	
+	inc	hl
+	ld	(replay_chan_setup),a	
+
+	;--- Set voice base, drum base, instrument base and track pointers
+	ld 	de,replay_voicebase
+	ld	bc,22
 	ldir
 	ld	(replay_orderpointer),hl		; store pointer for next set
-								; of track pointers
-	;--- Initialize replayer variables.
+										; of track pointers
+	;--- Initialize re-player variables.
 	xor	a
 	ld	(replay_speed_subtimer),a
 	
-	;--- Set tonetable here as SCC and PSG share same tonetable
-	ld	hl,TRACK_ToneTable_PSG			; Set the PSG note table
-	ld	(replay_tonetable),hl	
-
 	;--- Erase channel data	in RAM
 	ld	bc,TRACK_REC_SIZE*8-1
 	ld	hl,TRACK_Chan1
 	ld	de,TRACK_Chan1+1
 	ld	(hl),a
 	ldir
-
+	
 	ld	(replay_arp_speed),a
-	;--- Silence the chips
-	ld	(SCC_regMIXER),a
+	ld	(FM_DRUM_ACTIVE),a
+	ld	(FM_DRUM),a	
+	
 	ld	(PSG_regVOLA),a
 	ld	(PSG_regVOLB),a	
 	ld	(PSG_regVOLC),a
-	;ld	(PSG_regNOISE),a
-	ld	(replay_noise),a
-	ld	a,0x3f
-	ld	(PSG_regMIXER),a
+	ld	(PSG_regNOISE),a
+
+
+;	;--- Set the tone table base
+;	ld	hl,TRACK_ToneTable_PSG
+;	ld	(replay_tonetable_PSG),hl
+;	ld	hl,TRACK_ToneTable_FM
+;	ld	(replay_tonetable_FM),hl
 
 	ld	a,1
 	ld	(replay_speed_timer),a
-;	ld	(replay_morph_timer),a
-;	ld	(replay_morph_speed),a
 	ld	(TRACK_Chan1+17+TRACK_Delay),a	
 	ld	(TRACK_Chan2+17+TRACK_Delay),a		
 	ld	(TRACK_Chan3+17+TRACK_Delay),a	
@@ -243,34 +245,31 @@ replay_loadsong:
 	ld	(TRACK_Chan6+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
+	ld	(FM_softvoice_req),a	
+;	ld	(FM_softvoice_set),a
 
-
-IFDEF	EXTERNAL_SCC	
-	;--- Init the SCC	(waveforms too)
-	ld	a,(SCC_slot)
-	ld	h,0x80
-	call enaslt
-ENDIF
-	
-	ld	a,255
-	ld	(TRACK_Chan4+17+TRACK_Waveform),a
-	ld	(TRACK_Chan5+17+TRACK_Waveform),a
-	ld	(TRACK_Chan6+17+TRACK_Waveform),a	
-	ld	(TRACK_Chan7+17+TRACK_Waveform),a	
+	ld	a,16
+	ld	(TRACK_Chan3+17+TRACK_Voice),a
+	ld	(TRACK_Chan4+17+TRACK_Voice),a
+	ld	(TRACK_Chan5+17+TRACK_Voice),a
+	ld	(TRACK_Chan6+17+TRACK_Voice),a	
+	ld	(TRACK_Chan7+17+TRACK_Voice),a	
+	ld	(TRACK_Chan8+17+TRACK_Voice),a
 	ld	a,128
+	ld	(TRACK_Chan3+17+TRACK_Flags),a
 	ld	(TRACK_Chan4+17+TRACK_Flags),a
 	ld	(TRACK_Chan5+17+TRACK_Flags),a
 	ld	(TRACK_Chan6+17+TRACK_Flags),a	
-	ld	(TRACK_Chan7+17+TRACK_Flags),a	
+	ld	(TRACK_Chan7+17+TRACK_Flags),a
 	ld	(TRACK_Chan8+17+TRACK_Flags),a	
 	
-;	call scc_reg_update			; Probably not needed.
-	
-IFDEF	EXTERNAL_SCC	
-	ld	a,(mapper_slot)				
-	ld	h,0x80
-	call enaslt
-ENDIF	
+	;--- Check if there are 3 psg chans.
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,99f
+	xor 	a
+	ld	(TRACK_Chan3+17+TRACK_Flags),a	
+99:	
 
 	call	replay_route
 	
@@ -283,9 +282,10 @@ ENDIF
 ;===========================================================
 ; Set mixer values to silent.
 ;===========================================================
+; TODO Check if mixers are set correctly
 replay_play_no:
       xor   a
-      ld    (SCC_regMIXER),a
+      ld    (FM_regMIXER),a
       xor   $3f
       ld    (PSG_regMIXER),a
       ret
@@ -307,12 +307,12 @@ replay_play:
 	;---- SPEED EQUALIZATION 
 	ld	a,(equalization_freq)		; 0 = 50Hz, otherwise 60Hz
 	and	a
-	jr.	z,PAL			   		; if PAL process at any interrupt;
+	jr.	z,.PAL               		; if PAL process at any interrupt;
 
-NTSC:
+.NTSC:
 	ld	hl,equalization_cnt  		; if NTSC call 5 times out of 6
 	dec	(hl)
-	jr.	nz,PAL			   	; skip music data processing one tic out of 6
+	jr.	nz,.PAL               		; skip music data processing one tic out of 6
 
 	;--- Reset timer and raise equalization flag
 	ld	a,6
@@ -322,7 +322,7 @@ NTSC:
 	xor	a
 	ld	(equalization_flag),a
 	ret
-PAL:							
+.PAL:                             
 	;---- END SPEED EQUALIZATION	
 
 		
@@ -331,24 +331,27 @@ PAL:
 	dec	(hl)
 
 	jp	nz,_replay_check_patternend	
-	
+
 	;--- Re-init Timer == 0
 	xor	a
-	ld	bc,(replay_speed)		; [b]	subtimer [c] speed
-	srl	c				; bit	0 is halve speedstep
+	ld	bc,(replay_speed)		; [b]	sub-timer [c] speed
+	srl	c				; bit	0 is halve speed step
 	adc	a,a
 	xor	b				; alternate	speed	to have halve speed.
 	ld	(replay_speed_subtimer),a
 	add	c
 	ld	(replay_speed_timer),a
-
+		
 ;===========================================================
-; ---	decode_data
-; Process the patterndata 
+; ---	replay_decodedata
+; Process the pattern data 
 ;===========================================================
 decode_data:
 	;--- process the channels (tracks)
-.decode1:
+	ld	hl,TRACK_ToneTable_PSG			; Set the PSG note table
+	ld	(replay_tonetable),hl	
+	
+.decode1:	
 	ld 	hl,TRACK_Chan1+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode2
@@ -361,15 +364,14 @@ decode_data:
 	call	decode_data_chan
 	ld	(TRACK_pointer1),bc
 	ld	a,d
-	ld	(TRACK_Chan1+17+TRACK_Flags),a
+	ld	(TRACK_Chan1+17+TRACK_Flags),a	
 
 .decode2:	
 	ld 	hl,TRACK_Chan2+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode3
+	jp	nz,.setupcheck
 
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
-
 	ld	d,a
 	ld	a,(TRACK_Chan2+17+TRACK_Note)	
 	ld	ix,TRACK_Chan2+17
@@ -379,7 +381,38 @@ decode_data:
 	ld	a,d				;'
 	ld	(TRACK_Chan2+17+TRACK_Flags),a	
 
-.decode3:
+.setupcheck:
+	; 2-5 and 3-5 channel support
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,.decode3_35chan
+
+.decode3_26chan:
+	ld 	hl,TRACK_Chan3+17+TRACK_Delay
+	dec	(hl)
+	jp	nz,.decode3_end
+
+	ld	a,(TRACK_Chan3+17+TRACK_Flags)
+	ld	d,a		;'
+	ld	a,(TRACK_Chan3+17+TRACK_Note)	
+	ld	ix,TRACK_Chan3+17
+	ld	bc,(TRACK_pointer3)
+	call	decode_data_chan
+	ld	(TRACK_pointer3),bc
+	ld	a,d				;'
+	ld	(TRACK_Chan3+17+TRACK_Flags),a
+.decode3_end:	
+	;--- Set FM Tone table
+	ld	hl,TRACK_ToneTable_FM
+	ld	(replay_tonetable),hl
+	jp	.decode4
+
+
+.decode3_35chan:	
+	;--- Set FM Tone table
+	ld	hl,TRACK_ToneTable_FM
+	ld	(replay_tonetable),hl
+
 	ld 	hl,TRACK_Chan3+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode4
@@ -392,14 +425,13 @@ decode_data:
 	call	decode_data_chan
 	ld	(TRACK_pointer3),bc
 	ld	a,d				;'
-	ld	(TRACK_Chan3+17+TRACK_Flags),a
+	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 
 .decode4:
 	ld 	hl,TRACK_Chan4+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode5
 
-	ld	iyh,$00
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld 	d,a		;'
 	ld	a,(TRACK_Chan4+17+TRACK_Note)	
@@ -408,14 +440,13 @@ decode_data:
 	call	decode_data_chan
 	ld	(TRACK_pointer4),bc
 	ld	a,d			;'
-	ld	(TRACK_Chan4+17+TRACK_Flags),a
+	ld	(TRACK_Chan4+17+TRACK_Flags),a	
 
 .decode5:
 	ld 	hl,TRACK_Chan5+17+TRACK_Delay
 	dec	(hl)
 	jp	nz,.decode6
 
-	ld	iyh,$20
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a		;'
 	ld	a,(TRACK_Chan5+17+TRACK_Note)	
@@ -431,7 +462,6 @@ decode_data:
 	dec	(hl)
 	jp	nz,.decode7
 
-	ld	iyh,$40
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a		;'
 	ld	a,(TRACK_Chan6+17+TRACK_Note)	
@@ -447,7 +477,6 @@ decode_data:
 	dec	(hl)
 	jp	nz,.decode8
 
-	ld	iyh,$60
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a		;'
 	ld	a,(TRACK_Chan7+17+TRACK_Note)	
@@ -474,33 +503,55 @@ decode_data:
 	ld	(TRACK_Chan8+17+TRACK_Flags),a
 		
 .decode_end:
+	;---- Software voice loading
+	ld	a,(FM_softvoice_req)
+	cp	2
+	jp	c,process_data
+	add	a
+	ld	hl,(replay_voicebase)
+	add	a,l
+	ld	l,a
+	jp	nc,.skip
+	inc	h
+.skip:
+	ld	de,FM_Voicereg
+	ld	bc,$0810
+.loop:
+	ldi
+	inc	de
+	djnz	.loop
+
+
+
 	; continue to process data
 ;===========================================================
-; ---	process_data
+; ---	replay_decodedata_NO
 ; Process changes.
 ; 
 ; 
 ;===========================================================
 process_data:
 	; NOTE Remove
-	ld	a,$f2 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	ld	a,$fa ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
 	out	(0x99),a
 	ld	a,7+128
-	out	(0x99),a
+	out	(0x99),a	
 
-	;---- morph routine here
-	ld	a,(replay_morph_active)
-	and	a
-	call	nz,replay_process_morph
+	; Set tone table
+	ld	hl,TRACK_ToneTable_PSG
+	ld	(replay_tonetable),hl
 
 	;--- Initialize PSG Mixer and volume
 	xor	a
-	ld	(SCC_regMIXER),a
-
+	ld	(FM_regMIXER),a
+	ld	(PSG_regVOLA),a
+	ld	(PSG_regVOLB),a
+	ld	(PSG_regVOLC),a
+	
 	;--- PSG balance
 	ld	hl,(replay_mainPSGvol)
 	ld	(replay_mainvol),hl
-
+	
 	;--------------------
 	;--- Process track 1
 	;--------------------
@@ -511,7 +562,7 @@ process_data:
 	jp	nc,.skipa
 	ld	(PSG_regToneA),hl
 .skipa:
-	ld	a,(SCC_regVOLE)
+	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLA),a	
 
 	;--------------------
@@ -524,9 +575,14 @@ process_data:
 	jp	nc,.skipb
 	ld	(PSG_regToneB),hl
 .skipb:
-	ld	a,(SCC_regVOLE)
+	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLB),a	
 
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,_rdd_2psg_6fm
+
+_rdd_3psg_5fm:
 	;--------------------
 	;--- Process track 3	
 	;--------------------
@@ -537,106 +593,160 @@ process_data:
 	jp	nc,.skipc
 	ld	(PSG_regToneC),hl
 .skipc:
-	ld	a,(SCC_regVOLE)
+	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLC),a
-	
-	;--- To disable track 3 just comment above lines (9 lines) and enable below 2 lines.
-	;	This can be done for all tracks.
-;	ld	hl,SCC_regMIXER   
-;	srl	(hl)
 
 	;-- Convert mixer to AY
-	ld	a,(SCC_regMIXER)		
+	ld	a,(FM_regMIXER)		
 	srl	a
 	srl	a
 	xor	0x3f
 	ld	(PSG_regMIXER),a
 	xor	a
-	;ld	a,11100011b
-	ld	(SCC_regMIXER),a
+	ld	(FM_regMIXER),a
 
+	; Set tone table
+	ld	hl,TRACK_ToneTable_FM
+	ld	(replay_tonetable),hl
+	;--- set FM balance
+	ld	hl,(replay_mainFMvol)
+	ld	(replay_mainvol),hl
+	
+	jp	_rdd_cont
+	
+	
+_rdd_2psg_6fm:
+	;-- Convert mixer to AY
+	ld	a,(FM_regMIXER)		
+	srl	a
+	srl	a
+	srl	a
+	xor	0x3f
+	ld	(PSG_regMIXER),a
+
+	; Set tone table
+	ld	hl,TRACK_ToneTable_FM
+	ld	(replay_tonetable),hl
 	;--- set SCC balance
-	ld	hl,(replay_mainSCCvol)
+	ld	hl,(replay_mainFMvol)
 	ld	(replay_mainvol),hl
 
-	
-	ld	iyh,0			; iyh stores the SCC chan#
-					; used for waveform updates
+	;--------------------
+	;--- Process track 3
+	;--------------------
+	ld	ix,TRACK_Chan3+17
+	ld	a,(TRACK_Chan3+17+TRACK_Flags)
+	ld	d,a
+	call	process_data_chan
+	jp	nc,.skipc
+	ld	(FM_regToneA),hl
+.skipc:
+	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan3+17+TRACK_Voice)
+	and	$f0
+	or	d
+	ld	(FM_regVOLA),a	
+
+
+_rdd_cont:
 	;--------------------
 	;--- Process track 4
 	;--------------------
 	ld	ix,TRACK_Chan4+17
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneA
 	call	process_data_chan
-	jp	nc,skipd
-	ld	(SCC_regToneA),hl
-skipd:
-	ld	a,(SCC_regVOLE)
-	ld	(SCC_regVOLA),a	
+	jp	nc,.skipd
+	ld	(FM_regToneB),hl
+.skipd:
+	ld	a,(FM_regVOLF)	
+	ld	d,a
+	ld	a,(TRACK_Chan4+17+TRACK_Voice)
+	and	$f0
+	or	d
+	ld	(FM_regVOLB),a	
 
 	;--------------------
 	;--- Process track 5
-	;--------------------
-	ld	iyh,$20
+	;--------------------	
 	ld	ix,TRACK_Chan5+17
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneB
 	call	process_data_chan
 	jp	nc,.skipe
-	ld	(SCC_regToneB),hl
+	ld	(FM_regToneC),hl
 .skipe:
-	ld	a,(SCC_regVOLE)
-	ld	(SCC_regVOLB),a	
-
+	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan5+17+TRACK_Voice)
+	and	$f0
+	or	d
+	ld	(FM_regVOLC),a	
 
 	;--------------------
 	;--- Process track 6
 	;--------------------
-	ld	iyh,$40
+		
 	ld	ix,TRACK_Chan6+17
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneC
 	call	process_data_chan
 	jp	nc,.skipf
-	ld	(SCC_regToneC),hl
+	ld	(FM_regToneD),hl
 .skipf:
-	ld	a,(SCC_regVOLE)
-	ld	(SCC_regVOLC),a	
+	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan6+17+TRACK_Voice)
+	and	$f0
+	or	d
+	ld	(FM_regVOLD),a	
 
 	;--------------------
 	;--- Process track 7
 	;--------------------
-	ld	iyh,$60
 	ld	ix,TRACK_Chan7+17
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneD
 	call	process_data_chan
 	jp	nc,.skipg
-	ld	(SCC_regToneD),hl
+	ld	(FM_regToneE),hl
 .skipg:
-	ld	a,(SCC_regVOLE)
-	ld	(SCC_regVOLD),a		
+	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan7+17+TRACK_Voice)
+	and	$f0
+	or	d
+	ld	(FM_regVOLE),a		
 
 	;--------------------
 	;--- Process track 8
-	;--------------------
-							; no waveform for SCC channel 5
-		
+	;--------------------		
 	ld	ix,TRACK_Chan8+17
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneE
 	call	process_data_chan
 	jp	nc,.skiph
-	ld	(SCC_regToneE),hl
+	ld	(FM_regToneF),hl
 .skiph:
-	
+	ld	a,(FM_regVOLF)
+	ld	d,a
+	ld	a,(TRACK_Chan8+17+TRACK_Voice)
+	and	$f0
+	or	d	
+	ld	(FM_regVOLF),a
 
+	; NOTE Remove this DEBUG
+	ld	a,$f6 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
+
+	;--------------------
+	;--- Process Drums
+	;--------------------
+	call	process_drum
+	
 	;--------------------
 	; Fade out processing
 	;--------------------
@@ -667,8 +777,8 @@ skipd:
 	ld	b,3
 	ld	hl,PSG_regVOLA
 	call	.calc_vol
-	ld	b,5
-	ld	hl,SCC_regVOLA
+	ld	b,6
+	ld	hl,FM_regVOLA
 
 .calc_vol:	
 	ld	a,(hl)
@@ -682,15 +792,16 @@ skipd:
 	ret
 
 
+
 ;--------------------
 	
 	
-;--------------------	
+;--------------------
 _replay_check_patternend:
 	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
 	dec	a
 	jp	nz,process_data
-	
+
 	ld	hl,(TRACK_pointer1)
 	ld	a,(hl)
 	
@@ -720,7 +831,6 @@ _replay_check_patternend:
 	ldir
 	ld	(replay_orderpointer),hl		; store pointer for next set
 								; of strack pointers
-
 	jp	process_data
 
 
@@ -733,10 +843,9 @@ _replay_check_patternend:
 ; Process the channel data
 ; 
 ; in BC is the pointer to the	data
-;	D contains flags.
-;===========================================================
+;    D contains flags.
+;===========================================================	
 decode_data_chan:
-
 	;--- initialize data
 	ld	(replay_previous_note),a
 
@@ -782,7 +891,7 @@ _rdc_noinc:
 	jp	c,_rd_delay
 	jp	_replay_decode_delay
 
-	;--- re-init previous delay	
+	;--- re-init previous delay
 _rd_delay:
 	ld	a,(ix+TRACK_prevDelay)
 	ld	(ix+TRACK_Delay),a
@@ -795,7 +904,7 @@ _rd_eot:
 
 _replay_decode_delay:
 	sub	_WAIT-1
-	jp	z,_rd_eot			; EOT found  
+	jp	z,_rd_eot		; EOT found
 	ld	(ix+TRACK_Delay),a
 	ld	(ix+TRACK_prevDelay),a
 	inc	bc
@@ -812,15 +921,18 @@ _replay_decode_trigger_porttone_check:
 	ret	nc
 	;-- trigger CMD
 	res	B_TRGNOT,d
-	set	B_ACTNOT,d
+	; TODO Check this
+	ld	a,0010010b		;B_ACTNOT B_KEYON
+	or	d
+	ld 	d,a
 	ld	a,(ix+TRACK_cmd_3)
 	jp	decode_cmd3_port_tone_new_note	
 
-
 _replay_decode_note:
 	ld	(ix+TRACK_Note),a
+	; FIXME Change to an or sequence to save 1 cycle
 	set 	B_TRGNOT,d
-	res	B_ACTMOR,d
+	set 	B_KEYON,d
 
 	inc	bc
 	ld	a,(bc)
@@ -829,8 +941,20 @@ _replay_decode_note:
 
 
 _replay_decode_release:
-_replay_decode_sustain:
 	res	B_ACTNOT,d				; reset note bit to	0
+	res	B_SUST,d				; rest sustain
+	res	B_KEYON,d				; reset Key on
+
+	inc	bc
+	ld	a,(bc)
+	jp	_rdn	
+	
+
+
+_replay_decode_sustain:
+;	res	B_ACTNOT,d				; reset note bit to	0
+	set	B_SUST,d				; rest sustain
+	res	B_KEYON,d				; reset Key on
 
 	inc	bc
 	ld	a,(bc)
@@ -839,11 +963,10 @@ _replay_decode_sustain:
 
 
 _replay_decode_ins:
-	res	B_ACTMOR,d				; reset morph slave mode
 	sub	_INS
 	cp	(ix+TRACK_Instrument)
 	jp	z,.skip_ins
-
+	
 	;--- instrument change found	
 	ld	(ix+TRACK_Instrument),a
 
@@ -860,16 +983,29 @@ _replay_decode_ins:
 	ld	h,(hl)
 	ld	l,a
 
-	;-- get waveform
+	;-- get voice
 	ld	a,(hl)
 	inc	hl
+		
+	;--- Set the software voice (if needed)
+	and	a
+	jp	nz,.skip_soft
+	;--- software voice found
 	
-	cp	(ix+TRACK_Waveform)
-	jp	z,.skip_wav_trig
-	set	B_TRGWAV,d
-	ld	(ix+TRACK_Waveform),a
+	ld	e,(hl)		; value is the offset in the soft voice data (8bytes)
+	inc	hl
+	ld	a,(replay_softvoice)
+	cp	e
+	jp	z,.skip_soft
 
-.skip_wav_trig:
+	ld	a,e
+	ld	(replay_softvoice),a
+	ld 	(FM_softvoice_req),a
+	xor 	a
+
+.skip_soft:
+	ld	(ix+TRACK_Voice),a
+
 	;--- Store the macro start
 	ld	(ix+TRACK_MacroPointer),l
 	ld	(ix+TRACK_MacroPointer+1),h	
@@ -885,7 +1021,7 @@ _replay_decode_ins:
 
 
 _replay_decode_vol:
-	sub	_VOL-1		; Add 1 here as volume 10 becomes 9
+	sub	_VOL-1
 	add	a
 	add	a
 	add	a
@@ -906,7 +1042,7 @@ _replay_decode_vol:
 
 _replaydecode_cmd:
 	sub	_CMD
-
+	
 	ld	e,a				; store command for later
 	ld	hl,DECODE_CMDLIST
 	add	a,a
@@ -939,8 +1075,9 @@ DECODE_CMDLIST:
 	dw	decode_cmd9_note_cut
 	dw	decode_cmd10_note_delay
 	; Secondary
+	; TODO Check these with the TMU Compiler output
 	dw	decode_cmd11_command_end
-	dw	decode_cmd12_SCC_morph
+	dw	decode_cmd12_drum
 	dw	decode_cmd13_arp_speed
 	dw	decode_cmd14_fine_up
 	dw	decode_cmd15_fine_down
@@ -949,19 +1086,10 @@ DECODE_CMDLIST:
 	dw	decode_cmd18_trigger
 	dw	decode_cmd19_speed
 	; SoundChip Specific
-	dw	decode_cmd20_envelope_high
-	dw	decode_cmd21_envelope_low
-
-	dw	decode_cmd22_SCC_reset
-	dw	decode_cmd23_SCC_duty
-	dw	decode_cmd24_SCC_soften
-	dw	decode_cmd25_SCC_waveform
-	dw	decode_cmd26_SCC_morph_copy
-	dw	decode_cmd27_SCC_morph_type
-	dw	decode_cmd28_SCC_morph_speed
-
-	dw	decode_cmd29_SCC_sample
-
+	dw	decode_cmd20_tone_panning
+	dw	decode_cmd21_noise_panning
+	dw	decode_cmd22_brightness	
+	
 
 decode_cmd0_arpeggio:
 	; in:	[A] contains the paramvalue
@@ -969,14 +1097,14 @@ decode_cmd0_arpeggio:
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
 	ld	(ix+TRACK_cmd_0),a
-	ld	(ix+TRACK_Command),e	
+	ld	(ix+TRACK_Command),e
 	set	B_TRGCMD,d
 	ld	(ix+TRACK_Timer),0
 	ld	(ix+TRACK_Step),2
 	jp	_rdc
+
+
 	
-
-
 decode_cmd1_port_up:
 	; in:	[A] contains the paramvalue
 	; 
@@ -987,7 +1115,7 @@ decode_cmd1_port_up:
 	set	B_TRGCMD,d
 	jp	_rdc
 	
-	
+	 
 	 
 decode_cmd2_port_down:
 	; in:	[A] contains the paramvalue
@@ -997,9 +1125,9 @@ decode_cmd2_port_down:
 	ld	(ix+TRACK_Command),e
 	ld	(ix+TRACK_cmd_2),a
 	set	B_TRGCMD,d
-	jp 	_rdc
-	
-	
+	jp	_rdc
+
+
 decode_cmd3_port_tone:
 	; in:	[A] contains the param value
 	; 
@@ -1012,15 +1140,17 @@ decode_cmd3_port_tone:
 	ld	(ix+TRACK_cmd_3),a
 	ld	(ix+TRACK_Timer),2
 
+;decode_cmd3_port_tone_cont:
 	;--- Check if we have a	note on the	same event
 	bit	B_TRGNOT,d
 	jp	z,_rdc
 
+	set	B_KEYON,d
 	res 	B_TRGNOT,d
 	
 	call	decode_cmd3_port_tone_new_note
 	jp	_rdc
-
+	
 decode_cmd3_port_tone_new_note:
 	;-- remove deviation from parameter
 	and 	$7f
@@ -1030,7 +1160,7 @@ decode_cmd3_port_tone_new_note:
 	;-- get the	previous note freq
 	ld	a,(replay_previous_note)
 	add	a
-	ld	hl,(replay_tonetable)	;TRACK_ToneTable
+	ld	hl,(replay_tonetable)
 	add	a,l
 	ld	l,a
 	jp	nc,.skip
@@ -1054,7 +1184,6 @@ decode_cmd3_port_tone_new_note:
 	ld	l,a
 	jp	nc,.skip2
 	inc	h
-	ccf
 .skip2:
 	ld	a,(hl)
 	inc	hl
@@ -1066,8 +1195,8 @@ decode_cmd3_port_tone_new_note:
 	sbc	hl,de				; results in pos/neg delta
 	
 	ld	(ix+TRACK_cmd_ToneSlideAdd),l
-	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
-
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
+	
 	;--- re-apply deviation
 	ex	af,af'			;'
 	bit	7,h
@@ -1078,12 +1207,13 @@ decode_cmd3_port_tone_new_note:
 	
 	exx					; restore flags in D
 	ret
-
+	
+	
 decode_cmd8_tremolo:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------	
+	;--------------------------------------------------
 decode_cmd4_vibrato:
 	; in:	[A] contains the paramvalue
 	; 
@@ -1147,12 +1277,13 @@ decode_cmd5_vibrato_port_tone:
 	jp	z,_rdc
 	
 	;-- Set new port tone value
+	set	B_KEYON,d
 	res	B_TRGNOT,d
 	ld	a,(ix+TRACK_cmd_3)
 	jp	decode_cmd3_port_tone_new_note
-
-
-
+	
+	
+	
 decode_cmd6_vibrato_vol:
 	; in:	[A] contains the paramvalue
 	; 
@@ -1194,7 +1325,6 @@ decode_cmd10_note_delay:
 	jp	_rdc	
 
 
-
 decode_cmd11_command_end:
 	; in:	[A] contains the paramvalue
 	; 
@@ -1202,15 +1332,39 @@ decode_cmd11_command_end:
 	;--------------------------------------------------
 	res	B_TRGCMD,d
 	jp	_rdc_noinc
+	
 
+decode_cmd12_drum:
+	; Get the base addres of the drum list
+	;add 	a 
+	ld	hl,(replay_drumbase)
+	add	a,l 
+	ld	l,a
+	jp	nc,99f
+	inc	h 
+99:
+	ld	l,a
+	; Get the start of the drum macro
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	
+	; Store the address
+	ld 	(FM_DRUM_MACRO),hl
+	ld	a,h
+	ld	(FM_DRUM_ACTIVE),a
+	jp	_rdc		
+		
+	
 
 
 decode_cmd13_arp_speed:
 	ld	(replay_arp_speed),a		; store the halve not to add
 	jp	_rdc	
-
-
 	
+	
+
 decode_cmd14_fine_up:
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0
@@ -1224,7 +1378,8 @@ decode_cmd15_fine_down:
 
 decode_cmd16_notelink:
 	res	B_TRGNOT,d
-	jp	_rdc_noinc
+	set 	B_KEYON,d
+	jp	_rdc_noinc	
 
 decode_cmd17_track_detune:
 	; This command sets the	detune of the track.
@@ -1232,7 +1387,8 @@ decode_cmd17_track_detune:
 	and	0x07		; low	4 bits is value
 	bit	3,e		; Center around 8
 	jp	z,.pos
-	cpl
+	inc	a
+	neg			; make correct value
 	ld	(ix+TRACK_cmd_detune),a
 	ld	(ix+TRACK_cmd_detune+1),0xff
 
@@ -1262,235 +1418,25 @@ decode_cmd19_speed:
 	add	a,e
 	ld	(replay_speed_timer),a
 
-	jp	_rdc	
-	
-
-
-	; in:	[A] contains the paramvalue
-	; 
-	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------
-	; This command set the envelope frequency using a
-	; multiplier value (00-ff)
-decode_cmd20_envelope_high:
-	ld	(PSG_regEnvH),a
-	jp	_rdc	
-
-	; in:	[A] contains the paramvalue
-	; 
-	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------
-	; This command set the envelope frequency using a
-	; multiplier value (00-ff)
-decode_cmd21_envelope_low:
-	ld	(PSG_regEnvL),a
+decode_cmd20_tone_panning:
+decode_cmd21_noise_panning:
 	jp	_rdc	
 
 
-
-decode_cmd22_SCC_reset:
-	set	B_TRGWAV,d
-	res	B_ACTMOR,d
-	
-	;--- Look up the waveform form the instrument.
-	ld	l,(ix+TRACK_MacroPointer)
-	ld	h,(ix+TRACK_MacroPointer+1)
-	inc	hl
-	inc	hl
-	ld	a,(hl)
-	ld	(ix+TRACK_Waveform),a
-	ret
-	jp	_rdc_noinc
-
-
-decode_cmd23_SCC_duty:
-	;=================
-	; Waveform PWM / Duty Cycle
-	; Do not overwrite [BC] and [D](flags)
-	;=================
-	res	B_ACTMOR,d			;(ix+TRACK_Flags)	; reset morph
-	res	B_TRGWAV,d			;(ix+TRACK_Flags)	; reset normal wave update
-
-	ld	e,a		; store in length in E for later		
-	ex	af,af'
-	;get the waveform	start	in [DE]
-	ld	hl,_0x9800
-	ld	a,iyh		;ixh contains chan#
-	add	a,l
-	ld	l,a
-	jp	nc,.skip
-	inc	h
-.skip:
-	ld	a,e		
-	ex	af,af'	; store for later
-	inc	a
-	ld	e,$77		; store for the other loop
-.wspw_loop_h:
-	ld	(hl),e
-	inc	hl
-	dec	a
-	jp	nz,.wspw_loop_h
-
-	ex	af,af'	; restore the initial length
-	sub	31
-
-	ld	e,$87
-.wspw_loop_l:
-	ld	(hl),e
-	inc	hl
-	dec	a
-	jp	nz,.wspw_loop_l
-
-	jp	_rdc	
-
-
-decode_cmd24_SCC_soften:
-	;=================
-	; Waveform Soften
-	; Do not overwrite [BC] and [D](flags)
-	;=================
-	res	B_ACTMOR,d			;(ix+TRACK_Flags)	; reset morph
-	res	B_TRGWAV,d			;(ix+TRACK_Flags)	; reset normal wave update
-
-	;get the waveform	start	in [hl]
-	ld	a,(ix+TRACK_Waveform)
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-
-	ld	a,d			; Preserve flags
-	ex	af,af'
-	
-	ld	de,(replay_wavebase)
-	add	hl,de	
-
-	;get the waveform destination address in [DE]
-	ld	de,_0x9800
-	ld	a,iyh		;ixh contains chan#
-	add	a,e
+decode_cmd22_brightness:
 	ld	e,a
-	jp	nc,.skip
-	inc	d
-.skip:
-	ld	iyl,32
-.softloop:	
-	ld	a,(hl)
-	sra	a
-	ld	(de),a
-	dec	iyl
-	jp	z,.end
-	inc	hl
-	inc	de
-	jp	.softloop
-.end:	
-	ex	af,af'
-	ld	d,a		; restore flags
-	jp	_rdc_noinc
-
-	;=================
-	; Waveform Set
-	; Do not overwrite [BC] and [D](flags)
-	;=================
-decode_cmd25_SCC_waveform:
-	ld	(ix+TRACK_Waveform),a
-	set	B_TRGWAV,d
-	res	B_ACTMOR,d
-	jp	_rdc	
-
-
-	;=================
-	; Waveform Morph
-	; Do not overwrite [BC] and [D](flags)
-	;=================
-decode_cmd12_SCC_morph:
-	push	bc			; Preserve pointer
-
-	ld	(replay_morph_waveform),a
-	xor	a
-	ld 	(replay_morph_counter),a
-	inc	a
-	ld	(replay_morph_timer),a
-	ld	a,(replay_morph_type)
-	and	a
-	jp	z,.morph_fromtrack
-.morph_fromregister:		
-	;--- Set HL to the buffer of the last written waveform
-	ld	hl,$9800
-	ld	a,iyh
-	add	a,l
-	ld	l,a
-	jp	nc,.morph_copy
-	inc	h
-	jr.	.morph_copy	
-
-.morph_fromtrack:
-	;--- Set HL to the waveform set by instrument or B1y or B2y
-	ld	l,(ix+TRACK_Waveform)
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		 
-	ld	bc,(replay_wavebase)
-	add	hl,bc
-
-.morph_copy:
-	ld	bc,replay_morph_buffer
-	ld	a,32
-44:
-	ex	af,af'	;'
-	ld	a,(hl)
-	inc	bc		; copy to value (skip delta value byte)
-	ld	(bc),a	
-	inc	hl
-	inc	bc
-	ex	af,af'	;'
-	dec	a
-	jp	nz,44b
-
-	;--- calculate the delta's	
-	ld	a,255				; 255 triggers calc init
-	ld	(replay_morph_active),a		
-	set	B_ACTMOR,d
-	pop	bc			; Restore the pointer
-	jp	_rdc	
-
-
-	;================= 
-	; Waveform Morph copy /follow
-	; Do not overwrite [BC] and [D](flags)
-	;=================
-decode_cmd26_SCC_morph_copy:
-	set	B_ACTMOR,d
-	jp	_rdc_noinc
-
-
-	;=================
-	; Waveform Morph type
-	; Do not overwrite [BC] and [D](flags)
-	;=================
-decode_cmd27_SCC_morph_type:
-	ld	(replay_morph_type),a
-	jp	_rdc	
-
-
-	;=================
-	; Waveform Morph speed
-	; Do not overwrite [BC] and [D](flags)
-	;=================
-decode_cmd28_SCC_morph_speed:
-	ld	(replay_morph_speed),a
-	jp	_rdc	
-
-	;=================
-	; Waveform Morph
-	; Do not overwrite [BC] and [D](flags)
-	;=================
-decode_cmd29_SCC_sample:
-	jp	_rdc	
-
-
-
+	ld	a,(FM_Voicereg+4)
+	ld	d,a
+	add	a,e
+	and	00111111b
+	ld	e,a
+	ld	a,d
+	and	11000000b
+	or	e
+	ld	(FM_Voicereg+4),a
+	ld	a,1
+	ld	(FM_softvoice_req),a
+	jp	_rdc
 
 
 
@@ -1503,16 +1449,16 @@ decode_cmd29_SCC_sample:
 ;===========================================================
 process_data_chan:
 	;-- set the	mixer	right
-	ld	hl,SCC_regMIXER   
+	ld	hl,FM_regMIXER   
 	rrc	(hl)
-		
+
 	;=====
 	; COMMAND
 	;=====
 	ld	(ix+TRACK_cmd_NoteAdd),0			; Always reset note add
 	bit	B_TRGCMD,d	;(ix+TRACK_Flags)
-	jr	z,process_note
-	
+	jp	z,process_note
+
 	ld	hl,PROCESS_CMDLIST
 	ld	a,(ix+TRACK_Command)
 
@@ -1527,9 +1473,10 @@ process_data_chan:
 	ld	h,(hl)
 	ld	l,a	
 	jp	(hl)
-	
-process_note:	
+
+
 process_commandEND:
+process_note:
 
 	;=====
 	; Note
@@ -1546,29 +1493,32 @@ process_triggerNote:
 
 	ld	l,(ix+TRACK_MacroStart)
 	ld	h,(ix+TRACK_MacroStart+1)
-;	;--- Store the macro start	
+	;--- Store the macro start	
 	ld	(ix+TRACK_MacroPointer),l
 	ld	(ix+TRACK_MacroPointer+1),h	
 
 	ld	(_SP_Storage),sp
-	ld	sp,ix				
-	pop	af				; Move just after TRACK_cmd_ToneAdd			
-	pop	af	
-
+	ld	sp,ix
+	pop	af
+	pop	af
 	ld	hl,0
-	push	hl				; clear TRACK_cmd_ToneAdd	
-	push	hl				; clear TRACK_cmd_ToneSlideAdd
-	push	hl				; clear TRACK_cmd_VolumeAdd + TRACK_Noise	
-	push	hl				; clear TRACK_VolumeAdd +TRACK_ToneAdd (high)
-	push	hl				; clear TRACK_ToneAdd(low)+ TRACK_empty
+	push	hl
+	push	hl		
+	push	hl
+	push	hl
+	push	hl
 	ld	sp,(_SP_Storage)
+	ld	iyl,64			; keyon flip trigger
+	jp	process_instrument
 
 process_noNoteTrigger:
+	ld	iyl,0				; keyon flip trigger
 	;==============
 	; Macro instrument
 	;==============
-	bit	B_ACTNOT,d			;(ix+TRACK_Flags)
-	ld	(ix+TRACK_Flags),d
+process_instrument:
+	bit	B_ACTNOT,d		
+	ld	(ix+TRACK_Flags),d	
 	jp	z,process_noNoteActive
 	
 	;--- Get the macro len and loop
@@ -1595,31 +1545,29 @@ process_macro:
 	jp	(hl)
 
 MACROACTIONLIST:
-	dw  	macro_mixer			 ; 2
-	dw  	macro_tone_add		  ; 4
-	dw  	macro_tone_sub		  ; 6
-	dw  	macro_vol_base		  ; 8
-	dw  	macro_vol_add		   ; a
-	dw  	macro_vol_sub			; c
+	dw  	macro_mixer			; 2
+	dw  	macro_tone_add		; 4
+	dw  	macro_tone_sub		; 6
+	dw  	macro_vol_base		; 8
+	dw  	macro_vol_add		; a
+	dw  	macro_vol_sub		; c
 	dw  	macro_noise_base		; e
-	dw  	macro_noise_add			; 10
-	dw  	macro_noise_sub			; 12
+	dw  	macro_noise_add		; 10
+	dw  	macro_noise_sub		; 12
 	dw  	macro_noise_vol		; 14
-	dw  	macro_voice			 ; 16
-	dw  	macro_loop				; 18
-	dw	macro_envelope			; 1a
+	dw  	macro_voice			; 16
+	dw  	macro_loop			; 18
+	dw	macro_envelope		; 1a
 	dw	macro_envelope_shape	; 1c
-
 
 macro_mixer:
 	ld  a,(de)
 	inc	de
 	ld	b,a
-	ld	a,(SCC_regMIXER)   
+	ld	a,(FM_regMIXER)   
 	or	b
-	ld	(SCC_regMIXER),a
+	ld	(FM_regMIXER),a
 	jp  process_macro
-
 
 macro_tone_add:
 	ld	a,(de)
@@ -1631,7 +1579,6 @@ macro_tone_add:
 	ld	(ix+TRACK_ToneAdd+1),a
 	inc	de
 	jp	process_macro
-
 
 macro_tone_sub:
 	ld	a,(de)
@@ -1670,16 +1617,15 @@ macro_noise_vol:
 	inc	de
 	jp	process_macro
 
-
 macro_voice:
+	;FIXME This is SCC code.
 	ld	a,(de)
 	inc	de
-	ld	(ix+TRACK_Waveform),a
+	ld	(ix+TRACK_Voice),a
 	;---- check this code perhaps this needs more checks.
-	set	B_TRGWAV,(ix+TRACK_Flags)
-	res	B_ACTMOR,(ix+TRACK_Flags)	
+	set	B_TRGVOI,(ix+TRACK_Flags)
+;	res	B_ACTMOR,(ix+TRACK_Flags)	
 	jp	process_macro
-
 
 macro_envelope_shape:
 	ld	a,(de)
@@ -1688,9 +1634,8 @@ macro_envelope_shape:
 
 macro_envelope:
 	ld	a,16			; set volume to 16 == envelope
-	ld	(SCC_regVOLE),a
+	ld	(FM_regVOLF),a
 	jp	_macro_end
-
 
 macro_loop:
 	ex	de,hl
@@ -1704,7 +1649,6 @@ macro_loop:
 macro_volume_same:
 	ld	a,(ix+TRACK_VolumeAdd)
 	jp	_macro_set_volume
-
 
 macro_vol_base:
 	ld	a,(de)
@@ -1758,7 +1702,7 @@ ENDIF
 .skip:
 	ld	a,(bc)	
 	; Test which CHIP.
-	bit	B_PSGSCC,(ix+TRACK_Flags)
+	bit	B_PSGFM,(ix+TRACK_Flags)
 	jp	nz,.skip3
 	rra
 	rra
@@ -1766,12 +1710,212 @@ ENDIF
 	rra
 .skip3:
 	and	0x0f
-	ld	(SCC_regVOLE),a
+	ld	(FM_regVOLF),a
 
 _macro_end:
 	;--- Store macro pointer
 	ld	(ix+TRACK_MacroPointer),e		;--- store pointer for next time
 	ld	(ix+TRACK_MacroPointer+1),d	
+
+
+;	ld	e,(hl)				; info byte
+;	inc	hl
+;	bit	3,e					; Volume change
+;	jp	nz,_vol_change
+;	ld	a,(ix+TRACK_VolumeAdd)
+;	jp	_noVolumeChange
+;	
+;	;--- Volume change
+;_vol_change:
+;	ld	a,(hl)
+;	inc	hl
+;	
+;	bit	2,e
+;	jp	z,_vol_base
+;_vol_rel:
+;	add	 (ix+TRACK_VolumeAdd)
+;	cp	16
+;	jp	c,_vol_base
+;	cp	128
+;	jp	nc,.skip
+;	ld	a,$0f
+;	jp	_vol_base
+;.skip:	
+;	xor	a
+;	
+;_vol_base:
+;	ld	(ix+TRACK_VolumeAdd),a
+;
+;	;---- envelope check
+;	; is done here to be able to continue
+;	; macro volume values.
+;;	bit	B_TRGENV,d		;'(IX+TRACK_Flags)
+;;	jp	z,_noEnv		; if not set then normal volume calculation
+;;	ld	a,16			; set volume to 16 == envelope
+;;	ld	(FM_regVOLF),a
+;;	jp	_noVolume	
+;	
+;_noVolumeChange:
+;	; Apply Tone bit to volume (as SN7 and opll have no mixer)
+;	; Check only for SMS PSG and FM!
+;	bit	5,e		; do we have tone?
+;	jp	nz,_tone_on
+;
+;	bit 	B_PSGFM,d
+;	jp	nz,99f
+;;psg:
+;	xor	a
+;	jp	_tone_off
+;99:
+;	ld	a,15
+;	jp	_tone_off
+;
+;_tone_on:
+;	or	(ix+TRACK_Volume)
+;	ld	c,a			; store volume add
+;	ld 	b,(ix+TRACK_cmd_VolumeAdd)
+;;	ld	b,a
+;;	ld	a,c
+;	sub	a,b
+;	jp 	nc,.skip2
+;	ld	a,c
+;	and	0x0f
+;.skip2:
+;
+;_Vadd:
+;	;--- apply main volume balance
+;	ld	bc,(replay_mainvol)
+;	add	a,c
+;	ld	c,a
+;	jp	nc,.skip
+;	inc	b
+;.skip:
+;	ld	a,(bc)	
+;	; Test which CHIP.
+;	bit	B_PSGFM,d		;(ix+TRACK_Flags)
+;	jp	nz,.skip2
+;	rra
+;	rra
+;	rra
+;	rra
+;.skip2:
+;	and	0x0f
+;_tone_off:
+;	ld	(FM_regVOLF),a
+;
+;_noVolume:
+;	;-------------------------------
+;	;
+;	; NOISE
+;	;
+;	;-------------------------------
+;	bit 	7,e			; test if noise value
+;	jp	z,_noNoise
+;
+;	;--- prevent FM and noise
+;	ld	a,(hl)		; get the value	
+;	inc	hl	
+;	
+;	bit	B_PSGFM,d		;(ix+TRACK_Flags)
+;	jp	nz,_noNoise		; Noise and Link not at the same time
+;	
+;	;--- Set the mixer for noise
+;;	ld	a,(FM_regMIXER)
+;;	or	128
+;;	ld	(FM_regMIXER),a
+;
+;;	bit	5,e
+;;	jp	z,_noLink
+;;	ld	a,(hl)	; get the deviation	
+;;	inc	hl
+;;	bit	6,e
+;;	jp	z,.skip
+;;	add	(ix+TRACK_Noise)
+;;.skip:	
+;	ld	(PSG_regNOISE),a
+;	
+;	
+;_noNoise:
+;	;-------------------------------
+;	;
+;	; NOISE volume
+;	;
+;	;-------------------------------
+;	bit 	6,e			; test if noise volume
+;	jp	z,_noNoiseVol
+;	
+;	;--- prevent FM and noise
+;	ld	a,(hl)		; get the volume	
+;	inc	hl
+;	
+;	bit	B_PSGFM,d		;(ix+TRACK_Flags)
+;	jp	nz,_noLink		; Noise and Link not at the same time
+;
+;
+;
+;	;--- calculate end volume
+;	or	(ix+TRACK_Volume)
+;	ld	c,a			; store volume add
+;	ld 	a,(ix+TRACK_cmd_VolumeAdd)
+;	ld	b,a
+;	ld	a,c
+;	sub	a,b
+;	jp 	nc,.skip2
+;	ld	a,c
+;	and	0x0f
+;.skip2:
+;
+;_NVadd:
+;	;--- apply main volume balance
+;	ld	bc,(replay_mainvol)
+;	add	a,c
+;	ld	c,a
+;	jp	nc,.skip
+;	inc	b
+;.skip:
+;	ld	a,(bc)	
+;	rra
+;	rra
+;	rra
+;	rra
+;.skip2:
+;	and	0x0f
+;	ld	(PSG_regVOLN),a
+;	jp	_noLink
+;
+;	or	(ix+TRACK_Volume)
+;	;--- apply main volume balance
+;	ld	bc,(replay_mainvol)
+;	add	a,c
+;	ld	c,a
+;	jp	nc,.skip3
+;	inc	b
+;.skip3:
+;	ld	a,(bc)
+;	ld	(PSG_regVOLN),a
+;	jp	_noLink
+;
+;
+;_noNoiseVol
+;	;-------------------------------
+;	;
+;	; VoiceLink
+;	;
+;	;-------------------------------
+;	bit 	1,e
+;	jp	z,_noLink
+;
+;	ld	a,(hl)					; get the new hw voice	
+;	inc	hl
+;	
+;	set 	B_TRGVOI,(ix+TRACK_Flags)
+;	ld	(ix+TRACK_Voice),a			; set new voice to be loaded
+;
+;
+;
+;_noLink
+
+
 
 	;-- Get the current note
 	ld	a,(ix+TRACK_Note)
@@ -1789,40 +1933,159 @@ _macro_end:
 	ld	h,(hl)
 	ld	l,a
 
-	; NOTE Check deze BC nog eens goed na.	
-	ld	c,(ix+TRACK_ToneAdd)
-	ld	b,(ix+TRACK_ToneAdd+1)	
-	add	hl,bc		;--- Store tone deviation		
+	ld	e,(ix+TRACK_ToneAdd)
+	ld	d,(ix+TRACK_ToneAdd+1)	
+	add	hl,de		;--- Store tone deviation
 
-	;-- set the detune.
+	;-- set the detune. 
 	ld	(_SP_Storage),sp
 	ld	sp,ix
-	pop	bc		; cmd_ToneSlideAdd
-	add	hl,bc
-	pop	bc		; cmd_ToneAdd
-	
-	;--- Fix SCC persiod offset
-	bit	B_PSGSCC,(ix+TRACK_Flags)
-	jp	z,.tonePSG
-.toneSCC:
-	dec	bc		; SCC tone is -1 of PSG tone
-.tonePSG:
-	add	hl,bc
-	pop	bc		; TRACK_cmd_detune
-	add	hl,bc
+	pop	de		; cmd_ToneSlideAdd
+	add	hl,de
+	pop	de		; cmd_ToneAdd
+	add	hl,de
+	pop	de		; TRACK_cmd_detune
+	add	hl,de
 	ld	sp,(_SP_Storage)
+
+	; FIXME rework this into new replayer
+	;-----------------
+	; FM Octave wrapper
+	; enable slides over multiple octaves.
+	; [DE] still contains tone slide add.
+	;-----------------
+	bit	B_PSGFM,a			;(ix+TRACK_Flags)
+	jp	z,_wrap_skip		; skip wrapper for PSG
+	/// PSG end code nodig
+
+;	bit	0,h
+;	jp	z,_wrap_lowcheck
+;_wrap_highcheck:
+;	ld	a,l
+;	cp	$5a				; $5a is the strict limit
+;	jp	c,_wrap_skip		; stop if smaller	
+;	
+;	push	hl
+;	push	de
+;	
+;	;--- Set new tone value for same note 1 octave lower
+;	srl	a
+;	bit 	0,h		; test 9th bit
+;	jp	z,99f
+;	add	128
+;99:
+;	ld	e,a
+;;	ld	d,0
+;	;--- set octave higher
+;	ld	a,h
+;	and	$fe
+;	add	$02
+;;	add	d		; merge with tone value
+;	ld	d,a
+;	;--- get difference between now and new
+;	ex	de,hl
+;	xor	a		; reset carry flag
+;	sbc	hl,de
+;	;--- add difference to current slide
+;	pop	de		; restore slide
+;	add	hl,de
+;	ld	(ix+TRACK_cmd_ToneSlideAdd),l
+;	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
+;	pop	hl	
+;	jr.	_wrap_skip
+;	
+;_wrap_lowcheck:
+;	ld	a,l
+;	cp	$3b		; $ad is the strict limit
+;	jr.	nc,_wrap_skip		; stop if smaller
+;
+;
+;	push 	hl		; store freq
+;	push	de		; store slide
+;	;--- set new tone value for same note (but octave lower)
+;	add	a,a		; multiply by 2 in de 
+;	ld	e,a
+;	ld	d,0
+;	jp	nc,99f
+;	inc	d	
+;99:
+;	;--- set octave higher
+;	ld	a,h
+;	and	$fe
+;	sub	$02
+;	add	d		; merge with tone value
+;	ld	d,a
+;	;--- get difference between now and new
+;	ex	de,hl
+;	xor	a		; reset carry flag
+;	sbc	hl,de
+;	;--- add difference to current slide
+;	pop	de		; restore slide
+;	add	hl,de	
+;	
+;	ld	(ix+TRACK_cmd_ToneSlideAdd),l
+;	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
+;	pop	hl	
+	
+_wrap_skip:
+;	; replace the last pushed value on stack
+;	pop	de
+;	ex	de,hl
+;	ld	(hl),e
+;	inc	hl
+;	ld	a,d	; reset key on and sustain
+;	and	$0f
+;	ld	d,a
+;	ld	a,(ix+TRACK_Flags)	; Add the sustain and key bits.
+;	and	16+32	
+;	or	d
+;	ld	(hl),a
+
+	; replace the last pushed value on stack
+;	pop	de
+;	ex	de,hl
+;	ld	(hl),e
+;	inc	hl
+	ld	a,h			; reset keyon and sustain
+	and	$0f
+	ld	h,a
+	ld	a,(ix+TRACK_Flags)	; Add the sustain and key bits.
+	and	16+32
+	or	h
+	or	iyl			; iyl is 64 if there is a note trigger
+	ld	h,a
 
 	;--- Return the tone register value
 	scf		; no cary is update the register value
 	ret
 
-	
+
+
 process_noNoteActive:
 	;-- Silence
+	; TODO Check if this is sufficient for FM. See commented old code below
 	xor	a			; also clears the carry flag.
-	ld	(SCC_regVOLE),a
+	ld	(FM_regVOLF),a
 	ret 	
-
+	
+;process_noNoteActive:
+;	pop	hl
+;	
+;	;-- for FM add key and sustain bits to tone
+;	inc	hl
+;	ld	a,d
+;	and	16+32	; keep key and sustain flags
+;	ld	b,a
+;	ld	a,(hl)
+;	and 	$0f
+;	or 	b
+;	ld	(hl),a
+;	
+;	;-- Silence
+;	xor	a
+;	ld	(FM_regVOLF),a
+;	ld	(ix+TRACK_Flags),d
+;	ret	
 
 PROCESS_CMDLIST:
 	; This list only contains the primary commands.
@@ -1836,10 +2099,9 @@ PROCESS_CMDLIST:
 	dw	process_cmd7_vol_slide
 	dw	process_cmd8_tremolo
 	dw	process_cmd9_note_cut		
-	dw	process_cmd10_note_delay
+	dw	process_cmd10_note_delay		
 
-
-
+			
 process_cmd0_arpeggio:
 	ld	a,(ix+TRACK_Timer)
 	and	a
@@ -1857,6 +2119,7 @@ process_cmd0_arpeggio:
 .skip:
 	ld	(ix+TRACK_cmd_NoteAdd),0	
 	jr.	process_commandEND
+	
 
 .nextNote:
 	; re-init the speed.
@@ -1866,6 +2129,7 @@ process_cmd0_arpeggio:
 	ld	a,(ix+TRACK_Step)
 	and	a
 	jr.	nz,.skip1
+
 	;--- set x
 		ld	(ix+TRACK_Step),1
 		ld	a,(ix+TRACK_cmd_0)
@@ -1881,6 +2145,7 @@ process_cmd0_arpeggio:
 .skip1:
 	dec	a
 	jr.	nz,.skip2
+
 	;--- set y
 		ld	(ix+TRACK_Step),2
 		ld	a,(ix+TRACK_cmd_0)
@@ -1902,29 +2167,33 @@ process_cmd0_arpeggio:
 	ld	(ix+TRACK_Step),0
 	ld	(ix+TRACK_cmd_NoteAdd),0		
 	jr.	process_commandEND
+		
 
 	
+
 	
 process_cmd1_port_up:
-	ld	a,(ix+TRACK_cmd_1)
+	ld	a,(ix+TRACK_cmd_1)	
+
 	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	sub	b
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
-	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
+	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
 	jp	process_commandEND
+
 	
-process_cmd2_port_down:
+process_cmd2_port_down:	
 	ld	a,(ix+TRACK_cmd_2)
 	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	add	b
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
-	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
+	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
 	jp	process_commandEND
-
+	
 
 process_cmd3_port_tone:
 	ld	a,(ix+TRACK_cmd_3)
@@ -1962,7 +2231,6 @@ process_cmd3_stop:
 	jp	process_commandEND
 
 
-
 process_cmd8_tremolo:
 IFDEF tremolo_OFF
 ELSE	
@@ -1979,7 +2247,7 @@ ELSE
 	add	(ix+TRACK_cmd_4_step)
 	and	$3F			; max	64
 	ld	(ix+TRACK_Step),a
-	sra	a			; devide step by 2
+	sra	a			; devide step by 2	
 
 	add	a,l
 	ld	l,a
@@ -1994,7 +2262,6 @@ ELSE
 	ld	(ix+TRACK_cmd_VolumeAdd),a
 ENDIF
 	jp	process_commandEND	
-
 
 
 	;=================================
@@ -2039,18 +2306,16 @@ process_cmd4_vibrato:
 .zero:	
 	ld	(ix+TRACK_cmd_ToneAdd),a
 	ld	(ix+TRACK_cmd_ToneAdd+1),0
-	jp	process_commandEND
-		
+	jp	process_commandEND	
+
 
 process_cmd5_vibrato_port_tone:
 	call	process_cmdasub
 	jp	process_cmd3_port_tone
 	
-
 process_cmd6_vibrato_vol:
 	call	process_cmdasub
 	jp	process_cmd4_vibrato	
-
 
 process_cmd7_vol_slide:
 	call	process_cmdasub
@@ -2067,7 +2332,7 @@ process_cmdasub:
 	and	$7f
 	ld	(ix+TRACK_Timer),a
 
-	ld	a,(IX+TRACK_Volume)
+	ld	a,(ix+TRACK_Volume)
 	bit	7,c
 	jp	z,process_cmda_inc
 process_cmda_dec:
@@ -2082,7 +2347,8 @@ process_cmda_inc:
 	add	$10	
 	ld	(ix+TRACK_Volume),a
 	ret
-	
+
+
 
 process_cmd9_note_cut:
 	dec	(ix+TRACK_Timer)
@@ -2105,6 +2371,200 @@ process_cmd10_note_delay:
 	res	B_TRGCMD,d	;(ix+TRACK_Flags)		; reset trigger cmd flag
 	
 	jp	process_commandEND	
+
+
+
+_process_drum_none:
+	ld	(FM_DRUM_ACTIVE),a
+	ret
+;============================================================================
+; process_drum
+;
+;
+;
+;============================================================================
+process_drum:
+	ld	a,(FM_DRUM_ACTIVE)
+	and	a
+	;jp	z,_process_drum_none
+	ret	z
+	;-- Retrieve the next action
+	ld	bc,(FM_DRUM_MACRO)
+
+_process_drum_loop:
+	ld	hl,DRUM_MACRO_LIST-2
+	ld	a,(bc)
+	inc	bc
+	and	a
+	jp	z,.end
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+
+.end:
+	ld	(FM_DRUM_MACRO),bc
+	ret
+
+
+DRUM_MACRO_LIST:
+	dw	_drum_stop		;2
+	dw	_drum_vol_bd	;4
+	dw	_drum_vol_sn	;6
+	dw	_drum_vol_hh	;8
+	dw	_drum_vol_snhh	;a
+	dw	_drum_vol_cy	;c
+	dw	_drum_vol_tt	;e
+	dw	_drum_vol_cytt	;10
+	dw	_drum_note_bd	;12
+	dw	_drum_tone_bd	;14
+	dw	_drum_note_snhh	;16
+	dw	_drum_tone_snhh	;18
+	dw	_drum_note_cytt	;1a
+	dw	_drum_tone_cytt	;1c
+	dw	_drum_percussion	;1e
+
+_drum_stop:			;2
+	xor	a
+	ld	(FM_DRUM_ACTIVE),a
+	ret
+
+_drum_vol_bd:		;4
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regVolBD),a
+	jp	_process_drum_loop
+
+_drum_vol_sn:		;6
+	ld	a,(DRUM_regVolSH)
+	and	0xf0
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolSH),a
+	jp	_process_drum_loop
+
+_drum_vol_hh:		;8
+	ld	a,(DRUM_regVolSH)
+	and	0x0f
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolSH),a
+	jp	_process_drum_loop
+
+_drum_vol_snhh:	;a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regVolSH),a
+	jp	_process_drum_loop
+
+
+_drum_vol_cy:		;6
+	ld	a,(DRUM_regVolCT)
+	and	0xf0
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolCT),a
+	jp	_process_drum_loop
+
+_drum_vol_tt:		;8
+	ld	a,(DRUM_regVolCT)
+	and	0x0f
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolCT),a
+	jp	_process_drum_loop
+
+_drum_vol_cytt:	;a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regVolCT),a
+	jp	_process_drum_loop
+
+_drum_note_bd:	;12
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneBD),a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneBD+1),a
+	jp	_process_drum_loop
+
+_drum_tone_bd:	;14
+	ld	hl,(DRUM_regToneBD)
+	ld	a,(bc)
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	inc	bc
+	ld	d,a
+	add	hl,de
+;	ld	(DRUM_regToneBD),hl
+	jp	_process_drum_loop
+
+_drum_note_snhh:	;16
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneSH),a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneSH+1),a
+	jp	_process_drum_loop
+
+_drum_tone_snhh:	;18
+	ld	hl,(DRUM_regToneSH)
+	ld	a,(bc)
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	inc	bc
+	ld	d,a
+	add	hl,de
+	ld	(DRUM_regToneSH),hl
+	jp	_process_drum_loop
+
+_drum_note_cytt:	;1a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneCT),a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneCT+1),a
+	jp	_process_drum_loop
+
+_drum_tone_cytt:	;1c
+	ld	hl,(DRUM_regToneCT)
+	ld	a,(bc)
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	inc	bc
+	ld	d,a
+	add	hl,de
+	ld	(DRUM_regToneCT),hl
+	jp	_process_drum_loop
+
+_drum_percussion:	;1e
+	ld	a,(bc)
+	inc	bc
+	ld	(FM_DRUM),a
+	jp	_process_drum_loop
+	
+
+
 
 
 ;===========================================================
@@ -2139,440 +2599,412 @@ _ptAY_loop:
 	out	(c),b
 	ld	(hl),0			;reset the envwrite	
 _ptAY_noEnv:
-;--------------
-; S C	C 
-;--------------
-	ld  a,03Fh				; enable SCC
-	ld  (0x9000),a
-
-	;--- Set the waveforms
-	ld	a,(TRACK_Chan4+17+TRACK_Flags)
-	bit	B_TRGWAV,a
-	jp	z,.skip1
-
-	;--- set wave form
-	ld	de,0x9800
-	and	10111111b		;res	B_TRGWAV,a
-	ld	(TRACK_Chan4+17+TRACK_Flags),a
-	bit	B_ACTMOR,a
-	call	nz,_write_SCC_special
-	;--- write_SCC_special will handle the return to next skip [HACK]
-	ld	a,(TRACK_Chan4+17+TRACK_Waveform)
-	call	_write_SCC_wave
-.skip1:
-	ld	a,(TRACK_Chan5+17+TRACK_Flags)
-	bit	B_TRGWAV,a
-	jp	z,.skip2
-
-	;--- set wave form
-	ld	de,0x9820
-	and	10111111b		;res	B_TRGWAV,a
-	ld	(TRACK_Chan5+17+TRACK_Flags),a
-	bit	B_ACTMOR,a
-	call	nz,_write_SCC_special
-	;--- write_SCC_special will handle the return to next skip [HACK]
-	ld	a,(TRACK_Chan5+17+TRACK_Waveform)
-	call	_write_SCC_wave
-.skip2:
-	ld	a,(TRACK_Chan6+17+TRACK_Flags)
-	bit	B_TRGWAV,a
-	jp	z,.skip3
-
-	;--- set wave form
-	ld	de,0x9840
-	and	10111111b		;res	B_TRGWAV,a
-	ld	(TRACK_Chan6+17+TRACK_Flags),a
-	bit	B_ACTMOR,a
-	call	nz,_write_SCC_special
-	;--- write_SCC_special will handle the return to next skip [HACK]
-	ld	a,(TRACK_Chan6+17+TRACK_Waveform)
-	call	_write_SCC_wave
-.skip3:
-	ld	a,(TRACK_Chan7+17+TRACK_Flags)
-	bit	B_TRGWAV,a
-	jp	z,.skip4
-
-	;--- set wave form
-	ld	de,0x9860
-	and	10111111b		;res	B_TRGWAV,a
-	ld	(TRACK_Chan7+17+TRACK_Flags),a
-	bit	B_ACTMOR,a
-	call	nz,_write_SCC_special
-	;--- write_SCC_special will handle the return to next skip [HACK]
-	ld	a,(TRACK_Chan7+17+TRACK_Waveform)
-	call	_write_SCC_wave
-.skip4:
-
-scc_reg_update:
-	
-IFDEF FPGA_SCC
-	ld	de,$9880
-	ld	hl,SCC_registers
-	;-- write 16 values
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-ELSE
-
-;    ;--- Update changed SCC registers.
-;	; fast update routine by SpaceMoai
-	ld hl,oldregs+(3*5)
-	ld de,SCC_registers+(3*5)
-	ld bc,0x9880+(3*5)
-.loop:
-	ld a,(de)
-	cp (hl)
-	jr z,.skip
-	ld (hl),a
-	ld (bc),a                         ; update scc    registers
-.skip:        
-	dec de
-	dec hl
-	dec c
-	jp m,.loop
 
 
-	;--- Update changed SCC registers.
-;	ld hl,oldregs				
-;	ld de,SCC_registers
-;	ld bc,0x9880
-;	ld a,(3*5)+1
-;.loop:
-;	ex af,af'	;'
-;	ld a,(de)
-;	cp (hl)					
-;	jr z,.skip					
-;	ld (hl),a		 				
-;	ld (bc),a		 				; update scc	registers
-;.skip:		
-;	inc hl					
-;	inc de
-;	inc bc
-;	ex af,af'		;'
-;	dec a
-;	jr nz,.loop
-ENDIF
+
+;---------------
+; F M
+;---------------
+route_FM:
+	;--- 	Write FM channel registers
+	;--- Store CPU type for later.
+	ld	a,(r800)
+	ld	e,a
+	and	a
+	jp	z,.skipcount
+	;--- init the r800 wait timer
+	in	a,($e6)
+	ld	(count_low),a
+.skipcount:
+	;--- Check if we need to update the voice regs
+	ld	a,(FM_softvoice_req)
+	and	a
+	jp	z,.channels
+
+	;--- update the voice registers
+	xor	a
+	ld	(FM_softvoice_req),a
+	ld	hl,FM_Voicereg
+	ld	bc,$0800		; 8 values, base register 0
+	ex	af,af'
+.voiceloop:
+	ld	a,(hl)
+	inc	hl
+	cp	(hl)
+	jp	z,.skipvoicereg
+	ld	d,a
+	ld	a,c
+	call	_writeFM	
+.skipvoicereg:
+	inc	hl
+	inc	c
+	djnz	.voiceloop
+
+
+.channels:
+	ld	bc, $0910			; 9 channels, start reg# is $10
+	ld	hl,FM_regToneA+1		; pointer to the backup of reg# $2x
+.channel_loop:
+;	;--- Check if channel is active
+	ld	a,(hl)
+;	cp	128		; test bit 7	0 = chan not active
+;	jp	c,.notActive
+	cp	64		; test bit 6	1 = note trigger
+	jp	c,.noKeyOnSwitch
+
+.keyOnSwitch:
+	;--- Flip KeyOn bit
+	; To be honest I am a little confused on the this part as 
+	; with certain FM instruments ($14) it is not sufficient to 
+	; disable the keyon bit and enable it.  It needs to be a 
+	; full on-off-on sequence to work on all instruments.
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	;--- Check if Key is already ON
+	bit	4,a
+	jp	nz,99f		; skip if key was already set
+	or	00010000b		; set bit
+	ld	d,a
+	ld	a,$10
+	add	c
+	call	_writeFM
+	ld	a,(hl)	
+99:
+	and	00101111b		; reset keyon bit
+	ld	d,a
+	ld	a,$10
+	add	c
+	call	_writeFM
+	dec	hl
+	dec	hl
+.noKeyOnSwitch:
+	dec	hl
+	;--- Write reg $1x
+	ld	a,(hl)
+	inc	hl
+	inc	hl
+	cp	(hl)
+	jp	z,99f			; No change in value
+	ld	d,a			; Store value in D
+	ld	a,c			; Store reg# in C
+	call	_writeFM
+99:
+	dec	hl
+	;--- Write reg $2x
+	ld	a,(hl)
+	inc	hl
+	inc	hl
+	cp	(hl)
+	jp	z,99f			; No change in value
+	ld	d,a			; Store value in D
+	ld	a,$10
+	add	a,c			; Store reg# in C+10
+	call	_writeFM
+99:
+	inc	hl	
+	;--- Write reg $3x
+	ld	a,(hl)
+	inc	hl
+	cp	(hl)
+	jp	z,99f			; No change in value
+	ld	d,a			; Store value in D
+	ld	a,$20
+	add	c			; Store reg# in C
+	call	_writeFM
+99:
+	inc	hl
+	inc	hl
+.continue:	
+	inc	c			; increase base register with 1
+	djnz	.channel_loop
+
+	;--- write rythm register
+.rythm:
+	dec	hl
+	ld	a,(hl)
+	and	00011111b		; check if there are drums
+	ret	z			; no drums to play
+
+	ld	d,a			; Trigger on the drums
+	ld	a,$0e			
+	call	_writeFM
+
+	set	5,a			; Trigger off the drums
+	call	_writeFM_data
+	ld	(hl),0
 	ret
 
-	
-	
-;==================
-; _write_SCC_wave
-;
-; Writes waveform	data.	[DE] contains location for data
-; [A]	contains waveform	number + flags for special actions
-; Data is not written to SCC but into RAM	shadow registers.
-;==================
-_write_SCC_wave:
-	;---- 000000SR	-> S = sfx waveform, R = RAM waveform
-	bit	0,a
-	jp	z,.normalwave
-IFDEF	SFXPLAY_ENABLED
-	bit	1,a
-	jp	nz,.sfxwave
-ENDIF
-.ramwave:
-	dec	hl		; reset the special flag in the wave form number
-	and	$fe
-	ld	(hl),a
-
-	ld	hl,_0x9800
-	ld	a,e
-	add	a,l
-	ld	l,a
-	jp	nc,.skip
-	inc	h
-.skip:
-	jp	copy_wave_fast
-
-IFDEF SFXPLAY_ENABLED
-.sfxwave:
-	and	11111000b
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	bc,SFX_WAVEBASE
-	add	hl,bc
-	jp	copy_wave_fast
-ENDIF
-
-.normalwave:
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	  bc,(replay_wavebase)
-	add	  hl,bc
-copy_wave_fast:
-	;--- Fastest way to copy waveform to SCC
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi		; 8
-	ldi	
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi		; 16
-	ldi	
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi		; 24
-	ldi		
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi
-	ldi		; 32
-
-	ret	
-
-_write_SCC_special:
-	ld	hl,replay_morph_buffer
-;	ld	bc,32
-_wss_l:
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	inc	hl
-	ldi
-	;--- Hack the return address
-	pop	hl
-	ld	bc,6
-	add	hl,bc
-	jp	(hl)
-
-	
-;=============
-; in [A] the morph active status	
-replay_process_morph:
-	ld	hl,replay_morph_timer
-	dec	(hl)
-	ret	nz
-	
-	;---- not sure what to do with this.
-	; trigger any waveform updates
-	ld	b,4
-	ld	de,TRACK_REC_SIZE
-	ld	hl,TRACK_Chan4+17+TRACK_Flags
-.loop:	
-	bit 	B_ACTMOR,(hl)
-	jp	z,.skip
-	set	B_TRGWAV,(hl)
-.skip:
+.notActive:
+	ld	de,6
 	add	hl,de
-	djnz	.loop	
-	
-	
-	;---- timer ended.
-	inc	a
-	jp	nz,_rpm_next_step		; if status was !=255 then skip init
+	jp	.continue
+	;--- Points to start address of next chan
 
-	;---- calculate offset
-	inc	a		
-	ld	(replay_morph_active),a		; set status to 1
 
-	ld	a,(replay_morph_speed)
-	inc	a
-	ld	(replay_morph_timer),a
-	
 
-	;--- calculate the delta's
-	ld	a,(replay_morph_waveform)
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-	ld	de,(replay_wavebase)
-	add	hl,de
-	ld	de,replay_morph_buffer
+; [A] reg#
+; [D] value
+; [E] R800	(0=Z80, 1 = R800)
+; [HL] points to previous value
+_writeFM:
+	bit	0,e				;  8 cycles
+	jp	nz,_writeFM_R800		; 10 cycles
+	out	(FM_WRITE),a		; 11 cycles
+	ld	a,d				;  4 cycles
+_writeFM_cont:
+	ld	(hl),a			;  7 cycles	
+	out	(FM_DATA),a			; 11 cycles
+	ret					; 10 cycles
 
-	
-	;---- start calculating
-	ld	b,32		; 32 values
-_rpm_loop:	
-	inc	de
-	ld	a,(de)
-	dec	de
-	add	a,128
-	ld	c,a
-	ld	a,(hl)
-	add	a,128
-	cp	c
-	jp	c,_rpm_smaller		; dest is smaller
+; [D] value
+; [E] R800	(0=Z80, 1 = R800)
+; [HL] points to previous value
+_writeFM_data:
+	bit	0,e				;  8 cycles
+	jp	nz,_writeFM_data_R800	; 10 cycles
+	push	bc				; 11 cycles	Dummy for write delay
+	pop	bc				; 11 cycles	Dummy for write delay
+	jp	_writeFM_cont		; 10 cycles
 
-	
-_rpm_larger:
-	sub	c
-	rrca
-	rrca
-	rrca
-	rrca
-	and	$ef		; reset bit 5
-	ld	(de),a
-	
-	inc	de
-	inc	de
-	inc	hl
-	djnz	_rpm_loop
-	ret	
-	
-_rpm_smaller:
-	sub	c
-	neg	
-	rrca
-	rrca
-	rrca
-	rrca
-	or	$10		; set bit 5
-	ld	(de),a
-	
-	inc	de
-	inc	de
-	inc	hl
-	djnz	_rpm_loop
-	ret		
-	
-;============================
-_rpm_next_step:
-	ld	a,(replay_morph_speed)
-	inc	a
-	ld	(replay_morph_timer),a
-
-	;-- apply the delta's
-	ld	a,(replay_morph_counter)
-	ld	c,a
-	add	16
-	ld	(replay_morph_counter),a
-	jp	nz,.skip
-	;--- end morph
-	ld	(replay_morph_active),a
-
-.skip:
-	dec c
-	ld	hl,replay_morph_buffer
-	ld	b,32
-_rpm_ns_loop:	
-	ld	a,(hl)
-	bit 	4,a
-	jp	z,_rmp_ns_add
-_rmp_ns_sub:
-	;--- handle corection
-	and	$ef
-	cp	c		; correction < counteR?
-	jp	c,.skip
-	inc	a		; if smaller C was set
-.skip:
-	and	00011111b	; keep lower 5 bits
-	inc	hl
+; [A] reg#
+; [D] value
+; [HL] points to previous value
+_writeFM_R800:		
+	;--- wait to write
+	push	de
+	ex	af,af'
+	ld	a,(count_low)
 	ld	d,a
-	ld	a,(hl)
+.loop_long:
+	in	a,($e6)
 	sub	d
-	ld	(hl),a	; load new value
-	inc	hl
-	djnz	_rpm_ns_loop
-	ret	
-_rmp_ns_add:
-	;--- handle corection
-	cp	c		; correction < counter?
-	jp	c,.skip
-	inc	a		; if smaller C was set
-.skip:
-	and	00011111b	; keep lower 5 bits
-	inc	hl
-	add	(hl)		; subtract waveform value
-	ld	(hl),a	; load new value
-	inc	hl
-	djnz	_rpm_ns_loop
-	ret		
+	cp	6
+	jp	c,.loop_long
+
+	pop	de
+	ex	af,af'
+	;-- write address
+	out	(FM_WRITE),a		; 11 cycles
+
+	in	a,($e6)
+	;--- wait to write
+	push	de
+	ld	d,a
+.loop_short
+	in	a,($e6)
+	sub	d
+	cp	1
+	jp	c,.loop_short
+	pop	de
+_writeFM_R800_cont:
+	;--- write data
+	ld	a,d				;  4 cycles
+	ld	(hl),d			;  7 cycles	
+	out	(FM_DATA),a			; 11 cycles
+	in	a,($e6)
+	ld	(count_low),a
+	ret					; 10 cycles
+
+; [D] value
+; [HL] points to previous value
+_writeFM_data_R800:
+	;--- wait to write
+	push	de
+	ld	a,(count_low)
+	ld	d,a
+.loop_long:
+	in	a,($e6)
+	sub	d
+	cp	6
+	jp	c,.loop_long
+	pop	de
+	jp	_writeFM_R800_cont
+	;--- end
+
+
+
+
+/////
+;	; Check if we need to load a software voice
+;	ld	hl,FM_softvoice_req
+;	ld	a,(hl)
+;	inc	hl
+;	cp	(hl)
+;	jp	z,.noVoice
+;	
+;	ld	(hl),a
+;
+;	call	load_softwarevoice
+;	
+;.noVoice:
+;	;------------------------------------------
+;	;---- Update the tone and drum registers
+;	;------------------------------------------
+;	ld 	hl,FM_Registers
+;	ld	de,TRACK_Chan3+17+TRACK_Flags
+;	ld	a,$10		; Register $10
+;	ld	b,9		; 6(tone)+3(drum) channels to update
+;
+;.channel_loop:	
+;	; Tone low
+;	call	_route_FM_reg16_update
+;	dec	hl
+;	add	a,$10	; Register# $20
+;
+;	ex	af,af'
+;
+;	ld	a,b	;-- Only do this check for first 6 chans. Other are drum
+;	cp	4
+;	jp	c,0f
+;
+;	;-- Check if we need to toggle key to start a new note
+;	ld	a,(de)
+;	bit	0,a
+;	jp	z,99f	; no notetrigger
+;	
+;	res	0,a		; reset trigger
+;	ld	(de),a
+;	bit	4,a
+;	call	nz,_route_FM_keyOff_update
+;99:
+;	ld	a,TRACK_REC_SIZE
+;	add	a,e
+;	ld	e,a
+;	jp	nc,99f
+;	inc	d
+;99:	
+;0:
+;	ex	af,af'
+;	
+;	; Tone High + key & sustain
+;	call	_route_FM_reg16_update
+;	inc	hl
+;	add	a,$10	; Register# $30
+;	
+;	; Volume + voice
+;	call	_route_FM_reg8_update
+;	inc	hl
+;	add	a,-$1F	; Register# = channel + $10
+;	djnz	.channel_loop
+;
+;	;------------------------------------------
+;	;---- Process Drum macro
+;	;------------------------------------------
+;_route_FM_drum_update:
+;	ld	a,(FM_DRUM)
+;	and	00011111b		; erase bit 5
+;	ret	z			; no drums to play
+;	
+;	ld	b,a
+;	ld	a,0x0e
+;	;-- load the new values
+;	out	(FM_WRITE),a	; Select rythm register
+;	
+;	ld	a,b			; 5 cycles
+;	ld	a,b			; 5 cycles	; dummy code for delay
+;	out	(FM_DATA),a		
+;
+;	push	ix			; 17 cycles	dummy code to implement delay
+;	pop	ix			; 17 cycles
+;	ld	b,a
+;	xor	a
+;	ld	(FM_DRUM),a
+;	ld	a,b
+;
+;	or	100000b		; set the percussion bit
+;	out	(FM_DATA),a
+;	ret
+;	
+;
+;;------- Writes safe to the FM chip
+;; in :
+;;	[a]	Register# to write
+;;	[HL]	point to register (previous value is next in RAM)
+;;
+;; out:
+;;	[HL] points to previous value
+;;	[A]	contains register# written
+;;-----------
+;_route_FM_reg8_update:
+;	ex	af,af'
+;	ld	a,(hl)
+;	jp	_rfr_cont
+;	
+;	
+;;------- Writes safe to the FM chip
+;; in :
+;;	[a]	Register# to write
+;;	[HL]	point to register (previous value is next in RAM)
+;;
+;; out:
+;;	[HL] points to previous value
+;;	[A]	contains register# written
+;;-----------
+;_route_FM_reg16_update:
+;	ex	af,af'
+;	ld	a,(hl)
+;	inc	hl
+;_rfr_cont:
+;	inc	hl
+;	cp	(hl)	
+;	jp	z,99f		; no change in tone low value
+;	ex	af,af'	
+;	out	(FM_WRITE),a
+;	ex	af,af'
+;	ld	(hl),a
+;	out	(FM_DATA),a	
+;99:	ex	af,af'
+;;	dec	hl	
+;	ret
+;	
+;;------- Writes a keyoff to the existing tone high register 
+;; in :
+;;	[A']	register# to write
+;;	[HL]	point to register (previous value is next in RAM)
+;;
+;; out:
+;;	[HL] points to same location
+;;	[A']	contains register# written
+;;-----------
+;_route_FM_keyOff_update:
+;	ex	af,af'
+;	out	(FM_WRITE),a
+;	ex	af,af'		; 4 cycles	 '
+;	ld	a,(hl)
+;	and	11101111b	; erase keyON bit.
+;	out	(FM_DATA),a	
+;	inc	hl
+;	inc	hl
+;	ld	(hl),a		; make sure to change old value to trigger update
+;	dec	hl
+;	dec	hl
+;	ret
+;
+;
+;.voiceupd_loop:
+;
+;	out	(FM_WRITE),a
+;	ex	af,af'		; 4 cycles	 '
+;	ld	a,(hl)		; 4 cycles 	
+;	inc	hl			; 6 cycles
+;	out	(FM_DATA),a	
+;
+;	ex	af,af' 		; 4 cycles	'
+;	inc	a			; 4 cycles
+;	
+;	cp	8 			; 7 cycles
+;	;--- delay
+;	push 	ix			; 15 cycles
+;	pop	ix			; 14 cycles
+;	push 	ix			; 15 cycles
+;	pop	ix			; 14 cycles
+;		
+;	jp	c,.voiceupd_loop 	; 10 cycles
+;	ret
+
+	
+
 	
 
 

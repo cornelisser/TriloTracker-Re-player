@@ -14,6 +14,7 @@ class Song:
 	
 	def __init__(self):
 		self.version 	= 0
+		self.chansetup	= 0		# 0 = 3-5, >0 = 2-6 setup
 		self.type 		= ''
 		self.speed 		= 0
 		self.restart 	= 0
@@ -205,7 +206,8 @@ class Song:
 		
 		
 		
-		
+	def set_chansetup(self,setup):
+		self.chansetup = setup		
 		
 	def set_version(self,version):
 

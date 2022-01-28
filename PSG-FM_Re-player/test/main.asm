@@ -3,7 +3,7 @@
 ; -----------------------------
 ; TT-replayer example
 ; 
-; This example plays compiled PSG+SCC songs
+; This example plays compiled PSG+FM songs
 ; ------------------------------
 
 ;	include	".\code\variables.asm"
@@ -556,13 +556,13 @@ init_vdp:
 
 	ret		
 	include	".\screen.asm"
-	include	"..\code\ttreplaySMS.asm"
-	include	"..\code\ttreplaySMSDAT.asm"
+	include	"..\code\ttreplayFM.asm"
+	include	"..\code\ttreplayFMDAT.asm"
 ;	include	"..\ttsfxplay\ttsfxplay.asm"
 
 	
 demo_song:
-	include	".\tttest.asm"
+	include	".\testfm.asm"
 	
 TEXT_Title:
 	db	"TriloTracker FM Re-player Debug info",0	
@@ -613,7 +613,7 @@ font_data:
 	
 	
 	map	0xc000
-	include	"..\code\ttreplaySMSRAM.asm"
+	include	"..\code\ttreplayFMRAM.asm"
 	
 
 debug_pointer1:	#2

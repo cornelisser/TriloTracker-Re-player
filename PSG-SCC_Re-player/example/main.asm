@@ -592,7 +592,7 @@ init_vdp:
 
 	
 demo_song:
-	include	".\ULTITEST.asm" 
+	include	".\yy1.asm" 
 	
 TEXT_Title:
 	db	"TriloTracker SCC Re-player Debug info",0	

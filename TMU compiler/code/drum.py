@@ -22,3 +22,4 @@ class Drum:
 	def debug(self):
 		if (self.length > 1):
 			print (f"Name: {self.name} \tLength: {self.length}")
+		

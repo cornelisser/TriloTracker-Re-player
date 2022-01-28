@@ -54,10 +54,11 @@ def load_tmu(infile,song):
 			
 		val = data[index]
 		index += 1
-		song.set_version(val & 0x0f)		# version
-		song.set_type(val >> 4)				# type
+		song.set_version(val & 0x0f)			# version
+		song.set_type((val >> 4) & 0x0f)		# type
+		song.set_chansetup(val & 0x80)		# channel set up
 		
-		#--- Skip the extra bytes for now
+		#--- extra bytes 
 		if (song.version >= 11):
 			tmp = data[index]
 			song.set_period(data[index+1])
@@ -75,16 +76,16 @@ def load_tmu(infile,song):
 
 		val = data[index]
 		index += 1	
-		song.set_speed(val)					#speed
+		song.set_speed(val)				#speed
 		
 		val = data[index]
 		index += 1	
-		song.restart = val					#order restart	
+		song.restart = val				#order restart	
 		
 		val = data[index]
 		index += 1	
 		song.set_length(val)				#order length	
-		
+
 		lst = data[index:index+song.length]
 		index += song.length
 		song.order_list = lst				# order list
@@ -147,10 +148,9 @@ def load_tmu(infile,song):
 			else:
 				nr_drum = 19
 		
-
 			for d in range(0,nr_drum):
 				drum = Drum(d)
-				str = data[index:index+16]
+				str = data[index:index+16].replace(b'\x00', b' ')
 				drum.name = str.decode('utf-8')
 				d+=1
 				index+=16
@@ -258,8 +258,9 @@ def export_asm(outfile,song):
 		if song.type == 'SCC':
 			file.write(f"{_DW} {_CHILD}waveform_start\t\t\t; Start of the waveform data.\n")
 		else:
+			file.write(f"{_DB} ${song.chansetup:02x}\t\t\t\t\t; Channel setup.\n")
 			file.write(f"{_DW} {_CHILD}customvoice_start-8\t\t\t; Start of the custom voices data.\n")
-			file.write(f"{_DW} {_CHILD}drummacro_start\t\t\t\t; Start of the drum macro data.\n")		
+			file.write(f"{_DW} {_CHILD}drummacro_start\t\t\t; Start of the drum macro data.\n")		
 
 		file.write(f"{_DW} {_CHILD}instrument_start\t\t\t; Start of the instrument data.\n")		
 
@@ -270,6 +271,10 @@ def export_asm(outfile,song):
 				file.write(f"{_CHILD}restart:\n")
 			step+=1
 			pat = song.get_pattern(val)
+			## Check below is for cases where the last pattern is looped but empty 
+			## TODO See if there is an easy solution (track with 64 empty steps) for this issue.
+			if pat is None:
+				sys.exit('The TMU file has empty patterns in the replay order. Unable to compile empty patterns.')	
 			file.write(f"{_DW}")
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[0]].export_number:03},")
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[1]].export_number:03},")
@@ -281,34 +286,33 @@ def export_asm(outfile,song):
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[7]].export_number:03}\t; Step:{step-1:03} Pattern:{pat.number:03}\n")		
 		file.write(f"{_DW} 0x0000, {_CHILD}restart\t\t\t\t; End of sequence delimiter + restart address.\n\n")
 
-
-	
-		file.write("; [ Custom FM voices ]\n")		
-		file.write(f"{_CHILD}customvoice_start:\n")
-		for voice in song.voices:
-			if voice.number > 15:
-				if voice.used == True:
-					file.write(f"{_DB} ${voice.data[0]:02x},${voice.data[1]:02x},${voice.data[2]:02x},${voice.data[3]:02x},${voice.data[4]:02x},${voice.data[5]:02x},${voice.data[6]:02x},${voice.data[7]:02x} \t\t; Custom voice:{voice.number:0}\n")				
-
-		file.write("\n; [ SCC Waveforms ]\n")		
-		file.write(f"{_CHILD}waveform_start:\n")	
-		for waveform in song.waveforms:
-			if waveform.used == True:
-				file.write(f"{_DB}")
-				for x in range(0,31):
-					file.write(f" ${waveform.data[x]:02x},")
-				file.write(f" ${waveform.data[31]:02x}\t\t\t\t; Waveform:{waveform.number:0}\n")		
+		if song.type == 'SCC':
+			file.write("\n; [ SCC Waveforms ]\n")		
+			file.write(f"{_CHILD}waveform_start:\n")	
+			for waveform in song.waveforms:
+				if waveform.used == True:
+					file.write(f"{_DB}")
+					for x in range(0,31):
+						file.write(f" ${waveform.data[x]:02x},")
+					file.write(f" ${waveform.data[31]:02x}\t\t\t\t; Waveform:{waveform.number:0}\n")	
+		else:
+			file.write("; [ Custom FM voices ]\n")		
+			file.write(f"{_CHILD}customvoice_start:\n")
+			for voice in song.voices:
+				if voice.number > 15:
+					if voice.used == True:
+						file.write(f"{_DB} ${voice.data[0]:02x},${voice.data[1]:02x},${voice.data[2]:02x},${voice.data[3]:02x},${voice.data[4]:02x},${voice.data[5]:02x},${voice.data[6]:02x},${voice.data[7]:02x} \t\t; Custom voice:{voice.number:0}\n")				
+				
+			file.write("\n; [ FM Drum macros]\n")		
+			file.write(f"{_CHILD}drummacro_start:\n")		
+			for drum in song.drums:
+				if drum.used == True:
+					file.write(f"{_DW} {_CHILD}drum_{drum.export_number:02}\n")	
 			
-		file.write("\n; [ FM Drum macros]\n")		
-		file.write(f"{_CHILD}drummacro_start:\n")		
-		for drum in song.drums:
-			if drum.used == True:
-				file.write(f"{_DW} {_CHILD}drum_{drum.export_number:02}\n")	
-		
-		for drum in song.drums:
-			if drum.used == True:
-				#file.write(f"\n{_CHILD}drum_{drum.export_number:02}:\n")
-				export_drum(file,drum)
+			for drum in song.drums:
+				if drum.used == True:
+					#file.write(f"\n{_CHILD}drum_{drum.export_number:02}:\n")
+					export_drum(file,drum)
 			
 		file.write("\n; [ Instruments]\n")				
 		file.write(f"{_CHILD}instrument_start:\n")
