@@ -55,7 +55,7 @@ def load_tmu(infile,song):
 		val = data[index]
 		index += 1
 		song.set_version(val & 0x0f)			# version
-		song.set_type((val >> 4) & 0x0f)		# type
+		song.set_type((val >> 4) & 0x07)		# type
 		song.set_chansetup(val & 0x80)		# channel set up
 		
 		#--- extra bytes 
@@ -65,12 +65,12 @@ def load_tmu(infile,song):
 
 			index += tmp + 1
 
-		str = data[index:index+32]			# name
+		str = data[index:index+32].replace(b'\x00', b' ')			# name
 		index += 32		
 		song.name = str.decode('utf-8')
 
 		
-		str = data[index:index+32]			# by
+		str = data[index:index+32].replace(b'\x00', b' ')			# by
 		index += 32		
 		song.by = str.decode('utf-8')
 
@@ -92,7 +92,7 @@ def load_tmu(infile,song):
 		
 		for i in range(0,31):				# set 16 instrument names.
 			ins = Instrument(i+1)
-			str = data[index:index+16]	
+			str = data[index:index+16].replace(b'\x00', b' ')
 			index += 16	
 			try:
 				ins.name = str.decode('utf-8')	
@@ -224,8 +224,8 @@ def decompress_pattern(data):
 	
 	while d < 2048:
 		val = data[s]
-#		if val == 255:
-#			return pat
+		if val == 255:
+			return pat
 		if val != 0:					# write val	
 			pat[d] = val
 			d+=1			
@@ -871,9 +871,9 @@ def export_track(file,track):
 					else:
 						file.write(f"\t\t\t;CMD {c:01x}{p:02x} Waveform Not valid [WARNING]\n")
 						print(f"CMD {c:01x}{p:02x} Waveform Not valid [WARNING]")				
-				else:					
+				#else:					
 					# Channel setup
-					file.write(f"{_DB} ${cmd['B']:02x},${p:02x}\t\t\t;CMD Channel setup\n")
+				#	file.write(f"{_DB} ${cmd['B']:02x},${p:02x}\t\t\t;CMD Channel setup\n")
 			elif c == 0xc:		
 				if song.type == "SCC":	
 					# SCC Morph commands
@@ -904,7 +904,7 @@ def export_track(file,track):
 						# SCC commands
 						file.write(f"\t\t\t;CMD {c:01x}{p:02x} Waveform Not valid [WARNING]\n")
 						print(f"CMD {c:01x}{p:02x} Waveform Not valid [WARNING]")
-				else:					
+				elif p <= 0x13:					
 					# Drum
 					# parameter: as in tracker
 					drum = song.drums[p-1]

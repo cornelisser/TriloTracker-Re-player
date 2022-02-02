@@ -365,7 +365,7 @@ class Song:
 							prev_i = i
 							
 					if self.type == "FM" or self.type == "SMS":	
-						if c == 0x0c and p != 0:			# set used drums
+						if c == 0x0c and p <= 0x13:			# set used drums
 							self.drums[p-1].used = True
 						if (isPSG == False):	 
 							if c == 0x01:				# for FM channels reverse cmd 1 and 2

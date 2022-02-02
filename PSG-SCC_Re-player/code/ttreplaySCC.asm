@@ -1416,13 +1416,10 @@ decode_cmd12_SCC_morph:
 	jp	z,.morph_fromtrack
 .morph_fromregister:		
 	;--- Set HL to the buffer of the last written waveform
-	ld	hl,$9800
+	ld	h,$98
 	ld	a,iyh
-	add	a,l
 	ld	l,a
-	jp	nc,.morph_copy
-	inc	h
-	jr.	.morph_copy	
+	jp	.morph_copy	
 
 .morph_fromtrack:
 	;--- Set HL to the waveform set by instrument or B1y or B2y
@@ -1906,20 +1903,16 @@ process_cmd0_arpeggio:
 	
 	
 process_cmd1_port_up:
-	ld	a,(ix+TRACK_cmd_1)
-	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
-	sub	b
+	sub	(ix+TRACK_cmd_1)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
 	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
 	jp	process_commandEND
 	
 process_cmd2_port_down:
-	ld	a,(ix+TRACK_cmd_2)
-	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
-	add	b
+	add	(ix+TRACK_cmd_2)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
 	inc	(ix+TRACK_cmd_ToneSlideAdd+1)

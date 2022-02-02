@@ -80,8 +80,13 @@ ttsfx_start:
 	ld	a,00000011b			
 	ld	(sfx_STATUS),a		; 2 chnnels playing
 
-	;--- Get pointers
-	ld	hl,sfxbank+1				; Start of SFX offset list
+
+	ld	de, sfxbank+1		; Start of SFX offset list
+	ld	l, b
+	ld	h, 0
+	add	hl, hl		; offset is 2 sfx (PSG+SCC)
+	add	hl, hl		; x2 to get item offset in bank
+	add	hl, de
 	ld	a,b
 	add	a						; offset is 2 sfx (PSG+SCC)
 	add	a
