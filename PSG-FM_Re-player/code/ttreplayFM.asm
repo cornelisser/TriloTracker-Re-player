@@ -1,3 +1,35 @@
+; [x] 0xy - Arpeggio
+; [x] 1xy - Portamento up
+; [x] 2xy - Portamento down
+; [ ] 3xy - Tone Portamento
+; [ ] 4xy - Vibrato
+; [ ] 5xy - Tone Portamento + Volume Slide
+; [ ] 6xy - Vibrato + Volume Slide
+; [ ] 7xy - Tremolo
+; [ ] 8xy - PSG HW Envelope Low
+; [ ] 9xy - PSG HW Envelope High
+; [ ] Axy - Volume slide
+;	Cxy - FM drum commands
+; [ ] C00 - Drum reset
+; [ ] Cxy - Drum
+; [x] D00 - Pattern end
+;	Exy - Extended commands
+; [x] E0y - Arpeggio speed
+; [ ] E1y - Fine slide up
+; [ ] E2y - Fine slide down
+; [ ] E50 - LEgato (Note link)
+; [ ] E6y - Track detune
+; [ ] E8y - Global transpose
+; [ ] E8y - Tone panning
+; [ ] E9y - Noise panning
+; [ ] EBy - Brightness
+; [ ] ECy - Note cut delay
+; [ ] EDy - Note delay
+; [x] EFy - Trigger
+; [x] Fxy - Replay Speed
+
+
+
 ;=================================
 ; TriloTracker Re-player FM
 ; 
@@ -15,18 +47,15 @@ define MSX2				; Used in speed equalization
 
 ;define TAIL_ON			; Limit volume to 1
 
-
 ;--- Only set 1 of the settings below for the period table
-;define PERIOD_A440		; Modern 
+define PERIOD_A440		; Modern 
 ;define PERIOD_A432		; Earth
-define PERIOD_A445		; Konami
+;define PERIOD_A445		; Konami
 ;define PERIOD_A448		; Classical
 
-define SFXPLAY_ENABLED	; Enable the SFX functionality.
+;define SFXPLAY_ENABLED	; Enable the SFX functionality.
 
 ;---- Performance option
-;define FPGA_SCC			; FPGA SCC can be written faster
-					; as there are no artifacts when writing same values
 ;define TREMOLO_OFF		; removes tremolo code making the replayer a little bit faster
 
 FM_WRITE:	equ	0x7c	; port to set fm reg nr.
@@ -106,7 +135,8 @@ _r_pause_loop:
 ; Once the sound is silence the replayer is paused.
 ;
 ; in: [A] fade speed (1 - 255)
-;===========================================================	
+;===========================================================
+; FIXME this is not working for FM	
 replay_fade_out:
 	ld	(replay_fade),a
 	ld	(replay_fade_timer),a
@@ -930,7 +960,6 @@ _replay_decode_trigger_porttone_check:
 
 _replay_decode_note:
 	ld	(ix+TRACK_Note),a
-	; FIXME Change to an or sequence to save 1 cycle
 	set 	B_TRGNOT,d
 	set 	B_KEYON,d
 
@@ -1333,7 +1362,6 @@ decode_cmd11_command_end:
 	res	B_TRGCMD,d
 	jp	_rdc_noinc
 	
-
 decode_cmd12_drum:
 	; Get the base addres of the drum list
 	;add 	a 
@@ -1343,7 +1371,6 @@ decode_cmd12_drum:
 	jp	nc,99f
 	inc	h 
 99:
-	ld	l,a
 	; Get the start of the drum macro
 	ld	a,(hl)
 	inc	hl
@@ -1942,110 +1969,92 @@ _macro_end:
 	ld	sp,ix
 	pop	de		; cmd_ToneSlideAdd
 	add	hl,de
-	pop	de		; cmd_ToneAdd
-	add	hl,de
-	pop	de		; TRACK_cmd_detune
-	add	hl,de
+	pop	bc		; cmd_ToneAdd
+	add	hl,bc
+	pop	bc		; TRACK_cmd_detune
+	add	hl,bc
 	ld	sp,(_SP_Storage)
 
-	; FIXME rework this into new replayer
 	;-----------------
 	; FM Octave wrapper
 	; enable slides over multiple octaves.
 	; [DE] still contains tone slide add.
 	;-----------------
-	bit	B_PSGFM,a			;(ix+TRACK_Flags)
-	jp	z,_wrap_skip		; skip wrapper for PSG
-	/// PSG end code nodig
+_wrap:
+	bit	B_PSGFM,(ix+TRACK_Flags)
+	jp	z,_wrap_PSG			; skip wrapper for PSG
 
-;	bit	0,h
-;	jp	z,_wrap_lowcheck
-;_wrap_highcheck:
-;	ld	a,l
-;	cp	$5a				; $5a is the strict limit
-;	jp	c,_wrap_skip		; stop if smaller	
-;	
-;	push	hl
-;	push	de
-;	
-;	;--- Set new tone value for same note 1 octave lower
-;	srl	a
-;	bit 	0,h		; test 9th bit
-;	jp	z,99f
-;	add	128
-;99:
-;	ld	e,a
-;;	ld	d,0
-;	;--- set octave higher
-;	ld	a,h
-;	and	$fe
-;	add	$02
-;;	add	d		; merge with tone value
-;	ld	d,a
-;	;--- get difference between now and new
-;	ex	de,hl
-;	xor	a		; reset carry flag
-;	sbc	hl,de
-;	;--- add difference to current slide
-;	pop	de		; restore slide
-;	add	hl,de
-;	ld	(ix+TRACK_cmd_ToneSlideAdd),l
-;	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
-;	pop	hl	
-;	jr.	_wrap_skip
-;	
-;_wrap_lowcheck:
-;	ld	a,l
-;	cp	$3b		; $ad is the strict limit
-;	jr.	nc,_wrap_skip		; stop if smaller
-;
-;
-;	push 	hl		; store freq
-;	push	de		; store slide
-;	;--- set new tone value for same note (but octave lower)
-;	add	a,a		; multiply by 2 in de 
-;	ld	e,a
+	bit	0,h
+	jp	z,_wrap_lowcheck
+_wrap_highcheck:
+	ld	a,l
+	cp	$5a				; $5a is the strict limit
+	jp	c,_wrap_skip		; stop if smaller	
+	
+	push	hl
+	push	de
+	
+	;--- Set new tone value for same note 1 octave lower
+	srl	a
+	bit 	0,h		; test 9th bit
+	jp	z,99f
+	add	128
+99:
+	ld	e,a
 ;	ld	d,0
-;	jp	nc,99f
-;	inc	d	
-;99:
-;	;--- set octave higher
-;	ld	a,h
-;	and	$fe
-;	sub	$02
+	;--- set octave higher
+	ld	a,h
+	and	$fe
+	add	$02
 ;	add	d		; merge with tone value
-;	ld	d,a
-;	;--- get difference between now and new
-;	ex	de,hl
-;	xor	a		; reset carry flag
-;	sbc	hl,de
-;	;--- add difference to current slide
-;	pop	de		; restore slide
-;	add	hl,de	
-;	
-;	ld	(ix+TRACK_cmd_ToneSlideAdd),l
-;	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
-;	pop	hl	
+	ld	d,a
+	;--- get difference between now and new
+	ex	de,hl
+	xor	a		; reset carry flag
+	sbc	hl,de
+	;--- add difference to current slide
+	pop	de		; restore slide
+	add	hl,de
+	ld	(ix+TRACK_cmd_ToneSlideAdd),l
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
+	pop	hl	
+	jr.	_wrap_skip
+	
+_wrap_lowcheck:
+	ld	a,l
+	cp	$3b		; $ad is the strict limit
+	jr.	nc,_wrap_skip		; stop if smaller
+
+
+	push 	hl		; store freq
+	push	de		; store slide
+	;--- set new tone value for same note (but octave lower)
+	add	a,a		; multiply by 2 in de 
+	ld	e,a
+	ld	d,0
+	jp	nc,99f
+	inc	d	
+99:
+	;--- set octave higher
+	ld	a,h
+	and	$fe
+	sub	$02
+	add	d		; merge with tone value
+	ld	d,a
+	;--- get difference between now and new
+	ex	de,hl
+	xor	a		; reset carry flag
+	sbc	hl,de
+	;--- add difference to current slide
+	pop	de		; restore slide
+	add	hl,de	
+	
+	ld	(ix+TRACK_cmd_ToneSlideAdd),l
+	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h	
+	pop	hl	
 	
 _wrap_skip:
-;	; replace the last pushed value on stack
-;	pop	de
-;	ex	de,hl
-;	ld	(hl),e
-;	inc	hl
-;	ld	a,d	; reset key on and sustain
-;	and	$0f
-;	ld	d,a
-;	ld	a,(ix+TRACK_Flags)	; Add the sustain and key bits.
-;	and	16+32	
-;	or	d
-;	ld	(hl),a
-
 	; replace the last pushed value on stack
-;	pop	de
-;	ex	de,hl
-;	ld	(hl),e
-;	inc	hl
 	ld	a,h			; reset keyon and sustain
 	and	$0f
 	ld	h,a
@@ -2055,6 +2064,7 @@ _wrap_skip:
 	or	iyl			; iyl is 64 if there is a note trigger
 	ld	h,a
 
+_wrap_PSG:
 	;--- Return the tone register value
 	scf		; no cary is update the register value
 	ret
@@ -2063,7 +2073,13 @@ _wrap_skip:
 
 process_noNoteActive:
 	;-- Silence
-	; TODO Check if this is sufficient for FM. See commented old code below
+	bit	B_PSGFM,d
+	jp	z,.psg
+.fm:
+	ld	a,$0f
+	ld	(FM_regVOLF),a
+	ret
+.psg:
 	xor	a			; also clears the carry flag.
 	ld	(FM_regVOLF),a
 	ret 	
@@ -2173,11 +2189,8 @@ process_cmd0_arpeggio:
 
 	
 process_cmd1_port_up:
-	ld	a,(ix+TRACK_cmd_1)	
-
-	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
-	sub	b
+	sub	(ix+TRACK_cmd_1)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
 	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
@@ -2185,10 +2198,8 @@ process_cmd1_port_up:
 
 	
 process_cmd2_port_down:	
-	ld	a,(ix+TRACK_cmd_2)
-	ld	b,a
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
-	add	b
+	add	(ix+TRACK_cmd_2)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
 	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
@@ -2374,9 +2385,6 @@ process_cmd10_note_delay:
 
 
 
-_process_drum_none:
-	ld	(FM_DRUM_ACTIVE),a
-	ret
 ;============================================================================
 ; process_drum
 ;
@@ -2390,6 +2398,7 @@ process_drum:
 	ret	z
 	;-- Retrieve the next action
 	ld	bc,(FM_DRUM_MACRO)
+
 
 _process_drum_loop:
 	ld	hl,DRUM_MACRO_LIST-2
@@ -2433,6 +2442,8 @@ DRUM_MACRO_LIST:
 _drum_stop:			;2
 	xor	a
 	ld	(FM_DRUM_ACTIVE),a
+	ld	a,$20
+	ld	(FM_DRUM),a
 	ret
 
 _drum_vol_bd:		;4
@@ -2560,6 +2571,7 @@ _drum_tone_cytt:	;1c
 _drum_percussion:	;1e
 	ld	a,(bc)
 	inc	bc
+	or	$20			; TODO This could be in the data!! 
 	ld	(FM_DRUM),a
 	jp	_process_drum_loop
 	
@@ -2720,19 +2732,25 @@ route_FM:
 	djnz	.channel_loop
 
 	;--- write rythm register
-.rythm:
+.rythm:	
+	ld	b,(hl)
 	dec	hl
 	ld	a,(hl)
-	and	00011111b		; check if there are drums
-	ret	z			; no drums to play
+	cp	$20			; no drums
+	ret	z
 
-	ld	d,a			; Trigger on the drums
+	inc	hl
+	ld	c,a			; save new
+	xor	$1f			; create key off mask
+	and	b			; reset bits to trigger
+	ld	d,a			
 	ld	a,$0e			
 	call	_writeFM
 
-	set	5,a			; Trigger off the drums
+	ld	a,c			; restore new
+	or	b			; add old key-on bits
+	ld	d,a
 	call	_writeFM_data
-	ld	(hl),0
 	ret
 
 .notActive:

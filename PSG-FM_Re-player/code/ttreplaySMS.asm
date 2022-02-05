@@ -1395,7 +1395,7 @@ process_commandEND:
 process_note:
 
 	;=====
-	; NOTE
+	; Note
 	;=====
 	;--- Check if we need to trigger a new note
 	bit	B_TRGNOT,d	;(ix+TRACK_Flags)

@@ -156,7 +156,7 @@ PSG_regToneB 		#2	; Tone B freq low
 					; Tone B freq high
 PSG_regToneC 		#2	; Tone C freq low
 					; Tone C freq high
-replay_noise:
+replay_noise		#0
 PSG_regNOISE 		#1	; Noise freq (5bit)
 PSG_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
 PSG_regVOLA 		#1	; Chan A volume

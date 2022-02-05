@@ -61,15 +61,6 @@ initmain:
 	ld	(0xFD9B),hl	
 	
 	
-	;--- Set speed equalization
-	ld	a,($FFE8)	; get mirror of VDP reg# 9
-	and	2
-	jp	z,99f
-	ld	a,-1
-99:
-	inc	a			; 1 = 60hz
-	ld	(equalization_freq),a
-	ld	(equalization_cnt),a
 	
 	;--- Init screen
 	call 	init_vdp
@@ -80,14 +71,14 @@ initmain:
 	
 	;--- initialise replayer
 	call	replay_init
+	xor	a
+	call	replay_equalization
 ;	call	ttsfx_init
-	ld	a,1
-	ld	(equalization_freq),a
-	ld	(equalization_cnt),a	
+
 	;--- initialise demo song
 	ld	hl,demo_song
 	call	replay_loadsong
-	
+	 
 	;--- initialise sfx pointers
 	
 	

@@ -1132,7 +1132,7 @@ _pcAY_noCommand:
 _pcAY_commandEND:
 
 	;=====
-	; NOTE
+	; Note
 	;=====
 	;--- Check if we need to trigger a new note
 	bit	B_TRGNOT,d	;(ix+TRACK_Flags)
