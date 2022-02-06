@@ -1,35 +1,3 @@
-; [x] 0xy - Arpeggio
-; [x] 1xy - Portamento up
-; [x] 2xy - Portamento down
-; [ ] 3xy - Tone Portamento
-; [ ] 4xy - Vibrato
-; [ ] 5xy - Tone Portamento + Volume Slide
-; [ ] 6xy - Vibrato + Volume Slide
-; [ ] 7xy - Tremolo
-; [ ] 8xy - PSG HW Envelope Low
-; [ ] 9xy - PSG HW Envelope High
-; [ ] Axy - Volume slide
-;	Cxy - FM drum commands
-; [ ] C00 - Drum reset
-; [ ] Cxy - Drum
-; [x] D00 - Pattern end
-;	Exy - Extended commands
-; [x] E0y - Arpeggio speed
-; [ ] E1y - Fine slide up
-; [ ] E2y - Fine slide down
-; [ ] E50 - LEgato (Note link)
-; [ ] E6y - Track detune
-; [ ] E8y - Global transpose
-; [ ] E8y - Tone panning
-; [ ] E9y - Noise panning
-; [ ] EBy - Brightness
-; [ ] ECy - Note cut delay
-; [ ] EDy - Note delay
-; [x] EFy - Trigger
-; [x] Fxy - Replay Speed
-
-
-
 ;=================================
 ; TriloTracker Re-player FM
 ; 
@@ -69,8 +37,164 @@ _CMD:		equ	144	; = effect 0
 _SPC:		equ	184	; = special commands
 _EOT:		equ	191	; = end of track
 _WAIT:	equ	192	; = wait 1
-
 	
+	ALIGN 256
+
+MACROACTIONLIST:
+	jp	macro_volume_same		; 0
+	nop
+	jp  	macro_mixer			; 2
+	nop
+	jp  	macro_tone_add		; 4
+	nop
+	jp  	macro_tone_sub		; 6
+	nop
+	jp  	macro_vol_base		; 8
+	nop
+	jp  	macro_vol_add		; a
+	nop
+	jp  	macro_vol_sub		; c
+	nop
+	jp  	macro_noise_base		; e
+	nop
+	jp  	macro_noise_add		; 10
+	nop
+	jp  	macro_noise_sub		; 12
+	nop
+	jp  	macro_noise_vol		; 14
+	nop
+	jp  	macro_voice			; 16
+	nop
+	jp  	macro_loop			; 18
+	nop
+	jp	macro_envelope		; 1a
+	nop
+	jp	macro_envelope_shape	; 1c
+
+
+PROCESS_CMDLIST:
+	; This list only contains the primary commands.
+	jp	process_cmd3_port_tone
+	nop
+	jp	process_cmd5_vibrato_port_tone
+	nop
+	jp	process_cmd2_port_down
+	nop		
+	jp	process_cmd0_arpeggio
+	nop			
+	jp	process_cmd4_vibrato
+	nop		
+	jp	process_cmd1_port_up
+	nop	
+	jp	process_cmd6_vibrato_vol
+	nop		
+	jp	process_cmd7_vol_slide
+	nop
+	jp	process_cmd8_tremolo
+	nop
+	jp	process_cmd9_note_cut	
+	nop	
+	jp	process_cmd10_note_delay
+
+DECODE_CMDLIST:
+	; Primary
+	jp	decode_cmd3_port_tone
+	nop	
+	jp	decode_cmd5_vibrato_port_tone
+	nop	
+	jp	decode_cmd2_port_down
+	nop	
+	jp	decode_cmd0_arpeggio
+	nop	
+	jp	decode_cmd4_vibrato
+	nop	
+	jp	decode_cmd1_port_up
+	nop	
+	jp	decode_cmd6_vibrato_vol	
+	nop	
+	jp	decode_cmd7_vol_slide
+	nop	
+	jp	decode_cmd8_tremolo
+	nop	
+	jp	decode_cmd9_note_cut
+	nop	
+	jp	decode_cmd10_note_delay
+	nop	
+	; Secondary
+	; TODO Check these with the TMU Compiler output
+	jp	decode_cmd11_command_end
+	nop	
+	jp	decode_cmd12_drum
+	nop	
+	jp	decode_cmd13_arp_speed
+	nop	
+	jp	decode_cmd14_fine_up
+	nop	
+	jp	decode_cmd15_fine_down
+	nop	
+	jp	decode_cmd16_notelink
+	nop	
+	jp	decode_cmd17_track_detune
+	nop	
+	jp	decode_cmd18_trigger
+	nop	
+	jp	decode_cmd19_speed
+	nop	
+	; SoundChip Specific
+	jp	decode_cmd20_tone_panning
+	nop	
+	jp	decode_cmd21_noise_panning
+	nop	
+	jp	decode_cmd22_brightness	
+
+DRUM_MACRO_LIST:
+	jp	_drum_stop		;2
+	nop	
+	jp	_drum_vol_bd	;4
+	nop	
+	jp	_drum_vol_sn	;6
+	nop	
+	jp	_drum_vol_hh	;8
+	nop	
+	jp	_drum_vol_snhh	;a
+	nop	
+	jp	_drum_vol_cy	;c
+	nop	
+	jp	_drum_vol_tt	;e
+	nop	
+	jp	_drum_vol_cytt	;10
+	nop	
+	jp	_drum_note_bd	;12
+	nop	
+	jp	_drum_tone_bd	;14
+	nop	
+	jp	_drum_note_snhh	;16
+	nop	
+	jp	_drum_tone_snhh	;18
+	nop	
+	jp	_drum_note_cytt	;1a
+	nop	
+	jp	_drum_tone_cytt	;1c
+	nop	
+	jp	_drum_percussion	;1e
+
+	ALIGN 256
+
+TRACK_Vibrato_sine:	; Sine table used for tremelo and vibrato
+      db 	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00		      ; depth 	1
+      db 	$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00		      ; depth 	2
+      db 	$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$02,$02,$02,$02,$03,$03,$03,$03,$02,$02,$02,$02,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00		      ; depth 	3
+      db 	$00,$00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$02,$03,$03,$04,$04,$04,$04,$03,$03,$02,$02,$02,$01,$01,$01,$01,$00,$00,$00,$00,$00		      ; depth 	4
+      db 	$00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$05,$05,$04,$04,$03,$03,$02,$02,$01,$01,$01,$01,$00,$00,$00,$00		      ; depth 	5
+      db 	$00,$00,$00,$00,$01,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$05,$05,$04,$04,$03,$03,$02,$02,$01,$01,$01,$00,$00,$00,$00		      ; depth 	6
+      db 	$00,$00,$00,$01,$01,$01,$02,$02,$03,$04,$04,$05,$06,$06,$07,$08,$08,$07,$06,$06,$05,$04,$04,$03,$02,$02,$01,$01,$01,$00,$00,$00		      ; depth 	7
+      db 	$00,$00,$01,$01,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0C,$0D,$0D,$0C,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$01,$01,$00,$00		      ; depth 	8
+ ;     db 	$00,$00,$01,$02,$02,$04,$05,$06,$08,$09,$0B,$0D,$0F,$11,$13,$15,$15,$13,$11,$0F,$0D,$0B,$09,$08,$06,$05,$04,$02,$02,$01,$00,$00		      ; depth 	9
+ ;     db 	$00,$01,$01,$02,$04,$05,$07,$09,$0B,$0E,$10,$13,$16,$19,$1C,$1F,$1F,$1C,$19,$16,$13,$10,$0E,$0B,$09,$07,$05,$04,$02,$01,$01,$00		      ; depth 	A
+ ;     db 	$00,$01,$02,$03,$05,$08,$0B,$0E,$11,$15,$19,$1D,$21,$26,$2B,$2F,$2F,$2B,$26,$21,$1D,$19,$15,$11,$0E,$0B,$08,$05,$03,$02,$01,$00		      ; depth 	B
+ ;     db 	$01,$01,$03,$05,$07,$0B,$0E,$12,$17,$1C,$21,$27,$2D,$33,$39,$3F,$3F,$39,$33,$2D,$27,$21,$1C,$17,$12,$0E,$0B,$07,$05,$03,$01,$01		      ; depth 	C
+
+
 ;===========================================================
 ; ---	replay_init
 ; Initialize re-player data
@@ -78,9 +202,9 @@ _WAIT:	equ	192	; = wait 1
 ; Input: none
 ;===========================================================
 replay_init:
-	ld	a,8
+	ld	a,4
 	call	replay_set_FM_balance
-	ld	a,8
+	ld	a,4
 	call	replay_set_PSG_balance
 
 	xor	a
@@ -135,8 +259,7 @@ _r_pause_loop:
 ; Once the sound is silence the replayer is paused.
 ;
 ; in: [A] fade speed (1 - 255)
-;===========================================================
-; FIXME this is not working for FM	
+;===========================================================	
 replay_fade_out:
 	ld	(replay_fade),a
 	ld	(replay_fade_timer),a
@@ -152,9 +275,12 @@ replay_fade_out:
 ; setting the balance between FM and PSG as some MSX models 
 ; default balance differs. 
 ;
-; in: [A] master volume (0-7) 0=halve volume, 7=full volume. 
+; in: [A] master volume (0-8) 0=75% volume, 4=100% volume. 
 ;===========================================================	
 replay_set_FM_balance:
+	cp	5	; limit 
+	ret	nc
+	ld	hl,_VOLUME_TABLE_FM-64
 	call	_getnewbalancebase
 	ld	(replay_mainFMvol),hl	
 	ret
@@ -165,9 +291,12 @@ replay_set_FM_balance:
 ; setting the balance between FM and PSG as some MSX models 
 ; default balance differs. 
 ;
-; in: [A] master volume (0-7) 0=halve volume, 7=full volume. 
+; in: [A] master volume (0-8) 0=75% volume, 4=100% volume. 
 ;===========================================================	
 replay_set_PSG_balance:
+	cp	5	; limit 
+	ret	nc
+	ld	hl,_VOLUME_TABLE_PSG-64
 	call	_getnewbalancebase
 	ld	(replay_mainPSGvol),hl	
 	ret
@@ -177,10 +306,9 @@ _getnewbalancebase:
 	add	a
 	add	a
 	add	a
-	ld	hl,_VOLUME_TABLE-128
 	add	a,l
 	ld	l,a
-	ret nc
+	ret 	nc
 	inc	h
 	ret
 	
@@ -561,11 +689,11 @@ decode_data:
 ; 
 ;===========================================================
 process_data:
-	; NOTE Remove
-	ld	a,$fa ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a	
+;	; NOTE Remove
+;	ld	a,$fa ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+;	out	(0x99),a
+;	ld	a,7+128
+;	out	(0x99),a	
 
 	; Set tone table
 	ld	hl,TRACK_ToneTable_PSG
@@ -766,17 +894,18 @@ _rdd_cont:
 	or	d	
 	ld	(FM_regVOLF),a
 
-	; NOTE Remove this DEBUG
-	ld	a,$f6 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a	
+;	; NOTE Remove this DEBUG
+;	ld	a,$f6 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+;	out	(0x99),a
+;	ld	a,7+128
+;	out	(0x99),a	
 
 	;--------------------
 	;--- Process Drums
 	;--------------------
 	call	process_drum
-	
+
+process_fade:	
 	;--------------------
 	; Fade out processing
 	;--------------------
@@ -809,6 +938,28 @@ _rdd_cont:
 	call	.calc_vol
 	ld	b,6
 	ld	hl,FM_regVOLA
+.calc_vol_FM:
+	ld	a,(hl)
+	and	$0f
+	add	c
+	cp	16
+	jp	c,.no_limit_FM
+	ld	a,15
+.no_limit_FM:
+	ld	d,a
+	ld	a,(hl)
+	and	$f0
+	or	d
+	ld	(hl),a
+	ld	a,6
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+
+	djnz	.calc_vol_FM
+	ret
 
 .calc_vol:	
 	ld	a,(hl)
@@ -1073,52 +1224,31 @@ _replaydecode_cmd:
 	sub	_CMD
 	
 	ld	e,a				; store command for later
+
 	ld	hl,DECODE_CMDLIST
-	add	a,a
-	add	a,l
+	add	a
+	add	a
+	add	l
 	ld	l,a
-	jp	nc,.skip
-	inc	h
-.skip:
-	ld	a,(hl)
-	inc	hl
-	ld	h,(hl)
-	ld	l,a
-	
 	inc	bc
 	ld	a,(bc)
-	jp	(hl)
+	jp	hl
 
-
-DECODE_CMDLIST:
-	; Primary
-	dw	decode_cmd3_port_tone
-	dw	decode_cmd5_vibrato_port_tone
-	dw	decode_cmd2_port_down
-	dw	decode_cmd0_arpeggio
-	dw	decode_cmd4_vibrato
-	dw	decode_cmd1_port_up
-	dw	decode_cmd6_vibrato_vol	
-	dw	decode_cmd7_vol_slide
-	dw	decode_cmd8_tremolo
-	dw	decode_cmd9_note_cut
-	dw	decode_cmd10_note_delay
-	; Secondary
-	; TODO Check these with the TMU Compiler output
-	dw	decode_cmd11_command_end
-	dw	decode_cmd12_drum
-	dw	decode_cmd13_arp_speed
-	dw	decode_cmd14_fine_up
-	dw	decode_cmd15_fine_down
-	dw	decode_cmd16_notelink
-	dw	decode_cmd17_track_detune
-	dw	decode_cmd18_trigger
-	dw	decode_cmd19_speed
-	; SoundChip Specific
-	dw	decode_cmd20_tone_panning
-	dw	decode_cmd21_noise_panning
-	dw	decode_cmd22_brightness	
-	
+;	ld	hl,DECODE_CMDLIST
+;	add	a,a
+;	add	a,l
+;	ld	l,a
+;	jp	nc,.skip
+;	inc	h
+;.skip:
+;	ld	a,(hl)
+;	inc	hl
+;	ld	h,(hl)
+;	ld	l,a
+;	
+;	inc	bc
+;	ld	a,(bc)
+;	jp	(hl)
 
 decode_cmd0_arpeggio:
 	; in:	[A] contains the paramvalue
@@ -1189,6 +1319,13 @@ decode_cmd3_port_tone_new_note:
 	;-- get the	previous note freq
 	ld	a,(replay_previous_note)
 	add	a
+
+
+
+;	ld	hl,(base+transpose)
+;	add	a,l
+;	ld	l,a
+
 	ld	hl,(replay_tonetable)
 	add	a,l
 	ld	l,a
@@ -1272,18 +1409,21 @@ decode_cmd4_vibrato:
 	jp	z,.end		; set depth when 0 only when command was not active.
 
 	sub	16
-	ld	hl,TRACK_Vibrato_sine;-16
 	add	a,a
-	jp	nc,.skip1
-	inc	h
-.skip1:	
-	add	a,l
-	ld 	l,a
-	jp	nc,.skip2
-	inc	h
-.skip2:
-	ld	(ix+TRACK_cmd_4_depth),l
-	ld	(ix+TRACK_cmd_4_depth+1),h
+	ld	(ix+TRACK_cmd_4_depth),a
+
+;	ld	hl,TRACK_Vibrato_sine;-16
+;	add	a,a
+;	jp	nc,.skip1
+;	inc	h
+;.skip1:	
+;	add	a,l
+;	ld 	l,a
+;	jp	nc,.skip2
+;	inc	h
+;.skip2:
+;	ld	(ix+TRACK_cmd_4_depth),l
+;	ld	(ix+TRACK_cmd_4_depth+1),h
 	
 .end:	
 	set	B_TRGCMD,d
@@ -1486,20 +1626,27 @@ process_data_chan:
 	bit	B_TRGCMD,d	;(ix+TRACK_Flags)
 	jp	z,process_note
 
-	ld	hl,PROCESS_CMDLIST
+	ld	h,PROCESS_CMDLIST >> 8
 	ld	a,(ix+TRACK_Command)
-
 	add	a
-	add	a,l
+	add	a
+	add	PROCESS_CMDLIST & 255
 	ld	l,a
-	jp	nc,.skip
-	inc	h
-.skip:
-	ld	a,(hl)
-	inc	hl
-	ld	h,(hl)
-	ld	l,a	
-	jp	(hl)
+	jp	hl
+
+;	ld	hl,PROCESS_CMDLIST
+;	ld	a,(ix+TRACK_Command)
+;	add	a
+;	add	a,l
+;	ld	l,a
+;	jp	nc,.skip
+;	inc	h
+;.skip:
+;	ld	a,(hl)
+;	inc	hl
+;	ld	h,(hl)
+;	ld	l,a	
+;	jp	(hl)
 
 
 process_commandEND:
@@ -1552,40 +1699,30 @@ process_instrument:
 	ld	e,(ix+TRACK_MacroPointer)
 	ld	d,(ix+TRACK_MacroPointer+1)
 
+	ld	h,MACROACTIONLIST >> 8
 process_macro:
 	ld	a,(de)
 	inc	de
-	and	a
-	jp	z,macro_volume_same	
-
-	;--- Get macro action address
-	ld	hl,MACROACTIONLIST-2
-	add	a,l
+	add	a
 	ld	l,a
-	jp	nc,.skip
-	inc	h
-.skip:
-	ld	a,(hl)
-	inc	hl
-	ld	h,(hl)
-	ld	l,a
-	jp	(hl)
-
-MACROACTIONLIST:
-	dw  	macro_mixer			; 2
-	dw  	macro_tone_add		; 4
-	dw  	macro_tone_sub		; 6
-	dw  	macro_vol_base		; 8
-	dw  	macro_vol_add		; a
-	dw  	macro_vol_sub		; c
-	dw  	macro_noise_base		; e
-	dw  	macro_noise_add		; 10
-	dw  	macro_noise_sub		; 12
-	dw  	macro_noise_vol		; 14
-	dw  	macro_voice			; 16
-	dw  	macro_loop			; 18
-	dw	macro_envelope		; 1a
-	dw	macro_envelope_shape	; 1c
+	jp	hl
+;	ld	a,(de)
+;	inc	de
+;	and	a
+;	jp	z,macro_volume_same	
+;
+;	;--- Get macro action address
+;	ld	hl,MACROACTIONLIST-2
+;	add	a,l
+;	ld	l,a
+;	jp	nc,.skip
+;	inc	h
+;.skip:
+;	ld	a,(hl)
+;	inc	hl
+;	ld	h,(hl)
+;	ld	l,a
+;	jp	(hl)
 
 macro_mixer:
 	ld  a,(de)
@@ -1614,11 +1751,14 @@ macro_tone_sub:
 	ld	a,(de)
 	ld	b,a
 	inc   de
+	; TODO see if we can avoid changing H
 	ld	l,(ix+TRACK_ToneAdd)
 	ld	h,(ix+TRACK_ToneAdd+1)
 	add   hl,bc
 	ld	(ix+TRACK_ToneAdd),l
 	ld	(ix+TRACK_ToneAdd+1),h
+
+	ld	h,MACROACTIONLIST >> 8	; restore H
 	jp	process_macro
 
 
@@ -1666,9 +1806,9 @@ macro_envelope:
 
 macro_loop:
 	ex	de,hl
-	ld	e,(hl)
-	ld	d,$ff
-	add	hl,de
+	ld	c,(hl)
+	ld	b,$ff
+	add	hl,bc
 	ex	de,hl
 	jp	process_macro
 
@@ -1698,10 +1838,10 @@ macro_vol_add:
 
 macro_vol_sub:
 	ld	a,(de)
-	ld	h,a
+	ld	b,a
 	inc   de
 	ld	a,(ix+TRACK_VolumeAdd)
-	sub   h
+	sub   b
 	jp	nc,.nolimit
 	xor   a
 .nolimit:
@@ -1720,6 +1860,7 @@ ELSE
  	and	0x0f
 ENDIF
 .skip2:
+; pseudo code for jump table. 
 	;--- apply main volume balance
 	ld	bc,(replay_mainvol)
 	add	a,c
@@ -1728,15 +1869,15 @@ ENDIF
 	inc	b
 .skip:
 	ld	a,(bc)	
-	; Test which CHIP.
-	bit	B_PSGFM,(ix+TRACK_Flags)
-	jp	nz,.skip3
-	rra
-	rra
-	rra
-	rra
-.skip3:
-	and	0x0f
+;	; Test which CHIP.
+;	bit	B_PSGFM,(ix+TRACK_Flags)
+;	jp	nz,.skip3
+;	rra
+;	rra
+;	rra
+;	rra
+;.skip3:
+;	and	0x0f
 	ld	(FM_regVOLF),a
 
 _macro_end:
@@ -2101,21 +2242,7 @@ process_noNoteActive:
 ;	xor	a
 ;	ld	(FM_regVOLF),a
 ;	ld	(ix+TRACK_Flags),d
-;	ret	
-
-PROCESS_CMDLIST:
-	; This list only contains the primary commands.
-	dw	process_cmd3_port_tone
-	dw	process_cmd5_vibrato_port_tone
-	dw	process_cmd2_port_down		
-	dw	process_cmd0_arpeggio			
-	dw	process_cmd4_vibrato		
-	dw	process_cmd1_port_up	
-	dw	process_cmd6_vibrato_vol		
-	dw	process_cmd7_vol_slide
-	dw	process_cmd8_tremolo
-	dw	process_cmd9_note_cut		
-	dw	process_cmd10_note_delay		
+;	ret			
 
 			
 process_cmd0_arpeggio:
@@ -2193,7 +2320,7 @@ process_cmd1_port_up:
 	sub	(ix+TRACK_cmd_1)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
-	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
+	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
 	jp	process_commandEND
 
 	
@@ -2202,7 +2329,7 @@ process_cmd2_port_down:
 	add	(ix+TRACK_cmd_2)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	jp	nc,process_commandEND
-	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
+	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
 	jp	process_commandEND
 	
 
@@ -2250,8 +2377,11 @@ ELSE
 	; tremolo	
 	;
 	;=================================	
-	ld	l,(ix+TRACK_cmd_4_depth)
-	ld	h,(ix+TRACK_cmd_4_depth+1)
+	ld	h,TRACK_Vibrato_sine >> 8
+
+;	ld	l,(ix+TRACK_cmd_4_depth)
+;	ld	h,(ix+TRACK_cmd_4_depth+1)
+
 
 	;--- Get next step
 	ld	a,(IX+TRACK_Step)
@@ -2260,11 +2390,12 @@ ELSE
 	ld	(ix+TRACK_Step),a
 	sra	a			; devide step by 2	
 
-	add	a,l
+	add	(ix+TRACK_cmd_4_depth)
+;	add	a,l
 	ld	l,a
-	jp	nc,.skip
-	inc	h
-.skip:
+;	jp	nc,.skip
+;	inc	h
+;.skip:
 	ld	a,(hl)
 	add	a
 	add	a
@@ -2281,25 +2412,27 @@ ENDIF
 	;
 	;=================================
 process_cmd4_vibrato:
-	ld	l,(ix+TRACK_cmd_4_depth)
-	ld	h,(ix+TRACK_cmd_4_depth+1)
+;	ld	l,(ix+TRACK_cmd_4_depth)
+;	ld	h,(ix+TRACK_cmd_4_depth+1)
+	ld	h,TRACK_Vibrato_sine >> 8	
 
 	;--- Get next step
 	ld	a,(IX+TRACK_Step)
 	add	(ix+TRACK_cmd_4_step)
 	and	$3F			; max	64
 	ld	(ix+TRACK_Step),a
-	
+
 	bit	5,a			; step 32-63 the neg	
 	jp	z,.pos	
 	
 .neg:
 	and	$1f	; make it 32 steps again
-	add	a,l
+;	add	a,l
+	add	(ix+TRACK_cmd_4_depth)
 	ld	l,a
-	jp	nc,.skip1
-	inc	h
-.skip1:
+;	jp	nc,.skip1
+;	inc	h
+;.skip1:
 	ld	a,(hl)
 	neg
 	jp	z,.zero			; $ff00 gives strange result ;)	
@@ -2308,11 +2441,12 @@ process_cmd4_vibrato:
 	jp	process_commandEND	
 
 .pos:
-	add	a,l
+	add	(ix+TRACK_cmd_4_depth)
+;	add	a,l
 	ld	l,a
-	jp	nc,.skip2
-	inc	h
-.skip2:
+;	jp	nc,.skip2
+;	inc	h
+;.skip2:
 	ld	a,(hl)
 .zero:	
 	ld	(ix+TRACK_cmd_ToneAdd),a
@@ -2394,56 +2528,45 @@ process_cmd10_note_delay:
 process_drum:
 	ld	a,(FM_DRUM_ACTIVE)
 	and	a
-	;jp	z,_process_drum_none
-	ret	z
+	jp	nz,.yes
+	;--- Nothing to play
+	ld	(FM_DRUM),a
+	ret
+.yes:	
 	;-- Retrieve the next action
 	ld	bc,(FM_DRUM_MACRO)
 
 
 _process_drum_loop:
-	ld	hl,DRUM_MACRO_LIST-2
+	ld	hl,DRUM_MACRO_LIST-4
 	ld	a,(bc)
+	add	a
+	add	l
+	ld	l,a
 	inc	bc
-	and	a
-	jp	z,.end
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-	ld	a,(hl)
-	inc	hl
-	ld	h,(hl)
-	ld	l,a
-	jp	(hl)
+	jp	hl
 
-.end:
-	ld	(FM_DRUM_MACRO),bc
-	ret
+;	ld	hl,DRUM_MACRO_LIST-2
+;	ld	a,(bc)
+;	inc	bc
+;;	and	a
+;;	jp	z,.end
+;	add	a,l
+;	ld	l,a
+;	jp	nc,99f
+;	inc	h
+;99:
+;	ld	a,(hl)
+;	inc	hl
+;	ld	h,(hl)
+;	ld	l,a
+;	jp	(hl)
 
-
-DRUM_MACRO_LIST:
-	dw	_drum_stop		;2
-	dw	_drum_vol_bd	;4
-	dw	_drum_vol_sn	;6
-	dw	_drum_vol_hh	;8
-	dw	_drum_vol_snhh	;a
-	dw	_drum_vol_cy	;c
-	dw	_drum_vol_tt	;e
-	dw	_drum_vol_cytt	;10
-	dw	_drum_note_bd	;12
-	dw	_drum_tone_bd	;14
-	dw	_drum_note_snhh	;16
-	dw	_drum_tone_snhh	;18
-	dw	_drum_note_cytt	;1a
-	dw	_drum_tone_cytt	;1c
-	dw	_drum_percussion	;1e
 
 _drum_stop:			;2
 	xor	a
 	ld	(FM_DRUM_ACTIVE),a
-	ld	a,$20
-	ld	(FM_DRUM),a
+	ld	(FM_DRUM),a	
 	ret
 
 _drum_vol_bd:		;4
@@ -2573,8 +2696,11 @@ _drum_percussion:	;1e
 	inc	bc
 	or	$20			; TODO This could be in the data!! 
 	ld	(FM_DRUM),a
-	jp	_process_drum_loop
-	
+;	jp	_process_drum_loop
+.end:
+;	inc	bc
+	ld	(FM_DRUM_MACRO),bc
+	ret	
 
 
 
@@ -2736,7 +2862,7 @@ route_FM:
 	ld	b,(hl)
 	dec	hl
 	ld	a,(hl)
-	cp	$20			; no drums
+	and	a			; no drums
 	ret	z
 
 	inc	hl
