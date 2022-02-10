@@ -113,7 +113,7 @@ count_low:				#1	; R800 timer
 
 equalization_freq:		#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
 equalization_cnt:		      #1	; counter for correct playback on 60hz
-equalization_flag:		#1	; flag indicating if only instruments need to be processed.
+
 
 TRACK_Chan1				#TRACK_REC_SIZE
 TRACK_Chan2				#TRACK_REC_SIZE

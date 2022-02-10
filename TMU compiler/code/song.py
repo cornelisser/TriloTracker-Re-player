@@ -356,7 +356,7 @@ class Song:
 						if prev_i == i:
 							row[1] = 0					# remove redundant instruments
 						else:
-							prev_i = i
+							prev_i = 800 #i # TODO workaround for ins with voice 0 
 							self.ins[i-1].used = True		# set used instruments
 					if v != 0:
 						if prev_v == v:					# remove redundant volumes

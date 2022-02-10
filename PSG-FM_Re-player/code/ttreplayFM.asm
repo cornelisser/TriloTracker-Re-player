@@ -210,7 +210,6 @@ replay_init:
 	xor	a
 	ld	(replay_mode),a	
 	ld	(equalization_cnt),a
-	ld	(equalization_flag),a	
 	ld	(equalization_freq),a
 	ret
 
@@ -331,6 +330,8 @@ IFDEF MSX2
 .off:
 ENDIF
 	ld	(equalization_freq),a
+	ld	a,1
+	ld	(equalization_cnt),a
 	ret	
 	
 ;===========================================================
@@ -465,20 +466,15 @@ replay_play:
 	;---- SPEED EQUALIZATION 
 	ld	a,(equalization_freq)		; 0 = 50Hz, otherwise 60Hz
 	and	a
-	jr.	z,.PAL               		; if PAL process at any interrupt;
+	jp	z,.PAL               		; if PAL process at any interrupt;
 
 .NTSC:
 	ld	hl,equalization_cnt  		; if NTSC call 5 times out of 6
 	dec	(hl)
-	jr.	nz,.PAL               		; skip music data processing one tic out of 6
+	jp	nz,.PAL               		; skip music data processing one tic out of 6
 
 	;--- Reset timer and raise equalization flag
-	ld	a,6
-	ld	(hl),a						
- 	ld	(equalization_flag),a		
-
-	xor	a
-	ld	(equalization_flag),a
+	ld	(hl),6						
 	ret
 .PAL:                             
 	;---- END SPEED EQUALIZATION	
@@ -689,12 +685,6 @@ decode_data:
 ; 
 ;===========================================================
 process_data:
-;	; NOTE Remove
-;	ld	a,$fa ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-;	out	(0x99),a
-;	ld	a,7+128
-;	out	(0x99),a	
-
 	; Set tone table
 	ld	hl,TRACK_ToneTable_PSG
 	ld	(replay_tonetable),hl
@@ -893,12 +883,6 @@ _rdd_cont:
 	and	$f0
 	or	d	
 	ld	(FM_regVOLF),a
-
-;	; NOTE Remove this DEBUG
-;	ld	a,$f6 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-;	out	(0x99),a
-;	ld	a,7+128
-;	out	(0x99),a	
 
 	;--------------------
 	;--- Process Drums
@@ -1769,7 +1753,6 @@ macro_noise_base:
 	;ld	(PSG_regNOISE),a
 	ld	(replay_noise),a
 	jp	process_macro
-
 macro_noise_sub:
 macro_noise_add:
 	ld	a,(de)
@@ -1785,13 +1768,9 @@ macro_noise_vol:
 	jp	process_macro
 
 macro_voice:
-	;FIXME This is SCC code.
 	ld	a,(de)
 	inc	de
-	ld	(ix+TRACK_Voice),a
-	;---- check this code perhaps this needs more checks.
-	set	B_TRGVOI,(ix+TRACK_Flags)
-;	res	B_ACTMOR,(ix+TRACK_Flags)	
+	ld	(ix+TRACK_Voice),a	
 	jp	process_macro
 
 macro_envelope_shape:

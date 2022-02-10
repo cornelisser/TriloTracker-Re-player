@@ -330,7 +330,7 @@ def export_asm(outfile,song):
 				elif song.type == "FM" or song.type == "SMS":
 					voice = song.get_voice(instrument.voice)
 					if instrument.voice == 0:
-						file.write(f"{_DB} $01\t\t\t\t\t; FM Hardware Voice was not set\n")
+						file.write(f"{_DB} $0F\t\t\t\t\t; FM Hardware Voice was not set\n")
 
 					elif instrument.voice < 16:
 						file.write(f"{_DB} ${instrument.voice << 4:02x}\t\t\t\t\t; FM Hardware Voice {voice.number}\n")
@@ -423,8 +423,9 @@ def export_ins(ins, song, file):
 			if (result_toneL + result_toneH > 0):     # tone update?
 				if (byte2 & bit6):
 					# min
-					result_toneL = (0xffff - (byte3 + (byte4*256)) +1) & 0xff
-					result_toneH = ((0xffff - (byte3 + (byte4*256)) + 1) >> 8) and 0xff	
+					tmp = 0x10000 - ((result_toneH*256)+result_toneL)
+					result_toneL = tmp & 0xff
+					result_toneH = (tmp >> 8)
 					loop_bytes += 3
 					file.write(f"{_DB} $06,${result_toneL:02x},${result_toneH:02x}\t\t\t\t\t; Tone sub\n")
 				else:		
@@ -476,7 +477,7 @@ def export_ins(ins, song, file):
 			# Voice link
 			elif ((byte4 & (bit7)) != 0) and song.type != 'SCC':
 				loop_bytes += 2
-				result_voice = byte1 & 0x0f
+				result_voice = (byte1 << 4) & 0xf0
 				file.write(f"{_DB} $16,${result_voice:02x}\t\t\t\t\t\t; FM Hardware Voice\n")
 
 
@@ -583,10 +584,7 @@ def export_drum(file,drum):
 		# 1a = cymbal+hhat tone note
 		# 1c = cymbal+hhat tone add 
 		# 1e = percussion
-
-		if (p != 0):	
-			# percussion
-			file.write(f"{_DB} $1e, ${p:02x}\t\t\t\t\t\t\t; Percussion\n")			
+	
 		if (bv != 0x0f):
 			# bdrum volume
 			file.write(f"{_DB} $04, ${bv:02x}\t\t\t\t\t\t\t; volume Base drum\n")	
@@ -645,12 +643,14 @@ def export_drum(file,drum):
 				else:
 					#add - neg
 					file.write(f"{_DB} $1c, ${256-(ct & 0x3f):02x}, $ff\t\t\t\t\t\t; tone add neg Cymbal \n")		
-
+		#if (p != 0):	
+			# percussion
+		file.write(f"{_DB} $1e, ${p:02x}\t\t\t\t\t\t\t; Percussion\n")	
 		# End of row to End of Drum macro?
 		if (r == drum.length-1):
 			file.write(f"{_DB} $02\t\t\t\t\t\t\t; STOP - End of Drum macro\n")		
-		else:
-			file.write(f"{_DB} $00\t\t\t\t\t\t\t; END  - End of row\n")
+#		else:
+#			file.write(f"{_DB} $00\t\t\t\t\t\t\t; END  - End of row\n")
 	return	
 
 
