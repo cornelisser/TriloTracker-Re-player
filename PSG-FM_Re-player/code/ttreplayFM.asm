@@ -45,9 +45,9 @@ MACROACTIONLIST:
 	nop
 	jp  	macro_mixer			; 2
 	nop
-	jp  	macro_tone_add		; 4
+	jp  	macro_tone_add		; 4			; Unused!!!
 	nop
-	jp  	macro_tone_sub		; 6
+	jp  	macro_tone_add		; 6
 	nop
 	jp  	macro_vol_base		; 8
 	nop
@@ -57,9 +57,9 @@ MACROACTIONLIST:
 	nop
 	jp  	macro_noise_base		; e
 	nop
-	jp  	macro_noise_add		; 10
+	jp  	macro_noise_add		; 10			
 	nop
-	jp  	macro_noise_sub		; 12
+	jp  	macro_noise_add		; 12		; unused!!!
 	nop
 	jp  	macro_noise_vol		; 14
 	nop
@@ -95,7 +95,8 @@ PROCESS_CMDLIST:
 	jp	process_cmd9_note_cut	
 	nop	
 	jp	process_cmd10_note_delay
-
+	nop			
+	jp	process_cmd4_vibrato_extended
 DECODE_CMDLIST:
 	; Primary
 	jp	decode_cmd3_port_tone
@@ -189,10 +190,11 @@ TRACK_Vibrato_sine:	; Sine table used for tremelo and vibrato
       db 	$00,$00,$00,$00,$01,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$05,$05,$04,$04,$03,$03,$02,$02,$01,$01,$01,$00,$00,$00,$00		      ; depth 	6
       db 	$00,$00,$00,$01,$01,$01,$02,$02,$03,$04,$04,$05,$06,$06,$07,$08,$08,$07,$06,$06,$05,$04,$04,$03,$02,$02,$01,$01,$01,$00,$00,$00		      ; depth 	7
       db 	$00,$00,$01,$01,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0C,$0D,$0D,$0C,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$01,$01,$00,$00		      ; depth 	8
- ;     db 	$00,$00,$01,$02,$02,$04,$05,$06,$08,$09,$0B,$0D,$0F,$11,$13,$15,$15,$13,$11,$0F,$0D,$0B,$09,$08,$06,$05,$04,$02,$02,$01,$00,$00		      ; depth 	9
- ;     db 	$00,$01,$01,$02,$04,$05,$07,$09,$0B,$0E,$10,$13,$16,$19,$1C,$1F,$1F,$1C,$19,$16,$13,$10,$0E,$0B,$09,$07,$05,$04,$02,$01,$01,$00		      ; depth 	A
- ;     db 	$00,$01,$02,$03,$05,$08,$0B,$0E,$11,$15,$19,$1D,$21,$26,$2B,$2F,$2F,$2B,$26,$21,$1D,$19,$15,$11,$0E,$0B,$08,$05,$03,$02,$01,$00		      ; depth 	B
- ;     db 	$01,$01,$03,$05,$07,$0B,$0E,$12,$17,$1C,$21,$27,$2D,$33,$39,$3F,$3F,$39,$33,$2D,$27,$21,$1C,$17,$12,$0E,$0B,$07,$05,$03,$01,$01		      ; depth 	C
+TRACK_Vibrato_sine_extended:	; Sine table used for tremelo and vibrato	
+      db 	$00,$00,$01,$02,$02,$04,$05,$06,$08,$09,$0B,$0D,$0F,$11,$13,$15,$15,$13,$11,$0F,$0D,$0B,$09,$08,$06,$05,$04,$02,$02,$01,$00,$00		      ; depth 	9
+      db 	$00,$01,$01,$02,$04,$05,$07,$09,$0B,$0E,$10,$13,$16,$19,$1C,$1F,$1F,$1C,$19,$16,$13,$10,$0E,$0B,$09,$07,$05,$04,$02,$01,$01,$00		      ; depth 	A
+      db 	$00,$01,$02,$03,$05,$08,$0B,$0E,$11,$15,$19,$1D,$21,$26,$2B,$2F,$2F,$2B,$26,$21,$1D,$19,$15,$11,$0E,$0B,$08,$05,$03,$02,$01,$00		      ; depth 	B
+      db 	$01,$01,$03,$05,$07,$0B,$0E,$12,$17,$1C,$21,$27,$2D,$33,$39,$3F,$3F,$39,$33,$2D,$27,$21,$1C,$17,$12,$0E,$0B,$07,$05,$03,$01,$01		      ; depth 	C
 
 
 ;===========================================================
@@ -920,7 +922,7 @@ process_fade:
 	ld	b,3
 	ld	hl,PSG_regVOLA
 	call	.calc_vol
-	ld	b,6
+	ld	b,9
 	ld	hl,FM_regVOLA
 .calc_vol_FM:
 	ld	a,(hl)
@@ -1378,7 +1380,6 @@ decode_cmd4_vibrato:
 	;--- Init values
 	ld	(ix+TRACK_Command),e
 	ld	e,a
-	
 	;--- Set the speed
 	and	$0f
 	jp	z,.depth
@@ -1392,7 +1393,15 @@ decode_cmd4_vibrato:
 	and	$f0
 	jp	z,.end		; set depth when 0 only when command was not active.
 
-	sub	16
+	cp	$90
+	jp	c,.skip_extended
+	;--- extended
+	sub	$80
+	ld	e,11
+	ld	(ix+TRACK_Command),e
+
+.skip_extended:
+	sub	$10
 	add	a,a
 	ld	(ix+TRACK_cmd_4_depth),a
 
@@ -1728,22 +1737,22 @@ macro_tone_add:
 	inc	de
 	jp	process_macro
 
-macro_tone_sub:
-	ld	a,(de)
-	ld	c,a
-	inc   de
-	ld	a,(de)
-	ld	b,a
-	inc   de
-	; TODO see if we can avoid changing H
-	ld	l,(ix+TRACK_ToneAdd)
-	ld	h,(ix+TRACK_ToneAdd+1)
-	add   hl,bc
-	ld	(ix+TRACK_ToneAdd),l
-	ld	(ix+TRACK_ToneAdd+1),h
-
-	ld	h,MACROACTIONLIST >> 8	; restore H
-	jp	process_macro
+;macro_tone_sub:
+;	ld	a,(de)
+;	ld	c,a
+;	inc   de
+;	ld	a,(de)
+;	ld	b,a
+;	inc   de
+;	; TODO see if we can avoid changing H
+;	ld	l,(ix+TRACK_ToneAdd)
+;	ld	h,(ix+TRACK_ToneAdd+1)
+;	add   hl,bc
+;	ld	(ix+TRACK_ToneAdd),l
+;	ld	(ix+TRACK_ToneAdd+1),h
+;
+;	ld	h,MACROACTIONLIST >> 8	; restore H
+;	jp	process_macro
 
 
 macro_noise_base:
@@ -2385,16 +2394,27 @@ ENDIF
 	jp	process_commandEND	
 
 
+
+
+	;=================================
+	;
+	; Vibrato	
+	;
+	;=================================
+	; FIXME Remove this when implemented semitones in instruments
+process_cmd4_vibrato_extended:
+;	ld	l,(ix+TRACK_cmd_4_depth)
+;	ld	h,(ix+TRACK_cmd_4_depth+1)
+	ld	h,TRACK_Vibrato_sine_extended >> 8	
+	jp	process_cmd4_vibrato.ext
 	;=================================
 	;
 	; Vibrato	
 	;
 	;=================================
 process_cmd4_vibrato:
-;	ld	l,(ix+TRACK_cmd_4_depth)
-;	ld	h,(ix+TRACK_cmd_4_depth+1)
 	ld	h,TRACK_Vibrato_sine >> 8	
-
+.ext:
 	;--- Get next step
 	ld	a,(IX+TRACK_Step)
 	add	(ix+TRACK_cmd_4_step)

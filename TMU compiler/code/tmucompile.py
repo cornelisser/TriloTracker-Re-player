@@ -427,7 +427,7 @@ def export_ins(ins, song, file):
 					result_toneL = tmp & 0xff
 					result_toneH = (tmp >> 8)
 					loop_bytes += 3
-					file.write(f"{_DB} $06,${result_toneL:02x},${result_toneH:02x}\t\t\t\t\t; Tone sub\n")
+					file.write(f"{_DB} $04,${result_toneL:02x},${result_toneH:02x}\t\t\t\t\t; Tone sub\n")
 				else:		
 					loop_bytes += 3	
 					file.write(f"{_DB} $04,${result_toneL:02x},${result_toneH:02x}\t\t\t\t\t; Tone add\n")
@@ -459,7 +459,7 @@ def export_ins(ins, song, file):
 					# add noise
 					noise_prev = 255
 					loop_bytes += 2
-					file.write(f"{_DB} $10,${result_noise:02x}\t\t\t\t\t\t; Noise +\n")	
+					file.write(f"{_DB} $12,${result_noise:02x}\t\t\t\t\t\t; Noise +\n")	
 				elif ((byte1 & (bit6+bit5)) == 0x60 and result_noise > 0):
 					# min noise
 					noise_prev = 255
@@ -805,7 +805,10 @@ def export_track(file,track):
 				# vibrato
 				# parameter: xy - x = speed, y=depth. Depth is limited to 0xC0
 				par = calculate_vibrato_parameter(p)
-				file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")			
+				if par < 0x90:
+					file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato\n")	
+				else:
+					file.write(f"{_DB} ${cmd['4']:02x},${par:02x}\t\t\t;CMD Vibrato Extended\n")			
 			elif c == 5:					
 				# portamento tone + volume slide
 				# parameter: xy = slide value value (pos or negative)
