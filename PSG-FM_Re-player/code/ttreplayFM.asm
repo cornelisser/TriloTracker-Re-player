@@ -122,7 +122,6 @@ DECODE_CMDLIST:
 	jp	decode_cmd10_note_delay
 	nop	
 	; Secondary
-	; TODO Check these with the TMU Compiler output
 	jp	decode_cmd11_command_end
 	nop	
 	jp	decode_cmd12_drum
@@ -221,7 +220,6 @@ replay_init:
 ; 
 ; Input: none
 ;===========================================================
-; TODO Test if pause is working and leaves no sound hanging 
 replay_pause:
 	ld	a,(replay_mode)
 	and	a
@@ -236,11 +234,18 @@ _r_pause_disable:
 	;-- stop decoding and processing music data
 	xor	a
 	ld	(replay_mode),a	
-	ld	(FM_DRUM),a
 	;--- Silence the SN7 PSG
 	ld	(PSG_regVOLA),a
 	ld	(PSG_regVOLB),a
 	ld	(PSG_regVOLC),a
+
+	ld	(FM_regVOLA),a
+	ld	(FM_regVOLB),a
+	ld	(FM_regVOLC),a
+	ld	(FM_regVOLD),a
+	ld	(FM_regVOLE),a
+	ld	(FM_regVOLF),a
+	ld	(FM_DRUM),a
 
 	; release key on all FM channels
 	ld	b,9
@@ -443,7 +448,6 @@ replay_loadsong:
 ;===========================================================
 ; Set mixer values to silent.
 ;===========================================================
-; TODO Check if mixers are set correctly
 replay_play_no:
       xor   a
       ld    (FM_regMIXER),a
@@ -1088,7 +1092,6 @@ _replay_decode_trigger_porttone_check:
 	ret	nc
 	;-- trigger CMD
 	res	B_TRGNOT,d
-	; TODO Check this
 	ld	a,0010010b		;B_ACTNOT B_KEYON
 	or	d
 	ld 	d,a
@@ -1736,24 +1739,6 @@ macro_tone_add:
 	ld	(ix+TRACK_ToneAdd+1),a
 	inc	de
 	jp	process_macro
-
-;macro_tone_sub:
-;	ld	a,(de)
-;	ld	c,a
-;	inc   de
-;	ld	a,(de)
-;	ld	b,a
-;	inc   de
-;	; TODO see if we can avoid changing H
-;	ld	l,(ix+TRACK_ToneAdd)
-;	ld	h,(ix+TRACK_ToneAdd+1)
-;	add   hl,bc
-;	ld	(ix+TRACK_ToneAdd),l
-;	ld	(ix+TRACK_ToneAdd+1),h
-;
-;	ld	h,MACROACTIONLIST >> 8	; restore H
-;	jp	process_macro
-
 
 macro_noise_base:
 	ld	a,(de)
@@ -2693,7 +2678,6 @@ _drum_tone_cytt:	;1c
 _drum_percussion:	;1e
 	ld	a,(bc)
 	inc	bc
-	or	$20			; TODO This could be in the data!! 
 	ld	(FM_DRUM),a
 ;	jp	_process_drum_loop
 .end:
@@ -2716,26 +2700,57 @@ replay_route:
 ;---------------
 	; FIXME implement the save PSG write fix here
 	;--- Push values to AY HW
-	; faster update thanks to theNestruo
-	ld	bc,$0da1
-	ld	hl,PSG_registers
-	xor	a
-_ptAY_loop:
-	out	($a0),a
-	inc	a
-	outi
-	jr	nz,_ptAY_loop
+	ld	hl,PSG_registers+13
+	ld	bc,$0ca1			; 12 seq reg updates + port $a1
 
 	;--- Envelope shape R#13
 	ld	a,(hl)
 	and	a				; Value to write?
 	jp	z,_ptAY_noEnv	
-	ld	b,a	
+	ld	d,a	
 	ld	a,$0d
 	out	($a0),a	
-	out	(c),b
+	out	(c),d
 	ld	(hl),0			;reset the envwrite	
 _ptAY_noEnv:
+	dec	hl
+	ld	a,$0c				; Start at reg $0c 
+
+	;--- Rolled out psg update 6 times
+	out	($a0),a
+	dec	a
+	outd
+	out	($a0),a
+	dec	a
+	outd
+	out	($a0),a
+	dec	a
+	outd
+	out	($a0),a
+	dec	a
+	outd
+	out	($a0),a
+	dec	a
+	outd
+	out	($a0),a
+	dec	a
+	outd
+
+	ld	d,$ff
+_ptAY_loop:
+	dec	a
+	out	($a0),a
+	out	(c),d
+	inc	a
+	out	($a0),a
+	outd
+	dec	a
+	out	($a0),a
+	outd
+	dec	a
+	jr	nz,_ptAY_loop
+		
+	
 
 
 

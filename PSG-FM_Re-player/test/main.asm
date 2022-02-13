@@ -161,9 +161,9 @@ infinite:
 ;	call	replay_set_SCC_balance
 ;	ld	de,-2
 ;	call	replay_transpose	
-	ld	a,16
-	call	replay_fade_out
-;	call	replay_pause
+;	ld	a,16
+;	call	replay_fade_out
+	call	replay_pause
 	; wait_key_release
 99:	
 	xor	a

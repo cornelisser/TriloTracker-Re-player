@@ -32,12 +32,7 @@ define SFXPLAY_ENABLED		; Enable the SFX functionality.
 					; as there are no artifacts when writing same values
 ;define TREMOLO_OFF		; removes tremolo code making the replayer a little bit faster
 ;===============================
-; TODO:
-; - add external SCC support through conditional code.
-; - add replayer speed up through conditional code.
-; - optimize replayer code
-; - instructions for external usage of the RAM variables (setting PSG/SCC base volumes etc)
-;===============================
+
 _REL:		equ	96	; = release
 _SUS:		equ	97	; = sustain
 _VOL:		equ	98	; = volume 1
@@ -482,12 +477,6 @@ decode_data:
 ; 
 ;===========================================================
 process_data:
-	; NOTE Remove
-	ld	a,$f2 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a
-
 	;---- morph routine here
 	ld	a,(replay_morph_active)
 	and	a
@@ -1594,13 +1583,15 @@ process_macro:
 MACROACTIONLIST:
 	dw  	macro_mixer			 ; 2
 	dw  	macro_tone_add		  ; 4
-	dw  	macro_tone_sub		  ; 6
+	dw	0					; unused
+;	dw  	macro_tone_sub		  ; 6
 	dw  	macro_vol_base		  ; 8
 	dw  	macro_vol_add		   ; a
 	dw  	macro_vol_sub			; c
 	dw  	macro_noise_base		; e
 	dw  	macro_noise_add			; 10
-	dw  	macro_noise_sub			; 12
+	dw	0					; unused
+;	dw  	macro_noise_sub			; 12
 	dw  	macro_noise_vol		; 14
 	dw  	macro_voice			 ; 16
 	dw  	macro_loop				; 18
@@ -1630,19 +1621,19 @@ macro_tone_add:
 	jp	process_macro
 
 
-macro_tone_sub:
-	ld	a,(de)
-	ld	c,a
-	inc   de
-	ld	a,(de)
-	ld	b,a
-	inc   de
-	ld	l,(ix+TRACK_ToneAdd)
-	ld	h,(ix+TRACK_ToneAdd+1)
-	add   hl,bc
-	ld	(ix+TRACK_ToneAdd),l
-	ld	(ix+TRACK_ToneAdd+1),h
-	jp	process_macro
+;macro_tone_sub:
+;	ld	a,(de)
+;	ld	c,a
+;	inc   de
+;	ld	a,(de)
+;	ld	b,a
+;	inc   de
+;	ld	l,(ix+TRACK_ToneAdd)
+;	ld	h,(ix+TRACK_ToneAdd+1)
+;	add   hl,bc
+;	ld	(ix+TRACK_ToneAdd),l
+;	ld	(ix+TRACK_ToneAdd+1),h
+;	jp	process_macro
 
 
 macro_noise_base:
@@ -1653,7 +1644,7 @@ macro_noise_base:
 	ld	(replay_noise),a
 	jp	process_macro
 
-macro_noise_sub:
+;macro_noise_sub:
 macro_noise_add:
 	ld	a,(de)
 	inc   de
