@@ -44,3 +44,31 @@ TMU compiler/code/test.lst
 TMU
 
 PSG-FM_Re-player/.vscode/launch.json
+
+.vscode/launch.json
+
+PSG-FM_Re-player/.vscode/tasks.json
+
+PSG-SCC_Re-player/example/.vscode/launch.json
+
+PSG-SCC_Re-player/example/.vscode/tasks.json
+
+TMU compiler/.vscode/
+
+*.toc
+
+TMU compiler/code/build/tmucompile/base_library.zip
+
+TMU compiler/code/build/tmucompile/PKG-00.pkg
+
+TMU compiler/code/build/tmucompile/PYZ-00.pyz
+
+TMU compiler/code/build/tmucompile/tmucompile.exe
+
+TMU compiler/code/build/tmucompile/tmucompile.exe.manifest
+
+TMU compiler/code/build/tmucompile/tmucompile.pkg
+
+TMU compiler/code/build/tmucompile/warn-tmucompile.txt
+
+TMU compiler/code/build/tmucompile/xref-tmucompile.html
