@@ -72,7 +72,7 @@ initmain:
 	;--- initialise replayer
 	call	replay_init
 ;	xor	a
-	ld	a,1
+	ld	a,0
 	call	replay_equalization
 ;	call	ttsfx_init
 

@@ -239,13 +239,15 @@ _r_pause_disable:
 	ld	(PSG_regVOLB),a
 	ld	(PSG_regVOLC),a
 
+	ld	(FM_DRUM),a
+	ld	a,$0f
 	ld	(FM_regVOLA),a
 	ld	(FM_regVOLB),a
 	ld	(FM_regVOLC),a
 	ld	(FM_regVOLD),a
 	ld	(FM_regVOLE),a
 	ld	(FM_regVOLF),a
-	ld	(FM_DRUM),a
+
 
 	; release key on all FM channels
 	ld	b,9
@@ -667,7 +669,6 @@ decode_data:
 	ld	a,(FM_softvoice_req)
 	cp	2
 	jp	c,process_data
-	add	a
 	ld	hl,(replay_voicebase)
 	add	a,l
 	ld	l,a
@@ -1587,15 +1588,15 @@ decode_cmd21_noise_panning:
 
 
 decode_cmd22_brightness:
-	ld	e,a
+	ld	l,a
 	ld	a,(FM_Voicereg+4)
-	ld	d,a
-	add	a,e
+	ld	h,a
+	add	a,l
 	and	00111111b
-	ld	e,a
-	ld	a,d
+	ld	l,a
+	ld	a,h
 	and	11000000b
-	or	e
+	or	l
 	ld	(FM_Voicereg+4),a
 	ld	a,1
 	ld	(FM_softvoice_req),a
