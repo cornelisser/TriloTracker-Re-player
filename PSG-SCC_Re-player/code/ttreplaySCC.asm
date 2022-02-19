@@ -279,8 +279,13 @@ ENDIF
 ; Set mixer values to silent.
 ;===========================================================
 replay_play_no:
+	; Silence PSG vol to avoid pops in sfx when music is not playing.
       xor   a
-      ld    (SCC_regMIXER),a
+	ld	(PSG_regVOLA),a		
+	ld	(PSG_regVOLB),a	
+	ld	(PSG_regVOLC),a
+	; Set mixers to silence
+	ld    (SCC_regMIXER),a
       xor   $3f
       ld    (PSG_regMIXER),a
       ret
