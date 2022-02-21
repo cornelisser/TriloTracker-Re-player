@@ -196,6 +196,33 @@ TRACK_Vibrato_sine_extended:	; Sine table used for tremelo and vibrato
       db 	$01,$01,$03,$05,$07,$0B,$0E,$12,$17,$1C,$21,$27,$2D,$33,$39,$3F,$3F,$39,$33,$2D,$27,$21,$1C,$17,$12,$0E,$0B,$07,$05,$03,$01,$01		      ; depth 	C
 
 
+
+_Default_Registers:
+	db	$00,$ff,$00,$ff,$00,$ff,$00,$ff,$00,$ff,$00,$ff,$00,$ff,$00,$ff	; Voice reg
+	db	$00,$00,$ff,$ff,$00,$ff								; Chan A Tone + vol
+	db	$00,$00,$ff,$ff,$00,$ff
+	db	$00,$00,$ff,$ff,$00,$ff
+	db	$00,$00,$ff,$ff,$00,$ff
+	db	$00,$00,$ff,$ff,$00,$ff
+	db	$00,$00,$ff,$ff,$00,$ff								; Chan F Tone + vol
+_DRUM_Default:
+	; values taken from XAK3 intro. Used the most used values as default
+	dw	0x04E4		; Bass drum
+	dw	0x0000
+	db	0x00			; vol
+	db	0xff
+	dw	0x0120		; Snare + HiHat
+	dw	0x0000
+	db	0x00			; vol
+	db	0xff
+	dw	0x00AB		; Cymbal + TomTom
+	dw	0x0000
+	db	0x00			; vol
+	db	0xff
+	db	0x20			; FM drm
+	db	0xff
+
+
 ;===========================================================
 ; ---	replay_init
 ; Initialize re-player data
@@ -369,6 +396,7 @@ replay_loadsong:
 	;--- Initialize re-player variables.
 	xor	a
 	ld	(replay_speed_subtimer),a
+	ld	(FM_softvoice_req),a
 	
 	;--- Erase channel data	in RAM
 	ld	bc,TRACK_REC_SIZE*8-1
@@ -378,13 +406,22 @@ replay_loadsong:
 	ldir
 	
 	ld	(replay_arp_speed),a
-	ld	(FM_DRUM_ACTIVE),a
-	ld	(FM_DRUM),a	
+
+
+	ld	hl,_Default_Registers
+	ld	de,FM_Voicereg
+	ld	bc,66
+
+
+
+	;--- Tone regs
+;	ld	(FM_DRUM_ACTIVE),a
+;	ld	(FM_DRUM),a	
 	
-	ld	(PSG_regVOLA),a
-	ld	(PSG_regVOLB),a	
-	ld	(PSG_regVOLC),a
-	ld	(PSG_regNOISE),a
+;	ld	(PSG_regVOLA),a
+;	ld	(PSG_regVOLB),a	
+;	ld	(PSG_regVOLC),a
+;	ld	(PSG_regNOISE),a
 
 
 ;	;--- Set the tone table base
@@ -413,7 +450,7 @@ replay_loadsong:
 	ld	(TRACK_Chan6+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
-	ld	(FM_softvoice_req),a	
+;	ld	(replay_softvoice),a
 ;	ld	(FM_softvoice_set),a
 
 	ld	a,16
@@ -670,6 +707,7 @@ decode_data:
 	cp	2
 	jp	c,process_data
 	ld	hl,(replay_voicebase)
+	add	a
 	add	a,l
 	ld	l,a
 	jp	nc,.skip
@@ -2699,7 +2737,6 @@ replay_route:
 ;---------------
 ; P S	G 
 ;---------------
-	; FIXME implement the save PSG write fix here
 	;--- Push values to AY HW
 	ld	hl,PSG_registers+13
 	ld	bc,$0ca1			; 12 seq reg updates + port $a1
@@ -2775,11 +2812,12 @@ route_FM:
 	jp	z,.channels
 
 	;--- update the voice registers
+	ex	af,af'
 	xor	a
 	ld	(FM_softvoice_req),a
 	ld	hl,FM_Voicereg
 	ld	bc,$0800		; 8 values, base register 0
-	ex	af,af'
+
 .voiceloop:
 	ld	a,(hl)
 	inc	hl

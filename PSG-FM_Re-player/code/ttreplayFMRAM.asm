@@ -125,7 +125,7 @@ TRACK_Chan7				#TRACK_REC_SIZE
 TRACK_Chan8				#TRACK_REC_SIZE
 
 
-
+REGISTERS_START		#0
 IFDEF SFXPLAY_ENABLED
 
 ;--- AY SPECIFIC
@@ -225,11 +225,8 @@ FM_DRUMb		#1
 FM_DRUM_ACTIVE		#1	; Is a drum active?
 FM_DRUM_MACRO		#2	; Pointer to drum macro data
 
-
-
-
 ; DEze lijkt niet meer nodig
 FM_regMIXER 		#1	; x3f	; Mixer control (1 = off, 0 = on)
 
-
+REGISTERS_END		#0
 
