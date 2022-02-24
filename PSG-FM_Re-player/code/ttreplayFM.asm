@@ -361,7 +361,7 @@ IFDEF MSX2
 	jp	z,.off
 	;--- Only enable if in 60Hz mode
 	ld	a,($FFE8)	; get mirror of VDP reg# 9
-	and	11111101b
+	and	00000010b
 	xor	00000010b
 .off:
 ENDIF
@@ -397,6 +397,7 @@ replay_loadsong:
 	xor	a
 	ld	(replay_speed_subtimer),a
 	ld	(FM_softvoice_req),a
+	ld	(replay_arp_speed),a
 	
 	;--- Erase channel data	in RAM
 	ld	bc,TRACK_REC_SIZE*8-1
@@ -405,9 +406,6 @@ replay_loadsong:
 	ld	(hl),a
 	ldir
 	
-	ld	(replay_arp_speed),a
-
-
 	ld	hl,_Default_Registers
 	ld	de,FM_Voicereg
 	ld	bc,66
@@ -2375,7 +2373,7 @@ process_cmd3_sub:
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
 	jp	process_commandEND
 process_cmd3_stop:	
-	res	B_TRGCMD,d		;(ix+TRACK_Flags)
+;	res	B_TRGCMD,d		;(ix+TRACK_Flags)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),0
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0	
 	jp	process_commandEND
@@ -2755,25 +2753,27 @@ _ptAY_noEnv:
 	ld	a,$0c				; Start at reg $0c 
 
 	;--- Rolled out psg update 6 times
-	out	($a0),a
+	out	($a0),a			; reg c
 	dec	a
 	outd
-	out	($a0),a
+	out	($a0),a			; reg b
 	dec	a
 	outd
-	out	($a0),a
+	out	($a0),a			; reg	a
 	dec	a
 	outd
-	out	($a0),a
+	out	($a0),a			; reg	9
 	dec	a
 	outd
-	out	($a0),a
+	out	($a0),a			; reg 8
 	dec	a
 	outd
-	out	($a0),a
+	out	($a0),a			; reg 7
 	dec	a
 	outd
-
+	out	($a0),a			; reg 6
+	outd
+	dec	a
 	ld	d,$ff
 _ptAY_loop:
 	dec	a
@@ -2786,7 +2786,7 @@ _ptAY_loop:
 	out	($a0),a
 	outd
 	dec	a
-	jr	nz,_ptAY_loop
+	jp	p,_ptAY_loop
 		
 	
 

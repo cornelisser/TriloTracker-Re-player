@@ -164,7 +164,7 @@ IFDEF MSX2
 	jp	z,.off
 	;--- Only enable if in 60Hz mode
 	ld	a,($FFE8)	; get mirror of VDP reg# 9
-	and	11111101b
+	and	00000010b
 	xor	00000010b
 .off:
 ENDIF
@@ -1069,7 +1069,6 @@ decode_cmd3_port_tone_new_note:
 	or 	128
 .skip3:
 	ld 	(ix+TRACK_cmd_3),a
-	
 	exx					; restore flags in D
 	ret
 
