@@ -349,14 +349,16 @@ class Song:
 					p = row[4]	
 
 					isPSG = True
-					if ((track.number) % 8) > 2: 			# replace 2 with the channel setup
+					if ((track.number) % 8) > 2: 						# chanels 3 and up are FM
+						isPSG = False
+					elif (((track.number) % 8) == 2 and self.chansetup == 0):	# chan 2 is only FM id chansetup != 0
 						isPSG = False
 						
 					if i != 0:
 						if prev_i == i:
 							row[1] = 0					# remove redundant instruments
 						else:
-							prev_i = 800 #i # TODO workaround for ins with voice 0 
+							prev_i = 800 #i 				# TODO workaround for ins with voice 0 
 							self.ins[i-1].used = True		# set used instruments
 					if v != 0:
 						if prev_v == v:					# remove redundant volumes
