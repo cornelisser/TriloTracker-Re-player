@@ -2105,28 +2105,58 @@ replay_route:
 ;---------------
 ; P S	G 
 ;---------------
-	; FIXME implement the save PSG write fix here
 	;--- Push values to AY HW
-	; faster update thanks to theNestruo
-	ld	bc,$0da1
-	ld	hl,PSG_registers
-	xor	a
-_ptAY_loop:
-	out	($a0),a
-	inc	a
-	outi
-	jr	nz,_ptAY_loop
+	ld	hl,PSG_registers+13
+	ld	bc,$0ca1			; 12 seq reg updates + port $a1
 
 	;--- Envelope shape R#13
 	ld	a,(hl)
 	and	a				; Value to write?
 	jp	z,_ptAY_noEnv	
-	ld	b,a	
+	ld	d,a	
 	ld	a,$0d
 	out	($a0),a	
-	out	(c),b
+	out	(c),d
 	ld	(hl),0			;reset the envwrite	
 _ptAY_noEnv:
+	dec	hl
+	ld	a,$0c				; Start at reg $0c 
+
+	;--- Rolled out psg update 6 times
+	out	($a0),a			; reg c
+	dec	a
+	outd
+	out	($a0),a			; reg b
+	dec	a
+	outd
+	out	($a0),a			; reg	a
+	dec	a
+	outd
+	out	($a0),a			; reg	9
+	dec	a
+	outd
+	out	($a0),a			; reg 8
+	dec	a
+	outd
+	out	($a0),a			; reg 7
+	dec	a
+	outd
+	out	($a0),a			; reg 6
+	outd
+	dec	a
+	ld	d,$ff
+_ptAY_loop:
+	dec	a
+	out	($a0),a
+	out	(c),d
+	inc	a
+	out	($a0),a
+	outd
+	dec	a
+	out	($a0),a
+	outd
+	dec	a
+	jp	p,_ptAY_loop
 ;--------------
 ; S C	C 
 ;--------------
