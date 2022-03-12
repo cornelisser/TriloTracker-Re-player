@@ -133,6 +133,7 @@ ELSE
 ;      dw      $0007, $0006, $0006, $0006, $0005, $0005, $0005, $0004, $0004, $0004, $0004, $0003
 ENDIF
 
+TRACK_ToneTable_FM:
 IFDEF PERIOD_A432
       dw      $00A8, $00B2, $00BC, $00C8, $00D4, $00E0, $00EE, $00FC, $010B, $011B, $012B, $013D
       dw      $02A8, $02B2, $02BC, $02C8, $02D4, $02E0, $02EE, $02FC, $030B, $031B, $032B, $033D
@@ -174,24 +175,5 @@ ELSE
       dw      $0EAD, $0EB7, $0EC2, $0ECE, $0EDA, $0EE7, $0EF5, $0F03, $0F13, $0F23, $0F34, $0F47
 ENDIF
 
-
-TRACK_ToneTable_FM:
-;	db   	0,0
-	db	0adh,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h
-      db	0f4h,000h,003h,001h,012h,001h,022h,001h,034h,001h,046h,001h
-      db    0adh,002h,0b7h,002h,0c2h,002h,0cdh,002h,0d9h,002h,0e6h,002h
-      db    0f4h,002h,003h,003h,012h,003h,022h,003h,034h,003h,046h,003h
-      db    0adh,004h,0b7h,004h,0c2h,004h,0cdh,004h,0d9h,004h,0e6h,004h
-      db    0f4h,004h,003h,005h,012h,005h,022h,005h,034h,005h,046h,005h
-      db    0adh,006h,0b7h,006h,0c2h,006h,0cdh,006h,0d9h,006h,0e6h,006h
-      db    0f4h,006h,003h,007h,012h,007h,022h,007h,034h,007h,046h,007h
-      db    0adh,008h,0b7h,008h,0c2h,008h,0cdh,008h,0d9h,008h,0e6h,008h
-      db    0f4h,008h,003h,009h,012h,009h,022h,009h,034h,009h,046h,009h
-      db    0adh,00ah,0b7h,00ah,0c2h,00ah,0cdh,00ah,0d9h,00ah,0e6h,00ah
-      db    0f4h,00ah,003h,00bh,012h,00bh,022h,00bh,034h,00bh,046h,00bh
-      db    0adh,00ch,0b7h,00ch,0c2h,00ch,0cdh,00ch,0d9h,00ch,0e6h,00ch
-      db    0f4h,00ch,003h,00dh,012h,00dh,022h,00dh,034h,00dh,046h,00dh
-      db    0adh,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh
-      db    0f4h,00eh,003h,00fh,012h,00fh,022h,00fh,034h,00fh,046h,00fh
 
 
