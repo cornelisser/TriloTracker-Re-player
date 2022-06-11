@@ -325,12 +325,21 @@ NTSC:
 PAL:							
 	;---- END SPEED EQUALIZATION	
 
-		
+	;--- check for end of pattern
+	ld	hl,(TRACK_pointer1)
+	ld	a,(hl)
+	cp	191	
+	jp	nz,.skip_EOT
+
+	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
+	dec	a
+	jp	nz,.skip_EOT
+	call	z,_replay_check_patternend	
+.skip_EOT:	
 	;--- The speed timer
 	ld	hl,replay_speed_timer
 	dec	(hl)
-
-	jp	nz,_replay_check_patternend	
+	jp	nz,process_data	
 	
 	;--- Re-init Timer == 0
 	xor	a
