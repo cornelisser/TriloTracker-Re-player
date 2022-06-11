@@ -72,7 +72,7 @@ initmain:
 	;--- initialise replayer
 	call	replay_init
 ;	xor	a
-	ld	a,0
+	ld	a,1
 	call	replay_equalization
 ;	call	ttsfx_init
 
@@ -550,11 +550,11 @@ init_vdp:
 	include	".\screen.asm"
 	include	"..\code\ttreplayFM.asm"
 	include	"..\code\ttreplayFMDAT.asm"
-;	include	"..\ttsfxplay\ttsfxplay.asm"
+	include	"..\ttsfxplayPSG\ttsfxplayPSG.asm"
 
 	
 demo_song:
-	include	".\testfm.asm"
+	include	".\test1.asm"
 	
 TEXT_Title:
 	db	"TriloTracker FM Re-player Debug info",0	
@@ -574,8 +574,10 @@ TEXT_Legend_Data:
 font_data:
 	incbin	".\fontpat.bin"
 
+
+sfxbank:
 ;	include ".\sfx.asm"
-	
+
 ;sfx_PSG_STREAMS:
 ;sfx_SCC_STREAMS:
 ;	dw	sfx1
@@ -614,6 +616,6 @@ debug_pnt:		#8*80
 TEXT_Chan		#40
 
 	
-;	include	"..\ttsfxplay\ttsfxplay_RAM.asm"
+	include	"..\ttsfxplayPSG\ttsfxplayPSG_RAM.asm"
 pattern	#1
 

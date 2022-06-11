@@ -25,22 +25,22 @@ define PERIOD_A445		; Konami
 ;define EXTERNAL_SCC 
 define INTERNAL_SCC		; For internal no slot select is needed.
 
-define SFXPLAY_ENABLED		; Enable the SFX functionality.
+define SFXPLAY_ENABLED	; Enable the SFX functionality.
 
 ;---- Performance option
-;define FPGA_SCC			; FPGA SCC can be written faster
-					; as there are no artifacts when writing same values
+;define FPGA_SCC		; FPGA SCC can be written faster
+						; as there are no artifacts when writing same values
 ;define TREMOLO_OFF		; removes tremolo code making the replayer a little bit faster
 ;===============================
 
-_REL:		equ	96	; = release
-_SUS:		equ	97	; = sustain
-_VOL:		equ	98	; = volume 1
-_INS:		equ	113	; = instrument 1
-_CMD:		equ	144	; = effect 0
-_SPC:		equ	184	; = special commands
-_EOT:		equ	191	; = end of track
-_WAIT:	equ	192	; = wait 1
+_REL:		equ	96		; = release
+_SUS:		equ	97		; = sustain
+_VOL:		equ	98		; = volume 0
+_INS:		equ	113+1	; = instrument 1
+_CMD:		equ	144+1	; = effect 0
+_SPC:		equ	184		; = special commands
+_EOT:		equ	191		; = end of track
+_WAIT:	equ	192			; = wait 1
 	
 
 	
@@ -879,7 +879,7 @@ _replay_decode_ins:
 
 
 _replay_decode_vol:
-	sub	_VOL-1		; Add 1 here as volume 10 becomes 9
+	sub	_VOL	
 	add	a
 	add	a
 	add	a

@@ -663,9 +663,9 @@ def export_track(file,track):
 	wait = -1
 	wait_prev = 255
 	
-	vol_offset = 98
-	ins_offset = 113	
-	cmd_offset = 144
+	vol_offset = 98		
+	ins_offset = 113+1	# increased to add volume 0
+	cmd_offset = 144+1
 	special_offset = 184
 	wait_offset = 192
 	
@@ -731,6 +731,12 @@ def export_track(file,track):
 		c = row[3]		# command
 		p = row[4]		# parameters
 		
+		#--- Replace V0 with volume 0
+		if n == 98:
+			if v == 0:
+				v = 255
+			n = 0
+
 		if curr_value > 0:
 			last_value = curr_value
 		# detect highest action
@@ -771,7 +777,10 @@ def export_track(file,track):
 			else:
 				file.write(f"{_DB} ${n:02x}\t\t\t;Note {notes[(n%12)]}{int(n/12)+1}\n")
 		if v != 0:
-			file.write(f"{_DB} ${vol_offset+v-1:02x}\t\t\t;Volume {v}\n")
+			if v == 255:
+				file.write(f"{_DB} ${vol_offset+0:02x}\t\t\t;Volume (special) 0\n")
+			else:
+				file.write(f"{_DB} ${vol_offset+v:02x}\t\t\t;Volume {v}\n")
 		if i != 0:
 			tmp = song.ins[i-1].export_number
 #			print(f"{song.ins[i-1].number} + {song.ins[i-1].export_number}")

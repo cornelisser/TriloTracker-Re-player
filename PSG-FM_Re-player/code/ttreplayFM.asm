@@ -31,10 +31,10 @@ FM_DATA:	equ	0x7d	; port to set fm data for reg
 ;===============================
 _REL:		equ	96	; = release
 _SUS:		equ	97	; = sustain
-_VOL:		equ	98	; = volume 1
-_INS:		equ	113	; = instrument 1
-_CMD:		equ	144	; = effect 0
-_SPC:		equ	184	; = special commands
+_VOL:		equ	98	; = volume 0
+_INS:		equ	113+1	; = instrument 1
+_CMD:		equ	144+1	; = effect 0
+_SPC:		equ	184	; = special commands  [NOT USED]
 _EOT:		equ	191	; = end of track
 _WAIT:	equ	192	; = wait 1
 	
@@ -409,24 +409,7 @@ replay_loadsong:
 	ld	hl,_Default_Registers
 	ld	de,FM_Voicereg
 	ld	bc,66
-
-
-
-	;--- Tone regs
-;	ld	(FM_DRUM_ACTIVE),a
-;	ld	(FM_DRUM),a	
-	
-;	ld	(PSG_regVOLA),a
-;	ld	(PSG_regVOLB),a	
-;	ld	(PSG_regVOLC),a
-;	ld	(PSG_regNOISE),a
-
-
-;	;--- Set the tone table base
-;	ld	hl,TRACK_ToneTable_PSG
-;	ld	(replay_tonetable_PSG),hl
-;	ld	hl,TRACK_ToneTable_FM
-;	ld	(replay_tonetable_FM),hl
+	ldir
 
 	ld	a,1
 	ld	(replay_speed_timer),a
@@ -448,7 +431,7 @@ replay_loadsong:
 	ld	(TRACK_Chan6+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
-;	ld	(replay_softvoice),a
+	ld	(replay_softvoice),a
 ;	ld	(FM_softvoice_set),a
 
 	ld	a,16
@@ -522,12 +505,21 @@ replay_play:
 .PAL:                             
 	;---- END SPEED EQUALIZATION	
 
-		
+	;--- check for end of pattern
+	ld	hl,(TRACK_pointer1)
+	ld	a,(hl)
+	cp	191	
+	jp	nz,.skip_EOT
+
+	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
+	dec	a
+	jp	nz,.skip_EOT
+	call	z,_replay_check_patternend	
+.skip_EOT:	
 	;--- The speed timer
 	ld	hl,replay_speed_timer
 	dec	(hl)
-
-	jp	nz,_replay_check_patternend	
+	jp	nz,process_data	
 
 	;--- Re-init Timer == 0
 	xor	a
@@ -1006,16 +998,16 @@ process_fade:
 	
 ;--------------------
 _replay_check_patternend:
-	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
-	dec	a
-	jp	nz,process_data
-
-	ld	hl,(TRACK_pointer1)
-	ld	a,(hl)
-	
-	;--- check for end of pattern
-	cp	191	
-	jp	nz,process_data
+;	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
+;	dec	a
+;	jp	nz,process_data
+;
+;	ld	hl,(TRACK_pointer1)
+;	ld	a,(hl)
+;	
+;	;--- check for end of pattern
+;	cp	191	
+;	jp	nz,process_data
 
 	;--- Set track pointers to start
 	ld	hl,(replay_orderpointer)
@@ -1039,7 +1031,7 @@ _replay_check_patternend:
 	ldir
 	ld	(replay_orderpointer),hl		; store pointer for next set
 								; of strack pointers
-	jp	process_data
+	ret
 
 
 
@@ -1227,7 +1219,8 @@ _replay_decode_ins:
 
 
 _replay_decode_vol:
-	sub	_VOL-1
+	sub	_VOL
+	
 	add	a
 	add	a
 	add	a
@@ -1879,220 +1872,12 @@ ENDIF
 	inc	b
 .skip:
 	ld	a,(bc)	
-;	; Test which CHIP.
-;	bit	B_PSGFM,(ix+TRACK_Flags)
-;	jp	nz,.skip3
-;	rra
-;	rra
-;	rra
-;	rra
-;.skip3:
-;	and	0x0f
 	ld	(FM_regVOLF),a
 
 _macro_end:
 	;--- Store macro pointer
 	ld	(ix+TRACK_MacroPointer),e		;--- store pointer for next time
 	ld	(ix+TRACK_MacroPointer+1),d	
-
-
-;	ld	e,(hl)				; info byte
-;	inc	hl
-;	bit	3,e					; Volume change
-;	jp	nz,_vol_change
-;	ld	a,(ix+TRACK_VolumeAdd)
-;	jp	_noVolumeChange
-;	
-;	;--- Volume change
-;_vol_change:
-;	ld	a,(hl)
-;	inc	hl
-;	
-;	bit	2,e
-;	jp	z,_vol_base
-;_vol_rel:
-;	add	 (ix+TRACK_VolumeAdd)
-;	cp	16
-;	jp	c,_vol_base
-;	cp	128
-;	jp	nc,.skip
-;	ld	a,$0f
-;	jp	_vol_base
-;.skip:	
-;	xor	a
-;	
-;_vol_base:
-;	ld	(ix+TRACK_VolumeAdd),a
-;
-;	;---- envelope check
-;	; is done here to be able to continue
-;	; macro volume values.
-;;	bit	B_TRGENV,d		;'(IX+TRACK_Flags)
-;;	jp	z,_noEnv		; if not set then normal volume calculation
-;;	ld	a,16			; set volume to 16 == envelope
-;;	ld	(FM_regVOLF),a
-;;	jp	_noVolume	
-;	
-;_noVolumeChange:
-;	; Apply Tone bit to volume (as SN7 and opll have no mixer)
-;	; Check only for SMS PSG and FM!
-;	bit	5,e		; do we have tone?
-;	jp	nz,_tone_on
-;
-;	bit 	B_PSGFM,d
-;	jp	nz,99f
-;;psg:
-;	xor	a
-;	jp	_tone_off
-;99:
-;	ld	a,15
-;	jp	_tone_off
-;
-;_tone_on:
-;	or	(ix+TRACK_Volume)
-;	ld	c,a			; store volume add
-;	ld 	b,(ix+TRACK_cmd_VolumeAdd)
-;;	ld	b,a
-;;	ld	a,c
-;	sub	a,b
-;	jp 	nc,.skip2
-;	ld	a,c
-;	and	0x0f
-;.skip2:
-;
-;_Vadd:
-;	;--- apply main volume balance
-;	ld	bc,(replay_mainvol)
-;	add	a,c
-;	ld	c,a
-;	jp	nc,.skip
-;	inc	b
-;.skip:
-;	ld	a,(bc)	
-;	; Test which CHIP.
-;	bit	B_PSGFM,d		;(ix+TRACK_Flags)
-;	jp	nz,.skip2
-;	rra
-;	rra
-;	rra
-;	rra
-;.skip2:
-;	and	0x0f
-;_tone_off:
-;	ld	(FM_regVOLF),a
-;
-;_noVolume:
-;	;-------------------------------
-;	;
-;	; NOISE
-;	;
-;	;-------------------------------
-;	bit 	7,e			; test if noise value
-;	jp	z,_noNoise
-;
-;	;--- prevent FM and noise
-;	ld	a,(hl)		; get the value	
-;	inc	hl	
-;	
-;	bit	B_PSGFM,d		;(ix+TRACK_Flags)
-;	jp	nz,_noNoise		; Noise and Link not at the same time
-;	
-;	;--- Set the mixer for noise
-;;	ld	a,(FM_regMIXER)
-;;	or	128
-;;	ld	(FM_regMIXER),a
-;
-;;	bit	5,e
-;;	jp	z,_noLink
-;;	ld	a,(hl)	; get the deviation	
-;;	inc	hl
-;;	bit	6,e
-;;	jp	z,.skip
-;;	add	(ix+TRACK_Noise)
-;;.skip:	
-;	ld	(PSG_regNOISE),a
-;	
-;	
-;_noNoise:
-;	;-------------------------------
-;	;
-;	; NOISE volume
-;	;
-;	;-------------------------------
-;	bit 	6,e			; test if noise volume
-;	jp	z,_noNoiseVol
-;	
-;	;--- prevent FM and noise
-;	ld	a,(hl)		; get the volume	
-;	inc	hl
-;	
-;	bit	B_PSGFM,d		;(ix+TRACK_Flags)
-;	jp	nz,_noLink		; Noise and Link not at the same time
-;
-;
-;
-;	;--- calculate end volume
-;	or	(ix+TRACK_Volume)
-;	ld	c,a			; store volume add
-;	ld 	a,(ix+TRACK_cmd_VolumeAdd)
-;	ld	b,a
-;	ld	a,c
-;	sub	a,b
-;	jp 	nc,.skip2
-;	ld	a,c
-;	and	0x0f
-;.skip2:
-;
-;_NVadd:
-;	;--- apply main volume balance
-;	ld	bc,(replay_mainvol)
-;	add	a,c
-;	ld	c,a
-;	jp	nc,.skip
-;	inc	b
-;.skip:
-;	ld	a,(bc)	
-;	rra
-;	rra
-;	rra
-;	rra
-;.skip2:
-;	and	0x0f
-;	ld	(PSG_regVOLN),a
-;	jp	_noLink
-;
-;	or	(ix+TRACK_Volume)
-;	;--- apply main volume balance
-;	ld	bc,(replay_mainvol)
-;	add	a,c
-;	ld	c,a
-;	jp	nc,.skip3
-;	inc	b
-;.skip3:
-;	ld	a,(bc)
-;	ld	(PSG_regVOLN),a
-;	jp	_noLink
-;
-;
-;_noNoiseVol
-;	;-------------------------------
-;	;
-;	; VoiceLink
-;	;
-;	;-------------------------------
-;	bit 	1,e
-;	jp	z,_noLink
-;
-;	ld	a,(hl)					; get the new hw voice	
-;	inc	hl
-;	
-;	set 	B_TRGVOI,(ix+TRACK_Flags)
-;	ld	(ix+TRACK_Voice),a			; set new voice to be loaded
-;
-;
-;
-;_noLink
-
 
 
 	;-- Get the current note
