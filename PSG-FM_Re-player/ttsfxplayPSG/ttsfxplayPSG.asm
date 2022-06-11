@@ -182,7 +182,7 @@ _ayMIXER:
 	;--- Set Mixer
 	ld	a,b
 	ld	(PSG_regMIXER),a		; Directly write the TT register value
-
+	ret
 
 
 

@@ -21,7 +21,7 @@ define PERIOD_A440		; Modern
 ;define PERIOD_A445		; Konami
 ;define PERIOD_A448		; Classical
 
-;define SFXPLAY_ENABLED	; Enable the SFX functionality.
+define SFXPLAY_ENABLED	; Enable the SFX functionality.
 
 ;---- Performance option
 ;define TREMOLO_OFF		; removes tremolo code making the replayer a little bit faster
