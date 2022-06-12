@@ -45,9 +45,9 @@ MACROACTIONLIST:
 	nop
 	jp  	macro_mixer			; 2
 	nop
-	jp  	macro_tone_add		; 4			; Unused!!!
+	jp  	macro_tone_add		; 4			
 	nop
-	jp  	macro_tone_add		; 6
+	jp  	macro_tone_add		; 6			; Unused!!!
 	nop
 	jp  	macro_vol_base		; 8
 	nop
@@ -57,9 +57,9 @@ MACROACTIONLIST:
 	nop
 	jp  	macro_noise_base		; e
 	nop
-	jp  	macro_noise_add		; 10			
+	jp  	macro_noise_add		; 10		; unused!!!	
 	nop
-	jp  	macro_noise_add		; 12		; unused!!!
+	jp  	macro_noise_add		; 12		
 	nop
 	jp  	macro_noise_vol		; 14
 	nop

@@ -1606,9 +1606,9 @@ MACROACTIONLIST:
 	dw  	macro_vol_add		   ; a
 	dw  	macro_vol_sub			; c
 	dw  	macro_noise_base		; e
-	dw  	macro_noise_add			; 10
-	dw	0					; unused
-;	dw  	macro_noise_sub			; 12
+	dw	0					;unused
+;	dw  	macro_noise_add			; 10	; unused
+	dw  	macro_noise_add			; 12
 	dw  	macro_noise_vol		; 14
 	dw  	macro_voice			 ; 16
 	dw  	macro_loop				; 18
