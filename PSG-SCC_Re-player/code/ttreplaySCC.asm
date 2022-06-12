@@ -52,9 +52,9 @@ _WAIT:	equ	192			; = wait 1
 ; Input: none
 ;===========================================================
 replay_init:
-	ld	a,8
+	ld	a,4
 	call	replay_set_SCC_balance
-	ld	a,8
+	ld	a,4
 	call	replay_set_PSG_balance
 
 	xor	a
@@ -121,6 +121,8 @@ replay_fade_out:
 ; in: [A] master volume (0-7) 0=halve volume, 8=full volume. 
 ;===========================================================	
 replay_set_SCC_balance:
+	cp	5	; limit 
+	ret	nc
 	call	_getnewbalancebase
 	ld	(replay_mainSCCvol),hl	
 	ret
@@ -134,6 +136,8 @@ replay_set_SCC_balance:
 ; in: [A] master volume (0-7) 0=halve volume, 8=full volume. 
 ;===========================================================	
 replay_set_PSG_balance:
+	cp	5	; limit 
+	ret	nc
 	call	_getnewbalancebase
 	ld	(replay_mainPSGvol),hl	
 	ret
@@ -143,7 +147,7 @@ _getnewbalancebase:
 	add	a
 	add	a
 	add	a
-	ld	hl,_VOLUME_TABLE-128
+	ld	hl,_VOLUME_TABLE-64
 	add	a,l
 	ld	l,a
 	ret 	nc

@@ -2,7 +2,10 @@
 
 IFDEF TAIL_ON
 	; Balance setting space volume max - 4
-	ds 4*16, $0F
+	db	 $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0
+	db	 $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0
+	db	 $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0
+	db	 $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0
 _VOLUME_TABLE_PSG
 	; No tail mode
 	db	 $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0, $0
@@ -21,8 +24,13 @@ _VOLUME_TABLE_PSG
 	db	 $0, $1, $2, $3, $3, $4, $5, $6, $7, $8, $9, $A, $A, $B, $C, $D
 	db	 $0, $1, $2, $3, $4, $5, $6, $7, $7, $8, $9, $A, $B, $C, $D, $E
 	db	 $0, $1, $2, $3, $4, $5, $6, $7, $8, $9, $A, $B, $C, $D, $E, $F
+
+
 	; Balance setting space volume max - 4
-	ds 4*16, $0F
+	db	 $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F
+	db	 $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F
+	db	 $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F
+	db	 $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F
 _VOLUME_TABLE_FM
 	; No tail mode
 	db	 $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F, $F
@@ -45,7 +53,10 @@ _VOLUME_TABLE_FM
 
 ELSE
 	; Balance setting space volume max - 4
-	ds 4*16, $1E
+	db	 $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1
+	db	 $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1
+	db	 $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1
+	db	 $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1
 _VOLUME_TABLE_PSG
 	; Tail mode on (psg 1/ FM E)	
 	db	 $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1
@@ -65,8 +76,12 @@ _VOLUME_TABLE_PSG
 	db	 $1, $1, $2, $3, $4, $5, $6, $7, $7, $8, $9, $A, $B, $C, $D, $E
 	db	 $1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $A, $B, $C, $D, $E, $F
 
+
 	; Balance setting space volume max - 4
-	ds 4*16, $1E
+	db	 $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E
+	db	 $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E
+	db	 $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E
+	db	 $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E
 _VOLUME_TABLE_FM
 	; Tail mode on (psg 1/ FM E)	
 	db	 $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E, $E
