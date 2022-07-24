@@ -210,6 +210,8 @@ replay_loadsong:
 	ldir
 
 	ld	(replay_arp_speed),a
+	ld	(replay_fade),a
+	
 	;--- Silence the chips
 	ld	(SCC_regMIXER),a
 	ld	(PSG_regVOLA),a

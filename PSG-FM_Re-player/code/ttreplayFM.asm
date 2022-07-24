@@ -398,6 +398,7 @@ replay_loadsong:
 	ld	(replay_speed_subtimer),a
 	ld	(FM_softvoice_req),a
 	ld	(replay_arp_speed),a
+	ld	(replay_fade),a
 	
 	;--- Erase channel data	in RAM
 	ld	bc,TRACK_REC_SIZE*8-1
