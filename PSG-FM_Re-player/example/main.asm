@@ -69,13 +69,17 @@ initmain:
 	di
 	call	init_font		; set the new font
 	
+	call	MSXMusic_Detect
+
+
 	;--- initialise replayer
 	call	replay_init
-
+	call	ttsfx_init
 
 	;--- initialise demo song
-	ld	hl,demo_song
-	call	replay_loadsong
+	xor	a
+	ld	(song),a
+	call	play_song
 	 
 	;--- initialise sfx pointers
 	
@@ -149,17 +153,53 @@ infinite:
 	and	a
 	jp	z,.space
 
+	cp	5
+	jp	nz,.nodown
+	;--- PAUSE
+	call	replay_pause
+	jp	.waitcursor
+.nodown:
+	cp	1
+	jp	nz,.noup	
+	;--- Equalization
+	ld	a,(equalization_freq)
+	and	a
+	jp	z,1f
+      call	replay_equalization_off      
+	jp	0f
+1:
+	call	replay_equalization_on
+0:
+	jp	.waitcursor
+.noup:
 	cp	7		; left
 	jp	nz,.noleft
 
 	;--- Previous song
+	ld	a,(song)
+	and	a
+	jp	nz,99f
+	ld	a,3
+99:
+	dec	a
+
+	call	play_song
+	jp	.waitcursor
 
 .noleft:
 	cp	3		; right
 	jp	nz,.noright
 
 	;--- Next Song
-	
+	ld	a,(song)
+	inc	a
+	cp	3
+	jp	c,99f
+	xor	a
+99:
+	call	play_song
+	jp	.waitcursor
+
 
 
 .noright:
@@ -182,7 +222,6 @@ infinite:
 	inc	a
 	ld	b,a
 	ld	a,(sfxbank) 
-	srl	a
 	dec	a
 	cp	b
 	jp	nc,.skip
@@ -222,11 +261,32 @@ isr:
 	ld	a,7+128
 	out	(0x99),a	
 	call	ttsfx_play
-
-
-
 	ret
 	
+
+; In [A] the song number
+play_song:
+	ld	(song),a
+;	push af
+;	call	replay_stop
+;	pop	af
+	ld	hl,songs
+	add	a
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	call	replay_loadsong
+	ret
+
+
+
+
 write_debug:
 	ld 	hl,_PNT+(80*9)
 	call	set_vdpwrite	
@@ -303,27 +363,27 @@ debuginfo:
 	ret
 
 step_debug:
-	ld	bc,7
-	call	clear_TEXT
-	ld	hl,(replay_orderpointer)
-	ld	de,demo_song+7
-	xor 	a
-	sbc	hl,de
-	add	hl,hl		;X2
-	add	hl,hl		;X4	
-	add	hl,hl		;X8
-	add	hl,hl		;X16
-	ld	a,h
-	dec	a
-	ld	hl,debug_pointer1
-	ld	(hl),a
-	ld	de,TEXT_Chan
-	call	draw_decimal3
-	
-	ld	hl,80*6+41
-	ld	de,TEXT_Chan
-	ld	b,3
-	call	draw_label_fast
+;	ld	bc,7
+;	call	clear_TEXT
+;	ld	hl,(replay_orderpointer)
+;	ld	de,demo_song+7
+;	xor 	a
+;	sbc	hl,de
+;	add	hl,hl		;X2
+;	add	hl,hl		;X4	
+;	add	hl,hl		;X8
+;	add	hl,hl		;X16
+;	ld	a,h
+;	dec	a
+;	ld	hl,debug_pointer1
+;	ld	(hl),a
+;	ld	de,TEXT_Chan
+;	call	draw_decimal3
+;	
+;	ld	hl,80*6+41
+;	ld	de,TEXT_Chan
+;	ld	b,3
+;	call	draw_label_fast
 	ret
 	
 
@@ -580,10 +640,7 @@ init_vdp:
 	include	"..\code\ttreplayFM.asm"
 	include	"..\code\ttreplayFMDAT.asm"
 	include	"..\ttsfxplayPSG\ttsfxplayPSG.asm"
-
-	
-demo_song:
-	include	".\test1.asm"
+	include "..\code\fmdetect.asm"
 	
 TEXT_Title:
 	db	"TriloTracker FM Re-player Debug info",0	
@@ -605,7 +662,7 @@ font_data:
 
 
 sfxbank:
-	incbin ".\GALIOUS_SFX_TEST.afb"
+	incbin ".\noname.afb"
 
 ;sfx_PSG_STREAMS:
 ;sfx_SCC_STREAMS:
@@ -634,10 +691,29 @@ sfxbank:
 ;	incbin	"..\ttsfxplay\sfx\menu5.afx"
 ;
 	
+
+songs:
+	dw	music0
+	dw	music1
+	dw	music2
+;	dw	music3
+
+music0:
+;	include ".\C-I_P.asm"
+music1:
+	include ".\CN52_P.asm"
+music2:
+;	include ".\ST22_P.asm"
+;music3:
+;	include ".\OH-RG_P.asm"
+
+
+
 	
 	map	0xc000
 	include	"..\code\ttreplayFMRAM.asm"
 	
+
 
 debug_pointer1:	#2
 debug_pointer2:	#2	
@@ -645,6 +721,7 @@ debug_pnt:		#8*80
 TEXT_Chan		#40
 
 sfx:			#1		; sfx to play
+song:			#1 		; song to play
 
 	include	"..\ttsfxplayPSG\ttsfxplayPSG_RAM.asm"
 pattern	#1

@@ -356,10 +356,19 @@ class Song:
 						
 					if i != 0:
 						if prev_i == i:
+							#print (f"Duplicate {i-1} - {self.ins[i-1].voice}")
 							row[1] = 0					# remove redundant instruments
 						else:
-							prev_i = 800 #i 				# TODO workaround for ins with voice 0 
-							self.ins[i-1].used = True		# set used instruments
+							if self.type == "SCC" or isPSG == True:
+								prev_i = i 	
+							else:
+							    if self.ins[i-1].voice <= 16:
+								    prev_i = i 	  		# set used instruments
+								    #print (f"Set {i-1} - {self.ins[i-1].voice}")
+							    else:
+								    prev_i = 800 #i 	# TODO workaround for ins with voice 0 
+								    #print (f"Set not  {i-1} - {self.ins[i-1].voice}")
+							self.ins[i-1].used = True	# set used instruments
 					if v != 0:
 						if prev_v == v:					# remove redundant volumes
 							row[2] = 0

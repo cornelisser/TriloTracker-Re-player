@@ -284,7 +284,10 @@ def export_asm(outfile,song):
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[5]].export_number:03},")			
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[6]].export_number:03},")
 			file.write(f" {_CHILD}track_{song.tracks[pat.tracks[7]].export_number:03}\t; Step:{step-1:03} Pattern:{pat.number:03}\n")		
-		file.write(f"{_DW} 0x0000, {_CHILD}restart\t\t\t\t; End of sequence delimiter + restart address.\n\n")
+		if (song.restart == 255):
+			file.write(f"{_DW} 0x0000, 0x0000\t\t\t\t; End of sequence delimiter + end of song.\n\n")
+		else:
+			file.write(f"{_DW} 0x0000, {_CHILD}restart\t\t\t\t; End of sequence delimiter + restart address.\n\n")
 
 		if song.type == 'SCC':
 			file.write("\n; [ SCC Waveforms ]\n")		
@@ -532,9 +535,11 @@ def export_ins(ins, song, file):
 
 		# Instrument end
 		if r == ins.length -1:			# set the end of instrument bit
-			loop = 0xff - (loop_bytes -2)
-
-			file.write(f"{_DB} $18,${loop:02x}\t\t\t\t\t\t; Loop (-{loop_bytes})\n\n")
+			if (ins.restart == 255):
+				file.write(f"{_DB} $06\t\t\t\t\t\t; End\n\n")	
+			else:
+				loop = 0xff - (loop_bytes -2)
+				file.write(f"{_DB} $18,${loop:02x}\t\t\t\t\t\t; Loop (-{loop_bytes})\n\n")
 #		else:
 #			loop_bytes += 1
 #			file.write(f"{_DB} $00\t\t\t\t\t\t\t; End of row.\n")

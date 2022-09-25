@@ -4,10 +4,12 @@
 ; Functions:
 ; 	replay_init
 ;	replay_pause
+;	replay_resume
 ;	replay_fade_out
 ;	replay_set_FM_balance
 ;	replay_set_PSG_balance
-;	replay_equalization
+;	replay_equalization_on
+;	replay_equalization_off
 ;	replay_load_song
 ;================================
 ; Compile options:
@@ -27,7 +29,9 @@ define SFXPLAY_ENABLED	; Enable the SFX functionality.
 ;define TREMOLO_OFF		; removes tremolo code making the replayer a little bit faster
 
 FM_WRITE:	equ	0x7c	; port to set fm reg nr.
-FM_DATA:	equ	0x7d	; port to set fm data for reg	
+FM_DATA:	equ	0x7d	; port to set fm data for reg.	
+PSG_WRITE:	equ	0xa0	; port to set psg reg nr.
+PSG_DATA:	equ	0xa1	; port to set psg data for reg.
 ;===============================
 _REL:		equ	96	; = release
 _SUS:		equ	97	; = sustain
@@ -39,7 +43,6 @@ _EOT:		equ	191	; = end of track
 _WAIT:	equ	192	; = wait 1
 	
 	ALIGN 256
-
 MACROACTIONLIST:
 	jp	macro_volume_same		; 0
 	nop
@@ -47,7 +50,7 @@ MACROACTIONLIST:
 	nop
 	jp  	macro_tone_add		; 4			
 	nop
-	jp  	macro_tone_add		; 6			; Unused!!!
+	jp  	macro_stop			; 6			
 	nop
 	jp  	macro_vol_base		; 8
 	nop
@@ -141,9 +144,11 @@ DECODE_CMDLIST:
 	jp	decode_cmd19_speed
 	nop	
 	; SoundChip Specific
-	jp	decode_cmd20_tone_panning
+;	jp	decode_cmd20_tone_panning
+	jp	decode_cmd20_envelope_high
 	nop	
-	jp	decode_cmd21_noise_panning
+;	jp	decode_cmd21_noise_panning
+	jp	decode_cmd21_envelope_low
 	nop	
 	jp	decode_cmd22_brightness	
 
@@ -235,29 +240,49 @@ replay_init:
 	ld	a,4
 	call	replay_set_PSG_balance
 
+	call	replay_equalization_off
+
 	xor	a
 	ld	(replay_mode),a	
 	ld	(equalization_cnt),a
 	ld	(equalization_freq),a
+
+	;--- Detect CPU
+	ld 	hl,$002D
+	ld    a, ($fcc1)              ; (EXPTBL)
+	call  $0C                     ; RDSLT
+
+   	cp 	3
+   	jr.	c,.z80
+	ld	a,1
+	ld	(r800),a			; 0 = z80 other is R800
+	ret
+.z80:
+	xor	a
+	ld	(r800),a
+
+	;---- init YM2413
+	ld	e,a
+	xor	a
+	ld	d,a
+	ld	b,$39
+	ld	hl,replay_mode
+_replay_init_loop:
+	push 	af
+	call	_writeFM
+	pop	af
+	inc a
+	djnz	_replay_init_loop
+
 	ret
 
 ;===========================================================
 ; ---	replay_pause
-; Stop/Restart music playback
+; Pause music playback
 ; 
 ; Input: none
 ;===========================================================
 replay_pause:
-	ld	a,(replay_mode)
-	and	a
-	jp	nz,_r_pause_disable
-_r_pause_enable:
-	;-- re-enable music decoding and processing
-	ld	a,1
-	ld	(replay_mode),a
-	ret
-	
-_r_pause_disable:
 	;-- stop decoding and processing music data
 	xor	a
 	ld	(replay_mode),a	
@@ -289,6 +314,19 @@ _r_pause_loop:
 	
 
 ;===========================================================
+; ---	replay_resume
+; Resume music playback
+; 
+; Input: none
+;===========================================================
+replay_resume:
+	;-- re-enable music decoding and processing
+	ld	a,1
+	ld	(replay_mode),a
+	ret
+
+
+;===========================================================
 ; ---	replay_fade_out
 ; Fade out the music. 
 ; Once the sound is silence the replayer is paused.
@@ -310,7 +348,7 @@ replay_fade_out:
 ; setting the balance between FM and PSG as some MSX models 
 ; default balance differs. 
 ;
-; in: [A] master volume (0-8) 0=75% volume, 4=100% volume. 
+; in: [A] master volume (0-4) 0=75% volume, 4=100% volume. 
 ;===========================================================	
 replay_set_FM_balance:
 	cp	5	; limit 
@@ -348,28 +386,36 @@ _getnewbalancebase:
 	ret
 	
 ;===========================================================
-; ---	replay_equalization
-; Enables or disables the speed equalization. 
+; ---	replay_equalization_on
+; Enables the speed equalization. 
 ; This to enable same speed playback on 50 and 60Hz. 
-;
-; in: [A] setting of the equalization (0 = off, other values = on) 
 ;===========================================================	
-replay_equalization:
-
+replay_equalization_on:
+	ld	a,1
 IFDEF MSX2
-	and	a
-	jp	z,.off
 	;--- Only enable if in 60Hz mode
 	ld	a,($FFE8)	; get mirror of VDP reg# 9
 	and	00000010b
 	xor	00000010b
-.off:
 ENDIF
 	ld	(equalization_freq),a
 	ld	a,1
 	ld	(equalization_cnt),a
 	ret	
-	
+
+;===========================================================
+; ---	replay_equalization_off
+; Disables the speed equalization. 
+; This to enable same speed playback on 50 and 60Hz. 
+;===========================================================	
+replay_equalization_off:
+	xor	a
+	ld	(equalization_freq),a
+	ld	a,1
+	ld	(equalization_cnt),a
+	ret	
+
+
 ;===========================================================
 ; ---	replay_loadsong
 ; Initialize a song for playback
@@ -473,7 +519,7 @@ replay_loadsong:
 replay_play_no:
       xor   a
       ld    (FM_regMIXER),a
-      xor   $3f
+      xor   $bf
       ld    (PSG_regMIXER),a
       ret
 
@@ -721,6 +767,7 @@ decode_data:
 ; 
 ; 
 ;===========================================================
+
 process_data:
 	; Set tone table
 	ld	hl,TRACK_ToneTable_PSG
@@ -785,7 +832,7 @@ _rdd_3psg_5fm:
 	ld	a,(FM_regMIXER)		
 	srl	a
 	srl	a
-	xor	0x3f
+	xor	0xbf
 	ld	(PSG_regMIXER),a
 	xor	a
 	ld	(FM_regMIXER),a
@@ -806,7 +853,7 @@ _rdd_2psg_6fm:
 	srl	a
 	srl	a
 	srl	a
-	xor	0x3f
+	xor	0xbf
 	ld	(PSG_regMIXER),a
 
 	; Set tone table
@@ -1027,6 +1074,16 @@ _replay_check_patternend:
 	inc	hl
 	ld	h,(hl)
 	ld	l,a
+	cp	l
+	jp	nz,.restart
+	and	a
+	jp	nz,.restart
+	;--- STOP - There is no restart value
+	call	replay_pause
+	pop	af	;--- skip return to processing 
+	ret		
+
+.restart:
 .no_restart:	
 	ld	de,TRACK_pointer1
 	ld	bc,16
@@ -1340,13 +1397,6 @@ decode_cmd3_port_tone_new_note:
 	;-- get the	previous note freq
 	ld	a,(replay_previous_note)
 	add	a
-
-
-
-;	ld	hl,(base+transpose)
-;	add	a,l
-;	ld	l,a
-
 	ld	hl,(replay_tonetable)
 	add	a,l
 	ld	l,a
@@ -1415,6 +1465,7 @@ decode_cmd4_vibrato:
 	;--- Init values
 	ld	(ix+TRACK_Command),e
 	ld	e,a
+
 	;--- Set the speed
 	and	$0f
 	jp	z,.depth
@@ -1613,10 +1664,29 @@ decode_cmd19_speed:
 	add	a,e
 	ld	(replay_speed_timer),a
 
-decode_cmd20_tone_panning:
-decode_cmd21_noise_panning:
+;decode_cmd20_tone_panning:
+;decode_cmd21_noise_panning:
+;	jp	_rdc	
+
+	; in:	[A] contains the paramvalue
+	; 
+	; ! do not change	[BC] this is the data pointer
+	;--------------------------------------------------
+	; This command set the envelope frequency using a
+	; multiplier value (00-ff)
+decode_cmd20_envelope_high:
+	ld	(PSG_regEnvH),a
 	jp	_rdc	
 
+	; in:	[A] contains the paramvalue
+	; 
+	; ! do not change	[BC] this is the data pointer
+	;--------------------------------------------------
+	; This command set the envelope frequency using a
+	; multiplier value (00-ff)
+decode_cmd21_envelope_low:
+	ld	(PSG_regEnvL),a
+	jp	_rdc	
 
 decode_cmd22_brightness:
 	ld	l,a
@@ -1728,6 +1798,7 @@ process_instrument:
 	ld	d,(ix+TRACK_MacroPointer+1)
 
 	ld	h,MACROACTIONLIST >> 8
+      ;-- Important: Make sure not to change register H in the macro handling 
 process_macro:
 	ld	a,(de)
 	inc	de
@@ -1817,6 +1888,9 @@ macro_loop:
 	ex	de,hl
 	jp	process_macro
 
+macro_stop:
+	res	B_ACTNOT,(ix+TRACK_Flags)
+      ; continue into volume same
 
 macro_volume_same:
 	ld	a,(ix+TRACK_VolumeAdd)
@@ -2520,11 +2594,11 @@ _drum_percussion:	;1e
 ;===========================================================
 replay_route:
 ;---------------
-; P S	G 
+; P S G 
 ;---------------
 	;--- Push values to AY HW
 	ld	hl,PSG_registers+13
-	ld	bc,$0ca1			; 12 seq reg updates + port $a1
+	ld	bc,$0c00+PSG_DATA		; 12 seq reg updates + port $a1
 
 	;--- Envelope shape R#13
 	ld	a,(hl)
@@ -2532,7 +2606,7 @@ replay_route:
 	jp	z,_ptAY_noEnv	
 	ld	d,a	
 	ld	a,$0d
-	out	($a0),a	
+	out	(PSG_WRITE),a	
 	out	(c),d
 	ld	(hl),0			;reset the envwrite	
 _ptAY_noEnv:
@@ -2540,37 +2614,37 @@ _ptAY_noEnv:
 	ld	a,$0c				; Start at reg $0c 
 
 	;--- Rolled out psg update 6 times
-	out	($a0),a			; reg c
+	out	(PSG_WRITE),a			; reg c
 	dec	a
 	outd
-	out	($a0),a			; reg b
+	out	(PSG_WRITE),a			; reg b
 	dec	a
 	outd
-	out	($a0),a			; reg	a
+	out	(PSG_WRITE),a			; reg	a
 	dec	a
 	outd
-	out	($a0),a			; reg	9
+	out	(PSG_WRITE),a			; reg	9
 	dec	a
 	outd
-	out	($a0),a			; reg 8
+	out	(PSG_WRITE),a			; reg 8
 	dec	a
 	outd
-	out	($a0),a			; reg 7
+	out	(PSG_WRITE),a			; reg 7
 	dec	a
 	outd
-	out	($a0),a			; reg 6
+	out	(PSG_WRITE),a			; reg 6
 	outd
 	dec	a
 	ld	d,$ff
 _ptAY_loop:
 	dec	a
-	out	($a0),a
+	out	(PSG_WRITE),a
 	out	(c),d
 	inc	a
-	out	($a0),a
+	out	(PSG_WRITE),a
 	outd
 	dec	a
-	out	($a0),a
+	out	(PSG_WRITE),a
 	outd
 	dec	a
 	jp	p,_ptAY_loop

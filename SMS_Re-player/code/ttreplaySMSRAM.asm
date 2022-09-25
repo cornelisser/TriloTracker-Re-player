@@ -54,10 +54,10 @@ B_TRGNOT				equ 0			; note trigger
 B_ACTNOT				equ 1			; note active
 B_TRGENV				equ 2			; envelope trigger
 B_TRGCMD				equ 3			; command active
-B_KEYON					equ 4			; for fm note trigger
-B_SUST					equ 5			; for fm note sustain
+B_KEYON				equ 4			; for fm note trigger
+B_SUST				equ 5			; for fm note sustain
 B_TRGVOI				equ 6			; custom voice trigger	
-B_PSGFM					equ 7			; chip type (PSG or FM)	
+B_PSGFM				equ 7			; chip type (PSG or FM)	
 
 ;B_ACTMOR			equ 4			; morph active
 ;B_TRGINS			equ 5			; instrument trigger
@@ -174,8 +174,8 @@ FM_regToneE 	#2	; Tone E freq low					; Tone E freq high
 FM_regToneEb 	#2	; Tone E freq low					; Tone E freq high
 FM_regVOLE	  	#1	; Chan E volume
 FM_regVOLEb	  	#1	; Chan E volume
-FM_regToneF 	#2	; Tone E freq low					; Tone F freq high
-FM_regToneFb 	#2	; Tone E freq low					; Tone F freq high
+FM_regToneF 	#2	; Tone F freq low					; Tone F freq high
+FM_regToneFb 	#2	; Tone F freq low					; Tone F freq high
 FM_regVOLF	  	#1	; Chan F volume
 FM_regVOLFb	  	#1	; Chan F volume
 
@@ -192,19 +192,22 @@ DRUM_regToneCTb	#2
 DRUM_regVolCT	#1
 DRUM_regVolCTb	#1
 FM_DRUM		#1	; Percussion bits
-FM_DRUM_Flags		#1	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update
-FM_freqreg1			#2	; Base drum
-FM_volreg1			#1	; Drum (low)
-FM_freqreg2			#2	; Snare + HiHat
-FM_volreg2			#1	; Snare(low) Hihat(High)
-FM_freqreg3			#2	; Cymbal + TomTom
-FM_volreg3			#1	; Cymbal(low) TomTom (High)
+FM_DRUMb		#1
 
-FM_DRUM_LEN			#1	; Length of drum macro
+
+;FM_DRUM_Flags		#1	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update
+;FM_freqreg1			#2	; Base drum
+;FM_volreg1			#1	; Drum (low)
+;FM_freqreg2			#2	; Snare + HiHat
+;FM_volreg2			#1	; Snare(low) Hihat(High)
+;FM_freqreg3			#2	; Cymbal + TomTom
+;FM_volreg3			#1	; Cymbal(low) TomTom (High)
+
+;FM_DRUM_LEN			#1	; Length of drum macro
+FM_DRUM_ACTIVE		#1	; Is a drum active?
 FM_DRUM_MACRO		#2	; Pointer to drum macro data
 
 FM_softvoice_req		#1	; Software voice requested
-FM_softvoice_set 		#1	; Software voice currently loaded
 
 
 ; DEze lijkt niet meer nodig
@@ -215,6 +218,6 @@ FM_regMIXER 		#1	; x3f	; Mixer control (1 = off, 0 = on)
 
 ;/// see to remove this.
 ;-- SCC registers
-oldregs:	#(32*4)+(3*5)+1		; a way to int the SCC
+;oldregs:	#(32*4)+(3*5)+1		; a way to int the SCC
 
 

@@ -48,7 +48,7 @@ replay_init:
 ; Input: none
 ;===========================================================
 replay_pause:
-	ld	   a,(replay_mode)
+	ld	a,(replay_mode)
 	and	a
 	jp	   nz,_r_pause_disable
 _r_pause_enable:
@@ -166,13 +166,14 @@ replay_loadsong:
 	ldir
 	
 	ld	(replay_arp_speed),a
-	ld	(FM_DRUM_LEN),a
+	ld	(FM_DRUM_ACTIVE),a
 	ld	(FM_DRUM),a	
 	
 	ld	(PSG_regVOLA),a
 	ld	(PSG_regVOLB),a	
 	ld	(PSG_regVOLC),a
 	ld	(PSG_regNOISE),a
+
 
 ;	;--- Set the tone table base
 ;	ld	hl,TRACK_ToneTable_PSG
@@ -201,7 +202,7 @@ replay_loadsong:
 	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
 	ld	(FM_softvoice_req),a	
-	ld	(FM_softvoice_set),a
+;	ld	(FM_softvoice_set),a
 
 	ld	a,16
 	ld	(TRACK_Chan3+17+TRACK_Voice),a
@@ -274,7 +275,7 @@ replay_play:
 	dec	(hl)
 
 	jp	nz,_replay_check_patternend	
-		
+
 	;--- Re-init Timer == 0
 	xor	a
 	ld	bc,(replay_speed)		; [b]	sub-timer [c] speed
@@ -459,7 +460,6 @@ process_data:
 	ld	d,a
 	ld	hl,PSG_regToneA
 	call	process_data_chan
-;	ld	(PSG_regToneA),hl
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLA),a	
 
@@ -471,7 +471,6 @@ process_data:
 	ld	d,a
 	ld	hl,PSG_regToneB
 	call	process_data_chan
-;	ld	(PSG_regToneB),hl
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLB),a	
 
@@ -488,7 +487,6 @@ _rdd_3psg_5fm:
 	ld	d,a
 	ld	hl,PSG_regToneC
 	call	process_data_chan
-;	ld	(PSG_regToneC),hl
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLC),a
 
@@ -535,7 +533,7 @@ _rdd_2psg_6fm:
 	ld	d,a
 	ld	hl,FM_regToneA
 	call	process_data_chan
-;	ld	(FM_regToneA),hl
+
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan3+17+TRACK_Voice)
@@ -553,7 +551,6 @@ _rdd_cont:
 	ld	d,a
 	ld	hl,FM_regToneB
 	call	process_data_chan
-;	ld	(FM_regToneB),hl
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan4+17+TRACK_Voice)
@@ -569,7 +566,6 @@ _rdd_cont:
 	ld	d,a
 	ld	hl,FM_regToneC
 	call	process_data_chan
-;	ld	(FM_regToneC),hl
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan5+17+TRACK_Voice)
@@ -586,7 +582,6 @@ _rdd_cont:
 	ld	d,a
 	ld	hl,FM_regToneD
 	call	process_data_chan
-;	ld	(FM_regToneD),hl
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan6+17+TRACK_Voice)
@@ -602,9 +597,6 @@ _rdd_cont:
 	ld	d,a
 	ld	hl,FM_regToneE
 	call	process_data_chan
-;	ld	(FM_regToneE),hl
-;	ld	a,d
-;	ld	(TRACK_Chan7+17+TRACK_Flags),a	
 	ld	a,(FM_regVOLF)
 	ld	d,a
 	ld	a,(TRACK_Chan7+17+TRACK_Voice)
@@ -618,14 +610,28 @@ _rdd_cont:
 	ld	ix,TRACK_Chan8+17
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
+	ld	hl,FM_regToneF
 	call	process_data_chan
 	ld	a,(FM_regVOLF)
 	ld	d,a
-	ld	a,(TRACK_Chan3+17+TRACK_Voice)
+	ld	a,(TRACK_Chan8+17+TRACK_Voice)
 	and	$f0
 	or	d	
-	ld	(FM_regVOLE),a
-;	ld	(FM_regToneF),hl
+	ld	(FM_regVOLF),a
+
+	ld	a,$f6 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
+	out	(0x99),a
+	ld	a,7+128
+	out	(0x99),a	
+
+	;--------------------
+	;--- Process Drums
+	;--------------------
+	call	process_drum
+
+
+
+
 	
 
 	;--------------------
@@ -683,12 +689,15 @@ _replay_check_patternend:
 	dec	a
 	jp	nz,process_data
 	
+
+
 	ld	hl,(TRACK_pointer1)
 	ld	a,(hl)
 	
 	;--- check for end of pattern
 	cp	191	
 	jp	nz,process_data
+
 
 	;--- Set track pointers to start
 	ld	hl,(replay_orderpointer)
@@ -839,7 +848,7 @@ _replay_decode_release:
 
 
 _replay_decode_sustain:
-	res	B_ACTNOT,d				; reset note bit to	0
+;	res	B_ACTNOT,d				; reset note bit to	0
 	set	B_SUST,d				; rest sustain
 	res	B_KEYON,d				; reset Key on
 
@@ -960,7 +969,7 @@ DECODE_CMDLIST:
 	dw	decode_cmd1_port_up
 	dw	decode_cmd6_vibrato_vol	
 	dw	decode_cmd7_vol_slide
-	dw	decode_cmd8_tremelo
+	dw	decode_cmd8_tremolo
 	dw	decode_cmd9_note_cut
 	dw	decode_cmd10_note_delay
 	; Secondary
@@ -976,7 +985,7 @@ DECODE_CMDLIST:
 	; SoundChip Specific
 	dw	decode_cmd20_tone_panning
 	dw	decode_cmd21_noise_panning
-	dw	decode_cmd22_chan_setup	
+	dw	decode_cmd22_brightness	
 	
 
 decode_cmd0_arpeggio:
@@ -1098,7 +1107,7 @@ decode_cmd3_port_tone_new_note:
 	ret
 	
 	
-decode_cmd8_tremelo:
+decode_cmd8_tremolo:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -1224,11 +1233,12 @@ decode_cmd11_command_end:
 	
 
 decode_cmd12_drum:
-	and 	a		; drum reset not supported
-	jr 	z,0f
+;	and 	a		; drum reset not supported
+;	jr 	z,0f
 	
+
 	; Get the base addres of the drum list
-	add 	a 
+	;add 	a 
 	ld	hl,(replay_drumbase)
 	add	a,l 
 	ld	l,a
@@ -1242,19 +1252,12 @@ decode_cmd12_drum:
 	ld	h,(hl)
 	ld	l,a
 	
-	; Store the length
-	ld	a,(hl)
-	ld	(FM_DRUM_LEN),a
-	inc	hl
 	; Store the address
-	ld	a,l
-	ld 	(FM_DRUM_MACRO),a
+	ld 	(FM_DRUM_MACRO),hl
 	ld	a,h
-	ld	(FM_DRUM_MACRO+1),a
+	ld	(FM_DRUM_ACTIVE),a
 	jp	_rdc		
-0:
-	dec	bc
-	jp	_rdc		
+		
 	
 
 
@@ -1327,7 +1330,17 @@ decode_cmd20_tone_panning:
 decode_cmd21_noise_panning:
 	jp	_rdc
 
-decode_cmd22_chan_setup:
+decode_cmd22_brightness:
+	ld	e,a
+	ld	a,(FM_Voicereg+4)
+	ld	d,a
+	add	a,e
+	and	00111111b
+	ld	e,a
+	ld	a,d
+	and	11000000b
+	or	e
+	ld	(FM_Voicereg+4),a
 	jp	_rdc
 
 
@@ -1359,7 +1372,6 @@ process_data_chan:
 	; COMMAND
 	;=====
 	ld	(ix+TRACK_cmd_NoteAdd),0			; Always reset note add
-	
 	bit	B_TRGCMD,d	;(ix+TRACK_Flags)
 	jp	z,process_note
 
@@ -1383,7 +1395,7 @@ process_commandEND:
 process_note:
 
 	;=====
-	; NOTE
+	; Note
 	;=====
 	;--- Check if we need to trigger a new note
 	bit	B_TRGNOT,d	;(ix+TRACK_Flags)
@@ -1392,8 +1404,13 @@ process_note:
 
 process_triggerNote:	
 	;--- get new Note
+
+	bit	B_PSGFM,d		; Only reset note trigger for PSG
+	jp	nz,99f
 	res	B_TRGNOT,d		;(ix+TRACK_Flags)		; reset trigger note flag
+99:
 	set	B_ACTNOT,d		;(ix+TRACK_Flags)		; set	note active	flag
+
 
 	ld	l,(ix+TRACK_MacroStart)
 	ld	h,(ix+TRACK_MacroStart+1)
@@ -1479,32 +1496,32 @@ _vol_base:
 ;	jp	_noVolume	
 	
 _noVolumeChange:
+	; Apply Tone bit to volume (as SN7 and opll have no mixer)
+	; Check only for SMS PSG and FM!
+	bit	5,e		; do we have tone?
+	jp	nz,_tone_on
+
+	bit 	B_PSGFM,d
+	jp	nz,99f
+;psg:
+	xor	a
+	jp	_tone_off
+99:
+	ld	a,15
+	jp	_tone_off
+
+_tone_on:
 	or	(ix+TRACK_Volume)
 	ld	c,a			; store volume add
-
-	ld 	a,(ix+TRACK_cmd_VolumeAdd)
-;	rla				; shift to detect shift
-;	jp 	c,.sub_Vadd		
-;.add_Vadd:  
-;	add	a,c
-;	jp	nc,_Vadd
-;	ld	a,c
-;	or	0xf0
-;	jp	_Vadd	
-;.sub_Vadd:	
-	ld	b,a
-;	xor	a
-;	sub 	b
+	ld 	b,(ix+TRACK_cmd_VolumeAdd)
 ;	ld	b,a
-	ld	a,c
+;	ld	a,c
 	sub	a,b
 	jp 	nc,.skip2
 	ld	a,c
  	and	0x0f
 .skip2:
 
-	
-	;-- next is _Vadd
 _Vadd:
 	;--- apply main volume balance
 	ld	bc,(replay_mainvol)
@@ -1523,6 +1540,7 @@ _Vadd:
 	rra
 .skip2:
 	and	0x0f
+_tone_off:
 	ld	(FM_regVOLF),a
 
 _noVolume:
@@ -1572,8 +1590,22 @@ _noNoise:
 	
 	bit	B_PSGFM,d		;(ix+TRACK_Flags)
 	jp	nz,_noLink		; Noise and Link not at the same time
-	
+
+
+
+	;--- calculate end volume
 	or	(ix+TRACK_Volume)
+	ld	c,a			; store volume add
+	ld 	a,(ix+TRACK_cmd_VolumeAdd)
+	ld	b,a
+	ld	a,c
+	sub	a,b
+	jp 	nc,.skip2
+	ld	a,c
+ 	and	0x0f
+.skip2:
+
+_NVadd:
 	;--- apply main volume balance
 	ld	bc,(replay_mainvol)
 	add	a,c
@@ -1581,6 +1613,24 @@ _noNoise:
 	jp	nc,.skip
 	inc	b
 .skip:
+	ld	a,(bc)	
+	rra
+	rra
+	rra
+	rra
+.skip2:
+	and	0x0f
+	ld	(PSG_regVOLN),a
+	jp	_noLink
+
+	or	(ix+TRACK_Volume)
+	;--- apply main volume balance
+	ld	bc,(replay_mainvol)
+	add	a,c
+	ld	c,a
+	jp	nc,.skip3
+	inc	b
+.skip3:
 	ld	a,(bc)
 	ld	(PSG_regVOLN),a
 	jp	_noLink
@@ -1807,7 +1857,7 @@ PROCESS_CMDLIST:
 	dw	process_cmd1_port_up	
 	dw	process_cmd6_vibrato_vol		
 	dw	process_cmd7_vol_slide
-	dw	process_cmd8_tremelo
+	dw	process_cmd8_tremolo
 	dw	process_cmd9_note_cut		
 	dw	process_cmd10_note_delay		
 
@@ -1941,10 +1991,10 @@ process_cmd3_stop:
 	jp	process_commandEND
 
 
-process_cmd8_tremelo:
+process_cmd8_tremolo:
 	;=================================
 	;
-	; Tremelo	
+	; tremolo	
 	;
 	;=================================	
 	ld	l,(ix+TRACK_cmd_4_depth)
@@ -2132,6 +2182,207 @@ process_cmd10_note_delay:
 
 
 
+
+
+_process_drum_none:
+	ld	(FM_DRUM_ACTIVE),a
+	ret
+;============================================================================
+; process_drum
+;
+;
+;
+;============================================================================
+process_drum:
+	ld	a,(FM_DRUM_ACTIVE)
+	and	a
+	;jp	z,_process_drum_none
+	ret	z
+	;-- Retrieve the next action
+	ld	bc,(FM_DRUM_MACRO)
+
+_process_drum_loop:
+	ld	hl,DRUM_MACRO_LIST-2
+	ld	a,(bc)
+	inc	bc
+	and	a
+	jp	z,.end
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+
+.end:
+	ld	(FM_DRUM_MACRO),bc
+	ret
+
+
+DRUM_MACRO_LIST:
+	dw	_drum_stop		;2
+	dw	_drum_vol_bd	;4
+	dw	_drum_vol_sn	;6
+	dw	_drum_vol_hh	;8
+	dw	_drum_vol_snhh	;a
+	dw	_drum_vol_cy	;c
+	dw	_drum_vol_tt	;e
+	dw	_drum_vol_cytt	;10
+	dw	_drum_note_bd	;12
+	dw	_drum_tone_bd	;14
+	dw	_drum_note_snhh	;16
+	dw	_drum_tone_snhh	;18
+	dw	_drum_note_cytt	;1a
+	dw	_drum_tone_cytt	;1c
+	dw	_drum_percussion	;1e
+
+_drum_stop:			;2
+	xor	a
+	ld	(FM_DRUM_ACTIVE),a
+	ret
+
+_drum_vol_bd:		;4
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regVolBD),a
+	jp	_process_drum_loop
+
+_drum_vol_sn:		;6
+	ld	a,(DRUM_regVolSH)
+	and	0xf0
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolSH),a
+	jp	_process_drum_loop
+
+_drum_vol_hh:		;8
+	ld	a,(DRUM_regVolSH)
+	and	0x0f
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolSH),a
+	jp	_process_drum_loop
+
+_drum_vol_snhh:	;a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regVolSH),a
+	jp	_process_drum_loop
+
+
+_drum_vol_cy:		;6
+	ld	a,(DRUM_regVolCT)
+	and	0xf0
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolCT),a
+	jp	_process_drum_loop
+
+_drum_vol_tt:		;8
+	ld	a,(DRUM_regVolCT)
+	and	0x0f
+	ld	d,a
+	ld	a,(bc)
+	inc	bc
+	or	d
+	ld	(DRUM_regVolCT),a
+	jp	_process_drum_loop
+
+_drum_vol_cytt:	;a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regVolCT),a
+	jp	_process_drum_loop
+
+_drum_note_bd:	;12
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneBD),a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneBD+1),a
+	jp	_process_drum_loop
+
+_drum_tone_bd:	;14
+	ld	hl,(DRUM_regToneBD)
+	ld	a,(bc)
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	inc	bc
+	ld	d,a
+	add	hl,de
+;	ld	(DRUM_regToneBD),hl
+	jp	_process_drum_loop
+
+_drum_note_snhh:	;16
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneSH),a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneSH+1),a
+	jp	_process_drum_loop
+
+_drum_tone_snhh:	;18
+	ld	hl,(DRUM_regToneSH)
+	ld	a,(bc)
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	inc	bc
+	ld	d,a
+	add	hl,de
+	ld	(DRUM_regToneSH),hl
+	jp	_process_drum_loop
+
+_drum_note_cytt:	;1a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneCT),a
+	ld	a,(bc)
+	inc	bc
+	ld	(DRUM_regToneCT+1),a
+	jp	_process_drum_loop
+
+_drum_tone_cytt:	;1c
+	ld	hl,(DRUM_regToneCT)
+	ld	a,(bc)
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	inc	bc
+	ld	d,a
+	add	hl,de
+	ld	(DRUM_regToneCT),hl
+	jp	_process_drum_loop
+
+_drum_percussion:	;1e
+	ld	a,(bc)
+	inc	bc
+	ld	(FM_DRUM),a
+	jp	_process_drum_loop
+	
+
+
+
+
+
+
+
+
+
+
 ;===========================================================
 ; ---replay_route
 ; Output the data	to the CHIP	registers
@@ -2192,7 +2443,7 @@ route_SN:
 	cp	(hl)
 	jp	z,0f
 	ld	(hl),a
-	ld	a,11100000b
+	or	11100000b
 	;or	11100000b
 	out	($3f),a
 0:
@@ -2261,52 +2512,6 @@ route_gg:
 
 
 
-;	;--- Push values to AY HW
-;	ld	b,0
-;	ld	c,0xa0
-;	ld	hl,PSG_registers
-;_comp_loop:	
-;	out	(c),b
-;	ld	a,(hl)
-;	add	1
-;	out	(0xa1),a
-;	inc	hl
-;	ld	a,(hl)
-;	adc	a,0
-;	inc	b
-;	out	(c),b	
-;	inc	hl
-;	out	(0xa1),a	
-;	inc	b
-;	ld	a,6
-;	cp	b
-;	jp	nz,_comp_loop
-;	
-;	ld	a,b	
-;	
-;	
-;_ptPSG_loop:
-;	out	(c),a
-;	inc	c
-;	outi
-;	dec	c
-;	inc	a
-;	cp	13
-;	jr	nz,_ptPSG_loop
-;
-;	ld	b,a
-;	ld	a,(hl)
-;	and	a
-;	jp	z,_ptPSG_noEnv
-;	out	(c),b
-;	inc	c
-;	out 	(c),a
-;	ld	(hl),0	;reset the envwrite
-;	
-;	
-;_ptPSG_noEnv:
-
-
 
 
 ;---------------
@@ -2326,16 +2531,10 @@ route_FM:
 	
 .noVoice:
 	;------------------------------------------
-	;---- Process Drum macro
-	;------------------------------------------
-	;call	_route_FM_drum_update
-	
-
-	;------------------------------------------
 	;---- Update the tone and drum registers
 	;------------------------------------------
 	ld 	hl,FM_Registers
-	ld	de,TRACK_Chan3+TRACK_Flags
+	ld	de,TRACK_Chan3+17+TRACK_Flags
 	ld	a,$10		; Register $10
 	ld	b,9		; 6(tone)+3(drum) channels to update
 
@@ -2380,8 +2579,10 @@ route_FM:
 	inc	hl
 	add	a,-$1F	; Register# = channel + $10
 	djnz	.channel_loop
-	ret
 
+	;------------------------------------------
+	;---- Process Drum macro
+	;------------------------------------------
 _route_FM_drum_update:
 	ld	a,(FM_DRUM)
 	and	00011111b		; erase bit 5
@@ -2398,12 +2599,13 @@ _route_FM_drum_update:
 
 	push	ix			; 17 cycles	dummy code to implement delay
 	pop	ix			; 17 cycles
-	rld				; 20 cycles
-	rrd				; 20 cycles
+	ld	b,a
+	xor	a
+	ld	(FM_DRUM),a
+	ld	a,b
 
 	or	100000b		; set the percussion bit
 	out	(FM_DATA),a
-	
 	ret
 	
 
@@ -2476,12 +2678,14 @@ _route_FM_keyOff_update:
 load_softwarevoice:
 	;-- Set the software voice data address
 	ld 	hl,(replay_voicebase)
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	add	hl,de
 	xor	a		; set reg# 0
+
+
+
 .voiceupd_loop:
 
 	out	(FM_WRITE),a
