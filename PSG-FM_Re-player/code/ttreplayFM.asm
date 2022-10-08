@@ -267,6 +267,10 @@ replay_init:
 	ld	d,a
 	ld	b,$39
 	ld	hl,replay_mode
+
+	;--- init Mixers
+	call	replay_play_no
+
 _replay_init_loop:
 	push 	af
 	call	_writeFM

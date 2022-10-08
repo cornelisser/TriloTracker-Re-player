@@ -135,7 +135,7 @@ PSG_regToneB 		#2	; Tone B freq low
 PSG_regToneC 		#2	; Tone C freq low
 					; Tone C freq high
 PSG_regNOISE 		#1	; Noise freq (5bit)
-PSG_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
+PSG_regMIXER 		#1	; 0xbf	; Mixer control (1 = off, 0 = on)
 PSG_regVOLA 		#1	; Chan A volume
 PSG_regVOLB 		#1	; Chan B volume
 PSG_regVOLC  		#1	; Chan C volume

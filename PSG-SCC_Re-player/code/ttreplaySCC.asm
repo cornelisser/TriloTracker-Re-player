@@ -212,6 +212,9 @@ replay_init:
 	inc	a
 	ld	(replay_morph_type),a
 	
+	;--- init Mixers
+	call	replay_play_no
+
 	ret
 
 ;===========================================================
@@ -654,14 +657,6 @@ decode_data:
 ; 
 ;===========================================================
 process_data:
-
-	ld	a,$f2 ; Reg#3 [A13][A12][A11][A10][A09][ 1 ][ 1 ][ 1 ]  - Color table  [HIGH]
-	out	(0x99),a
-	ld	a,7+128
-	out	(0x99),a
-
-
-
 	;---- morph routine here
 	ld	a,(replay_morph_active)
 	and	a
@@ -2349,14 +2344,14 @@ _ptAY_loop:
 	ld	de,0x9860
       call  _write_SCC_wave_NEW
 .skip4:
-      ld    hl,TRACK_Chan8+17+TRACK_Flags
-	bit	B_TRGWAV,(hl)
-	jp	z,.skip5
-
-	;--- set wave form
-	ld	de,0x9860
-      call  _write_SCC_wave_NEW
-.skip5:
+;      ld    hl,TRACK_Chan8+17+TRACK_Flags
+;	bit	B_TRGWAV,(hl)
+;	jp	z,.skip5
+;
+;	;--- set wave form
+;	ld	de,0x9860
+ ;     call  _write_SCC_wave_NEW
+;.skip5:
 
 ;	;--- Set the waveforms
 ;	ld	a,(TRACK_Chan4+17+TRACK_Flags)
