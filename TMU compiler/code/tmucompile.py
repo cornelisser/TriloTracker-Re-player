@@ -559,7 +559,7 @@ def export_drum(file,drum):
 
 	for r in range(0,drum.length):
 		row = drum.rows[r]
-		p = row[0] | 0x20		# percussion
+		p = row[0] #| 0x20		# percussion
 		bt = row[1]
 		bv = 0x0f - (row[2] & 0x0f)	# bdrum
 		st = row[3]

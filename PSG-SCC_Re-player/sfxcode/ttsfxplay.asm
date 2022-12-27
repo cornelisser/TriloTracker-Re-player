@@ -98,7 +98,6 @@ ttsfx_start:
 	ld	c,(hl)
 	inc	hl
 	ld	b,(hl)
-;	inc	hl
 	push	hl						; store for second sfx
 	add	hl,bc						; Pointer to the first sfx
 	ld	(sfx_PSG_POINTER),hl
@@ -204,8 +203,6 @@ _ayVOLUME:
 	ld	a,(hl)				; a:=sfx_PSG relative volume
 	and	$0f					; mask only ay volume
 	ld	(PSG_regVOLC),a		; Diretly update the TT register value
-
-
 
 _ayMIXER:
 	;--- Set Mixer

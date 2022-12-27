@@ -9,7 +9,6 @@ TRACK_Instrument			equ 0-17
 TRACK_Command			equ 1-17
 TRACK_MacroPointer		equ 2-17
 TRACK_MacroStart			equ 4-17
-;TRACK_MacroRestart 		equ 6-17		; Delete
 TRACK_Note				equ 7-17
 TRACK_Volume			equ 8-17
 TRACK_Waveform			equ 9-17
@@ -44,7 +43,6 @@ TRACK_cmd_E			equ 33-17
 TRACK_Timer			equ 34-17		; used for timing by all cmd's
 TRACK_Step			equ 35-17		; only for VIBRATO???
 TRACK_Delay			equ 36-17		; rows to wait till next data
-;TRACK_Retrig		equ 35-17		; rows to retrigger command
 TRACK_prevDelay		equ 37-17
 TRACK_cmd_A_add		equ 38-17	;<< Still in use???
 
@@ -66,7 +64,6 @@ _SP_Storage			#2			; to store the SP
 replay_trigger		#1			; trigger byte.
 replay_mainPSGvol		#2			; volume mixer for PSG SCC balance
 replay_mainSCCvol		#2			; volume mixer for PSG SCC balance
-;replay_songbase:		#2			; pointer to song data
 
 
 ; Do not move/reorder these
@@ -97,23 +94,18 @@ replay_fade_vol		#1			; fade volume to lower the channel volume.
 
 replay_previous_note	#1			; previous note played
 replay_mainvol		#2			; the volume correction.
-
-;replay_vib_table		#2			; pointer to the vibrato table
 replay_tonetable		#2			; ToneTable (affected by transpose);
-
 replay_morph_active	#1			; flag to indicate morphing is active
-;replay_morph_update	#1			; flag to indicate a new waveform is ready
 replay_morph_timer	#1			; step timer between morphs
 replay_morph_type		#1			; Type of morph from set (0) or from buffer (1)
 replay_morph_speed	#1 			; tics to wait between steps.
 replay_morph_counter	#1			; counter till end morph
 replay_morph_buffer	#64			; interleaved buffer with morphed waveform and morph delta values
 replay_morph_waveform	#1 			; waveform we are morphing to.
-;replay_envelope_shape	#1			; current envelope shape
+
 
 equalization_freq:	#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
 equalization_cnt:		#1	; counter for correct playback on 60hz
-equalization_flag:	#1	; flag indicating if only instruments need to be processed.
 
 TRACK_Chan1			#TRACK_REC_SIZE
 TRACK_Chan2			#TRACK_REC_SIZE

@@ -44,7 +44,6 @@ TRACK_cmd_E				equ 33-17
 TRACK_Timer				equ 34-17		; used for timing by all cmd's
 TRACK_Step				equ 35-17		; only for VIBRATO???
 TRACK_Delay				equ 36-17		; rows to wait till next data
-;TRACK_Retrig			equ 35-17		; rows to retrigger command
 TRACK_prevDelay			equ 37-17
 TRACK_cmd_A_add			equ 38-17		;<< Still in use???
 
@@ -66,7 +65,6 @@ _SP_Storage				#2			; to store the SP
 replay_trigger			#1			; trigger byte.
 replay_mainPSGvol		      #2			; volume mixer for PSG FM balance
 replay_mainFMvol		      #2			; volume mixer for PSG FM balance
-;replay_songbase:		      #2			; pointer to song data
 
 ; Do not move these
 replay_voicebase:		      #2			; pointer to custom voice data
@@ -83,9 +81,7 @@ TRACK_pointer8			#2
 ; / Do not move above
 
 
-
 replay_orderpointer:	      #2			; pointer to the order track list pointers
-
 replay_speed 			#1			; speed to replay (get from song)
 replay_speed_subtimer 	      #1			; counter for finer speed
 replay_speed_timer 		#1 			; counter for speed
@@ -101,18 +97,15 @@ replay_fade_vol			#1			; fade volume to lower the channel volume.
 replay_previous_note	      #1			; previous note played
 replay_mainvol			#2			; the volume correction.
 
-replay_softvoice			#1	; Software voice active
-FM_softvoice_req			#1	; Software voice requested
-;replay_vib_table		      #2			; pointer to the vibrato table
-;replay_tonetable_PSG	      #2			; ToneTable (affected by transpose);
-;replay_tonetable_FM	      #2			; ToneTable (affected by transpose);
+replay_softvoice			#1	            ; Software voice active
+FM_softvoice_req			#1	            ; Software voice requested
 replay_tonetable		      #2			; Current tonetable to read from
 
-r800:					#1	; CPU mode
-count_low:				#1	; R800 timer
+r800:					#1	            ; CPU mode
+count_low:				#1	            ; R800 timer
 
-equalization_freq:		#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
-equalization_cnt:		      #1	; counter for correct playback on 60hz
+equalization_freq:		#1	            ; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
+equalization_cnt:		      #1	            ; counter for correct playback on 60hz
 
 
 TRACK_Chan1				#TRACK_REC_SIZE
@@ -137,7 +130,7 @@ PSG_regToneB 		#2	; Tone B freq low
 PSG_regToneC 		#2	; Tone C freq low
 					; Tone C freq high
 PSG_regNOISE 		#1	; Noise freq (5bit)
-PSG_regMIXER 		#1	;0x38	;x3f	; Mixer control (1 = off, 0 = on)
+PSG_regMIXER 		#1	; Mixer control (1 = off, 0 = on)
 PSG_regVOLA 		#1	; Chan A volume
 PSG_regVOLB 		#1	; Chan B volume
 PSG_regVOLC  		#1	; Chan C volume
@@ -212,21 +205,10 @@ DRUM_regVolCTb	#1
 FM_DRUM		#1	; Percussion bits
 FM_DRUMb		#1
 
-
-;FM_DRUM_Flags		#1	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update
-;FM_freqreg1			#2	; Base drum
-;FM_volreg1			#1	; Drum (low)
-;FM_freqreg2			#2	; Snare + HiHat
-;FM_volreg2			#1	; Snare(low) Hihat(High)
-;FM_freqreg3			#2	; Cymbal + TomTom
-;FM_volreg3			#1	; Cymbal(low) TomTom (High)
-
-;FM_DRUM_LEN			#1	; Length of drum macro
 FM_DRUM_ACTIVE		#1	; Is a drum active?
 FM_DRUM_MACRO		#2	; Pointer to drum macro data
 
-; DEze lijkt niet meer nodig
-FM_regMIXER 		#1	; x3f	; Mixer control (1 = off, 0 = on)
+FM_regMIXER 		#1	; Mixer control (1 = off, 0 = on)
 
 REGISTERS_END		#0
 

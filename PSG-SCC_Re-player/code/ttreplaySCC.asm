@@ -43,6 +43,7 @@ _INS:		equ	113+1	      ; = instrument 1
 _CMD:		equ	144+1	      ; = effect 0
 _SPC:		equ	184		; = special commands
 _EOT:		equ	191		; = end of track
+_WAIT:	equ	192	      ; = wait 1
 	
       
 
@@ -207,7 +208,6 @@ replay_init:
 	xor	a
 	ld	(replay_mode),a	
 	ld	(equalization_cnt),a
-	ld	(equalization_flag),a	
 	ld	(replay_morph_speed),a
 	inc	a
 	ld	(replay_morph_type),a
@@ -377,15 +377,12 @@ replay_loadsong:
 	ld	(PSG_regVOLA),a
 	ld	(PSG_regVOLB),a	
 	ld	(PSG_regVOLC),a
-	;ld	(PSG_regNOISE),a
 	ld	(replay_noise),a
 	ld	a,0xbf
 	ld	(PSG_regMIXER),a
 
 	ld	a,1
 	ld	(replay_speed_timer),a
-;	ld	(replay_morph_timer),a
-;	ld	(replay_morph_speed),a
 	ld	(TRACK_Chan1+17+TRACK_Delay),a	
 	ld	(TRACK_Chan2+17+TRACK_Delay),a		
 	ld	(TRACK_Chan3+17+TRACK_Delay),a	
@@ -424,18 +421,15 @@ ENDIF
 	ld	(TRACK_Chan6+17+TRACK_Flags),a	
 	ld	(TRACK_Chan7+17+TRACK_Flags),a	
 	ld	(TRACK_Chan8+17+TRACK_Flags),a	
-	
-;	call scc_reg_update			; Probably not needed.
+
 	
 IFDEF	EXTERNAL_SCC	
 	ld	a,(mapper_slot)				
 	ld	h,0x80
 	call enaslt
 ENDIF	
-
 	call	replay_route
 	
-	; end	is here
 	ld	a,1
 	ld	(replay_mode),a	
 	ret
@@ -467,7 +461,7 @@ replay_play:
 	ld	a,(replay_mode)
 	and	a
       jr    z,replay_play_no
-;	ret	z		; replay mode = 0	; halted
+            		; replay mode = 0	; halted
 				; replay mode = 1	; active
 	
 	;---- SPEED EQUALIZATION 
@@ -476,17 +470,14 @@ replay_play:
 	jr.	z,PAL			   		; if PAL process at any interrupt;
 
 NTSC:
-	ld	hl,equalization_cnt  		; if NTSC call 5 times out of 6
-	dec	(hl)
+	ld	a,(equalization_cnt)  		; if NTSC call 5 times out of 6
+	dec	a
+      ld	(equalization_cnt),a
 	jr.	nz,PAL			   	; skip music data processing one tic out of 6
 
 	;--- Reset timer and raise equalization flag
-	ld	a,6
-	ld	(hl),a						
- 	ld	(equalization_flag),a		
-
-	xor	a
-	ld	(equalization_flag),a
+	ld	a,6	
+      ld	(equalization_cnt),a							
 	ret
 PAL:							
 	;---- END SPEED EQUALIZATION	
@@ -721,7 +712,6 @@ process_data:
 	xor	0xbf
 	ld	(PSG_regMIXER),a
 	xor	a
-	;ld	a,11100011b
 	ld	(SCC_regMIXER),a
 
 	;--- set SCC balance
@@ -737,7 +727,6 @@ process_data:
 	ld	ix,TRACK_Chan4+17
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneA
 	call	process_data_chan
 	jp	nc,skipd
 	ld	(SCC_regToneA),hl
@@ -752,7 +741,6 @@ skipd:
 	ld	ix,TRACK_Chan5+17
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneB
 	call	process_data_chan
 	jp	nc,.skipe
 	ld	(SCC_regToneB),hl
@@ -768,7 +756,6 @@ skipd:
 	ld	ix,TRACK_Chan6+17
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneC
 	call	process_data_chan
 	jp	nc,.skipf
 	ld	(SCC_regToneC),hl
@@ -783,7 +770,6 @@ skipd:
 	ld	ix,TRACK_Chan7+17
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneD
 	call	process_data_chan
 	jp	nc,.skipg
 	ld	(SCC_regToneD),hl
@@ -795,11 +781,9 @@ skipd:
 	;--- Process track 8
 	;--------------------
 							; no waveform for SCC channel 5
-		
-	ld	ix,TRACK_Chan8+17
+      ld	ix,TRACK_Chan8+17
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
-;	ld	hl,SCC_regToneE
 	call	process_data_chan
 	jp	nc,.skiph
 	ld	(SCC_regToneE),hl
@@ -1100,42 +1084,6 @@ _replaydecode_cmd:
 	ld	a,(bc)
 	jp	(hl)
 
-;DECODE_CMDLIST:
-;	; Primary
-;	dw	decode_cmd3_port_tone
-;	dw	decode_cmd5_vibrato_port_tone
-;	dw	decode_cmd2_port_down
-;	dw	decode_cmd0_arpeggio
-;	dw	decode_cmd4_vibrato
-;	dw	decode_cmd1_port_up
-;	dw	decode_cmd6_vibrato_vol	
-;	dw	decode_cmd7_vol_slide
-;	dw	decode_cmd8_tremolo
-;	dw	decode_cmd9_note_cut
-;	dw	decode_cmd10_note_delay
-;	; Secondary
-;	dw	decode_cmd11_command_end
-;	dw	decode_cmd12_SCC_morph
-;	dw	decode_cmd13_arp_speed
-;	dw	decode_cmd14_fine_up
-;	dw	decode_cmd15_fine_down
-;	dw	decode_cmd16_notelink
-;	dw	decode_cmd17_track_detune
-;	dw	decode_cmd18_trigger
-;	dw	decode_cmd19_speed
-;	; SoundChip Specific
-;	dw	decode_cmd20_envelope_high
-;	dw	decode_cmd21_envelope_low
-;
-;	dw	decode_cmd22_SCC_reset
-;	dw	decode_cmd23_SCC_duty
-;	dw	decode_cmd24_SCC_soften
-;	dw	decode_cmd25_SCC_waveform
-;	dw	decode_cmd26_SCC_morph_copy
-;	dw	decode_cmd27_SCC_morph_type
-;	dw	decode_cmd28_SCC_morph_speed
-;
-;	dw	decode_cmd29_SCC_sample
 
 
 decode_cmd0_arpeggio:
@@ -1693,20 +1641,6 @@ process_data_chan:
 	ld	l,a
 	jp	hl
 
-;	ld	hl,PROCESS_CMDLIST
-;	ld	a,(ix+TRACK_Command)
-;	add	a
-;	add	a,l
-;	ld	l,a
-;	jp	nc,.skip
-;	inc	h
-;.skip:
-;	ld	a,(hl)
-;	inc	hl
-;	ld	h,(hl)
-;	ld	l,a	
-;	jp	(hl)
-	
 process_note:	
 process_commandEND:
 
@@ -1789,7 +1723,6 @@ macro_noise_base:
 	ld	a,(de)
 	inc   de
 	ld	(ix+TRACK_Noise),a
-	;ld	(PSG_regNOISE),a
 	ld	(replay_noise),a
 	jp	process_macro
 
@@ -1799,7 +1732,6 @@ macro_noise_add:
 	inc   de
 	add   (ix+TRACK_Noise)
 	ld	(ix+TRACK_Noise),a
-	;ld	(PSG_regNOISE),a
 	ld	(replay_noise),a
 	jp	process_macro
 
@@ -2093,11 +2025,6 @@ ELSE
 	;
 	;=================================	
 	ld	h,TRACK_Vibrato_sine >> 8
-
-;	ld	l,(ix+TRACK_cmd_4_depth)
-;	ld	h,(ix+TRACK_cmd_4_depth+1)
-
-
 	;--- Get next step
 	ld	a,(IX+TRACK_Step)
 	add	(ix+TRACK_cmd_4_step)
@@ -2106,11 +2033,7 @@ ELSE
 	sra	a			; devide step by 2
 
 	add	(ix+TRACK_cmd_4_depth)
-;	add	a,l
 	ld	l,a
-;	jp	nc,.skip
-;	inc	h
-;.skip:
 	ld	a,(hl)
 	add	a
 	add	a
@@ -2126,10 +2049,7 @@ ENDIF
 	; Vibrato	
 	;
 	;=================================
-	; FIXME Remove this when implemented semitones in instruments
 process_cmd4_vibrato_extended:
-;	ld	l,(ix+TRACK_cmd_4_depth)
-;	ld	h,(ix+TRACK_cmd_4_depth+1)
 	ld	h,TRACK_Vibrato_sine_extended >> 8	
 	jp	process_cmd4_vibrato.ext
 	;=================================
@@ -2151,12 +2071,8 @@ process_cmd4_vibrato:
 	
 .neg:
 	and	$1f	; make it 32 steps again
-;	add	a,l
 	add	(ix+TRACK_cmd_4_depth)
 	ld	l,a
-;	jp	nc,.skip1
-;	inc	h
-;.skip1:
 	ld	a,(hl)
 	neg
 	jp	z,.zero			; $ff00 gives strange result ;)	
@@ -2166,11 +2082,7 @@ process_cmd4_vibrato:
 
 .pos:
 	add	(ix+TRACK_cmd_4_depth)
-;	add	a,l
 	ld	l,a
-;	jp	nc,.skip2
-;	inc	h
-;.skip2:
 	ld	a,(hl)
 .zero:	
 	ld	(ix+TRACK_cmd_ToneAdd),a
@@ -2237,8 +2149,8 @@ process_cmd10_note_delay:
 	; trigger note
 	ld	a,(ix+TRACK_cmd_E)		
 	ld	(ix+TRACK_Note),a		; set	the note val
-	set	B_TRGNOT,d	;(ix+TRACK_Flags)		; set	trigger note flag
-	res	B_TRGCMD,d	;(ix+TRACK_Flags)		; reset trigger cmd flag
+	set	B_TRGNOT,d		      ; set	trigger note flag
+	res	B_TRGCMD,d	      	; reset trigger cmd flag
 	
 	jp	process_commandEND	
 
@@ -2344,72 +2256,6 @@ _ptAY_loop:
 	ld	de,0x9860
       call  _write_SCC_wave_NEW
 .skip4:
-;      ld    hl,TRACK_Chan8+17+TRACK_Flags
-;	bit	B_TRGWAV,(hl)
-;	jp	z,.skip5
-;
-;	;--- set wave form
-;	ld	de,0x9860
- ;     call  _write_SCC_wave_NEW
-;.skip5:
-
-;	;--- Set the waveforms
-;	ld	a,(TRACK_Chan4+17+TRACK_Flags)
-;	bit	B_TRGWAV,a
-;	jp	z,.skip1
-;
-;	;--- set wave form
-;	ld	de,0x9800
-;	and	10111111b		;res	B_TRGWAV,a
-;	ld	(TRACK_Chan4+17+TRACK_Flags),a
-;	bit	B_ACTMOR,a
-;	call	nz,_write_SCC_special
-;	;--- write_SCC_special will handle the return to next skip [HACK]
-;	ld	a,(TRACK_Chan4+17+TRACK_Waveform)
-;	call	_write_SCC_wave
-;.skip1:
-;	ld	a,(TRACK_Chan5+17+TRACK_Flags)
-;	bit	B_TRGWAV,a
-;	jp	z,.skip2
-;
-;	;--- set wave form
-;	ld	de,0x9820
-;	and	10111111b		;res	B_TRGWAV,a
-;	ld	(TRACK_Chan5+17+TRACK_Flags),a
-;	bit	B_ACTMOR,a
-;	call	nz,_write_SCC_special
-;	;--- write_SCC_special will handle the return to next skip [HACK]
-;	ld	a,(TRACK_Chan5+17+TRACK_Waveform)
-;	call	_write_SCC_wave
-;.skip2:
-;	ld	a,(TRACK_Chan6+17+TRACK_Flags)
-;	bit	B_TRGWAV,a
-;	jp	z,.skip3
-;
-;	;--- set wave form
-;	ld	de,0x9840
-;	and	10111111b		;res	B_TRGWAV,a
-;	ld	(TRACK_Chan6+17+TRACK_Flags),a
-;	bit	B_ACTMOR,a
-;	call	nz,_write_SCC_special
-;	;--- write_SCC_special will handle the return to next skip [HACK]
-;	ld	a,(TRACK_Chan6+17+TRACK_Waveform)
-;	call	_write_SCC_wave
-;.skip3:
-;	ld	a,(TRACK_Chan7+17+TRACK_Flags)
-;	bit	B_TRGWAV,a
-;	jp	z,.skip4
-;
-;	;--- set wave form
-;	ld	de,0x9860
-;	and	10111111b		;res	B_TRGWAV,a
-;	ld	(TRACK_Chan7+17+TRACK_Flags),a
-;	bit	B_ACTMOR,a
-;	call	nz,_write_SCC_special
-;	;--- write_SCC_special will handle the return to next skip [HACK]
-;	ld	a,(TRACK_Chan7+17+TRACK_Waveform)
-;	call	_write_SCC_wave
-;.skip4:
 
 scc_reg_update:
 	
@@ -2452,26 +2298,6 @@ ELSE
 	dec c
 	jp m,.loop
 
-
-	;--- Update changed SCC registers.
-;	ld hl,oldregs				
-;	ld de,SCC_registers
-;	ld bc,0x9880
-;	ld a,(3*5)+1
-;.loop:
-;	ex af,af'	;'
-;	ld a,(de)
-;	cp (hl)					
-;	jr z,.skip					
-;	ld (hl),a		 				
-;	ld (bc),a		 				; update scc	registers
-;.skip:		
-;	inc hl					
-;	inc de
-;	inc bc
-;	ex af,af'		;'
-;	dec a
-;	jr nz,.loop
 ENDIF
 	ret
 
@@ -2643,163 +2469,6 @@ _wss_l:
 
 
 
-
-
-
-;_write_SCC_wave:
-;	;---- 000000SR	-> S = sfx waveform, R = RAM waveform
-;	bit	0,a
-;	jp	z,.normalwave
-;IFDEF	SFXPLAY_ENABLED
-;	bit	1,a
-;	jp	nz,.sfxwave
-;ENDIF
-;.ramwave:
-;	dec	hl		; reset the special flag in the wave form number
-;	and	$fe
-;	ld	(hl),a
-;
-;	ld	hl,_0x9800
-;	ld	a,e
-;	add	a,l
-;	ld	l,a
-;	jp	nc,.skip
-;	inc	h
-;.skip:
-;	jp	copy_wave_fast
-
-;IFDEF SFXPLAY_ENABLED
-;.sfxwave:
-;	and	11111000b
-;	ld	l,a
-;	ld	h,0
-;	add	hl,hl
-;	add	hl,hl
-;		
-;	ld	bc,SFX_WAVEBASE
-;	add	hl,bc
-;	jp	copy_wave_fast
-;ENDIF
-;
-;.normalwave:
-;	ld	l,a
-;	ld	h,0
-;	add	hl,hl
-;	add	hl,hl
-;		
-;	ld	  bc,(replay_wavebase)
-;	add	  hl,bc
-;copy_wave_fast:
-;	;--- Fastest way to copy waveform to SCC
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi		; 8
-;	ldi	
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi		; 16
-;	ldi	
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi		; 24
-;	ldi		
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi
-;	ldi		; 32
-;
-;	ret	
-;
-;_write_SCC_special:
-;	ld	hl,replay_morph_buffer
-;;	ld	bc,32
-;_wss_l:
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	inc	hl
-;	ldi
-;	;--- Hack the return address
-;	pop	hl
-;	ld	bc,6
-;	add	hl,bc
-;	jp	(hl)
-
 	
 ;=============
 ; in [A] the morph active status	
@@ -2907,7 +2576,7 @@ _rpm_next_step:
 	ld	(replay_morph_active),a
 
 .skip:
-	dec c
+	dec   c
 	ld	hl,replay_morph_buffer
 	ld	b,32
 _rpm_ns_loop:	

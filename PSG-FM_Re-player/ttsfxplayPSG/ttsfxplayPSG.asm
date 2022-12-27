@@ -71,12 +71,7 @@ ttsfx_start:
 	ld	h, 0
 	add	hl, hl					; *2 to get item offset in bank
 	add	hl, de
-;	ld	a,b
-;	add	a
-;	add	a,l
-;	ld	l,a
-;	jp	nc,.skip
-;	inc	h
+
 .skip:	
 	ld	c,(hl)
 	inc	hl
@@ -87,19 +82,6 @@ ttsfx_start:
 
 
 ttsfx_play:
-;	;---- SPEED EQUALIZATION 
-;	ld	a,(equalization_freq)		; 0 = 50Hz, otherwise 60Hz
-;	and	a
-;	jp	z,.PAL               		; if PAL process at any interrupt;
-;
-;.NTSC:
-;	ld	a,(equalization_cnt)		; Test if the music routine has just skipped an isr
-;	cp	6
-;	ret	z
-;.PAL:                             
-;	;---- END SPEED EQUALIZATION	
-;
-
 	;--------------------------------
 	; Play sfx stream
 	;--------------------------------
@@ -188,7 +170,6 @@ _ayVOLUME:
 	ld	a,(hl)				; a:=sfx_PSG relative volume
 	and	$0f					; mask only ay volume
 	ld	(PSG_regVOLC),a		; Diretly update the TT register value
-
 
 
 _ayMIXER:

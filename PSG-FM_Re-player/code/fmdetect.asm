@@ -10,6 +10,8 @@ EXPTBL: equ 0FCC1H
 MSXMusic_ID_ADDRESS: equ 4018H
 MSXMusic_ENABLE_ADDRESS: equ 7FF6H
 
+;====================================================
+; This code returns: 
 ; f <- c: found
 ; a <- slot
 ; b <- 0: external, -1: internal
