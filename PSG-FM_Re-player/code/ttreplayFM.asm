@@ -213,18 +213,17 @@ _DRUM_Default:
 	dw	0x04E4		; Bass drum
 	dw	0x0000
 	db	0x00			; vol
-	db	0xff
+	db	0xee
 	dw	0x0120		; Snare + HiHat
 	dw	0x0000
 	db	0x00			; vol
-	db	0xff
+	db	0xee
 	dw	0x00AB		; Cymbal + TomTom
 	dw	0x0000
 	db	0x00			; vol
-	db	0xff
+	db	0xee
 	db	0x20			; FM drm
-	db	0xff
-
+	db	0x00
 
 ;===========================================================
 ; ---	replay_init
@@ -254,28 +253,32 @@ replay_init:
    	jr.	c,.z80
 	ld	a,1
 	ld	(r800),a			; 0 = z80 other is R800
-	ret
+	jp	.init
 .z80:
 	xor	a
 	ld	(r800),a
-
-	;---- init YM2413
-	ld	e,a
-	xor	a
-	ld	d,a
-	ld	b,$39
-	ld	hl,replay_mode
-
+.init:
 	;--- init Mixers
 	call	replay_play_no
 
-_replay_init_loop:
-	push 	af
-	call	_writeFM
-	pop	af
-	inc a
-	djnz	_replay_init_loop
-
+	;---- init YM2413
+	ld	hl,_Default_Registers
+	ld	de,FM_Voicereg
+	ld	bc,72
+	ldir
+	ld	a,$ff
+	ld	(DRUM_regVolBD),a
+	ld	(DRUM_regVolSH),a
+	ld	(DRUM_regVolCT),a
+	call	replay_route 
+	ei
+	halt
+	xor	a
+	ld	(DRUM_regVolBD),a
+	ld	(DRUM_regVolSH),a
+	ld	(DRUM_regVolCT),a
+	call	replay_route
+	
 	ret
 
 ;===========================================================
@@ -457,14 +460,14 @@ replay_loadsong:
 	ldir
 	
       ;--- init drum register values
-	ld	a,00100000b			
-	ld	(FM_DRUM+1),a
-      ld    a,10000000b
-	ld	(FM_DRUM),a	      
+;	ld	a,00100000b			
+;	ld	(FM_DRUM+1),a
+;     ld    a,10000000b
+;	ld	(FM_DRUM),a	      
  
 	ld	hl,_Default_Registers
 	ld	de,FM_Voicereg
-	ld	bc,66
+	ld	bc,72
 	ldir
 
 	ld	a,1
