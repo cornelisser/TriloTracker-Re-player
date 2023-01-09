@@ -401,14 +401,6 @@ replay_loadsong:
 	ld	(TRACK_Chan6+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
 	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
-
-
-IFDEF	EXTERNAL_SCC	
-	;--- Init the SCC	(waveforms too)
-	ld	a,(SCC_slot)
-	ld	h,0x80
-	call enaslt
-ENDIF
 	
 	ld	a,255
 	ld	(TRACK_Chan4+17+TRACK_Waveform),a
@@ -422,12 +414,6 @@ ENDIF
 	ld	(TRACK_Chan7+17+TRACK_Flags),a	
 	ld	(TRACK_Chan8+17+TRACK_Flags),a	
 
-	
-IFDEF	EXTERNAL_SCC	
-	ld	a,(mapper_slot)				
-	ld	h,0x80
-	call enaslt
-ENDIF	
 	call	replay_route
 	
 	ld	a,1
@@ -2220,6 +2206,12 @@ _ptAY_loop:
 ;--------------
 ; S C	C 
 ;--------------
+IFDEF	EXTERNAL_SCC	
+	;--- Init the SCC	(waveforms too)
+	ld	a,(SCC_slot)
+	ld	h,0x80
+	call enaslt
+ENDIF
 	ld  a,03Fh				; enable SCC
 	ld  (0x9000),a
 
@@ -2299,6 +2291,12 @@ ELSE
 	jp m,.loop
 
 ENDIF
+	
+IFDEF	EXTERNAL_SCC	
+	ld	a,(mapper_slot)				
+	ld	h,0x80
+	call enaslt
+ENDIF	
 	ret
 
 	
