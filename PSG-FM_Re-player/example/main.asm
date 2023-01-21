@@ -701,7 +701,7 @@ songs:
 music0:
 ;	include ".\C-I_P.asm"
 music1:
-	include ".\WV-IJ-V2.asm"
+	include ".\FD47PRT1.asm"
 music2:
 ;	include ".\ST22_P.asm"
 ;music3:

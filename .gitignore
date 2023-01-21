@@ -45,30 +45,36 @@ TMU
 
 PSG-FM_Re-player/.vscode/launch.json
 
-.vscode/launch.json
+*.json
 
-PSG-FM_Re-player/.vscode/tasks.json
+TMU compiler/code/build/
 
-PSG-SCC_Re-player/example/.vscode/launch.json
+PSG-FM_Re-player/test/bas.asm
 
-PSG-SCC_Re-player/example/.vscode/tasks.json
+PSG-FM_Re-player/test/bas.lst
 
-TMU compiler/.vscode/
+PSG-SCC_Re-player/example/fast.asm
 
-*.toc
+PSG-FM_Re-player/example/C-I_P.asm
 
-TMU compiler/code/build/tmucompile/base_library.zip
+PSG-FM_Re-player/example/CN52_P.asm
 
-TMU compiler/code/build/tmucompile/PKG-00.pkg
+PSG-FM_Re-player/example/GALIOUS_SFX_TEST.afb
 
-TMU compiler/code/build/tmucompile/PYZ-00.pyz
+PSG-FM_Re-player/example/main.lst
 
-TMU compiler/code/build/tmucompile/tmucompile.exe
+PSG-FM_Re-player/example/noname.afb
 
-TMU compiler/code/build/tmucompile/tmucompile.exe.manifest
+PSG-FM_Re-player/example/OH-RG_P.asm
 
-TMU compiler/code/build/tmucompile/tmucompile.pkg
+PSG-FM_Re-player/example/sjasm.exe
 
-TMU compiler/code/build/tmucompile/warn-tmucompile.txt
+PSG-FM_Re-player/example/ST22_P.asm
 
-TMU compiler/code/build/tmucompile/xref-tmucompile.html
+PSG-FM_Re-player/example/test1.asm
+
+PSG-FM_Re-player/example/WV-IJ-V2.asm
+
+PSG-FM_Re-player/test/GALIOUS_SFX_TEST.afb
+
+PSG-FM_Re-player/test/test1.asm
