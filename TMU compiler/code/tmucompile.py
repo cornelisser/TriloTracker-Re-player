@@ -703,7 +703,7 @@ def export_drum(file,drum):
 				#note
 				tmp_note = (bt & 0x7f)*2
 				file.write(f"{_DB} $12, ${get_note(tmp_note,song):02x}, ${get_note(tmp_note+1,song):02x}\t\t\t\t\t\t; note Bdrum\n")					
-			elif (bt &0x7f != 0):
+			elif (bt &0x3f != 0):
 				if (bt & 0x40 == 0):
 					#add
 					file.write(f"{_DB} $14, ${(bt & 0x3f):02x}, $00\t\t\t\t\t\t; tone add pos Bdrum \n")
@@ -713,7 +713,7 @@ def export_drum(file,drum):
 		if (st != 0):
 			if (st & 0x80 == 0):
 				#note
-				tmp_note = (st & 0x3f)*2
+				tmp_note = (st & 0x7f)*2
 				file.write(f"{_DB} $16, ${get_note(tmp_note,song):02x}, ${get_note(tmp_note+1,song):02x}\t\t\t\t\t\t; note Snare \n")	
 			elif (st &0x3f != 0):
 				if (st & 0x40 == 0):
@@ -725,7 +725,7 @@ def export_drum(file,drum):
 		if (ct != 0):
 			if (ct & 0x80 == 0):
 				#note
-				tmp_note = (ct & 0x3f)*2
+				tmp_note = (ct & 0x7f)*2
 				file.write(f"{_DB} $1a, ${get_note(tmp_note,song):02x}, ${get_note(tmp_note+1,song):02x}\t\t\t\t\t\t; note Cymbal \n")					
 			elif (ct &0x3f != 0):
 				if (ct & 0x40 == 0):

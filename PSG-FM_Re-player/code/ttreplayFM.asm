@@ -1262,13 +1262,13 @@ _replay_decode_ins:
 	inc	hl
 	ld	a,(replay_softvoice)
 	cp	e
-	jp	z,.skip_soft
+	jp	z,.skip_soft_update
 
 	ld	a,e
 	ld	(replay_softvoice),a
 	ld 	(FM_softvoice_req),a
+.skip_soft_update:
 	xor 	a
-
 .skip_soft:
 	ld	(ix+TRACK_Voice),a
 
