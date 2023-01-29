@@ -1502,24 +1502,21 @@ decode_cmd12_SCC_morph:
 	ld	a,(replay_morph_type)
 	and	a
 	jp	z,.morph_fromtrack
+	
 .morph_fromregister:		
+IFDEF	EXTERNAL_SCC	
+	;--- Init the SCC	(waveforms too)
+	ld	a,(SCC_slot)
+	ld	h,0x80
+	call enaslt
+	ld  a,03Fh				; enable SCC
+	ld  (0x9000),a
+ENDIF
 	;--- Set HL to the buffer of the last written waveform
 	ld	h,$98
 	ld	a,iyh
 	ld	l,a
-	jp	.morph_copy	
 
-.morph_fromtrack:
-	;--- Set HL to the waveform set by instrument or B1y or B2y
-	ld	l,(ix+TRACK_Waveform)
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		 
-	ld	bc,(replay_wavebase)
-	add	hl,bc
-
-.morph_copy:
 	ld	bc,replay_morph_buffer
 	ld	a,32
 44:
@@ -1533,6 +1530,38 @@ decode_cmd12_SCC_morph:
 	dec	a
 	jp	nz,44b
 
+IFDEF	EXTERNAL_SCC	
+	ld	a,(mapper_slot)				
+	ld	h,0x80
+	call enaslt
+ENDIF	
+	jp	.morph_copy
+
+
+.morph_fromtrack:
+	;--- Set HL to the waveform set by instrument or B1y or B2y
+	ld	l,(ix+TRACK_Waveform)
+	ld	h,0
+	add	hl,hl
+	add	hl,hl
+		 
+	ld	bc,(replay_wavebase)
+	add	hl,bc
+
+	ld	bc,replay_morph_buffer
+	ld	a,32
+44:
+	ex	af,af'	;'
+	ld	a,(hl)
+	inc	bc		; copy to value (skip delta value byte)
+	ld	(bc),a	
+	inc	hl
+	inc	bc
+	ex	af,af'	;'
+	dec	a
+	jp	nz,44b
+
+.morph_copy:
 	;--- calculate the delta's	
 	ld	a,255				; 255 triggers calc init
 	ld	(replay_morph_active),a		
@@ -2454,8 +2483,7 @@ replay_process_morph:
 	dec	(hl)
 	ret	nz
 	
-	;---- not sure what to do with this.
-	; trigger any waveform updates
+	;--- trigger any waveform updates
 	ld	b,4
 	ld	de,TRACK_REC_SIZE
 	ld	hl,TRACK_Chan4+17+TRACK_Flags
