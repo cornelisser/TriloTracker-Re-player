@@ -103,6 +103,8 @@ replay_morph_counter	#1			; counter till end morph
 replay_morph_buffer	#64			; interleaved buffer with morphed waveform and morph delta values
 replay_morph_waveform	#1 			; waveform we are morphing to.
 
+SCC_slot			#1			; Only used for external SCC
+mapper_slot			#1			; Only used for external SCC
 
 equalization_freq:	#1	; vdp type for correct playback on 60hz 0=50Hx, >0=60Hz
 equalization_cnt:		#1	; counter for correct playback on 60hz

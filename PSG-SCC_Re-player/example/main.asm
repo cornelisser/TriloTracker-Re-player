@@ -6,7 +6,7 @@
 ; This example plays compiled PSG+SCC songs
 ; ------------------------------
 
-;	include	".\code\variables.asm"
+	include	"..\code\ttreplaySCC_options.asm"
 
 	page 0
 	code page 0
