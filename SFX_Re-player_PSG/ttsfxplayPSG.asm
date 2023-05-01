@@ -56,49 +56,36 @@ ttsfx_start:
 
 	;--- Test priority
 	ld	a,(sfx_PRIORITY)		; a:=Current sfx_SCC stream priority
-	cp	c						; If new sfx_SCC stream priority is higher than currently one...
-	ret	c						; ...we don't start the new sfx_SCC stream	
+	cp	c				; If new sfx_SCC stream priority is higher than currently one...
+	ret	c				; ...we don't start the new sfx_SCC stream	
 
 	;--- Set priority
-	ld	a,c						; a:=New priority
-	ld	(sfx_PRIORITY),a		            ; new priority saved in RAM
+	ld	a,c				; a:=New priority
+	ld	(sfx_PRIORITY),a		; new priority saved in RAM
 	ld	a,1		
-	ld	(sfx_STATUS),a			      ; playing SFX
+	ld	(sfx_STATUS),a		; playing SFX
 
 
-	ld	de, sfxbank+1			; Start of SFX offset list
+	ld	de, sfxbank+1		; Start of SFX offset list
 	ld	l, b
 	ld	h, 0
-	add	hl, hl					; *2 to get item offset in bank
+	add	hl, hl			; *2 to get item offset in bank
 	add	hl, de
 
 	ld	c,(hl)
 	inc	hl
 	ld	b,(hl)
-	add	hl,bc						; Pointer to the first sfx
+	add	hl,bc				; Pointer to the first sfx
 	ld	(sfx_PSG_POINTER),hl
 	ret
 
 
 ttsfx_play:
-;	;---- SPEED EQUALIZATION 
-;	ld	a,(equalization_freq)		; 0 = 50Hz, otherwise 60Hz
-;	and	a
-;	jp	z,.PAL               		; if PAL process at any interrupt;
-;
-;.NTSC:
-;	ld	a,(equalization_cnt)		; Test if the music routine has just skipped an isr
-;	cp	6
-;	ret	z
-;.PAL:                             
-;	;---- END SPEED EQUALIZATION	
-
-
 	;--------------------------------
 	; Play sfx stream
 	;--------------------------------
-	ld	a,(sfx_STATUS)				; a:=Current sfx_PSG stream priority
-	and	a						; PSG active?
+	ld	a,(sfx_STATUS)		; a:=Current sfx_PSG stream priority
+	and	a				; PSG active?
 	jp	nz,.psg_play
 	
 	;--- If not active just use re-player noise and mixer
@@ -142,8 +129,8 @@ _aySETPOINTER:
 	ld	(sfx_PSG_POINTER),hl	; Update sfx_PSG stream pointer
 
 	; --- Set noise register if enabled ---
-	bit	7,c						; If noise is off...
-	jp	nz,_ayMUSNOISE			; ...jump to _aySETMASKS
+	bit	7,c				; If noise is off...
+	jp	nz,_ayMUSNOISE		; ...jump to _aySETMASKS
 	ld	a,b				; mixer mask for no music noise
 	or	10011000b
 	and	10011111b
@@ -157,8 +144,8 @@ _ayNOISESET:
 	ld	(PSG_regNOISE),a		; copied in to AYREGS (noise channel)
 
 	; --- Extract and set volume if tone or noise is enabled ---
-	bit	4,c						; If tone is off...
-	jp	nz,_ayVOLUME			; ...jump to _ayMIXER
+	bit	4,c				; If tone is off...
+	jp	nz,_ayVOLUME		; ...jump to _ayMIXER
 	ld	hl,(sfx_PSG_TONE)
 	ld	(PSG_regToneC),hl
 	res	 2,b				; enable tone on chan 3
@@ -170,8 +157,8 @@ _ayVOLUME:
 	cp	10100100b
 	jp	z,_ayMIXER
 
-	ld	a,c					; a:=Control byte
-	and	$0F					; lower nibble
+	ld	a,c				; a:=Control byte
+	and	$0F				; lower nibble
 	; --- Fix the volume using TT Volume Table ---
 	ld	hl,(sfx_PSG_BALANCE)	; hl:=Pointer to relative volume table
 	add	a,l
@@ -179,18 +166,15 @@ _ayVOLUME:
 	jp	nc,.skip
 	inc	h
 .skip:	
-	ld	a,(hl)				; a:=sfx_PSG relative volume
-	and	$0f					; mask only ay volume
+	ld	a,(hl)			; a:=sfx_PSG relative volume
+	and	$0f				; mask only ay volume
 	ld	(PSG_regVOLC),a		; Diretly update the TT register value
-
-
 
 _ayMIXER:
 	;--- Set Mixer
 	ld	a,b
 	ld	(PSG_regMIXER),a		; Directly write the TT register value
 	ret
-
 
 
 _ayEND:		
