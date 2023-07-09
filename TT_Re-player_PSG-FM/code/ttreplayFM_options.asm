@@ -9,6 +9,8 @@ define PERIOD_A440		; Modern
 ;define PERIOD_A445		; Konami
 ;define PERIOD_A448		; Classical
 
+;define DRUM_MCABIN		; set drum default to MicroCabin drum. Otherwise FMBIOS default
+
 ;define SFXPLAY_ENABLED	      ; Enable the SFX functionality.
 
 ;---- Performance option

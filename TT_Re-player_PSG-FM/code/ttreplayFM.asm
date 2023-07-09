@@ -193,6 +193,7 @@ _Default_Registers:
 	db	$00,$00,$ff,$ff,$00,$ff
 	db	$00,$00,$ff,$ff,$00,$ff								; Chan F Tone + vol
 _DRUM_Default:
+IFDEF DRUM_MCABIN
 	; values taken from XAK3 intro. Used the most used values as default
 	dw	0x04E4		; Bass drum
 	dw	0x0000
@@ -208,7 +209,22 @@ _DRUM_Default:
 	db	0xee
 	db	0x20			; FM drm
 	db	0x00
-
+ELSE
+	; values taken from FM BIOS. 
+;	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
+	dw	0x0520		; Bass drum
+	dw	0x0000
+	db	0x01			; vol
+	db	0xee
+	dw	0x0550		; Snare + HiHat
+	dw	0x0000
+	db	0x11			; vol
+	db	0xee
+	dw	0x01C0		; Cymbal + TomTom
+	dw	0x0000
+	db	0x11			; vol
+	db	0xee
+ENDIF
 ;===========================================================
 ; ---	replay_init
 ; Initialize re-player data
@@ -2566,7 +2582,7 @@ route_FM:
 
 
 .channels:
-	ld	bc, $0910			; 9 channels, start reg# is $10
+	ld	bc, $0930			; 9 channels, start reg# is $10
 	ld	hl,FM_regToneA+1		; pointer to the backup of reg# $2x
 .channel_loop:
 ;	;--- Check if channel is active
@@ -2575,6 +2591,8 @@ route_FM:
 	jp	c,.noKeyOnSwitch
 
 .keyOnSwitch:
+	;--- Flip KeyOn bit
+	; It needs to be a full off-on sequence to work on all instruments.
 	inc	hl
 	inc	hl
 	ld	a,(hl)
@@ -2583,17 +2601,18 @@ route_FM:
 	jp	z,99f		      ; skip if key was not set
 	and	00101111b		; reset keyon bit
 	ld	d,a
-	ld	a,$10
+	ld	a,-16 ; $10
 	add	c
 	call	_writeFM
-99:
-	dec	hl
-	dec	hl
+	jp	99f
+
 .noKeyOnSwitch:
-	dec	hl
+	inc	hl
+	inc	hl
+99:	inc	hl
+
 	;--- Write reg $1x
 	ld	a,(hl)
-	inc	hl
 	inc	hl
 	cp	(hl)
 	jp	z,99f			; No change in value
@@ -2601,7 +2620,13 @@ route_FM:
 	ld	a,c			; Store reg# in C
 	call	_writeFM
 99:
-	dec	hl
+	ld	a,l
+	sub	5
+	jp	nc,1f
+	dec	h
+1:
+	ld	l,a
+
 	;--- Write reg $2x
 	ld	a,(hl)
 	inc	hl
@@ -2609,23 +2634,28 @@ route_FM:
 	cp	(hl)
 	jp	z,99f			; No change in value
 	ld	d,a			; Store value in D
-	ld	a,$10
+	ld	a,-32 ; $10
 	add	a,c			; Store reg# in C+10
 	call	_writeFM
 99:
-	inc	hl	
+	dec	hl	
 	;--- Write reg $3x
 	ld	a,(hl)
+	inc	hl
 	inc	hl
 	cp	(hl)
 	jp	z,99f			; No change in value
 	ld	d,a			; Store value in D
-	ld	a,$20
+	ld	a,-16 ; $20
 	add	c			; Store reg# in C
 	call	_writeFM
 99:
-	inc	hl
-	inc	hl
+	ld	a,l
+	add	4
+	jp	nc,1f
+	inc	h
+1:
+	ld	l,a
 .continue:	
 	inc	c			; increase base register with 1
 	djnz	.channel_loop
