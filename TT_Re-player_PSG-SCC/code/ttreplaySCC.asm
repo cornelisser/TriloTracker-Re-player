@@ -186,7 +186,6 @@ replay_init:
 
 	xor	a
 	ld	(replay_mode),a	
-	ld	(equalization_cnt),a
 	ld	(replay_morph_speed),a
 	inc	a
 	ld	(replay_morph_type),a
@@ -423,12 +422,6 @@ replay_play_no:
 ; Input none
 ;===========================================================	
 replay_play:
-	ld	a,(replay_mode)
-	and	a
-      jr    z,replay_play_no
-            		; replay mode = 0	; halted
-				; replay mode = 1	; active
-	
 	;---- SPEED EQUALIZATION 
 	ld	a,(equalization_freq)		; 0 = 50Hz, otherwise 60Hz
 	and	a
@@ -442,11 +435,19 @@ NTSC:
 
 	;--- Reset timer and raise equalization flag
 	ld	a,6	
-      ld	(equalization_cnt),a							
+      ld	(equalization_cnt),a	
+	ld	a,(replay_mode)
+	and	a
+      jr    z,replay_play_no
 	ret
 PAL:							
 	;---- END SPEED EQUALIZATION	
-
+	ld	a,(replay_mode)
+	and	a
+      jr    z,replay_play_no
+            		; replay mode = 0	; halted
+				; replay mode = 1	; active
+	
 	;--- check for end of pattern
 	ld	hl,(TRACK_pointer1)
 	ld	a,(hl)

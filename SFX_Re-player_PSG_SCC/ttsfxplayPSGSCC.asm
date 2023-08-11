@@ -65,7 +65,7 @@ _getsfxbalancebase:
 ttsfx_start:
 	;--- Start a new SFX
 	;--- Input B -> sfx number
-	;--- Input C -> priority  0 = lowest, 255 is highest
+	;--- Input C -> priority  0 = highest, 254 is lowest
 
 	;--- Test priority
 	ld	a,(sfx_PRIORITY)		; a:=Current sfx_SCC stream priority
@@ -103,6 +103,14 @@ ttsfx_start:
 
 
 ttsfx_play:
+	;--- Disable this section if the SFX do not need to run at 
+	;    the same speed on 50hz and 60hz.
+	;--- SPEED EQUALIZATION 
+	ld	a,(equalization_cnt)  		; if NTSC call 5 times out of 6
+	cp	6					; if previously set on 6 then skip
+	ret	z
+
+
 	;--------------------------------
 	; Play both sfx streams
 	;--------------------------------

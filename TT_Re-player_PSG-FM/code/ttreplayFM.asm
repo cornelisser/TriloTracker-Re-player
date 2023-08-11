@@ -224,6 +224,8 @@ ELSE
 	dw	0x0000
 	db	0x11			; vol
 	db	0xee
+	db	0x20			; FM drm
+	db	0x00
 ENDIF
 ;===========================================================
 ; ---	replay_init
@@ -241,8 +243,6 @@ replay_init:
 
 	xor	a
 	ld	(replay_mode),a	
-	ld	(equalization_cnt),a
-	ld	(equalization_freq),a
 
 	;--- Detect CPU
 	ld 	hl,$002D
@@ -271,13 +271,6 @@ replay_init:
 	ld	(DRUM_regVolSH),a
 	ld	(DRUM_regVolCT),a
 	call	replay_route 
-	ei
-	halt
-	xor	a
-	ld	(DRUM_regVolBD),a
-	ld	(DRUM_regVolSH),a
-	ld	(DRUM_regVolCT),a
-	call	replay_route
 	
 	ret
 
@@ -544,22 +537,16 @@ replay_play_no:
 ; Input none
 ;===========================================================	
 replay_play:
-	ld	a,(replay_mode)
-	and	a
-      jr    z,replay_play_no
-            		; replay mode = 0	; halted
-				; replay mode = 1	; active
-	
 	;---- SPEED EQUALIZATION 
 	ld	a,(equalization_freq)		; 0 = 50Hz, otherwise 60Hz
 	and	a
-	jp	z,.PAL               		; if PAL process at any interrupt;
+	jp	z,PAL               		; if PAL process at any interrupt;
 
-.NTSC:
+NTSC:
 	ld	a,(equalization_cnt)  		; if NTSC call 5 times out of 6
 	dec	a
       ld	(equalization_cnt),a
-	jp	nz,.PAL               		; skip music data processing one tic out of 6
+	jp	nz,PAL               		; skip music data processing one tic out of 6
 
 	ld	(FM_DRUM),a			; make sure not to retrigger drums on skip
 	;--- Reset keyon flip 
@@ -578,10 +565,18 @@ replay_play:
 
 	;--- Reset timer and raise equalization flag
 	ld	a,6	
-      ld	(equalization_cnt),a					
+      ld	(equalization_cnt),a
+	ld	a,(replay_mode)
+	and	a
+      jp    z,replay_play_no
 	ret
-.PAL:                             
+PAL:                             
 	;---- END SPEED EQUALIZATION	
+	ld	a,(replay_mode)
+	and	a
+      jp    z,replay_play_no
+            		; replay mode = 0	; halted
+				; replay mode = 1	; active
 
 	;--- check for end of pattern
 	ld	hl,(TRACK_pointer1)
@@ -1031,16 +1026,11 @@ process_fade:
 	ld	b,3
 	ld	hl,PSG_regVOLA
 	call	.calc_vol
-	ld	b,9
+	ld	b,7
 	ld	hl,FM_regVOLA
 .calc_vol_FM:
 	ld	a,(hl)
-	and	$0f
-	add	c
-	cp	16
-	jp	c,.no_limit_FM
-	ld	a,15
-.no_limit_FM:
+	call	.calc_vol_FM_cmn
 	ld	d,a
 	ld	a,(hl)
 	and	$f0
@@ -1053,6 +1043,39 @@ process_fade:
 	inc	h
 99:
 	djnz	.calc_vol_FM
+	ld	b,2
+.calc_vol_rythm:
+	ld	a,(hl)
+	call	.calc_vol_FM_cmn
+	ld	d,a
+	ld	a,(hl)
+	rrca
+	rrca
+	rrca
+	rrca
+	call	.calc_vol_FM_cmn
+	rlca
+	rlca
+	rlca
+	rlca
+	and	$f0
+	or	d
+	ld	(hl),a
+	ld	a,6
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	djnz	.calc_vol_rythm
+	ret
+
+.calc_vol_FM_cmn:
+	and	$0f
+	add	c
+	cp	16
+	ret	c
+	ld	a,15
 	ret
 
 .calc_vol:	
