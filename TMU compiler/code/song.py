@@ -234,7 +234,7 @@ class Song:
 
 
 	def set_length(self,length):
-		if (self.restart >= length):
+		if (self.restart >= length and self.restart != 255):
 			raise SystemExit(f"Error reading order data. Invalid data!")
 		self.length = length
 
