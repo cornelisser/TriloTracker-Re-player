@@ -436,9 +436,9 @@ NTSC:
 	;--- Reset timer and raise equalization flag
 	ld	a,6	
       ld	(equalization_cnt),a	
-	ld	a,(replay_mode)
-	and	a
-      jr    z,replay_play_no
+;	ld	a,(replay_mode)
+;	and	a
+;     jr    z,replay_play_no
 	ret
 PAL:							
 	;---- END SPEED EQUALIZATION	
