@@ -823,7 +823,7 @@ def export_track(file,track):
 		p = row[4]		# parameters
 		
 		#--- Replace V0 with volume 0
-		if n == 98:
+		if n == 99:
 			if v == 0:
 				v = 255
 			n = 0
