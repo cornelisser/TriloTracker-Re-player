@@ -1284,10 +1284,13 @@ _replay_decode_ins:
 	;--- Set the software voice (if needed)
 	and	a
 	jp	nz,.skip_soft
+
+	;--- skipsoft value for PSG
+	bit	B_PSGFM,d
+	jp	z,.skip_soft_psg		
+
 	;--- software voice found
-	
 	ld	e,(hl)		; value is the offset in the soft voice data (8bytes)
-	inc	hl
 	ld	a,(replay_softvoice)
 	cp	e
 	jp	z,.skip_soft_update
@@ -1297,6 +1300,8 @@ _replay_decode_ins:
 	ld 	(FM_softvoice_req),a
 .skip_soft_update:
 	xor 	a
+.skip_soft_psg:
+	inc	hl
 .skip_soft:
 	ld	(ix+TRACK_Voice),a
 
