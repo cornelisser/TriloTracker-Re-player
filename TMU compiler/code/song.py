@@ -307,8 +307,11 @@ class Song:
 			ins = 0
 			vol = 0
 			for row in track.rows:
+				n = row[0]
 				i = row[1]
 				v = row[2]
+				if n == 99:
+					vol = 255
 				if i > 0:
 					ins = i
 				if v > 0:
