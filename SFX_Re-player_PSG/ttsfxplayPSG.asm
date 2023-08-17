@@ -1,6 +1,33 @@
 ; --- TT sfx player v0.14 ---
 ; --- Build uppon ayFX replayer, the work of Shiru, Z80st, ARTRAG
 
+;--- PSG playback on chan 1
+PSG_regVOLreg 	equ	PSG_regVOLA
+PSG_regTonereg 	equ	PSG_regToneA
+PSG_tonebit 	equ	0
+PSG_mixerOR 	equ	10110000b
+PSG_mixerAND	equ	10110111b
+PSG_volumeAND 	equ	10001001b
+PSG_volumeCP	equ	10001001b
+
+;--- PSG playback on chan 2
+;PSG_regVOLreg 	equ	PSG_regVOLB
+;PSG_regTonereg 	equ	PSG_regToneB
+;PSG_tonebit 	equ	1
+;PSG_mixerOR 	equ	10101000b
+;PSG_mixerAND	equ	10101111b
+;PSG_volumeAND 	equ	10010010b
+;PSG_volumeCP	equ	10010010b
+
+;--- PSG playback on chan 3
+;PSG_regVOLreg 	equ	PSG_regVOLC
+;PSG_regTonereg 	equ	PSG_regToneC
+;PSG_tonebit 	equ	2
+;PSG_mixerOR 	equ	10011000b
+;PSG_mixerAND	equ	10011111b
+;PSG_volumeAND 	equ	10100100b
+;PSG_volumeCP	equ	10100100b
+
 
 ; --- plays SFX over PSG(chan3)
 ; --- Works with an afb file.
@@ -140,8 +167,8 @@ _aySETPOINTER:
 	bit	7,c				; If noise is off...
 	jp	nz,_ayMUSNOISE		; ...jump to _aySETMASKS
 	ld	a,b				; mixer mask for no music noise
-	or	10011000b
-	and	10011111b
+	or	PSG_mixerOR
+	and	PSG_mixerAND
 	ld	b,a
 	ld	a,(sfx_PSG_NOISE)		; sfx_PSG noise value
 	jp	_ayNOISESET
@@ -155,14 +182,14 @@ _ayNOISESET:
 	bit	4,c				; If tone is off...
 	jp	nz,_ayVOLUME		; ...jump to _ayMIXER
 	ld	hl,(sfx_PSG_TONE)
-	ld	(PSG_regToneC),hl
-	res	 2,b				; enable tone on chan 3
+	ld	(PSG_regTonereg),hl
+	res	PSG_tonebit,b				; enable tone on chan 
 
 _ayVOLUME:	
 	;--- Only update volume if tone or noise is active
-	ld	a,10100100b
+	ld	a,PSG_volumeAND
 	and	b
-	cp	10100100b
+	cp	PSG_volumeCP
 	jp	z,_ayMIXER
 
 	ld	a,c				; a:=Control byte
@@ -176,7 +203,7 @@ _ayVOLUME:
 .skip:	
 	ld	a,(hl)			; a:=sfx_PSG relative volume
 	and	$0f				; mask only ay volume
-	ld	(PSG_regVOLC),a		; Diretly update the TT register value
+	ld	(PSG_regVOLreg),a		; Diretly update the TT register value
 
 _ayMIXER:
 	;--- Set Mixer
