@@ -308,8 +308,8 @@ class Song:
 			vol = 0
 			for row in track.rows:
 				n = row[0]
-				i = track.rows[0][1]
-				v = track.rows[0][2]
+				i = row[1]
+				v = row[2]
 				if n == 99:
 					vol = 255
 				if i > 0:
