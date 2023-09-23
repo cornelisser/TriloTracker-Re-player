@@ -308,16 +308,21 @@ class Song:
 			vol = 0
 			for row in track.rows:
 				n = row[0]
-				i = row[1]
-				v = row[2]
+				i = track.rows[0][1]
+				v = track.rows[0][2]
 				if n == 99:
 					vol = 255
 				if i > 0:
 					ins = i
 				if v > 0:
 					vol = v
+				if n > 0:
+					break
 			if ins == 0:
 				track.rows[0][1] = 1
+#				print(f'pat {nr} track {t} YES')
+#			else:
+#				print(f'pat {nr} track {t} NO {ins}')
 			if vol == 0:
 				track.rows[0][2] = 15			
 
