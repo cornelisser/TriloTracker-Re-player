@@ -2008,7 +2008,7 @@ _wrap_highcheck:
 	
 _wrap_lowcheck:
 	ld	a,l
-	cp	$3b		; $ad is the strict limit
+	cp	$9b		; $ad is the strict limit
 	jr.	nc,_wrap_skip		; stop if smaller
 
 
