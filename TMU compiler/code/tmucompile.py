@@ -310,7 +310,7 @@ def decompress_pattern(data):
 	
 	while d < 2048:
 		val = data[s]
-		if val == 255:
+		if val == 0 and data[s+1] == 0: # 255:
 			return pat
 		if val != 0:					# write val	
 			pat[d] = val
@@ -680,20 +680,20 @@ def export_drum(file,drum):
 			# bdrum volume
 			file.write(f"{_DB} $04, ${bv:02x}\t\t\t\t\t\t\t; volume Base drum\n")	
 		if (sv != 0xf0 and hv == 0x0f):
-			# Snare volume
-			file.write(f"{_DB} $06, ${(sv):02x}\t\t\t\t\t\t\t; volume Snare\n")				
+			# HiHat volume
+			file.write(f"{_DB} $08, ${(sv):02x}\t\t\t\t\t\t\t; volume HiHat\n")				
 		if (sv == 0xf0 and hv != 0x0f):
-			# Hihat volume
-			file.write(f"{_DB} $08, ${(hv):02x}\t\t\t\t\t\t\t; volume HiHat\n")	
+			# Snare volume
+			file.write(f"{_DB} $06, ${(hv):02x}\t\t\t\t\t\t\t; volume Snare\n")	
 		if (sv != 0xf0 and hv != 0x0f):
 			# Snare + Hihat volume
 			file.write(f"{_DB} $0a, ${(sv&0xf0)|(hv&0x0f):02x}\t\t\t\t\t\t\t; volume Snare + HiHat\n")	
 		if (cv != 0xf0 and tv == 0x0f):
-			# Cymbal 
-			file.write(f"{_DB} $0c, ${(cv):02x}\t\t\t\t\t\t\t; volume Cymbal\n")	
+			# Tom volume 
+			file.write(f"{_DB} $0c, ${(cv):02x}\t\t\t\t\t\t\t; volume TomTom\n")	
 		if (cv == 0xf0 and tv != 0x0f):
-			# Tom volume
-			file.write(f"{_DB} $0e, ${tv:02x}\t\t\t\t\t\t\t; volume Tom\n")	
+			# Cymbal volume
+			file.write(f"{_DB} $0e, ${tv:02x}\t\t\t\t\t\t\t; volume Cymbal\n")	
 		if (cv != 0xf0 and tv != 0x0f):
 			# Cymbal + Tom volume
 			file.write(f"{_DB} $10, ${(sv&0xf0)|(hv&0xf0):02x}\t\t\t\t\t\t\t; volume Cymbal + Tom \n")	

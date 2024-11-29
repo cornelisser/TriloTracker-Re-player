@@ -1143,7 +1143,7 @@ decode_cmd3_port_tone_new_note:
 	ld	l,a
 	jp	nc,.skip2
 	inc	h
-	ccf
+	or	a		; clear carry flag
 .skip2:
 	ld	a,(hl)
 	inc	hl
