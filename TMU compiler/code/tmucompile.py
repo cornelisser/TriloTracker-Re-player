@@ -1046,8 +1046,22 @@ def export_track(file,track):
 						# GG Tone panning
 						# Parameter: xy = panning value
 						file.write(f"{_DB} ${cmd['E8']:02x},${y:02x}\t\t\t;CMD GG tone panning\n")
-					else:
-						# Unused
+					elif song.type == 'FM':
+						# GLobal transpose
+						if (y > 8):
+							y = 8-y
+						else:
+							y =y
+						file.write(f"{_DB} ${cmd_offset+23:02x}\n{_DW} ${y*2:04x}\t\t\t;CMD Global transpose\n")
+					elif song.type == 'SCC':
+						# GLobal transpose
+						if (y > 8):
+							y = 8-y
+						else:
+							y =y
+						file.write(f"{_DB} ${cmd_offset+30:02x}\n{_DW} ${y*2:04x}\t\t\t;CMD Global transpose\n")
+					else:	
+
 						file.write(f"\t\t\t;CMD 8 Not supported [Global transpose][WARNING]\n")	
 						print(f"CMD 8 Not supported [Global transpose][WARNING]")	
 				elif x == 0x90:
@@ -1078,8 +1092,8 @@ def export_track(file,track):
 					file.write(f"{_DB} ${cmd['ED']:02x},${y:02x}\t\t\t;CMD Note delay\n")
 				elif x == 0xe0:
 					# Unused
-					file.write(f"\t\t\t;CMD EE Not supported [Global transpose][WARNING]\n")
-					print(f"CMD EE Not supported [Global transpose][WARNING]")	
+					file.write(f"\t\t\t;CMD EE Not supported [--][WARNING]\n")
+					print(f"CMD EE Not supported [--][WARNING]")	
 				elif x == 0xf0:			
 					# Trigger
 					# Parameter: xy = trigger value

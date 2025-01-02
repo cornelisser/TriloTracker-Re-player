@@ -148,7 +148,8 @@ DECODE_CMDLIST:
 	jp	decode_cmd28_SCC_morph_speed
 	nop	
 	jp	decode_cmd29_SCC_sample
-
+	nop	
+	jp	decode_cmdex_transpose
 
 
 	ALIGN 256
@@ -1603,6 +1604,26 @@ decode_cmd28_SCC_morph_speed:
 	;=================
 decode_cmd29_SCC_sample:
 	jp	_rdc	
+
+
+	; in:	[A] contains the paramvalue
+	; 
+	; ! do not change	[BC] this is the data pointer
+	;--------------------------------------------------
+	; This command set global tone table base
+	;
+decode_cmdex_transpose:
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	ld	d,a
+
+
+	ld	hl,TRACK_ToneTable_PSG
+	add	hl,de
+	ld	(replay_tonetable),hl
+	jp	_rdc
+
 
 
 

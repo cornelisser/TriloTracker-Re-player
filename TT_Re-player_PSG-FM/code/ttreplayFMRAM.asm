@@ -100,6 +100,9 @@ replay_mainvol			#2			; the volume correction.
 replay_softvoice			#1	            ; Software voice active
 FM_softvoice_req			#1	            ; Software voice requested
 replay_tonetable		      #2			; Current tonetable to read from
+replay_tonetable_psg		#2			; Current tonetable to read from
+replay_tonetable_fm		#2			; Current tonetable to read from
+
 
 r800:					#1	            ; CPU mode
 count_low:				#1	            ; R800 timer

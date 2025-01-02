@@ -1,2 +1,2 @@
-pyinstaller -F tmucompile.py
+python -m PyInstaller -F tmucompile.py
 pause

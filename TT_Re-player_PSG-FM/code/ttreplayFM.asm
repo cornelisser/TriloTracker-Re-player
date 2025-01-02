@@ -86,8 +86,8 @@ PROCESS_CMDLIST:
 	jp	process_cmd4_vibrato_extended
 DECODE_CMDLIST:
 	; Primary
-	jp	decode_cmd3_port_tone
-	nop	
+;	jp	decode_cmd3_port_tone
+;	nop	
 	jp	decode_cmd5_vibrato_port_tone
 	nop	
 	jp	decode_cmd2_port_down
@@ -133,6 +133,9 @@ DECODE_CMDLIST:
 	jp	decode_cmd21_envelope_low
 	nop	
 	jp	decode_cmd22_brightness	
+	;extended commands
+	nop	
+	jp	decode_cmdex_transpose		;23
 
 DRUM_MACRO_LIST:
 	jp	_drum_stop		;2
@@ -451,7 +454,14 @@ replay_loadsong:
 	ld	de,TRACK_Chan1+1
 	ld	(hl),a
 	ldir
-	
+
+	;--- Set the tone table base
+	ld	hl,TRACK_ToneTable_PSG
+	ld	(replay_tonetable_psg),hl
+	ld	hl,TRACK_ToneTable_FM
+	ld	(replay_tonetable_fm),hl
+
+
       ;--- init drum register values
 ;	ld	a,00100000b			
 ;	ld	(FM_DRUM+1),a
@@ -610,7 +620,7 @@ PAL:
 ;===========================================================
 decode_data:
 	;--- process the channels (tracks)
-	ld	hl,TRACK_ToneTable_PSG			; Set the PSG note table
+	ld	hl,(replay_tonetable_psg)	;TRACK_ToneTable_PSG			; Set the PSG note table
 	ld	(replay_tonetable),hl	
 	
 .decode1:	
@@ -665,14 +675,14 @@ decode_data:
 	ld	(TRACK_Chan3+17+TRACK_Flags),a
 .decode3_end:	
 	;--- Set FM Tone table
-	ld	hl,TRACK_ToneTable_FM
+	ld	hl,(replay_tonetable_fm);TRACK_ToneTable_FM
 	ld	(replay_tonetable),hl
 	jp	.decode4
 
 
 .decode3_35chan:	
 	;--- Set FM Tone table
-	ld	hl,TRACK_ToneTable_FM
+	ld	hl,(replay_tonetable_fm);TRACK_ToneTable_FM
 	ld	(replay_tonetable),hl
 
 	ld 	hl,TRACK_Chan3+17+TRACK_Delay
@@ -793,7 +803,7 @@ decode_data:
 ;===========================================================
 process_data:
 	; Set tone table
-	ld	hl,TRACK_ToneTable_PSG
+	ld	hl,(replay_tonetable_psg);TRACK_ToneTable_PSG
 	ld	(replay_tonetable),hl
 
 	;--- Initialize PSG Mixer and volume
@@ -861,7 +871,7 @@ _rdd_3psg_5fm:
 	ld	(FM_regMIXER),a
 
 	; Set tone table
-	ld	hl,TRACK_ToneTable_FM
+	ld	hl,(replay_tonetable_fm);TRACK_ToneTable_FM
 	ld	(replay_tonetable),hl
 	;--- set FM balance
 	ld	hl,(replay_mainFMvol)
@@ -880,7 +890,7 @@ _rdd_2psg_6fm:
 	ld	(PSG_regMIXER),a
 
 	; Set tone table
-	ld	hl,TRACK_ToneTable_FM
+	ld	hl,(replay_tonetable_fm);TRACK_ToneTable_FM
 	ld	(replay_tonetable),hl
 	;--- set SCC balance
 	ld	hl,(replay_mainFMvol)
@@ -1345,10 +1355,11 @@ _replaydecode_cmd:
 	
 	ld	e,a				; store command for later
 
-	ld	hl,DECODE_CMDLIST
 	add	a
+      jp    z,decode_cmd3_port_tone
 	add	a
-	add	l
+	ld	hl,DECODE_CMDLIST-4
+	add	a,l
 	ld	l,a
 	inc	bc
 	ld	a,(bc)
@@ -1393,6 +1404,8 @@ decode_cmd2_port_down:
 
 
 decode_cmd3_port_tone:
+	inc	bc
+	ld	a,(bc)
 	; in:	[A] contains the param value
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -1454,6 +1467,7 @@ decode_cmd3_port_tone_new_note:
 	ld	l,a				; destination freq in [hl]
 	
 	;--- Calculate the delta
+	xor	a
 	ex	de,hl
 	sbc	hl,de				; results in pos/neg delta
 	
@@ -1711,6 +1725,33 @@ decode_cmd22_brightness:
 	ld	a,1
 	ld	(FM_softvoice_req),a
 	jp	_rdc
+
+	; in:	[A] contains the paramvalue
+	; 
+	; ! do not change	[BC] this is the data pointer
+	;--------------------------------------------------
+	; This command set global tone table base
+	;
+decode_cmdex_transpose:
+	ld	e,a
+	inc	bc
+	ld	a,(bc)
+	ld	d,a
+
+
+	ld	hl,TRACK_ToneTable_PSG
+	add	hl,de
+	ld	(replay_tonetable_psg),hl
+
+	ld	hl,TRACK_ToneTable_FM
+	add	hl,de
+	ld	(replay_tonetable_fm),hl
+	jp	_rdc
+	
+
+
+
+
 
 
 
