@@ -1734,10 +1734,13 @@ decode_cmd22_brightness:
 	;
 decode_cmdex_transpose:
 	ld	e,a
+	;--- save the flags in D
+	ld	a,d
+	ex	af,af'
+
 	inc	bc
 	ld	a,(bc)
 	ld	d,a
-
 
 	ld	hl,TRACK_ToneTable_PSG
 	add	hl,de
@@ -1746,14 +1749,12 @@ decode_cmdex_transpose:
 	ld	hl,TRACK_ToneTable_FM
 	add	hl,de
 	ld	(replay_tonetable_fm),hl
+
+	;--- restore the flag is D
+	ex 	af,af'
+	ld	d,a
 	jp	_rdc
 	
-
-
-
-
-
-
 
 ;===========================================================
 ; ---process_data_chan

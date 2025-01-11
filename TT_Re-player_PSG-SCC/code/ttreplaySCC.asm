@@ -1614,17 +1614,22 @@ decode_cmd29_SCC_sample:
 	;
 decode_cmdex_transpose:
 	ld	e,a
+	;--- save the flags in D
+	ld	a,d
+	ex	af,af'
+
 	inc	bc
 	ld	a,(bc)
 	ld	d,a
 
-
 	ld	hl,TRACK_ToneTable_PSG
 	add	hl,de
 	ld	(replay_tonetable),hl
+
+	;--- restore the flag is D
+	ex 	af,af'
+	ld	d,a
 	jp	_rdc
-
-
 
 
 
