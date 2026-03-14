@@ -1,5 +1,5 @@
 ;=================================
-; TriloTracker Re-player SCC
+; TriloTracker Re-player SCC v0.14 
 ;
 ; Functions:
 ; 	replay_init
@@ -291,6 +291,8 @@ _getnewbalancebase:
 ;===========================================================	
 replay_equalization_on:
 	ld	a,1
+	ld	(equalization_cnt),a
+
 IFDEF MSX2
 	;--- Only enable if in 60Hz mode
 	ld	a,($FFE8)	; get mirror of VDP reg# 9
@@ -298,8 +300,6 @@ IFDEF MSX2
 	xor	00000010b
 ENDIF
 	ld	(equalization_freq),a
-	ld	a,1
-	ld	(equalization_cnt),a
 	ret	
 
 ;===========================================================
@@ -310,7 +310,7 @@ ENDIF
 replay_equalization_off:
 	xor	a
 	ld	(equalization_freq),a
-	ld	a,1
+      inc   a
 	ld	(equalization_cnt),a
 	ret	
 
@@ -336,21 +336,14 @@ replay_loadsong:
 	;--- Initialize replayer variables.
 	xor	a
 	ld	(replay_speed_subtimer),a
-	
+	ld	(replay_arp_speed),a
+	ld	(replay_fade),a
+
+
 	;--- Set tonetable here as SCC and PSG share same tonetable
 	ld	hl,TRACK_ToneTable_PSG			; Set the PSG note table
 	ld	(replay_tonetable),hl	
 
-	;--- Erase channel data	in RAM
-	ld	bc,TRACK_REC_SIZE*8-1
-	ld	hl,TRACK_Chan1
-	ld	de,TRACK_Chan1+1
-	ld	(hl),a
-	ldir
-
-	ld	(replay_arp_speed),a
-	ld	(replay_fade),a
-	
 	;--- Silence the chips
 	ld	(SCC_regMIXER),a
 	ld	(PSG_regVOLA),a
@@ -359,42 +352,63 @@ replay_loadsong:
 	ld	(replay_noise),a
 	ld	a,0xbf
 	ld	(PSG_regMIXER),a
-
 	ld	a,1
 	ld	(replay_speed_timer),a
+
+	;--- Erase channel1 data in RAM
+	ld	bc,TRACK_REC_SIZE-1
+	ld	hl,TRACK_Chan1
+	ld	de,TRACK_Chan1+1
+	ld	(hl),0
+	ldir
+
+      ;--- Get start values instruments
+	ld	hl,(replay_insbase)
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+
+	;-- get waveform
+	ld	a,(hl)
+	inc	hl
+	ld	(ix+TRACK_Waveform),a
+
+	;--- Store the macro start
+      ld    a,l
+	ld	(TRACK_Chan1+17+TRACK_MacroPointer),a
+	ld	(TRACK_Chan1+17+TRACK_MacroStart),a
+      ld    a,h
+      ld	(TRACK_Chan1+17+TRACK_MacroPointer+1),a	
+	ld	(TRACK_Chan1+17+TRACK_MacroStart+1),a  
+
+      ;--- Default values
+	ld	a,1
 	ld	(TRACK_Chan1+17+TRACK_Delay),a	
-	ld	(TRACK_Chan2+17+TRACK_Delay),a		
-	ld	(TRACK_Chan3+17+TRACK_Delay),a	
-	ld	(TRACK_Chan4+17+TRACK_Delay),a	
-	ld	(TRACK_Chan5+17+TRACK_Delay),a		
-	ld	(TRACK_Chan6+17+TRACK_Delay),a		
-	ld	(TRACK_Chan7+17+TRACK_Delay),a		
-	ld	(TRACK_Chan8+17+TRACK_Delay),a	
-	
-	ld	a,254
 	ld	(TRACK_Chan1+17+TRACK_Instrument),a	
-	ld	(TRACK_Chan2+17+TRACK_Instrument),a		
-	ld	(TRACK_Chan3+17+TRACK_Instrument),a	
-	ld	(TRACK_Chan4+17+TRACK_Instrument),a	
-	ld	(TRACK_Chan5+17+TRACK_Instrument),a		
-	ld	(TRACK_Chan6+17+TRACK_Instrument),a		
-	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
-	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
-	
-	ld	a,255
-	ld	(TRACK_Chan4+17+TRACK_Waveform),a
-	ld	(TRACK_Chan5+17+TRACK_Waveform),a
-	ld	(TRACK_Chan6+17+TRACK_Waveform),a	
-	ld	(TRACK_Chan7+17+TRACK_Waveform),a	
-	ld	a,128
-	ld	(TRACK_Chan4+17+TRACK_Flags),a
-	ld	(TRACK_Chan5+17+TRACK_Flags),a
-	ld	(TRACK_Chan6+17+TRACK_Flags),a	
-	ld	(TRACK_Chan7+17+TRACK_Flags),a	
-	ld	(TRACK_Chan8+17+TRACK_Flags),a	
+	ld	a,128+64          ; 64 is to trigger a new waveform
+	ld	(TRACK_Chan1+17+TRACK_Flags),a
+      ld    a,$0f
+	ld	(TRACK_Chan1+17+TRACK_Volume),a	
+
+
+      ;--- Copy data from channel1 to chan2 till 8
+      ld    de,TRACK_Chan2
+      ld    a,7
+.loop:
+      ld    hl,TRACK_Chan1
+      ld    bc,TRACK_REC_SIZE
+      ldir
+      dec   a
+      jp    nz,.loop
+
+      ;--- Set PSG chan flags
+      xor   a
+      ld	(TRACK_Chan1+17+TRACK_Flags),a	
+	ld	(TRACK_Chan2+17+TRACK_Flags),a
+	ld	(TRACK_Chan3+17+TRACK_Flags),a
 
 	call	replay_route
-	
 	ld	a,1
 	ld	(replay_mode),a	
 	ret
@@ -1025,10 +1039,10 @@ _replay_decode_vol:
 	add	a
 	
 	;--- Set new base	volume (high byte) but keep relative offset (low byte)
-	ld	e,a
-	ld	a,(ix+TRACK_Volume)
-	and	0xf
-	or	e
+;	ld	e,a
+;	ld	a,(ix+TRACK_Volume)
+;	and	0xf
+;	or	e
 	ld	(ix+TRACK_Volume),a
 
 	inc	bc
@@ -2353,19 +2367,19 @@ _write_SCC_wave_NEW:
       bit   0,a               ; bit 0 and 1 indicate type of wave update
       jp    z,.normalwave    ; x0 = normal wave from song data
 IFDEF SFXPLAY_ENABLED
-
-      bit   1,a               
-      jp    z,.ramwave        ; 01 = wave update from channel buffer
-.sfxwave:                     ; 11 = wave update from sfx data
-	and	11111000b
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	bc,SFX_WAVEBASE
-	add	hl,bc
-	jp	.copy_wave_fast
+;-- This code is needed when SFX are played on PSG and SCC 
+;      bit   1,a               
+;      jp    z,.ramwave        ; 01 = wave update from channel buffer
+;.sfxwave:                     ; 11 = wave update from sfx data
+;	and	11111000b
+;	ld	l,a
+;	ld	h,0
+;	add	hl,hl
+;	add	hl,hl
+;		
+;	ld	bc,SFX_WAVEBASE
+;	add	hl,bc
+;	jp	.copy_wave_fast
 ENDIF
 ;--- Wave update from channel wave buffer *(soften, dutycycle, etc)
 .ramwave:

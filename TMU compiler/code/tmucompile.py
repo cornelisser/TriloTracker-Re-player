@@ -10,7 +10,7 @@ from waveform import Waveform
 
 import sys
 
-USAGE = f"TMUCompile v0.11\nUsage: {sys.argv[0]} [--options] infile [outfile]"
+USAGE = f"TMUCompile v0.14\nUsage: {sys.argv[0]} [--options] infile [outfile]"
 
 infile = ''
 outfile = ''
@@ -198,6 +198,8 @@ def load_tmu(infile,song):
 			
 			if song.type == "SCC":
 				w = data[index]				# waveform
+				if w > 31:
+					w = 0
 				ins.waveform = w
 			else:
 				v = data[index]				# voice
@@ -1077,8 +1079,10 @@ def export_track(file,track):
 					# Note cut delay
 					# Parameter: xy = tic value +1
 					if y > 7:
-						y = 7-y	
-					file.write(f"{_DB} ${cmd['EB']:02x},${y:02x}\t\t\t;CMD Brightness\n")
+						valy = 256-(y-7)
+					else:
+						valy = y	
+					file.write(f"{_DB} ${cmd['EB']:02x},${valy:02x}\t\t\t;CMD Brightness {y}\n")
 
 				elif x == 0xc0:	
 					# Note cut delay

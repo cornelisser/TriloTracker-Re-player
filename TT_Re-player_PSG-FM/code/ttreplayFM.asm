@@ -1,5 +1,5 @@
 ;=================================
-; TriloTracker Re-player FM
+; TriloTracker Re-player FM v0.14 
 ; 
 ; Functions:
 ; 	replay_init
@@ -393,6 +393,7 @@ _getnewbalancebase:
 ;===========================================================	
 replay_equalization_on:
 	ld	a,1
+	ld	(equalization_cnt),a
 IFDEF MSX2
 	;--- Only enable if in 60Hz mode
 	ld	a,($FFE8)	; get mirror of VDP reg# 9
@@ -400,8 +401,6 @@ IFDEF MSX2
 	xor	00000010b
 ENDIF
 	ld	(equalization_freq),a
-	ld	a,1
-	ld	(equalization_cnt),a
 	ret	
 
 ;===========================================================
@@ -412,7 +411,7 @@ ENDIF
 replay_equalization_off:
 	xor	a
 	ld	(equalization_freq),a
-	ld	a,1
+	inc   a
 	ld	(equalization_cnt),a
 	ret	
 
@@ -444,16 +443,10 @@ replay_loadsong:
 	xor	a
 	ld	(replay_speed_subtimer),a
 	ld	(FM_softvoice_req),a
+      ld    (replay_softvoice),a
 	ld	(replay_arp_speed),a
 	ld	(replay_fade),a
 	ld	(FM_DRUM_ACTIVE),a
-
-	;--- Erase channel data	in RAM
-	ld	bc,TRACK_REC_SIZE*8-1
-	ld	hl,TRACK_Chan1
-	ld	de,TRACK_Chan1+1
-	ld	(hl),a
-	ldir
 
 	;--- Set the tone table base
 	ld	hl,TRACK_ToneTable_PSG
@@ -475,41 +468,67 @@ replay_loadsong:
 
 	ld	a,1
 	ld	(replay_speed_timer),a
-	ld	(TRACK_Chan1+17+TRACK_Delay),a	
-	ld	(TRACK_Chan2+17+TRACK_Delay),a		
-	ld	(TRACK_Chan3+17+TRACK_Delay),a	
-	ld	(TRACK_Chan4+17+TRACK_Delay),a	
-	ld	(TRACK_Chan5+17+TRACK_Delay),a		
-	ld	(TRACK_Chan6+17+TRACK_Delay),a		
-	ld	(TRACK_Chan7+17+TRACK_Delay),a		
-	ld	(TRACK_Chan8+17+TRACK_Delay),a	
-	
-	ld	a,254
-	ld	(TRACK_Chan1+17+TRACK_Instrument),a	
-	ld	(TRACK_Chan2+17+TRACK_Instrument),a		
-	ld	(TRACK_Chan3+17+TRACK_Instrument),a	
-	ld	(TRACK_Chan4+17+TRACK_Instrument),a	
-	ld	(TRACK_Chan5+17+TRACK_Instrument),a		
-	ld	(TRACK_Chan6+17+TRACK_Instrument),a		
-	ld	(TRACK_Chan7+17+TRACK_Instrument),a		
-	ld	(TRACK_Chan8+17+TRACK_Instrument),a	
-	ld	(replay_softvoice),a
 
-	ld	a,16
-	ld	(TRACK_Chan3+17+TRACK_Voice),a
-	ld	(TRACK_Chan4+17+TRACK_Voice),a
-	ld	(TRACK_Chan5+17+TRACK_Voice),a
-	ld	(TRACK_Chan6+17+TRACK_Voice),a	
-	ld	(TRACK_Chan7+17+TRACK_Voice),a	
-	ld	(TRACK_Chan8+17+TRACK_Voice),a
+
+	;--- Erase channel1 data in RAM
+	ld	bc,TRACK_REC_SIZE-1
+	ld	hl,TRACK_Chan1
+	ld	de,TRACK_Chan1+1
+	ld	(hl),0
+	ldir
+
+      ;--- Get start values instruments
+	ld	hl,(replay_insbase)
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+
+	;-- get voice
+	ld	a,(hl)
+	inc	hl
+		
+	;--- Set the software voice (if needed)
+	and	a
+	jp	nz,.skip_soft
+
+	ld	a,(hl)		; value is the offset in the soft voice data (8bytes)
+	ld	(replay_softvoice),a
+	ld 	(FM_softvoice_req),a
+
+	xor 	a
+	inc	hl
+.skip_soft:
+	ld	(TRACK_Chan1+17+TRACK_Voice),a
+
+	;--- Store the macro start
+      ld    a,l
+	ld	(TRACK_Chan1+17+TRACK_MacroPointer),a
+	ld	(TRACK_Chan1+17+TRACK_MacroStart),a
+      ld    a,h
+      ld	(TRACK_Chan1+17+TRACK_MacroPointer+1),a	
+	ld	(TRACK_Chan1+17+TRACK_MacroStart+1),a   
+      ;--- Default values
+	ld	a,1
+	ld	(TRACK_Chan1+17+TRACK_Delay),a	
+	ld	(TRACK_Chan1+17+TRACK_Instrument),a	
 	ld	a,128
-	ld	(TRACK_Chan3+17+TRACK_Flags),a
-	ld	(TRACK_Chan4+17+TRACK_Flags),a
-	ld	(TRACK_Chan5+17+TRACK_Flags),a
-	ld	(TRACK_Chan6+17+TRACK_Flags),a	
-	ld	(TRACK_Chan7+17+TRACK_Flags),a
-	ld	(TRACK_Chan8+17+TRACK_Flags),a	
-	
+	ld	(TRACK_Chan1+17+TRACK_Flags),a
+      ld    a,$0f
+	ld	(TRACK_Chan1+17+TRACK_Volume),a
+
+
+      ;--- Copy data from channel1 to chan2 till 8
+      ld    de,TRACK_Chan2
+      ld    a,7
+.loop:
+      ld    hl,TRACK_Chan1
+      ld    bc,TRACK_REC_SIZE
+      ldir
+      dec   a
+      jp    nz,.loop
+
+
 	;--- Check if there are 3 psg chans.
 	ld	a,(replay_chan_setup)
 	and	a
@@ -517,8 +536,11 @@ replay_loadsong:
 	xor 	a
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 99:	
+      xor   a
+      ld	(TRACK_Chan1+17+TRACK_Flags),a	
+	ld	(TRACK_Chan2+17+TRACK_Flags),a	
+
 	call	replay_route
-	
 	ld	a,1
 	ld	(replay_mode),a	
 	ret
@@ -1338,10 +1360,10 @@ _replay_decode_vol:
 	add	a
 	
 	;--- Set new base	volume (high byte) but keep relative offset (low byte)
-	ld	e,a
-	ld	a,(ix+TRACK_Volume)
-	and	0xf
-	or	e
+;	ld	e,a
+;	ld	a,(ix+TRACK_Volume)
+;	and	0x0f
+;	or	e
 	ld	(ix+TRACK_Volume),a
 
 	inc	bc

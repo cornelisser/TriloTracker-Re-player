@@ -300,31 +300,34 @@ class Song:
 		# ====================================
 		# Check if start of song has volume and instrument
 		# ====================================
-		nr = self.order_list[0]
-		pat = self.patterns[nr]
-		for t in pat.tracks:
-			track = self.tracks[t]
-			ins = 0
-			vol = 0
-			for row in track.rows:
-				n = row[0]
-				i = row[1]
-				v = row[2]
-				if n == 99:
-					vol = 255
-				if i > 0:
-					ins = i
-				if v > 0:
-					vol = v
-				if n > 0:
-					break
-			if ins == 0:
-				track.rows[0][1] = 1
-#				print(f'pat {nr} track {t} YES')
-#			else:
-#				print(f'pat {nr} track {t} NO {ins}')
-			if vol == 0:
-				track.rows[0][2] = 15			
+#		nr = self.order_list[0]
+#		print(f'pat {nr} is first')
+#		nr2 = self.order_list[1]
+#		print(f'pat {nr2} is first')
+#		pat = self.patterns[nr]
+#		for t in pat.tracks:
+#			track = self.tracks[t]
+#			ins = 0
+#			vol = 0
+#			for row in track.rows:
+#				n = row[0]
+#				i = row[1]
+#				v = row[2]
+#				if n == 99:
+#					vol = 255
+#				if i > 0:
+#					ins = i
+#				if v > 0:
+#					vol = v
+#				if n > 0:
+#					break
+#			if ins == 0:
+#				track.rows[0][1] = 1
+##				print(f'pat {nr} track {t} YES')
+##			else:
+##				print(f'pat {nr} track {t} NO {ins}')
+#			if vol == 0:
+#				track.rows[0][2] = 15			
 
 		# ====================================
 		# Detect used tracks
