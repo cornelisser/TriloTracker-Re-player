@@ -10,7 +10,7 @@ from waveform import Waveform
 
 import sys
 
-USAGE = f"TMUCompile v0.14\nUsage: {sys.argv[0]} [--options] infile [outfile]"
+USAGE = f"TMUCompile v0.11\nUsage: {sys.argv[0]} [--options] infile [outfile]"
 
 infile = ''
 outfile = ''

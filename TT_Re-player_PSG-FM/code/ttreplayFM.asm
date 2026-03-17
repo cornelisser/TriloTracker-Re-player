@@ -253,7 +253,7 @@ replay_init:
 	call  $0C                     ; RDSLT
 
    	cp 	3
-   	jr.	c,.z80
+   	jp	c,.z80
 	ld	a,1
 	ld	(r800),a			; 0 = z80 other is R800
 	jp	.init
@@ -490,7 +490,7 @@ replay_loadsong:
 		
 	;--- Set the software voice (if needed)
 	and	a
-	jp	nz,.skip_soft
+	jr	nz,.skip_soft
 
 	ld	a,(hl)		; value is the offset in the soft voice data (8bytes)
 	ld	(replay_softvoice),a
@@ -532,7 +532,7 @@ replay_loadsong:
 	;--- Check if there are 3 psg chans.
 	ld	a,(replay_chan_setup)
 	and	a
-	jp	z,99f
+	jr	z,99f
 	xor 	a
 	ld	(TRACK_Chan3+17+TRACK_Flags),a	
 99:	
@@ -572,13 +572,13 @@ replay_play:
 	;---- SPEED EQUALIZATION 
 	ld	a,(equalization_freq)		; 0 = 50Hz, otherwise 60Hz
 	and	a
-	jp	z,PAL               		; if PAL process at any interrupt;
+	jr	z,PAL               		; if PAL process at any interrupt;
 
 NTSC:
 	ld	a,(equalization_cnt)  		; if NTSC call 5 times out of 6
 	dec	a
       ld	(equalization_cnt),a
-	jp	nz,PAL               		; skip music data processing one tic out of 6
+	jr	nz,PAL               		; skip music data processing one tic out of 6
 
 	ld	(FM_DRUM),a			; make sure not to retrigger drums on skip
 	;--- Reset keyon flip 
@@ -614,11 +614,11 @@ PAL:
 	ld	hl,(TRACK_pointer1)
 	ld	a,(hl)
 	cp	191	
-	jp	nz,.skip_EOT
+	jr	nz,.skip_EOT
 
 	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
 	dec	a
-	jp	nz,.skip_EOT
+;	jr	nz,.skip_EOT
 	call	z,_replay_check_patternend	
 .skip_EOT:	
 	;--- The speed timer
@@ -648,7 +648,7 @@ decode_data:
 .decode1:	
 	ld 	hl,TRACK_Chan1+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode2
+	jr	nz,.decode2
 
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	ld	d,a
@@ -663,7 +663,7 @@ decode_data:
 .decode2:	
 	ld 	hl,TRACK_Chan2+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.setupcheck
+	jr	nz,.setupcheck
 
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
 	ld	d,a
@@ -684,7 +684,7 @@ decode_data:
 .decode3_26chan:
 	ld 	hl,TRACK_Chan3+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode3_end
+	jr	nz,.decode3_end
 
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a		;'
@@ -709,7 +709,7 @@ decode_data:
 
 	ld 	hl,TRACK_Chan3+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode4
+	jr	nz,.decode4
 
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a		;'
@@ -724,7 +724,7 @@ decode_data:
 .decode4:
 	ld 	hl,TRACK_Chan4+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode5
+	jr	nz,.decode5
 
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld 	d,a		;'
@@ -739,7 +739,7 @@ decode_data:
 .decode5:
 	ld 	hl,TRACK_Chan5+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode6
+	jr	nz,.decode6
 
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a		;'
@@ -754,7 +754,7 @@ decode_data:
 .decode6:
 	ld 	hl,TRACK_Chan6+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode7
+	jr	nz,.decode7
 
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a		;'
@@ -769,7 +769,7 @@ decode_data:
 .decode7:
 	ld 	hl,TRACK_Chan7+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode8
+	jr	nz,.decode8
 
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a		;'
@@ -784,7 +784,7 @@ decode_data:
 .decode8:
 	ld 	hl,TRACK_Chan8+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode_end
+	jr	nz,.decode_end
 
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a		;'
@@ -800,12 +800,12 @@ decode_data:
 	;---- Software voice loading
 	ld	a,(FM_softvoice_req)
 	cp	2
-	jp	c,process_data
+	jr	c,process_data
 	ld	hl,(replay_voicebase)
 	add	a
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h
 .skip:
 	ld	de,FM_Voicereg
@@ -829,11 +829,12 @@ process_data:
 	ld	(replay_tonetable),hl
 
 	;--- Initialize PSG Mixer and volume
-	xor	a
-	ld	(FM_regMIXER),a
-	ld	(PSG_regVOLA),a
-	ld	(PSG_regVOLB),a
-	ld	(PSG_regVOLC),a
+;	xor	a
+	ld	iyh,0
+;	ld	(FM_regMIXER),a
+;	ld	(PSG_regVOLA),a
+;	ld	(PSG_regVOLB),a
+;	ld	(PSG_regVOLC),a
 	
 	;--- PSG balance
 	ld	hl,(replay_mainPSGvol)
@@ -846,7 +847,7 @@ process_data:
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipa
+	jr	nc,.skipa
 	ld	(PSG_regToneA),hl
 .skipa:
 	ld	a,(FM_regVOLF)
@@ -859,7 +860,7 @@ process_data:
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipb
+	jr	nc,.skipb
 	ld	(PSG_regToneB),hl
 .skipb:
 	ld	a,(FM_regVOLF)
@@ -877,20 +878,22 @@ _rdd_3psg_5fm:
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipc
+	jr	nc,.skipc
 	ld	(PSG_regToneC),hl
 .skipc:
 	ld	a,(FM_regVOLF)
 	ld	(PSG_regVOLC),a
 
 	;-- Convert mixer to AY
-	ld	a,(FM_regMIXER)		
+;	ld	a,(FM_regMIXER)		
+	ld	a,iyh
 	srl	a
 	srl	a
 	xor	0xbf
 	ld	(PSG_regMIXER),a
-	xor	a
-	ld	(FM_regMIXER),a
+;	xor	a
+;	ld	iyh,a
+;	ld	(FM_regMIXER),a
 
 	; Set tone table
 	ld	hl,(replay_tonetable_fm);TRACK_ToneTable_FM
@@ -904,12 +907,15 @@ _rdd_3psg_5fm:
 	
 _rdd_2psg_6fm:
 	;-- Convert mixer to AY
-	ld	a,(FM_regMIXER)		
+;	ld	a,(FM_regMIXER)		
+	ld	a,iyh
 	srl	a
 	srl	a
 	srl	a
 	xor	0xbf
 	ld	(PSG_regMIXER),a
+	xor	a
+	ld	iyh,a
 
 	; Set tone table
 	ld	hl,(replay_tonetable_fm);TRACK_ToneTable_FM
@@ -925,7 +931,7 @@ _rdd_2psg_6fm:
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipc
+	jr	nc,.skipc
 	ld	(FM_regToneA),hl
 .skipc:
 	ld	a,(FM_regVOLF)
@@ -944,7 +950,7 @@ _rdd_cont:
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipd
+	jr	nc,.skipd
 	ld	(FM_regToneB),hl
 .skipd:
 	ld	a,(FM_regVOLF)	
@@ -961,7 +967,7 @@ _rdd_cont:
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipe
+	jr	nc,.skipe
 	ld	(FM_regToneC),hl
 .skipe:
 	ld	a,(FM_regVOLF)
@@ -978,7 +984,7 @@ _rdd_cont:
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipf
+	jr	nc,.skipf
 	ld	(FM_regToneD),hl
 .skipf:
 	ld	a,(FM_regVOLF)
@@ -995,7 +1001,7 @@ _rdd_cont:
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipg
+	jr	nc,.skipg
 	ld	(FM_regToneE),hl
 .skipg:
 	ld	a,(FM_regVOLF)
@@ -1012,7 +1018,7 @@ _rdd_cont:
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skiph
+	jr	nc,.skiph
 	ld	(FM_regToneF),hl
 .skiph:
 	ld	a,(FM_regVOLF)
@@ -1021,6 +1027,9 @@ _rdd_cont:
 	and	$f0
 	or	d	
 	ld	(FM_regVOLF),a
+
+;	ld a,iyl
+;	ld	(FM_regMIXER),a
 
 	;--------------------
 	;--- Process Drums
@@ -1038,7 +1047,7 @@ process_fade:
 	; decrease fade timer
 	ld	a,(replay_fade_timer)
 	dec	a
-	jp	nz,.no_new_step
+	jr	nz,.no_new_step
 
 	ld	a,(replay_fade_vol)
 	inc	a
@@ -1071,7 +1080,7 @@ process_fade:
 	ld	a,6
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr	nc,99f
 	inc	h
 99:
 	djnz	.calc_vol_FM
@@ -1096,7 +1105,7 @@ process_fade:
 	ld	a,6
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr	nc,99f
 	inc	h
 99:
 	djnz	.calc_vol_rythm
@@ -1113,7 +1122,7 @@ process_fade:
 .calc_vol:	
 	ld	a,(hl)
 	sub	c
-	jp	nc,.no_carry
+	jr	nc,.no_carry
 	xor	a
 .no_carry:	
 	ld	(hl),a
@@ -1132,11 +1141,11 @@ _replay_check_patternend:
 	ld	hl,(replay_orderpointer)
 	xor	a
 	cp	(hl)
-	jp	nz,.no_restart
+	jr	nz,.no_restart
 	inc	hl
 	cp	(hl)
 	dec	hl
-	jp	nz,.no_restart
+	jr	nz,.no_restart
 	;--- next is restart order
 	inc	hl
 	inc	hl
@@ -1145,9 +1154,9 @@ _replay_check_patternend:
 	ld	h,(hl)
 	ld	l,a
 	cp	l
-	jp	nz,.restart
+	jr	nz,.restart
 	and	a
-	jp	nz,.restart
+	jr	nz,.restart
 	;--- STOP - There is no restart value
 	call	replay_pause
 	pop	af	;--- skip return to processing 
@@ -1156,8 +1165,9 @@ _replay_check_patternend:
 .restart:
 .no_restart:	
 	ld	de,TRACK_pointer1
-	ld	bc,16
-	ldir
+;	ld	bc,16
+;	ldir
+[16]	ldi
 	ld	(replay_orderpointer),hl		; store pointer for next set
 								; of strack pointers
 	ret
@@ -1291,7 +1301,7 @@ _replay_decode_sustain:
 _replay_decode_ins:
 	sub	_INS
 	cp	(ix+TRACK_Instrument)
-	jp	z,.skip_ins
+	jr	z,.skip_ins
 	
 	;--- instrument change found	
 	ld	(ix+TRACK_Instrument),a
@@ -1301,7 +1311,7 @@ _replay_decode_ins:
 	ld	hl,(replay_insbase)
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h
 .skip:
 	ld	a,(hl)
@@ -1315,17 +1325,17 @@ _replay_decode_ins:
 		
 	;--- Set the software voice (if needed)
 	and	a
-	jp	nz,.skip_soft
+	jr	nz,.skip_soft
 
 	;--- skipsoft value for PSG
 	bit	B_PSGFM,d
-	jp	z,.skip_soft_psg		
+	jr	z,.skip_soft_psg		
 
 	;--- software voice found
 	ld	e,(hl)		; value is the offset in the soft voice data (8bytes)
 	ld	a,(replay_softvoice)
 	cp	e
-	jp	z,.skip_soft_update
+	jr	z,.skip_soft_update
 
 	ld	a,e
 	ld	(replay_softvoice),a
@@ -1461,7 +1471,7 @@ decode_cmd3_port_tone_new_note:
 	ld	hl,(replay_tonetable)
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h
 .skip:
 	ld	e,(hl)
@@ -1480,7 +1490,7 @@ decode_cmd3_port_tone_new_note:
 	ld	hl,(replay_tonetable)	;TRACK_ToneTable
 	add	a,l
 	ld	l,a
-	jp	nc,.skip2
+	jr	nc,.skip2
 	inc	h
 .skip2:
 	ld	a,(hl)
@@ -1499,7 +1509,7 @@ decode_cmd3_port_tone_new_note:
 	;--- re-apply deviation
 	ex	af,af'			;'
 	bit	7,h
-	jp	nz,.skip3
+	jr	nz,.skip3
 	or 	128
 .skip3:
 	ld 	(ix+TRACK_cmd_3),a
@@ -1530,7 +1540,7 @@ decode_cmd4_vibrato:
 
 	;--- Set the speed
 	and	$0f
-	jp	z,.depth
+	jr	z,.depth
 	ld	(ix+TRACK_cmd_4_step),a	
 	neg	
 	ld	(ix+TRACK_Step),a	
@@ -1539,10 +1549,10 @@ decode_cmd4_vibrato:
 	;-- set the depth
 	ld	a,e
 	and	$f0
-	jp	z,.end		; set depth when 0 only when command was not active.
+	jr	z,.end		; set depth when 0 only when command was not active.
 
 	cp	$90
-	jp	c,.skip_extended
+	jr	c,.skip_extended
 	;--- extended
 	sub	$80
 	ld	e,11
@@ -1635,7 +1645,7 @@ decode_cmd12_drum:
 	ld	hl,(replay_drumbase)
 	add	a,l 
 	ld	l,a
-	jp	nc,99f
+	jr	nc,99f
 	inc	h 
 99:
 	; Get the start of the drum macro
@@ -1787,15 +1797,19 @@ decode_cmdex_transpose:
 ;===========================================================
 process_data_chan:
 	;-- set the	mixer	right
-	ld	hl,FM_regMIXER   
-	rrc	(hl)
+;	ld	hl,FM_regMIXER   
+;	rrc	(hl)
+	ld	a,iyh
+	rrc	a
+	ld 	iyh,a
+
 
 	;=====
 	; COMMAND
 	;=====
 	ld	(ix+TRACK_cmd_NoteAdd),0			; Always reset note add
 	bit	B_TRGCMD,d	;(ix+TRACK_Flags)
-	jp	z,process_note
+	jr	z,process_note
 
 	ld	h,PROCESS_CMDLIST >> 8
 	ld	a,(ix+TRACK_Command)
@@ -1814,7 +1828,7 @@ process_note:
 	;=====
 	;--- Check if we need to trigger a new note
 	bit	B_TRGNOT,d	;(ix+TRACK_Flags)
-	jp	z,process_noNoteTrigger
+	jr	z,process_noNoteTrigger
 	
 
 process_triggerNote:	
@@ -1869,10 +1883,12 @@ process_macro:
 macro_mixer:
 	ld  a,(de)
 	inc	de
-	ld	b,a
-	ld	a,(FM_regMIXER)   
-	or	b
-	ld	(FM_regMIXER),a
+;	ld	b,a
+;	ld	a,(FM_regMIXER)   
+;	or	b
+	or	iyh
+	ld	iyh,a
+;	ld	(FM_regMIXER),a
 	jp  process_macro
 
 macro_tone_add:
@@ -1949,7 +1965,7 @@ macro_vol_add:
 	inc   de
 	add   (ix+TRACK_VolumeAdd)
 	cp	16
-	jp	c,.nolimit
+	jr	c,.nolimit
 	ld	a,$0f
 .nolimit:	  
 	ld	(ix+TRACK_VolumeAdd),a
@@ -1962,7 +1978,7 @@ macro_vol_sub:
 	inc   de
 	ld	a,(ix+TRACK_VolumeAdd)
 	sub   b
-	jp	nc,.nolimit
+	jr	nc,.nolimit
 	xor   a
 .nolimit:
 	ld	(ix+TRACK_VolumeAdd),a
@@ -1975,7 +1991,7 @@ IFDEF tremolo_OFF
 ELSE	
 	ld 	b,(ix+TRACK_cmd_VolumeAdd)
 	sub	a,b
-	jp 	nc,.skip2
+	jr 	nc,.skip2
 	add	a,b
  	and	0x0f
 ENDIF
@@ -1984,7 +2000,7 @@ ENDIF
 	ld	bc,(replay_mainvol)
 	add	a,c
 	ld	c,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	b
 .skip:
 	ld	a,(bc)	
@@ -2004,7 +2020,7 @@ _macro_end:
 	ld	hl,(replay_tonetable)
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h
 .skip:
 	ld	a,(hl)	;--- Store the note tone value in hl
@@ -2041,7 +2057,7 @@ _wrap:
 _wrap_highcheck:
 	ld	a,l
 	cp	$5a				; $5a is the strict limit
-	jp	c,_wrap_skip		; stop if smaller	
+	jr	c,_wrap_skip		; stop if smaller	
 	
 	push	hl
 	push	de
@@ -2049,7 +2065,7 @@ _wrap_highcheck:
 	;--- Set new tone value for same note 1 octave lower
 	srl	a
 	bit 	0,h		; test 9th bit
-	jp	z,99f
+	jr	z,99f
 	add	128
 99:
 	ld	e,a
@@ -2082,7 +2098,7 @@ _wrap_lowcheck:
 	add	a,a		; multiply by 2 in de 
 	ld	e,a
 	ld	d,0
-	jp	nc,99f
+	jr	nc,99f
 	inc	d	
 99:
 	;--- set octave higher
@@ -2138,20 +2154,20 @@ process_noNoteActive:
 process_cmd0_arpeggio:
 	ld	a,(ix+TRACK_Timer)
 	and	a
-	jp	z,.nextNote
+	jr	z,.nextNote
 	
 	dec	a
 	ld	(IX+TRACK_Timer),a
 	ld	a,(ix+TRACK_Step)
 	and	a
-	jp	z,.skip
+	jr	z,.skip
 	ld	a,(IX+TRACK_cmd_0)
 	and	$0f
 	ld	(ix+TRACK_cmd_NoteAdd),a	
-	jr.	process_commandEND
+	jp	process_commandEND
 .skip:
 	ld	(ix+TRACK_cmd_NoteAdd),0	
-	jr.	process_commandEND
+	jp	process_commandEND
 	
 
 .nextNote:
@@ -2188,18 +2204,18 @@ process_cmd0_arpeggio:
 		rlca		
 		ld	(ix+TRACK_cmd_0),a			
 		and	0x0f
-		jp	nz,.zero
+		jr	nz,.zero
 		;--- if zero then skip this note and set step to start
 		ld	(ix+TRACK_Step),0
 .zero:		
 		ld	(ix+TRACK_cmd_NoteAdd),a	
-		jr.	process_commandEND
+		jp	process_commandEND
 	
 .skip2:
 	;--- set none
 	ld	(ix+TRACK_Step),0
 	ld	(ix+TRACK_cmd_NoteAdd),0		
-	jr.	process_commandEND
+	jp	process_commandEND
 		
 
 	
@@ -2233,7 +2249,7 @@ process_cmd3_add:
 	;pos slide
 	add	a,l
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h					
 .skip:
 	bit	7,h
@@ -2313,7 +2329,7 @@ process_cmd4_vibrato:
 	ld	(ix+TRACK_Step),a
 
 	bit	5,a			; step 32-63 the neg	
-	jp	z,.pos	
+	jr	z,.pos	
 	
 .neg:
 	and	$1f	; make it 32 steps again
@@ -2410,7 +2426,7 @@ process_cmd10_note_delay:
 process_drum:
 	ld	a,(FM_DRUM_ACTIVE)
 	and	a
-	jp	nz,.yes
+	jr	nz,.yes
 	;--- Nothing to play
 	ld	(FM_DRUM),a
 	ret
@@ -2583,7 +2599,7 @@ replay_route:
 	;--- Envelope shape R#13
 	ld	a,(hl)
 	and	a				; Value to write?
-	jp	z,_ptAY_noEnv	
+	jr	z,_ptAY_noEnv	
 	ld	d,a	
 	ld	a,$0d
 	out	(PSG_WRITE),a	
@@ -2642,7 +2658,7 @@ route_FM:
 	ld	a,(r800)
 	ld	e,a
 	and	a
-	jp	z,.skipcount
+	jr	z,.skipcount
 	;--- init the r800 wait timer
 	in	a,($e6)
 	ld	(count_low),a
@@ -2650,7 +2666,7 @@ route_FM:
 	;--- Check if we need to update the voice regs
 	ld	a,(FM_softvoice_req)
 	and	a
-	jp	z,.channels
+	jr	z,.channels
 
 	;--- update the voice registers
 	ex	af,af'
@@ -2663,7 +2679,7 @@ route_FM:
 	ld	a,(hl)
 	inc	hl
 	cp	(hl)
-	jp	z,.skipvoicereg
+	jr	z,.skipvoicereg
 	ld	d,a
 	ld	a,c
 	call	_writeFM	
@@ -2690,7 +2706,7 @@ route_FM:
 	ld	a,(hl)
 	;--- Check if Key is already OFF
 	bit	4,a
-	jp	z,99f		      ; skip if key was not set
+	jr	z,99f		      ; skip if key was not set
 	and	00101111b		; reset keyon bit
 	ld	d,a
 	ld	a,-16 ; $10
@@ -2707,14 +2723,14 @@ route_FM:
 	ld	a,(hl)
 	inc	hl
 	cp	(hl)
-	jp	z,99f			; No change in value
+	jr	z,99f			; No change in value
 	ld	d,a			; Store value in D
 	ld	a,c			; Store reg# in C
 	call	_writeFM
 99:
 	ld	a,l
 	sub	5
-	jp	nc,1f
+	jr	nc,1f
 	dec	h
 1:
 	ld	l,a
@@ -2724,7 +2740,7 @@ route_FM:
 	inc	hl
 	inc	hl
 	cp	(hl)
-	jp	z,99f			; No change in value
+	jr	z,99f			; No change in value
 	ld	d,a			; Store value in D
 	ld	a,-32 ; $10
 	add	a,c			; Store reg# in C+10
@@ -2736,7 +2752,7 @@ route_FM:
 	inc	hl
 	inc	hl
 	cp	(hl)
-	jp	z,99f			; No change in value
+	jr	z,99f			; No change in value
 	ld	d,a			; Store value in D
 	ld	a,-16 ; $20
 	add	c			; Store reg# in C
@@ -2744,7 +2760,7 @@ route_FM:
 99:
 	ld	a,l
 	add	4
-	jp	nc,1f
+	jr	nc,1f
 	inc	h
 1:
 	ld	l,a

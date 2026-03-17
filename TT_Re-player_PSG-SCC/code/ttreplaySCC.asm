@@ -467,11 +467,10 @@ PAL:
 	ld	hl,(TRACK_pointer1)
 	ld	a,(hl)
 	cp	191	
-	jp	nz,.skip_EOT
+	jr	nz,.skip_EOT
 
 	ld 	a,(TRACK_Chan1+17+TRACK_Delay)
 	dec	a
-	jp	nz,.skip_EOT
 	call	z,_replay_check_patternend	
 .skip_EOT:	
 	;--- The speed timer
@@ -498,7 +497,7 @@ decode_data:
 .decode1:
 	ld 	hl,TRACK_Chan1+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode2
+	jr	nz,.decode2
 
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	ld	d,a
@@ -513,7 +512,7 @@ decode_data:
 .decode2:	
 	ld 	hl,TRACK_Chan2+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode3
+	jr	nz,.decode3
 
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
 
@@ -529,7 +528,7 @@ decode_data:
 .decode3:
 	ld 	hl,TRACK_Chan3+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode4
+	jr	nz,.decode4
 
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a		;'
@@ -544,7 +543,7 @@ decode_data:
 .decode4:
 	ld 	hl,TRACK_Chan4+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode5
+	jr	nz,.decode5
 
 	ld	iyh,$00
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
@@ -560,7 +559,7 @@ decode_data:
 .decode5:
 	ld 	hl,TRACK_Chan5+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode6
+	jr	nz,.decode6
 
 	ld	iyh,$20
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
@@ -576,7 +575,7 @@ decode_data:
 .decode6:
 	ld 	hl,TRACK_Chan6+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode7
+	jr	nz,.decode7
 
 	ld	iyh,$40
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
@@ -592,7 +591,7 @@ decode_data:
 .decode7:
 	ld 	hl,TRACK_Chan7+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode8
+	jr	nz,.decode8
 
 	ld	iyh,$60
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
@@ -608,7 +607,7 @@ decode_data:
 .decode8:
 	ld 	hl,TRACK_Chan8+17+TRACK_Delay
 	dec	(hl)
-	jp	nz,.decode_end
+	jr	nz,.decode_end
 
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a		;'
@@ -635,8 +634,9 @@ process_data:
 	call	nz,replay_process_morph
 
 	;--- Initialize PSG Mixer and volume
-	xor	a
-	ld	(SCC_regMIXER),a
+;	xor	a
+;	ld	(SCC_regMIXER),a
+	ld	iyl,0
 
 	;--- PSG balance
 	ld	hl,(replay_mainPSGvol)
@@ -649,7 +649,7 @@ process_data:
 	ld	a,(TRACK_Chan1+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipa
+	jr	nc,.skipa
 	ld	(PSG_regToneA),hl
 .skipa:
 	ld	a,(SCC_regVOLE)
@@ -662,7 +662,7 @@ process_data:
 	ld	a,(TRACK_Chan2+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipb
+	jr	nc,.skipb
 	ld	(PSG_regToneB),hl
 .skipb:
 	ld	a,(SCC_regVOLE)
@@ -675,7 +675,7 @@ process_data:
 	ld	a,(TRACK_Chan3+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipc
+	jr	nc,.skipc
 	ld	(PSG_regToneC),hl
 .skipc:
 	ld	a,(SCC_regVOLE)
@@ -687,13 +687,15 @@ process_data:
 ;	srl	(hl)
 
 	;-- Convert mixer to AY
-	ld	a,(SCC_regMIXER)		
+;	ld	a,(SCC_regMIXER)
+	ld	a,iyl		
 	srl	a
 	srl	a
 	xor	0xbf
 	ld	(PSG_regMIXER),a
-	xor	a
-	ld	(SCC_regMIXER),a
+;	xor	a
+;	ld	(SCC_regMIXER),a
+	ld	iyl,0
 
 	;--- set SCC balance
 	ld	hl,(replay_mainSCCvol)
@@ -709,7 +711,7 @@ process_data:
 	ld	a,(TRACK_Chan4+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,skipd
+	jr	nc,skipd
 	ld	(SCC_regToneA),hl
 skipd:
 	ld	a,(SCC_regVOLE)
@@ -723,7 +725,7 @@ skipd:
 	ld	a,(TRACK_Chan5+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipe
+	jr	nc,.skipe
 	ld	(SCC_regToneB),hl
 .skipe:
 	ld	a,(SCC_regVOLE)
@@ -738,7 +740,7 @@ skipd:
 	ld	a,(TRACK_Chan6+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipf
+	jr	nc,.skipf
 	ld	(SCC_regToneC),hl
 .skipf:
 	ld	a,(SCC_regVOLE)
@@ -752,7 +754,7 @@ skipd:
 	ld	a,(TRACK_Chan7+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skipg
+	jr	nc,.skipg
 	ld	(SCC_regToneD),hl
 .skipg:
 	ld	a,(SCC_regVOLE)
@@ -766,10 +768,11 @@ skipd:
 	ld	a,(TRACK_Chan8+17+TRACK_Flags)
 	ld	d,a
 	call	process_data_chan
-	jp	nc,.skiph
+	jr	nc,.skiph
 	ld	(SCC_regToneE),hl
 .skiph:
-	
+	ld	a,iyl
+	ld	(SCC_regMIXER),a
 
 	;--------------------
 	; Fade out processing
@@ -781,7 +784,7 @@ skipd:
 	; decrease fade timer
 	ld	a,(replay_fade_timer)
 	dec	a
-	jp	nz,.no_new_step
+	jr	nz,.no_new_step
 
 	ld	a,(replay_fade_vol)
 	inc	a
@@ -807,7 +810,7 @@ skipd:
 .calc_vol:	
 	ld	a,(hl)
 	sub	c
-	jp	nc,.no_carry
+	jr	nc,.no_carry
 	xor	a
 .no_carry:	
 	ld	(hl),a
@@ -836,11 +839,11 @@ _replay_check_patternend:
 	ld	hl,(replay_orderpointer)
 	xor	a
 	cp	(hl)
-	jp	nz,.no_restart
+	jr	nz,.no_restart
 	inc	hl
 	cp	(hl)
 	dec	hl
-	jp	nz,.no_restart
+	jr	nz,.no_restart
 	;--- next is restart order
 	inc	hl
 	inc	hl
@@ -849,9 +852,9 @@ _replay_check_patternend:
 	ld	h,(hl)
 	ld	l,a
 	cp	l
-	jp	nz,.restart
+	jr	nz,.restart
 	and	a
-	jp	nz,.restart
+	jr	nz,.restart
 	;--- STOP - There is no restart value
 	call	replay_pause
 	pop	af	;--- skip return to processing 
@@ -860,8 +863,9 @@ _replay_check_patternend:
 .restart:	
 .no_restart:
 	ld	de,TRACK_pointer1
-	ld	bc,16
-	ldir
+;	ld	bc,16
+;	ldir
+[16]  ldi
 	ld	(replay_orderpointer),hl		; store pointer for next set
 								; of strack pointers
 
@@ -939,7 +943,7 @@ _rd_eot:
 
 _replay_decode_delay:
 	sub	_WAIT-1
-	jp	z,_rd_eot			; EOT found  
+	jr	z,_rd_eot			; EOT found  
 	ld	(ix+TRACK_Delay),a
 	ld	(ix+TRACK_prevDelay),a
 	inc	bc
@@ -1002,7 +1006,7 @@ _replay_decode_ins:
 	ld	hl,(replay_insbase)
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h
 .skip:
 	ld	a,(hl)
@@ -1015,7 +1019,7 @@ _replay_decode_ins:
 	inc	hl
 	
 	cp	(ix+TRACK_Waveform)
-	jp	z,.skip_wav_trig
+	jr	z,.skip_wav_trig
 	set	B_TRGWAV,d
 	ld	(ix+TRACK_Waveform),a
 
@@ -1118,7 +1122,7 @@ decode_cmd3_port_tone:
 
 	;--- Check if we have a	note on the	same event
 	bit	B_TRGNOT,d
-	jp	z,_rdc
+	jr.	z,_rdc
 
 	res 	B_TRGNOT,d
 	
@@ -1137,7 +1141,7 @@ decode_cmd3_port_tone_new_note:
 	ld	hl,(replay_tonetable)	;TRACK_ToneTable
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h
 .skip:
 	ld	e,(hl)
@@ -1156,7 +1160,7 @@ decode_cmd3_port_tone_new_note:
 	ld	hl,(replay_tonetable)	;TRACK_ToneTable
 	add	a,l
 	ld	l,a
-	jp	nc,.skip2
+	jr	nc,.skip2
 	inc	h
 	or	a		; clear carry flag
 .skip2:
@@ -1175,7 +1179,7 @@ decode_cmd3_port_tone_new_note:
 	;--- re-apply deviation
 	ex	af,af'			;'
 	bit	7,h
-	jp	nz,.skip3
+	jr	nz,.skip3
 	or 	128
 .skip3:
 	ld 	(ix+TRACK_cmd_3),a
@@ -1204,7 +1208,7 @@ decode_cmd4_vibrato:
 	
 	;--- Set the speed
 	and	$0f
-	jp	z,.depth
+	jr	z,.depth
 	ld	(ix+TRACK_cmd_4_step),a	
 	neg	
 	ld	(ix+TRACK_Step),a	
@@ -1213,10 +1217,10 @@ decode_cmd4_vibrato:
 	;-- set the depth
 	ld	a,e
 	and	$f0
-	jp	z,.end		; set depth when 0 only when command was not active.
+	jr	z,.end		; set depth when 0 only when command was not active.
 
 	cp	$90
-	jp	c,.skip_extended
+	jr	c,.skip_extended
 	;--- extended
 	sub	$80
 	ld	e,11
@@ -1245,7 +1249,7 @@ decode_cmd5_vibrato_port_tone:
 	
 	;-- Check if new note
 	bit	B_TRGNOT,d
-	jp	z,_rdc
+	jr.	z,_rdc
 	
 	;-- Set new port tone value
 	res	B_TRGNOT,d
@@ -1281,7 +1285,7 @@ decode_cmd9_note_cut:
 
 decode_cmd10_note_delay:
 	bit	B_TRGNOT,d		; is there a note	in this eventstep?
-	jp	z,_rdc
+	jr.	z,_rdc
 
 	set	B_TRGCMD,d					; command active
 	res	B_TRGNOT,d					; reset any	trigger note
@@ -1332,7 +1336,7 @@ decode_cmd17_track_detune:
 	ld	e,a
 	and	0x07		; low	4 bits is value
 	bit	3,e		; Center around 8
-	jp	z,.pos
+	jr	z,.pos
 	cpl
 	ld	(ix+TRACK_cmd_detune),a
 	ld	(ix+TRACK_cmd_detune+1),0xff
@@ -1421,7 +1425,7 @@ decode_cmd23_SCC_duty:
 	ld	a,iyh		;ixh contains chan#
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h
 .skip:
 	ld	a,e		
@@ -1475,7 +1479,7 @@ decode_cmd24_SCC_soften:
 	ld	a,iyh		;ixh contains chan#
 	add	a,e
 	ld	e,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	d
 .skip:
 	ld	iyl,32
@@ -1658,8 +1662,11 @@ decode_cmdex_transpose:
 ;===========================================================
 process_data_chan:
 	;-- set the	mixer	right
-	ld	hl,SCC_regMIXER   
-	rrc	(hl)
+;	ld	hl,SCC_regMIXER   
+;	rrc	(hl)
+	ld	a,iyl
+	rrc	a
+	ld 	iyl,a
 		
 	;=====
 	; COMMAND
@@ -1684,7 +1691,7 @@ process_commandEND:
 	;=====
 	;--- Check if we need to trigger a new note
 	bit	B_TRGNOT,d	;(ix+TRACK_Flags)
-	jp	z,process_noNoteTrigger
+	jr	z,process_noNoteTrigger
 	
 
 process_triggerNote:	
@@ -1697,6 +1704,7 @@ process_triggerNote:
 ;	;--- Store the macro start	
 	ld	(ix+TRACK_MacroPointer),l
 	ld	(ix+TRACK_MacroPointer+1),h	
+
 
 	ld	(_SP_Storage),sp
 	ld	sp,ix				
@@ -1735,10 +1743,12 @@ process_macro:
 macro_mixer:
 	ld    a,(de)
 	inc	de
-	ld	b,a
-	ld	a,(SCC_regMIXER)   
-	or	b
-	ld	(SCC_regMIXER),a
+;	ld	b,a
+;	ld	a,(SCC_regMIXER)   
+;	or	b
+;	ld	(SCC_regMIXER),a
+	or	iyl
+	ld	iyl,a
 	jp    process_macro
 
 
@@ -1824,7 +1834,7 @@ macro_vol_add:
 	inc   de
 	add   (ix+TRACK_VolumeAdd)
 	cp	16
-	jp	c,.nolimit
+	jr	c,.nolimit
 	ld	a,$0f
 .nolimit:	  
 	ld	(ix+TRACK_VolumeAdd),a
@@ -1837,7 +1847,7 @@ macro_vol_sub:
 	inc   de
 	ld	a,(ix+TRACK_VolumeAdd)
 	sub   h
-	jp	nc,.nolimit
+	jr	nc,.nolimit
 	xor   a
 .nolimit:
 	ld	(ix+TRACK_VolumeAdd),a
@@ -1850,7 +1860,7 @@ IFDEF tremolo_OFF
 ELSE	
 	ld 	b,(ix+TRACK_cmd_VolumeAdd)
 	sub	a,b
-	jp 	nc,.skip2
+	jr 	nc,.skip2
 	add	a,b
  	and	0x0f
 ENDIF
@@ -1859,13 +1869,13 @@ ENDIF
 	ld	bc,(replay_mainvol)
 	add	a,c
 	ld	c,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	b
 .skip:
 	ld	a,(bc)	
 	; Test which CHIP.
 	bit	B_PSGSCC,(ix+TRACK_Flags)
-	jp	nz,.skip3
+	jr	nz,.skip3
 	rra
 	rra
 	rra
@@ -1887,7 +1897,7 @@ _macro_end:
 	ld	hl,(replay_tonetable)
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h
 .skip:
 	ld	a,(hl)	;--- Store the note tone value in hl
@@ -1900,6 +1910,7 @@ _macro_end:
 	ld	b,(ix+TRACK_ToneAdd+1)	
 	add	hl,bc		;--- Store tone deviation		
 
+
 	;-- set the detune.
 	ld	(_SP_Storage),sp
 	ld	sp,ix
@@ -1909,7 +1920,7 @@ _macro_end:
 	
 	;--- Fix SCC persiod offset
 	bit	B_PSGSCC,(ix+TRACK_Flags)
-	jp	z,.tonePSG
+	jr	z,.tonePSG
 .toneSCC:
 	dec	bc		; SCC tone is -1 of PSG tone
 .tonePSG:
@@ -1941,7 +1952,7 @@ process_cmd0_arpeggio:
 	ld	(IX+TRACK_Timer),a
 	ld	a,(ix+TRACK_Step)
 	and	a
-	jp	z,.skip
+	jr	z,.skip
 	ld	a,(IX+TRACK_cmd_0)
 	and	$0f
 	ld	(ix+TRACK_cmd_NoteAdd),a	
@@ -1982,18 +1993,18 @@ process_cmd0_arpeggio:
 		rlca		
 		ld	(ix+TRACK_cmd_0),a			
 		and	0x0f
-		jp	nz,.zero
+		jr	nz,.zero
 		;--- if zero then skip this note and set step to start
 		ld	(ix+TRACK_Step),0
 .zero:		
 		ld	(ix+TRACK_cmd_NoteAdd),a	
-		jr.	process_commandEND
+		jp	process_commandEND
 	
 .skip2:
 	;--- set none
 	ld	(ix+TRACK_Step),0
 	ld	(ix+TRACK_cmd_NoteAdd),0		
-	jr.	process_commandEND
+	jp	process_commandEND
 
 	
 	
@@ -2102,7 +2113,7 @@ process_cmd4_vibrato:
 	ld	(ix+TRACK_Step),a
 	
 	bit	5,a			; step 32-63 the neg	
-	jp	z,.pos	
+	jr	z,.pos	
 	
 .neg:
 	and	$1f	; make it 32 steps again
@@ -2207,7 +2218,7 @@ replay_route:
 	;--- Envelope shape R#13
 	ld	a,(hl)
 	and	a				; Value to write?
-	jp	z,_ptAY_noEnv	
+	jr	z,_ptAY_noEnv	
 	ld	d,a	
 	ld	a,$0d
 	out	(PSG_WRITE),a	
@@ -2267,7 +2278,7 @@ ENDIF
 	;--- Set the waveforms
       ld    hl,TRACK_Chan4+17+TRACK_Flags
 	bit	B_TRGWAV,(hl)
-	jp	z,.skip1
+	jr	z,.skip1
 
 	;--- set wave form
 	ld	de,0x9800
@@ -2275,7 +2286,7 @@ ENDIF
 .skip1:
       ld    hl,TRACK_Chan5+17+TRACK_Flags
 	bit	B_TRGWAV,(hl)
-	jp	z,.skip2
+	jr	z,.skip2
 
 	;--- set wave form
 	ld	de,0x9820
@@ -2283,7 +2294,7 @@ ENDIF
 .skip2:
       ld    hl,TRACK_Chan6+17+TRACK_Flags
 	bit	B_TRGWAV,(hl)
-	jp	z,.skip3
+	jr	z,.skip3
 
 	;--- set wave form
 	ld	de,0x9840
@@ -2291,7 +2302,7 @@ ENDIF
 .skip3:
       ld    hl,TRACK_Chan7+17+TRACK_Flags
 	bit	B_TRGWAV,(hl)
-	jp	z,.skip4
+	jr	z,.skip4
 
 	;--- set wave form
 	ld	de,0x9860
@@ -2390,7 +2401,7 @@ ENDIF
 	ld	a,e
 	add	a,l
 	ld	l,a
-	jp	nc,.skip
+	jr	nc,.skip
 	inc	h
 .skip:
       jp	.copy_wave_fast
@@ -2530,7 +2541,7 @@ replay_process_morph:
 	ld	hl,TRACK_Chan4+17+TRACK_Flags
 .loop:	
 	bit 	B_ACTMOR,(hl)
-	jp	z,.skip
+	jr	z,.skip
 	set	B_TRGWAV,(hl)
 .skip:
 	add	hl,de
@@ -2617,7 +2628,7 @@ _rpm_next_step:
 	ld	c,a
 	add	16
 	ld	(replay_morph_counter),a
-	jp	nz,.skip
+	jr	nz,.skip
 	;--- end morph
 	ld	(replay_morph_active),a
 
@@ -2633,7 +2644,7 @@ _rmp_ns_sub:
 	;--- handle corection
 	and	$ef
 	cp	c		; correction < counteR?
-	jp	c,.skip
+	jr	c,.skip
 	inc	a		; if smaller C was set
 .skip:
 	and	00011111b	; keep lower 5 bits
@@ -2648,7 +2659,7 @@ _rmp_ns_sub:
 _rmp_ns_add:
 	;--- handle corection
 	cp	c		; correction < counter?
-	jp	c,.skip
+	jr	c,.skip
 	inc	a		; if smaller C was set
 .skip:
 	and	00011111b	; keep lower 5 bits
