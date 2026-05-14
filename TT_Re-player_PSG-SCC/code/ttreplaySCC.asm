@@ -372,7 +372,7 @@ replay_loadsong:
 	;-- get waveform
 	ld	a,(hl)
 	inc	hl
-	ld	(ix+TRACK_Waveform),a
+	ld	(TRACK_Chan1+17+TRACK_Waveform),a
 
 	;--- Store the macro start
       ld    a,l
