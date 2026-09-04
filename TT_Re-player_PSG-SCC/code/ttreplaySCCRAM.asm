@@ -102,6 +102,7 @@ replay_morph_speed	#1 			; tics to wait between steps.
 replay_morph_counter	#1			; counter till end morph
 replay_morph_buffer	#64			; interleaved buffer with morphed waveform and morph delta values
 replay_morph_waveform	#1 			; waveform we are morphing to.
+replay_morph_flags      #2
 
 SCC_slot			#1			; Only used for external SCC
 mapper_slot			#1			; Only used for external SCC
@@ -167,6 +168,9 @@ _0x9800:	#32			; Waveform data
 _0x9820:	#32
 _0x9840:	#32
 _0x9860:	#32
+IFDEF SCC_I
+_0x9880:	#32
+ENDIF
 SCC_registers 		#0
 SCC_regToneA 		#2	; Tone A freq low (8bit)
 					; Tone A freq high (4bit)
@@ -187,6 +191,8 @@ SCC_regMIXER 		#1	; x3f	; Mixer control (1 = off, 0 = on)
 
 
 ;-- SCC registers
+IFDEF SCC_I
+oldregs:	#(32*5)+(3*5)+1	; a way to int the SCC
+ELSE
 oldregs:	#(32*4)+(3*5)+1	; a way to int the SCC
-
-
+ENDIF

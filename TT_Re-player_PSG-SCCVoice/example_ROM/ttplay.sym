@@ -1,0 +1,13 @@
+initmain: equ 00004010h
+ADPCM_DATA_LEVEL: equ 000098E1h
+ADPCM_CTRL_STATUS: equ 000098E2h
+TARGET_LEVEL: equ 0000005Ah
+MAX_REFILL: equ 00000050h
+play_raw8_test: equ 00004039h
+wait_loop: equ 00004047h
+refill_once: equ 0000404Fh
+refill_once.have_count: equ 0000405Eh
+refill_once.use_desired: equ 00004068h
+refill_once.copy: equ 0000406Ch
+sample_data: equ 00004076h
+SAMPLE_LEN: equ 00000960h

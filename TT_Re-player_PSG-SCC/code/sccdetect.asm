@@ -9,7 +9,11 @@ enaslt:          equ #0024
 exptbl:          equ #fcc1
 slttbl:          equ #fcc5
 
-scc_type_check:	db	0				 
+IFDEF SCC_I
+scc_type_check:	db	1	
+ELSE
+scc_type_check:	db	0
+ENDIF			 
 
 find_SCC:
 	di
@@ -45,11 +49,11 @@ testslot:        push af           ; save test-slot on the stack
 	jr.	z,scc_test
 
 scci_test:
-                 ld hl,#b000
+                 ld hl,#9000
                  ld b,(hl)         ; save contents of address 9000h
                  ld (hl),#3f       ; activate SCC (if present)
                  ld h,#9c          ; address of SCC-register mirrors
-                 ld de,#b800       ; 9800h = address of SCC-registers
+                 ld de,#9800       ; 9800h = address of SCC-registers
 testregi:         ld a,(de)
                  ld c,a            ; save contents of address 98xxh
                  ld a,(hl)         ; read byte from address 9cxxh
@@ -64,9 +68,18 @@ testregi:         ld a,(de)
                  bit 7,l           ; 128 adresses (registers) tested ?
                  jr z,testregi      ; no -> repeat mirror-test
                  ld a,b
-                 ld (#b000),a      ; restore value on 9000h
-                 xor	a
-                 ld	($bfff),a	; Set SCC+ in SCC mode
+                 ld (#9000),a      ; restore value on 9000h
+            ;--- Now testif it is has SCC+
+                  ld   a,0x80
+                  ld   (0xB000), a      ; Map SCC-I registers into page 3
+	            ld   a, 0x20
+	            ld   (0xBFFE), a      ; Unlock waveform RAM for writing
+                  ld   hl,0xb800
+                  ld    a,(hl)
+                  inc   a
+                  ld    (hl),a
+                  cp    (hl)
+                  jr    nz,nextslot
                  pop bc            ; retrieve slotcode (=SCC-slot) from stack
                  jr done           ; SCC found, restore page 2-slot & return
 
@@ -116,7 +129,7 @@ nextprim:        ld a,b
                  ld hl,exptbl
                  add hl,de
                  or (hl)           ; combine slot-expansion with slotcode
-                 jr testslot
+                 jr. testslot
 
 noscc:           ld b,255          ; code for no SCC
 done:            pop af            ; retrieve page 2-slot from stack

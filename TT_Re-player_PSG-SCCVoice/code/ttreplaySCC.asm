@@ -14,6 +14,15 @@
 
 PSG_WRITE	equ	0xa0	; port to set psg reg nr.
 PSG_DATA	equ	0xa1	; port to set psg data for reg.
+
+ADPCM_DATA		equ	0x98e1	; write
+ADPCM_LEVEL		equ	0x98e1	; read
+ADPCM_CTRL		equ 0x98e2	; write
+ADPCM_STATUS	equ 0x98e2	; read
+ADPCM_PITCH_L	equ 0x98e3	; write
+ADPCM_PITCH_H	equ 0x98e4	; write
+ADPCM_VOLUME	equ	0x98e5	; write
+
 ;===============================
 _REL:		equ	96		; = release
 _SUS:		equ	97		; = sustain
@@ -188,8 +197,7 @@ replay_init:
 			xor	a
 			ld	(replay_mode),a
 			ld	(replay_morph_speed),a
-			inc	a
-			ld	(replay_morph_type),a
+
 
 	;--- init Mixers
 			call	replay_play_no
@@ -354,6 +362,7 @@ replay_loadsong:
 			ld	(PSG_regMIXER),a
 			ld	a,1
 			ld	(replay_speed_timer),a
+			ld	(replay_morph_type),a
 
 	;--- Erase channel1 data in RAM
 			ld	bc,TRACK_REC_SIZE-1
@@ -644,6 +653,9 @@ decode_data:
 			dec	(hl)
 			jr	nz,.decode_end
 
+IFDEF SCC_I
+                  ld	iyh,$80
+ENDIF
 			ld	a,(TRACK_Chan8+17+TRACK_Flags)
 			ld	d,a		;'
 			ld	a,(TRACK_Chan8+17+TRACK_Note)
@@ -653,6 +665,7 @@ decode_data:
 			ld	(TRACK_pointer8),bc
 			ld	a,d				;'
 			ld	(TRACK_Chan8+17+TRACK_Flags),a
+
 
 .decode_end:
 	; continue to process data
@@ -798,6 +811,10 @@ skipd:
 	;--------------------
 	;--- Process track 8
 	;--------------------
+
+IFDEF SCC_I
+                  ld	iyh,$80
+ENDIF
 							; no waveform for SCC channel 5
 			ld	ix,TRACK_Chan8+17
 			ld	a,(TRACK_Chan8+17+TRACK_Flags)
@@ -957,7 +974,7 @@ _replay_decode_trigger_porttone_check:
 _replay_decode_note:
 			ld	(ix+TRACK_Note),a
 			set	B_TRGNOT,d
-			res	B_ACTMOR,d
+;			res	B_ACTMOR,d
 
 			inc	bc
 			ld	a,(bc)
@@ -1509,8 +1526,42 @@ decode_cmd12_SCC_morph:
 			inc	a
 			ld	(replay_morph_timer),a
 			ld	a,(replay_morph_type)
-			and	a
-			jp	z,.morph_fromtrack
+                  cp    1
+                  jp    c,.morph_fromtrack      
+                  jp    z,.morph_fromregister   
+
+.morph_chorus: 
+                  ld	a,ixl
+                  sub	7
+                  ld	(replay_morph_flags),a
+                  ld	a,0
+                  sbc	ixh
+                  ld	(replay_morph_flags+1),a
+
+			ld	l,(ix+TRACK_Waveform)
+			ld	h,0
+			add	hl,hl
+			add	hl,hl
+
+			ld	bc,(replay_wavebase)
+			add	hl,bc
+
+			ld	bc,replay_morph_buffer
+			ld	a,32
+44:
+			ex	af,af'	;'
+			ld	a,(hl)
+                  sra   a
+                  sra   a
+			ld	(bc),a
+			inc	hl
+			inc	bc		; copy to value (skip delta value byte)
+			inc	bc
+			ex	af,af'	;'
+			dec	a
+			jp	nz,44b
+			jp	.morph_copy
+
 
 .morph_fromregister:
 IFDEF		EXTERNAL_SCC
@@ -1518,11 +1569,26 @@ IFDEF		EXTERNAL_SCC
 			ld	a,(SCC_slot)
 			ld	h,0x80
 			call	enaslt
+IFDEF SCC_I
+	            ; --- SCC+ enable
+	            ld   a, 0x20
+	            ld   (0xBFFE), a      ; Unlock waveform RAM for writing
+	            ld   a,0x80
+	            ld   (0xB000), a      ; Map SCC-I registers into page 3
+
+ELSE
 			ld	a,03Fh				; enable SCC
 			ld	(0x9000),a
 ENDIF
+ENDIF
+
+IFDEF SCC_I
+	;--- Set HL to the buffer of the last written waveform
+			ld	h,$B8
+ELSE
 	;--- Set HL to the buffer of the last written waveform
 			ld	h,$98
+ENDIF
 			ld	a,iyh
 			ld	l,a
 
@@ -2261,8 +2327,54 @@ IFDEF		EXTERNAL_SCC
 			ld	h,0x80
 			call	enaslt
 ENDIF
+IFDEF SCC_I
+	            ; --- SCC+ enable
+	            ld   a,0x80
+	            ld   (0xB000), a      ; Map SCC-I registers into page 3
+
+	            ld   a, 0x20
+	            ld   (0xBFFE), a      ; Unlock waveform RAM for writing
+
+ELSE
 			ld	a,03Fh				; enable SCC
 			ld	(0x9000),a
+ENDIF
+
+
+
+voicetest:
+	ld		hl,ADPCM_DATA
+	ld		a,90
+	sub		(hl)			; reading gets LEVEL
+	jp		c,.skip
+	jp		z,.skip	
+	ld		b,a
+.loop:
+	ld	(hl),a
+	inc	a
+	djnz	.loop
+
+.skip:
+	ld	a,(hl)				; get the level
+	inc	hl					; Set to Status/CTRL
+	ld	a,(hl)
+	bit	0,a
+	jp	nz,99f
+	ld	(hl),00000101b
+	xor	a
+	ld	(voltest),a
+	ld	(ADPCM_VOLUME),a
+99:
+	ld	a,(counter)
+	inc	a
+	ld	(counter),a
+	jp	nz,99f
+	ld	a,(voltest)
+	inc	a
+	and	15
+	ld	(voltest),a
+	ld	(ADPCM_VOLUME),a
+99:
 
 	;--- Set the waveforms
 			ld	hl,TRACK_Chan4+17+TRACK_Flags
@@ -2270,7 +2382,11 @@ ENDIF
 			jr	z,.skip1
 
 	;--- set wave form
+IFDEF SCC_I      
+			ld	de,0xB800
+ELSE
 			ld	de,0x9800
+ENDIF
 			call	_write_SCC_wave_NEW
 .skip1:
 			ld	hl,TRACK_Chan5+17+TRACK_Flags
@@ -2278,7 +2394,11 @@ ENDIF
 			jr	z,.skip2
 
 	;--- set wave form
+IFDEF SCC_I
+			ld	de,0xB820
+ELSE
 			ld	de,0x9820
+ENDIF
 			call	_write_SCC_wave_NEW
 .skip2:
 			ld	hl,TRACK_Chan6+17+TRACK_Flags
@@ -2286,7 +2406,11 @@ ENDIF
 			jr	z,.skip3
 
 	;--- set wave form
+IFDEF SCC_I
+			ld	de,0xB840
+ELSE
 			ld	de,0x9840
+ENDIF
 			call	_write_SCC_wave_NEW
 .skip3:
 			ld	hl,TRACK_Chan7+17+TRACK_Flags
@@ -2294,39 +2418,39 @@ ENDIF
 			jr	z,.skip4
 
 	;--- set wave form
+IFDEF SCC_I      
+			ld	de,0xB860
+ELSE
 			ld	de,0x9860
+ENDIF
 			call	_write_SCC_wave_NEW
 .skip4:
+IFDEF SCC_I
+			ld	hl,TRACK_Chan8+17+TRACK_Flags
+			bit	B_TRGWAV,(hl)
+			jr	z,.skip5
+	;--- set wave form
+			ld	de,0xB880
+			call	_write_SCC_wave_NEW
+.skip5:
+ENDIF
 
 scc_reg_update:
 
-IFDEF		FPGA_SCC
-			ld	de,$9880
-			ld	hl,SCC_registers
-	;-- write 16 values
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
-			ldi
+IFDEF SCC_I
+			ld	de,$B8A0
+			ld	bc,0xB8A0+(3*5) 
 ELSE
+			ld	de,$9880
+			ld	bc,0x9880+(3*5)
+ENDIF
+
 
 ;    ;--- Update changed SCC registers.
-;	; fast update routine by SpaceMoai
 			ld	hl,oldregs+(3*5)
 			ld	de,SCC_registers+(3*5)
-			ld	bc,0x9880+(3*5)
+            ld    iyh,(3*5)+1
+
 .loop:
 			ld	a,(de)
 			cp	(hl)
@@ -2336,10 +2460,10 @@ ELSE
 .skip:
 			dec	de
 			dec	hl
-			dec	c
-			jp	m,.loop
+			dec	bc
+                  dec   iyh
+			jp	nz,.loop
 
-ENDIF
 
 IFDEF		EXTERNAL_SCC
 			ld	a,(mapper_slot)
@@ -2525,7 +2649,11 @@ replay_process_morph:
 			ret	nz
 
 	;--- trigger any waveform updates
-			ld	b,4
+IFDEF SCC_I
+			ld	b,5
+ELSE
+                  ld    b,4
+ENDIF
 			ld	de,TRACK_REC_SIZE
 			ld	hl,TRACK_Chan4+17+TRACK_Flags
 .loop:
@@ -2536,19 +2664,101 @@ replay_process_morph:
 			add	hl,de
 			djnz	.loop
 
+	ld	a,(replay_morph_type)
+	cp	2
+	jp	c,.morph
+	jp	z,.chorus_cont
+.chorus:
+	;--- Test to restart effect
+	ld	bc,(replay_morph_flags)
+	ld	a,(bc)
+	bit	B_TRGNOT,a
+	jp	z,.chorus_cont
+	xor	a
+	ld	(replay_morph_counter),a
 
+.chorus_cont:	
+	ld	a,(replay_morph_speed)
+	ld	(replay_morph_timer),a
+
+	;--- Increase the step
+	ld	a,(replay_morph_counter)
+	inc	a
+      and   31
+	ld	(replay_morph_counter),a
+	ld	b,a	
+
+	ld	a,(replay_morph_waveform)
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+	add	hl,hl
+	ld	de,(replay_wavebase)
+	add	hl,de
+	ld	de,replay_morph_buffer
+	ex	de,hl
+
+	push	de		;--- safe addres for second loop
+
+	ld	a,b
+	add	a,e
+	ld	e,a
+	jr. 	nc,99f
+	inc	d
+99:
+	;--- set number of loops 1st run
+	ld	a,32
+	sub	b
+
+	ld	hl,replay_morph_buffer
+	;--- Check if step == 0 (chorus wave offset is at begining)
+	cp	32
+	jp	z,.loop_skip	; then only do 2 loop
+
+.loop1_add:	
+	ex	af,af'
+	ld	a,(de)
+	sra	a
+	add	(hl)
+	inc	hl
+	ld	(hl),a
+	inc	hl
+	inc	de
+	ex	af,af'
+	dec	a
+	jp	nz,.loop1_add
+
+	;--- set number of loop 2nd run
+	ld	a,(replay_morph_counter)
+.loop_skip:
+	pop	de
+
+.loop2_add:	
+	ex	af,af'
+	ld	a,(de)
+	sra	a
+	add	(hl)
+	inc	hl
+	ld	(hl),a
+	inc	hl
+	inc	de
+	ex	af,af'
+	dec	a
+	jp	nz,.loop2_add
+.loop_end:
+	ret
+
+.morph:
+			ld	a,(replay_morph_active)
 	;---- timer ended.
 			inc	a
 			jp	nz,_rpm_next_step		; if status was !=255 then skip init
-
 	;---- calculate offset
 			inc	a
 			ld	(replay_morph_active),a		; set status to 1
-
 			ld	a,(replay_morph_speed)
 			inc	a
 			ld	(replay_morph_timer),a
-
 
 	;--- calculate the delta's
 			ld	a,(replay_morph_waveform)

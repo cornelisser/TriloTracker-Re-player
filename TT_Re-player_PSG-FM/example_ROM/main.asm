@@ -75,8 +75,31 @@ infinite:
 	
 isr:
 	in	a,(0x99)
+	ld	b,0
+99:
+	push	bc
+	pop	bc
+	push	bc
+	pop	bc
+	djnz	99b
+
+
+
+
+      ld    a,4              ; Read status R#1 to reset
+      out   (99h),a
+      ld    a,7+128
+      out   (99h),a
 	call	replay_route		; first outout data
+      ld    a,6               ; Read status R#1 to reset
+      out   (99h),a
+      ld    a,7+128
+      out   (99h),a
 	call	replay_play			; calculate next output
+      ld    a,1               ; Read status R#1 to reset
+      out   (99h),a
+      ld    a,7+128
+      out   (99h),a
 	ret
 	
 	include     "..\code\fmdetect.asm"
@@ -84,7 +107,7 @@ isr:
 	include	"..\code\ttreplayFMDAT.asm"
 
 demo_song:
-	include	"CCCSCORE.asm"
+	include	"thaus04b.asm";CBGAME11_.asm"
 
 
 	map	0xc000

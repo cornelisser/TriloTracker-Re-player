@@ -10,7 +10,7 @@ from waveform import Waveform
 
 import sys
 
-USAGE = f"TMUCompile v0.11\nUsage: {sys.argv[0]} [--options] infile [outfile]"
+USAGE = f"TMUCompile v0.14\nUsage: {sys.argv[0]} [--options] infile [outfile]"
 
 infile = ''
 outfile = ''
@@ -997,8 +997,8 @@ def export_track(file,track):
 						# morph follow (Carbom C0py)
 						file.write(f"{_DB} ${cmd['CC']:02x}\t\t\t\t; SCC Morph foloow (Carbon C0poy) {v}\n")
 					elif cm == 0xE0:
-						# morph type ( 0 = from waveform, 1 = continue from fata in waveform buffer)
-						file.write(f"{_DB} ${cmd['CE']:02x},${v:02x}\t\t\t; SCC Morph follow (Carbon C0poy) {v}\n")
+						# morph type ( 0 = from waveform, 1 = continue from waveform buffer, 2,3 chorus)
+						file.write(f"{_DB} ${cmd['CE']:02x},${v:02x}\t\t\t; SCC Morph Type {v}\n")
 					elif cm == 0xF0:
 						# morph speed
 						file.write(f"{_DB} ${cmd['CF']:02x},${v:02x}\t\t\t; SCC Morph speed {v}\n")

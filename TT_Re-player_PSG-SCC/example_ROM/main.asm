@@ -49,6 +49,8 @@ initmain:
 	ld	(0xFD9A),a
 	ld	(0xFD9B),hl	
 	
+      call  find_SCC
+
 	;--- initialise replayer
 	call	replay_init
 
@@ -71,8 +73,9 @@ isr:
 
 	include	"..\code\ttreplaySCC.asm"
 	include	"..\code\ttreplaySCCDAT.asm"	
+      include     "..\code\sccdetect.asm"
 demo_song:
-	include	".\NEM3AIRB.asm" 
+	include	".\test2026.asm" 
 	
 	
 	map	0xc000

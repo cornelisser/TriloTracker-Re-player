@@ -9,10 +9,10 @@ define MSX2				; Used in speed equalization
 define PERIOD_A445		; Konami
 ;define PERIOD_A448		; Classical
 
-;define EXTERNAL_SCC 
+define EXTERNAL_SCC 
 define INTERNAL_SCC		; For internal no slot select is needed.
-
-;define SFXPLAY_ENABLED		; Enable the SFX functionality.
+define SCC_I                  ; For SCC+ playback
+define SFXPLAY_ENABLED		; Enable the SFX functionality.
 
 ;---- Performance option
 ;define FPGA_SCC			; FPGA SCC can be written faster
